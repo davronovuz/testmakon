@@ -780,3 +780,21 @@ def api_telegram_check(request):
             }
         })
     return JsonResponse({'authenticated': False})
+
+
+@login_required
+def user_settings(request):
+    """Foydalanuvchi sozlamalari"""
+    return render(request, 'accounts/settings.html')
+
+
+@login_required
+def notification_settings(request):
+    """Bildirishnoma sozlamalari"""
+    return render(request, 'accounts/notification_settings.html')
+
+
+@login_required
+def privacy_settings(request):
+    """Maxfiylik sozlamalari"""
+    return render(request, 'accounts/privacy_settings.html')
