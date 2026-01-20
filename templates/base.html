@@ -337,28 +337,28 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">Bosh sahifa</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="#">Bosh sahifa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'tests' in request.path %}active{% endif %}" href="{% url 'tests_app:test_list' %}">Testlar</a>
+                            <a class="nav-link {% if 'tests' in request.path %}active{% endif %}" href="#">Testlar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'ai-mentor' in request.path %}active{% endif %}" href="{% url 'ai_core:ai_mentor' %}">AI Mentor</a>
+                            <a class="nav-link {% if 'ai-mentor' in request.path %}active{% endif %}" href="#">AI Mentor</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'competitions' in request.path %}active{% endif %}" href="{% url 'competitions:competition_list' %}">Musobaqalar</a>
+                            <a class="nav-link {% if 'competitions' in request.path %}active{% endif %}" href="#">Musobaqalar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}" href="{% url 'leaderboard:global' %}">Reyting</a>
+                            <a class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}" href="#">Reyting</a>
                         </li>
                     </ul>
 
                     <div class="d-flex align-items-center gap-2">
                         {% if user.is_authenticated %}
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-light btn-sm">
+                            <a href="#" class="btn btn-light btn-sm">
                                 <i class="bi bi-person-circle me-1"></i>{{ user.first_name }}
                             </a>
-                            <a href="{% url 'accounts:logout' %}" class="btn btn-outline btn-sm">Chiqish</a>
+                            <a href="#" class="btn btn-outline btn-sm">Chiqish</a>
                         {% else %}
                             <a href="{% url 'accounts:login' %}" class="btn btn-light btn-sm">Kirish</a>
                             <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Ro'yxatdan o'tish</a>
