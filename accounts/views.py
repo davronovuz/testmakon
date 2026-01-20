@@ -628,3 +628,155 @@ def api_profile_stats(request):
     }
 
     return JsonResponse(data)
+
+
+"""
+TestMakon.uz - Telegram Authentication
+"""
+
+import hashlib
+import hmac
+import time
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.conf import settings
+
+from accounts.models import User
+
+# Telegram Bot Token
+TELEGRAM_BOT_TOKEN = '8205738917:AAHIVL5FvDqOg-AM_6Qwe22_ey1JAcG_h78'
+TELEGRAM_BOT_USERNAME = 'testmakonaibot'
+
+
+def verify_telegram_auth(auth_data):
+    """Telegram auth ma'lumotlarini tekshirish"""
+    check_hash = auth_data.pop('hash', None)
+    if not check_hash:
+        return False
+
+    # Auth date tekshirish (24 soat ichida bo'lishi kerak)
+    auth_date = int(auth_data.get('auth_date', 0))
+    if time.time() - auth_date > 86400:
+        return False
+
+    # Data-check-string yaratish
+    data_check_arr = sorted([f'{key}={value}' for key, value in auth_data.items()])
+    data_check_string = '\n'.join(data_check_arr)
+
+    # Secret key
+    secret_key = hashlib.sha256(TELEGRAM_BOT_TOKEN.encode()).digest()
+
+    # Hash tekshirish
+    calculated_hash = hmac.new(
+        secret_key,
+        data_check_string.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    return calculated_hash == check_hash
+
+
+def telegram_login(request):
+    """Telegram login sahifasi"""
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+
+    context = {
+        'bot_username': TELEGRAM_BOT_USERNAME,
+    }
+    return render(request, 'accounts/telegram_login.html', context)
+
+
+def telegram_callback(request):
+    """Telegram callback handler"""
+    # Auth ma'lumotlarini olish
+    auth_data = {
+        'id': request.GET.get('id'),
+        'first_name': request.GET.get('first_name', ''),
+        'last_name': request.GET.get('last_name', ''),
+        'username': request.GET.get('username', ''),
+        'photo_url': request.GET.get('photo_url', ''),
+        'auth_date': request.GET.get('auth_date'),
+        'hash': request.GET.get('hash'),
+    }
+
+    # Bo'sh qiymatlarni olib tashlash
+    auth_data = {k: v for k, v in auth_data.items() if v}
+
+    # Tekshirish
+    hash_value = auth_data.get('hash')
+    if not verify_telegram_auth(auth_data.copy()):
+        messages.error(request, 'Telegram autentifikatsiya xatosi')
+        return redirect('accounts:login')
+
+    telegram_id = auth_data.get('id')
+    first_name = auth_data.get('first_name', 'User')
+    last_name = auth_data.get('last_name', '')
+    username = auth_data.get('username', '')
+    photo_url = auth_data.get('photo_url', '')
+
+    # User ni topish yoki yaratish
+    try:
+        user = User.objects.get(telegram_id=telegram_id)
+        # Ma'lumotlarni yangilash
+        user.first_name = first_name
+        user.last_name = last_name
+        user.telegram_username = username
+        user.telegram_photo_url = photo_url
+        user.save()
+    except User.DoesNotExist:
+        # Yangi user yaratish
+        # Telefon raqam sifatida telegram_id ishlatamiz (vaqtinchalik)
+        phone_number = f'+998{str(telegram_id)[-9:]}'
+
+        # Agar bunday telefon bor bo'lsa, unique qilish
+        counter = 0
+        original_phone = phone_number
+        while User.objects.filter(phone_number=phone_number).exists():
+            counter += 1
+            phone_number = f'+998{str(telegram_id)[-9 - counter:-counter] if counter else str(telegram_id)[-9:]}'
+            if counter > 5:
+                phone_number = f'+998{telegram_id}'[-13:]
+                break
+
+        user = User.objects.create(
+            phone_number=phone_number,
+            first_name=first_name,
+            last_name=last_name or 'User',
+            telegram_id=telegram_id,
+            telegram_username=username,
+            telegram_photo_url=photo_url,
+            is_phone_verified=True,  # Telegram orqali tasdiqlangan
+        )
+
+    # Login qilish
+    login(request, user)
+    user.update_streak()
+
+    messages.success(request, f'Xush kelibsiz, {user.first_name}!')
+    return redirect('core:dashboard')
+
+
+def telegram_logout(request):
+    """Logout"""
+    logout(request)
+    messages.info(request, 'Tizimdan chiqdingiz')
+    return redirect('core:home')
+
+
+# API endpoint for checking auth status
+def api_telegram_check(request):
+    """Telegram auth holatini tekshirish"""
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'authenticated': True,
+            'user': {
+                'id': request.user.id,
+                'name': request.user.full_name,
+                'telegram_id': request.user.telegram_id,
+            }
+        })
+    return JsonResponse({'authenticated': False})

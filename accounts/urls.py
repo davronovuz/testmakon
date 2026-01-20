@@ -52,4 +52,9 @@ urlpatterns = [
     # API
     path('api/check-phone/', views.api_check_phone, name='api_check_phone'),
     path('api/profile-stats/', views.api_profile_stats, name='api_profile_stats'),
+    path('telegram/login/', views.telegram_login, name='telegram_login'),
+
+    path('telegram/callback/', views.telegram_callback, name='telegram_callback'),
+
+    path('api/telegram-check/', views.api_telegram_check, name='api_telegram_check'),
 ]

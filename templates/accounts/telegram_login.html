@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Kirish - TestMakon{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card border-0 shadow-lg" style="border-radius: 20px;">
+                    <div class="card-body p-5">
+                        <!-- Logo -->
+                        <div class="text-center mb-4">
+                            <a href="{% url 'core:home' %}" class="text-decoration-none">
+                                <i class="bi bi-mortarboard-fill fs-1" style="color: #8BC540;"></i>
+                                <h4 class="fw-bold mt-2 text-dark">TestMakon</h4>
+                            </a>
+                            <p class="text-muted">Tizimga kirish</p>
+                        </div>
+
+                        <!-- Telegram Login Button -->
+                        <div class="text-center mb-4">
+                            <script async src="https://telegram.org/js/telegram-widget.js?22"
+                                data-telegram-login="{{ bot_username }}"
+                                data-size="large"
+                                data-radius="12"
+                                data-auth-url="{% url 'accounts:telegram_callback' %}"
+                                data-request-access="write">
+                            </script>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="d-flex align-items-center my-4">
+                            <hr class="flex-grow-1">
+                            <span class="px-3 text-muted small">yoki</span>
+                            <hr class="flex-grow-1">
+                        </div>
+
+                        <!-- Phone Login Form -->
+                        <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Telefon raqam</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">+998</span>
+                                    <input type="tel"
+                                           name="phone"
+                                           class="form-control border-start-0 ps-0"
+                                           placeholder="90 123 45 67"
+                                           maxlength="9"
+                                           pattern="[0-9]{9}"
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Parol</label>
+                                <input type="password"
+                                       name="password"
+                                       class="form-control"
+                                       placeholder="••••••••"
+                                       required>
+                            </div>
+
+                            <button type="submit" class="btn w-100 py-2 fw-semibold text-white" style="background: #8BC540; border-radius: 10px;">
+                                Kirish
+                            </button>
+                        </form>
+
+                        <!-- Register Link -->
+                        <div class="text-center mt-4">
+                            <span class="text-muted">Akkountingiz yo'qmi?</span>
+                            <a href="{% url 'accounts:register' %}" class="fw-semibold text-decoration-none" style="color: #8BC540;">
+                                Ro'yxatdan o'tish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <p class="text-center text-muted small mt-4">
+                    <i class="bi bi-shield-check me-1"></i>
+                    Telegram orqali xavfsiz kirish
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+    }
+    .form-control:focus {
+        border-color: #8BC540;
+        box-shadow: 0 0 0 3px rgba(139, 197, 64, 0.1);
+    }
+    .input-group-text {
+        border-radius: 10px 0 0 10px;
+        border: 1.5px solid #e2e8f0;
+        border-right: none;
+    }
+    .input-group .form-control {
+        border-radius: 0 10px 10px 0;
+    }
+</style>
+{% endblock %}
