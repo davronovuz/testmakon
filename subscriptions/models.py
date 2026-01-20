@@ -317,7 +317,7 @@ class PromoCode(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.code} - {self.discount_value}{'%' if self.discount_type == 'percent' else ' so\'m'}"
+        return f"{self.code} - {self.discount_value}{'%' if self.discount_type == 'percent' else ' som'}"
 
     @property
     def is_valid(self):
