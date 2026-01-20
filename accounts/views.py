@@ -1,7 +1,13 @@
 """
 TestMakon.uz - Accounts Views
-Authentication, profile, friends
+Authentication, profile, friends, Telegram login
 """
+
+import hashlib
+import hmac
+import time
+import random
+from datetime import timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
@@ -10,11 +16,19 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
 from django.utils import timezone
-from datetime import timedelta
-import random
 
 from .models import User, Friendship, UserActivity, PhoneVerification, Badge, UserBadge
 
+# ====================
+# TELEGRAM SETTINGS
+# ====================
+TELEGRAM_BOT_TOKEN = '8205738917:AAHIVL5FvDqOg-AM_6Qwe22_ey1JAcG_h78'
+TELEGRAM_BOT_USERNAME = 'testmakonaibot'
+
+
+# ====================
+# AUTHENTICATION
+# ====================
 
 def register(request):
     """Ro'yxatdan o'tish"""
@@ -22,16 +36,17 @@ def register(request):
         return redirect('core:dashboard')
 
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        password = request.POST.get('password')
-        password_confirm = request.POST.get('password_confirm')
+        phone_number = request.POST.get('phone_number', '')
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        password = request.POST.get('password', '')
+        password_confirm = request.POST.get('password_confirm', '')
 
-        # Validation
+        # Format phone number
         if not phone_number.startswith('+998'):
             phone_number = '+998' + phone_number.lstrip('0')
 
+        # Validation
         if User.objects.filter(phone_number=phone_number).exists():
             messages.error(request, "Bu telefon raqam allaqachon ro'yxatdan o'tgan")
             return render(request, 'accounts/register.html')
@@ -60,16 +75,14 @@ def register(request):
             expires_at=timezone.now() + timedelta(minutes=5)
         )
 
-        # TODO: Send SMS with code
-        # For now, we'll just log in the user
-
+        # Login user
         login(request, user)
 
         # Log activity
         UserActivity.objects.create(
             user=user,
             activity_type='login',
-            description='Ro\'yxatdan o\'tdi'
+            description="Ro'yxatdan o'tdi"
         )
 
         messages.success(request, f"Xush kelibsiz, {first_name}!")
@@ -84,8 +97,8 @@ def login_view(request):
         return redirect('core:dashboard')
 
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
-        password = request.POST.get('password')
+        phone_number = request.POST.get('phone_number', '')
+        password = request.POST.get('password', '')
         remember = request.POST.get('remember')
 
         # Format phone number
@@ -129,6 +142,10 @@ def logout_view(request):
     messages.info(request, "Tizimdan chiqdingiz")
     return redirect('core:home')
 
+
+# ====================
+# PHONE VERIFICATION
+# ====================
 
 def verify_phone(request):
     """Telefon tasdiqlash"""
@@ -180,16 +197,19 @@ def resend_code(request):
             expires_at=timezone.now() + timedelta(minutes=5)
         )
 
-        # TODO: Send SMS
         messages.success(request, "Yangi kod yuborildi")
 
     return redirect('accounts:verify_phone')
 
 
+# ====================
+# PASSWORD
+# ====================
+
 def forgot_password(request):
     """Parolni unutdim"""
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
+        phone_number = request.POST.get('phone_number', '')
 
         if not phone_number.startswith('+998'):
             phone_number = '+998' + phone_number.lstrip('0')
@@ -197,14 +217,12 @@ def forgot_password(request):
         user = User.objects.filter(phone_number=phone_number).first()
 
         if user:
-            # Generate code
             code = str(random.randint(100000, 999999))
             PhoneVerification.objects.create(
                 phone_number=phone_number,
                 code=code,
                 expires_at=timezone.now() + timedelta(minutes=10)
             )
-            # TODO: Send SMS
             messages.success(request, "SMS orqali kod yuborildi")
             return redirect('accounts:reset_password', token=code)
         else:
@@ -216,9 +234,9 @@ def forgot_password(request):
 def reset_password(request, token):
     """Parolni tiklash"""
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
-        code = request.POST.get('code')
-        password = request.POST.get('password')
+        phone_number = request.POST.get('phone_number', '')
+        code = request.POST.get('code', '')
+        password = request.POST.get('password', '')
 
         if not phone_number.startswith('+998'):
             phone_number = '+998' + phone_number.lstrip('0')
@@ -248,9 +266,9 @@ def reset_password(request, token):
 def change_password(request):
     """Parolni o'zgartirish"""
     if request.method == 'POST':
-        current_password = request.POST.get('current_password')
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
+        current_password = request.POST.get('current_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
 
         if not request.user.check_password(current_password):
             messages.error(request, "Joriy parol noto'g'ri")
@@ -268,6 +286,10 @@ def change_password(request):
 
     return redirect('accounts:settings')
 
+
+# ====================
+# PROFILE
+# ====================
 
 @login_required
 def profile(request):
@@ -315,7 +337,6 @@ def profile_public(request, uuid):
     """Ommaviy profil"""
     profile_user = get_object_or_404(User, uuid=uuid)
 
-    # Statistika
     from tests_app.models import TestAttempt
 
     stats = {
@@ -326,7 +347,6 @@ def profile_public(request, uuid):
         'rank': profile_user.global_rank,
     }
 
-    # Badgelar
     badges = UserBadge.objects.filter(user=profile_user).select_related('badge')[:6]
 
     # Do'stlik holati
@@ -396,9 +416,13 @@ def profile_avatar(request):
     return redirect('accounts:profile_edit')
 
 
+# ====================
+# SETTINGS
+# ====================
+
 @login_required
-def settings(request):
-    """Sozlamalar"""
+def user_settings(request):
+    """Foydalanuvchi sozlamalari"""
     return render(request, 'accounts/settings.html')
 
 
@@ -406,9 +430,7 @@ def settings(request):
 def notification_settings(request):
     """Bildirishnoma sozlamalari"""
     if request.method == 'POST':
-        # Save notification preferences
         messages.success(request, "Sozlamalar saqlandi")
-
     return render(request, 'accounts/notification_settings.html')
 
 
@@ -417,9 +439,12 @@ def privacy_settings(request):
     """Maxfiylik sozlamalari"""
     if request.method == 'POST':
         messages.success(request, "Sozlamalar saqlandi")
-
     return render(request, 'accounts/privacy_settings.html')
 
+
+# ====================
+# FRIENDS
+# ====================
 
 @login_required
 def friends_list(request):
@@ -434,10 +459,7 @@ def friends_list(request):
         friend = f.to_user if f.from_user == request.user else f.from_user
         friends.append(friend)
 
-    context = {
-        'friends': friends,
-    }
-
+    context = {'friends': friends}
     return render(request, 'accounts/friends_list.html', context)
 
 
@@ -454,11 +476,7 @@ def friend_requests(request):
         status='pending'
     ).select_related('to_user')
 
-    context = {
-        'received': received,
-        'sent': sent,
-    }
-
+    context = {'received': received, 'sent': sent}
     return render(request, 'accounts/friend_requests.html', context)
 
 
@@ -471,7 +489,6 @@ def friend_add(request, user_id):
         messages.error(request, "O'zingizga so'rov yubora olmaysiz")
         return redirect('accounts:friends_list')
 
-    # Check existing
     existing = Friendship.objects.filter(
         Q(from_user=request.user, to_user=to_user) |
         Q(from_user=to_user, to_user=request.user)
@@ -503,7 +520,6 @@ def friend_accept(request, request_id):
     friendship.status = 'accepted'
     friendship.save()
 
-    # Log activity
     UserActivity.objects.create(
         user=request.user,
         activity_type='friend_add',
@@ -558,35 +574,26 @@ def friend_search(request):
             Q(phone_number__icontains=query)
         ).exclude(id=request.user.id)[:20]
 
-    context = {
-        'query': query,
-        'users': users,
-    }
-
+    context = {'query': query, 'users': users}
     return render(request, 'accounts/friend_search.html', context)
 
+
+# ====================
+# ACTIVITY & BADGES
+# ====================
 
 @login_required
 def activity_log(request):
     """Faoliyat tarixi"""
-    activities = UserActivity.objects.filter(
-        user=request.user
-    ).order_by('-created_at')[:50]
-
-    context = {
-        'activities': activities,
-    }
-
+    activities = UserActivity.objects.filter(user=request.user).order_by('-created_at')[:50]
+    context = {'activities': activities}
     return render(request, 'accounts/activity_log.html', context)
 
 
 @login_required
 def badges(request):
     """Badgelar"""
-    user_badges = UserBadge.objects.filter(
-        user=request.user
-    ).select_related('badge')
-
+    user_badges = UserBadge.objects.filter(user=request.user).select_related('badge')
     all_badges = Badge.objects.filter(is_active=True)
     earned_ids = user_badges.values_list('badge_id', flat=True)
 
@@ -595,11 +602,12 @@ def badges(request):
         'all_badges': all_badges,
         'earned_ids': list(earned_ids),
     }
-
     return render(request, 'accounts/badges.html', context)
 
 
-# API Views
+# ====================
+# API
+# ====================
 
 def api_check_phone(request):
     """Telefon raqam mavjudligini tekshirish"""
@@ -609,7 +617,6 @@ def api_check_phone(request):
         phone = '+998' + phone.lstrip('0')
 
     exists = User.objects.filter(phone_number=phone).exists()
-
     return JsonResponse({'exists': exists})
 
 
@@ -626,30 +633,12 @@ def api_profile_stats(request):
         'accuracy': user.accuracy_rate,
         'rank': user.global_rank,
     }
-
     return JsonResponse(data)
 
 
-"""
-TestMakon.uz - Telegram Authentication
-"""
-
-import hashlib
-import hmac
-import time
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
-from django.contrib import messages
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.conf import settings
-
-from accounts.models import User
-
-# Telegram Bot Token
-TELEGRAM_BOT_TOKEN = '8205738917:AAHIVL5FvDqOg-AM_6Qwe22_ey1JAcG_h78'
-TELEGRAM_BOT_USERNAME = 'testmakonaibot'
-
+# ====================
+# TELEGRAM AUTH
+# ====================
 
 def verify_telegram_auth(auth_data):
     """Telegram auth ma'lumotlarini tekshirish"""
@@ -657,19 +646,15 @@ def verify_telegram_auth(auth_data):
     if not check_hash:
         return False
 
-    # Auth date tekshirish (24 soat ichida bo'lishi kerak)
     auth_date = int(auth_data.get('auth_date', 0))
     if time.time() - auth_date > 86400:
         return False
 
-    # Data-check-string yaratish
     data_check_arr = sorted([f'{key}={value}' for key, value in auth_data.items()])
     data_check_string = '\n'.join(data_check_arr)
 
-    # Secret key
     secret_key = hashlib.sha256(TELEGRAM_BOT_TOKEN.encode()).digest()
 
-    # Hash tekshirish
     calculated_hash = hmac.new(
         secret_key,
         data_check_string.encode(),
@@ -684,15 +669,12 @@ def telegram_login(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
 
-    context = {
-        'bot_username': TELEGRAM_BOT_USERNAME,
-    }
+    context = {'bot_username': TELEGRAM_BOT_USERNAME}
     return render(request, 'accounts/telegram_login.html', context)
 
 
 def telegram_callback(request):
     """Telegram callback handler"""
-    # Auth ma'lumotlarini olish
     auth_data = {
         'id': request.GET.get('id'),
         'first_name': request.GET.get('first_name', ''),
@@ -707,10 +689,9 @@ def telegram_callback(request):
     auth_data = {k: v for k, v in auth_data.items() if v}
 
     # Tekshirish
-    hash_value = auth_data.get('hash')
     if not verify_telegram_auth(auth_data.copy()):
         messages.error(request, 'Telegram autentifikatsiya xatosi')
-        return redirect('accounts:login')
+        return redirect('accounts:telegram_login')
 
     telegram_id = auth_data.get('id')
     first_name = auth_data.get('first_name', 'User')
@@ -721,25 +702,22 @@ def telegram_callback(request):
     # User ni topish yoki yaratish
     try:
         user = User.objects.get(telegram_id=telegram_id)
-        # Ma'lumotlarni yangilash
         user.first_name = first_name
-        user.last_name = last_name
+        user.last_name = last_name or user.last_name
         user.telegram_username = username
         user.telegram_photo_url = photo_url
         user.save()
     except User.DoesNotExist:
-        # Yangi user yaratish
-        # Telefon raqam sifatida telegram_id ishlatamiz (vaqtinchalik)
-        phone_number = f'+998{str(telegram_id)[-9:]}'
-
-        # Agar bunday telefon bor bo'lsa, unique qilish
+        # Telefon raqam generatsiya
+        base_phone = f'+998{str(telegram_id)[-9:].zfill(9)}'
+        phone_number = base_phone
         counter = 0
-        original_phone = phone_number
+
         while User.objects.filter(phone_number=phone_number).exists():
             counter += 1
-            phone_number = f'+998{str(telegram_id)[-9 - counter:-counter] if counter else str(telegram_id)[-9:]}'
-            if counter > 5:
-                phone_number = f'+998{telegram_id}'[-13:]
+            phone_number = f'+998{str(telegram_id + counter)[-9:].zfill(9)}'
+            if counter > 10:
+                phone_number = f'+998{telegram_id}'[:13]
                 break
 
         user = User.objects.create(
@@ -749,10 +727,10 @@ def telegram_callback(request):
             telegram_id=telegram_id,
             telegram_username=username,
             telegram_photo_url=photo_url,
-            is_phone_verified=True,  # Telegram orqali tasdiqlangan
+            is_phone_verified=True,
         )
 
-    # Login qilish
+    # Login
     login(request, user)
     user.update_streak()
 
@@ -760,14 +738,6 @@ def telegram_callback(request):
     return redirect('core:dashboard')
 
 
-def telegram_logout(request):
-    """Logout"""
-    logout(request)
-    messages.info(request, 'Tizimdan chiqdingiz')
-    return redirect('core:home')
-
-
-# API endpoint for checking auth status
 def api_telegram_check(request):
     """Telegram auth holatini tekshirish"""
     if request.user.is_authenticated:
@@ -776,25 +746,7 @@ def api_telegram_check(request):
             'user': {
                 'id': request.user.id,
                 'name': request.user.full_name,
-                'telegram_id': request.user.telegram_id,
+                'telegram_id': getattr(request.user, 'telegram_id', None),
             }
         })
     return JsonResponse({'authenticated': False})
-
-
-@login_required
-def user_settings(request):
-    """Foydalanuvchi sozlamalari"""
-    return render(request, 'accounts/settings.html')
-
-
-@login_required
-def notification_settings(request):
-    """Bildirishnoma sozlamalari"""
-    return render(request, 'accounts/notification_settings.html')
-
-
-@login_required
-def privacy_settings(request):
-    """Maxfiylik sozlamalari"""
-    return render(request, 'accounts/privacy_settings.html')
