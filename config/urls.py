@@ -20,6 +20,8 @@ urlpatterns = [
     path('universities/', include('universities.urls', namespace='universities')),
     path('news/', include('news.urls', namespace='news')),
     path('leaderboard/', include('leaderboard.urls', namespace='leaderboard')),
+    path('subscriptions/', include('subscriptions.urls', namespace='subscriptions')),
+
 ]
 
 # Static and Media files in development

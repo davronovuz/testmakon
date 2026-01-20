@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'universities.apps.UniversitiesConfig',
     'news.apps.NewsConfig',
     'leaderboard.apps.LeaderboardConfig',
+    'subscriptions.apps.SubscriptionsConfig',  # <-- shu qatorni qo'shing
+
 ]
 
 MIDDLEWARE = [
