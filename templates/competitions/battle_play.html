@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Jang - TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: var(--dark);
+    }
+    .navbar, .footer {
+        display: none !important;
+    }
+    .battle-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    .battle-header {
+        background: rgba(255,255,255,0.05);
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .timer-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        transition: all 0.3s ease;
+    }
+    .timer-normal {
+        background: var(--primary);
+        color: white;
+    }
+    .timer-warning {
+        background: var(--accent);
+        color: var(--dark);
+    }
+    .timer-danger {
+        background: #EF4444;
+        color: white;
+        animation: pulse 0.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .answer-option {
+        background: rgba(255,255,255,0.05);
+        border: 2px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+    }
+    .answer-option:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.2);
+    }
+    .answer-option.selected {
+        background: var(--primary-glow);
+        border-color: var(--primary);
+    }
+    .progress-dots {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+    .progress-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+    }
+    .progress-dot.current {
+        background: var(--primary);
+        transform: scale(1.2);
+    }
+    .progress-dot.answered {
+        background: var(--primary);
+    }
+    .progress-dot.correct {
+        background: #22C55E;
+    }
+    .progress-dot.wrong {
+        background: #EF4444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="battle-container">
+    <!-- Header -->
+    <div class="battle-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        {% if battle.challenger.avatar %}
+                        <img src="{{ battle.challenger.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        <i class="bi bi-person-fill text-white"></i>
+                        {% endif %}
+                    </div>
+                    <span class="text-white fw-bold">{{ battle.challenger.first_name }}</span>
+                    <span class="text-white" style="opacity: 0.5;">vs</span>
+                    <span class="text-white fw-bold">{{ battle.opponent.first_name }}</span>
+                    <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        {% if battle.opponent.avatar %}
+                        <img src="{{ battle.opponent.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                        <i class="bi bi-person-fill text-white"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="text-white">
+                    <span id="current-question">1</span> / {{ battle.question_count }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 d-flex align-items-center py-4">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Timer -->
+                    <div class="text-center mb-4">
+                        <div class="timer-circle timer-normal mx-auto" id="timer">
+                            {{ battle.time_per_question }}
+                        </div>
+                    </div>
+
+                    <!-- Question -->
+                    <div class="text-center mb-4">
+                        <h4 class="text-white" id="question-text">Yuklanmoqda...</h4>
+                    </div>
+
+                    <!-- Answers -->
+                    <div class="d-flex flex-column gap-3 mb-4" id="answers-container">
+                        <!-- JS bilan to'ldiriladi -->
+                    </div>
+
+                    <!-- Progress Dots -->
+                    <div class="progress-dots" id="progress-dots">
+                        {% for q in questions %}
+                        <div class="progress-dot" data-index="{{ forloop.counter0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Form -->
+<form id="submit-form" method="POST" action="{% url 'competitions:battle_submit' battle.uuid %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="answers" id="answers-input">
+    <input type="hidden" name="time_spent" id="time-spent-input">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const questions = {{ questions|safe }};
+const timePerQuestion = {{ battle.time_per_question }};
+let currentQuestion = 0;
+let timer = timePerQuestion;
+let timerInterval;
+let totalTimeSpent = 0;
+let answers = [];
+
+function showQuestion(index) {
+    const q = questions[index];
+    document.getElementById('question-text').textContent = q.text;
+    document.getElementById('current-question').textContent = index + 1;
+
+    const container = document.getElementById('answers-container');
+    container.innerHTML = '';
+
+    q.answers.forEach((ans, i) => {
+        const div = document.createElement('div');
+        div.className = 'answer-option';
+        div.innerHTML = `
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                    ${String.fromCharCode(65 + i)}
+                </div>
+                <span>${ans.text}</span>
+            </div>
+        `;
+        div.onclick = () => selectAnswer(ans.id, div);
+        container.appendChild(div);
+    });
+
+    // Update progress dots
+    document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+        dot.classList.remove('current');
+        if (i === index) dot.classList.add('current');
+    });
+
+    // Reset timer
+    timer = timePerQuestion;
+    updateTimerDisplay();
+}
+
+function selectAnswer(answerId, element) {
+    // Remove previous selection
+    document.querySelectorAll('.answer-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+
+    // Select current
+    element.classList.add('selected');
+
+    // Save answer
+    answers[currentQuestion] = {
+        question_id: questions[currentQuestion].id,
+        answer_id: answerId
+    };
+
+    // Mark progress dot
+    document.querySelector(`.progress-dot[data-index="${currentQuestion}"]`).classList.add('answered');
+
+    // Auto next after delay
+    setTimeout(() => {
+        nextQuestion();
+    }, 500);
+}
+
+function nextQuestion() {
+    totalTimeSpent += (timePerQuestion - timer);
+
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion(currentQuestion);
+    } else {
+        submitBattle();
+    }
+}
+
+function updateTimerDisplay() {
+    const timerEl = document.getElementById('timer');
+    timerEl.textContent = timer;
+
+    timerEl.classList.remove('timer-normal', 'timer-warning', 'timer-danger');
+    if (timer > 10) {
+        timerEl.classList.add('timer-normal');
+    } else if (timer > 5) {
+        timerEl.classList.add('timer-warning');
+    } else {
+        timerEl.classList.add('timer-danger');
+    }
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        timer--;
+        updateTimerDisplay();
+
+        if (timer <= 0) {
+            // Time's up for this question
+            answers[currentQuestion] = {
+                question_id: questions[currentQuestion].id,
+                answer_id: null
+            };
+            nextQuestion();
+        }
+    }, 1000);
+}
+
+function submitBattle() {
+    clearInterval(timerInterval);
+
+    // Fill missing answers
+    for (let i = 0; i < questions.length; i++) {
+        if (!answers[i]) {
+            answers[i] = {
+                question_id: questions[i].id,
+                answer_id: null
+            };
+        }
+    }
+
+    document.getElementById('answers-input').value = JSON.stringify(answers);
+    document.getElementById('time-spent-input').value = totalTimeSpent;
+    document.getElementById('submit-form').submit();
+}
+
+// Start
+showQuestion(0);
+startTimer();
+</script>
+{% endblock %}

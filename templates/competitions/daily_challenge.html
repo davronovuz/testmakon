@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kunlik Challenge - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge badge-primary mb-3">
+                    <i class="bi bi-calendar-check me-1"></i> Kunlik Challenge
+                </span>
+                <h1 class="mb-3">Bugungi <span class="text-gradient">challenge</span></h1>
+                <p class="lead mb-0" style="color: var(--gray-500);">
+                    Har kuni yangi savollar bilan bilimingizni sinab ko'ring va XP yig'ing!
+                </p>
+            </div>
+            <div class="col-lg-4 text-end d-none d-lg-block">
+                <div style="font-size: 5rem;">📅</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        {% if challenge %}
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Challenge Card -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <h4 class="fw-bold mb-2">
+                                    {% if challenge.subject %}
+                                    {{ challenge.subject.icon|default:"📚" }} {{ challenge.subject.name }}
+                                    {% else %}
+                                    🎲 Aralash fanlar
+                                    {% endif %}
+                                </h4>
+                                <p class="mb-0" style="color: var(--gray-500);">
+                                    {{ challenge.date|date:"d F, Y" }} - Bugungi challenge
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <div class="d-flex align-items-center gap-2" style="color: var(--primary);">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span class="fw-bold">+{{ challenge.xp_reward }} XP</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if participant %}
+                        <!-- Already Completed -->
+                        <div class="text-center py-4">
+                            <div style="width: 100px; height: 100px; background: #D1FAE5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <i class="bi bi-check-lg" style="font-size: 3rem; color: #22C55E;"></i>
+                            </div>
+                            <h4 class="mt-4 mb-2">Siz bugun ishtirok etdingiz!</h4>
+                            <p style="color: var(--gray-500);">Ertaga yangi challenge kutadi</p>
+
+                            <div class="row g-3 mt-4">
+                                <div class="col-4">
+                                    <div style="background: var(--gray-100); border-radius: var(--radius-lg); padding: 1rem;">
+                                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ participant.score }}</div>
+                                        <small style="color: var(--gray-500);">Ball</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="background: var(--gray-100); border-radius: var(--radius-lg); padding: 1rem;">
+                                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--dark);">{{ participant.correct_answers }}</div>
+                                        <small style="color: var(--gray-500);">To'g'ri</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="background: var(--gray-100); border-radius: var(--radius-lg); padding: 1rem;">
+                                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--dark);">+{{ participant.xp_earned }}</div>
+                                        <small style="color: var(--gray-500);">XP</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Not Started -->
+                        <div class="text-center py-4">
+                            <div style="width: 100px; height: 100px; background: var(--primary-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <i class="bi bi-play-fill" style="font-size: 3rem; color: var(--primary);"></i>
+                            </div>
+                            <h4 class="mt-4 mb-2">Challengeni boshlang!</h4>
+                            <p style="color: var(--gray-500);">{{ challenge.questions.count }} ta savol • {{ challenge.xp_reward }} XP mukofot</p>
+
+                            <a href="{% url 'competitions:daily_challenge_start' %}" class="btn btn-primary btn-lg mt-3">
+                                <i class="bi bi-play-fill me-2"></i> Boshlash
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Today's Leaderboard -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4">
+                            <i class="bi bi-trophy me-2" style="color: var(--accent);"></i> Bugungi reyting
+                        </h5>
+
+                        {% if top_participants %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--gray-200);">
+                                        <th style="width: 60px;">O'rin</th>
+                                        <th>Ishtirokchi</th>
+                                        <th class="text-center">To'g'ri</th>
+                                        <th class="text-center">Vaqt</th>
+                                        <th class="text-end">Ball</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in top_participants %}
+                                    <tr style="{% if user.is_authenticated and p.user.id == user.id %}background: var(--primary-glow);{% endif %}">
+                                        <td>
+                                            {% if forloop.counter == 1 %}🥇
+                                            {% elif forloop.counter == 2 %}🥈
+                                            {% elif forloop.counter == 3 %}🥉
+                                            {% else %}{{ forloop.counter }}{% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div style="width: 32px; height: 32px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                                    {% if p.user.avatar %}
+                                                    <img src="{{ p.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                    <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <span class="fw-bold">{{ p.user.first_name|default:p.user.phone_number }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">{{ p.correct_answers }}</td>
+                                        <td class="text-center" style="color: var(--gray-500);">{{ p.time_spent }}s</td>
+                                        <td class="text-end">
+                                            <span class="fw-bold" style="color: var(--primary);">{{ p.score }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300);"></i>
+                            <p class="mt-2 mb-0" style="color: var(--gray-500);">Hali hech kim ishtirok etmagan</p>
+                            <p class="small" style="color: var(--gray-400);">Birinchi bo'ling!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Stats -->
+                <div class="card mb-4" style="background: var(--gradient-primary); border: none;">
+                    <div class="card-body text-center">
+                        <h6 class="text-white mb-3">Bugun ishtirok etganlar</h6>
+                        <div class="text-white" style="font-size: 3rem; font-weight: 800;">{{ challenge.participants_count }}</div>
+                        <small class="text-white" style="opacity: 0.8;">nafar</small>
+                    </div>
+                </div>
+
+                <!-- How it works -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i> Qanday ishlaydi?
+                        </h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex align-items-start gap-2 mb-3">
+                                <span style="color: var(--primary);">1.</span>
+                                <span style="color: var(--gray-500);">Har kuni yangi savollar</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2 mb-3">
+                                <span style="color: var(--primary);">2.</span>
+                                <span style="color: var(--gray-500);">Kuniga 1 marta ishtirok etish mumkin</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2 mb-3">
+                                <span style="color: var(--primary);">3.</span>
+                                <span style="color: var(--gray-500);">Tez va to'g'ri javob - yuqori ball</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <span style="color: var(--primary);">4.</span>
+                                <span style="color: var(--gray-500);">Top natijalar uchun bonus XP</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Next Challenge Countdown -->
+                <div class="card" style="background: var(--gray-100); border: none;">
+                    <div class="card-body text-center">
+                        <i class="bi bi-clock" style="font-size: 2rem; color: var(--gray-400);"></i>
+                        <h6 class="fw-bold mt-2 mb-1">Keyingi challenge</h6>
+                        <div id="next-countdown" style="font-size: 1.25rem; font-weight: 700; color: var(--dark);">00:00:00</div>
+                        <small style="color: var(--gray-500);">Ertaga soat 00:00 da</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- No Challenge Today -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <div class="card p-5">
+                    <span style="font-size: 5rem;">📅</span>
+                    <h3 class="mt-4 mb-3">Bugun challenge yo'q</h3>
+                    <p class="mb-4" style="color: var(--gray-500);">
+                        Tez orada yangi challenge e'lon qilinadi. Kuzatib boring!
+                    </p>
+                    <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary btn-lg">
+                        Test yechish <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Countdown to midnight
+function updateCountdown() {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0);
+
+    const diff = midnight - now;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('next-countdown').textContent =
+        String(hours).padStart(2, '0') + ':' +
+        String(minutes).padStart(2, '0') + ':' +
+        String(seconds).padStart(2, '0');
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
+{% endblock %}

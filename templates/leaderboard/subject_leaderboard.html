@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ subject.name }} - Reyting - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}">Reyting</a></li>
+                <li class="breadcrumb-item active">{{ subject.name }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <div style="font-size: 3rem;">{{ subject.icon|default:"📚" }}</div>
+            <div>
+                <h1 class="mb-2">{{ subject.name }} <span class="text-gradient">reytingi</span></h1>
+                <p class="lead mb-0" style="color: var(--gray-500);">
+                    Bu fandan eng yaxshi natijalar
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row">
+            <!-- Subjects Sidebar (Mobile) -->
+            <div class="col-12 d-lg-none mb-4">
+                <div class="d-flex flex-wrap gap-2">
+                    {% for s in subjects %}
+                    <a href="{% url 'leaderboard:subject_leaderboard' s.slug %}"
+                       class="btn {% if s.slug == subject.slug %}btn-primary{% else %}btn-outline{% endif %} btn-sm">
+                        {{ s.icon|default:"📚" }} {{ s.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Subjects Sidebar (Desktop) -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="card" style="position: sticky; top: 100px;">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-book me-2" style="color: var(--primary);"></i> Fanlar
+                        </h6>
+                        <div class="d-flex flex-column gap-2">
+                            {% for s in subjects %}
+                            <a href="{% url 'leaderboard:subject_leaderboard' s.slug %}"
+                               class="d-flex align-items-center gap-2 p-2 {% if s.slug == subject.slug %}active{% endif %}"
+                               style="border-radius: var(--radius); text-decoration: none; transition: all 0.3s ease; {% if s.slug == subject.slug %}background: var(--primary-glow); color: var(--primary-dark);{% else %}color: var(--dark-600);{% endif %}">
+                                <span style="font-size: 1.25rem;">{{ s.icon|default:"📚" }}</span>
+                                <span class="fw-bold">{{ s.name }}</span>
+                                {% if s.slug == subject.slug %}
+                                <i class="bi bi-check-circle-fill ms-auto" style="color: var(--primary);"></i>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Top 3 Cards -->
+                {% if leaderboard %}
+                <div class="row g-3 mb-4">
+                    {% for entry in leaderboard|slice:":3" %}
+                    <div class="col-md-4">
+                        <div class="card text-center p-4 h-100 {% if forloop.counter == 1 %}card-glow{% endif %}"
+                             style="{% if forloop.counter == 1 %}border: 2px solid var(--accent); background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);{% endif %}">
+                            <div class="position-relative d-inline-block mx-auto mb-3">
+                                <div style="width: 70px; height: 70px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; {% if forloop.counter == 1 %}border: 3px solid var(--accent);{% elif forloop.counter == 2 %}border: 2px solid #C0C0C0;{% else %}border: 2px solid #CD7F32;{% endif %}">
+                                    {% if entry.user.avatar %}
+                                        <img src="{{ entry.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <i class="bi bi-person-fill" style="font-size: 1.5rem; color: var(--gray-500);"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="position-absolute" style="bottom: -8px; right: 50%; transform: translateX(50%); font-size: 1.5rem;">
+                                    {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
+                                </span>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ entry.user.full_name|default:entry.user.phone_number|truncatechars:15 }}</h6>
+                            <p class="small mb-2" style="color: var(--gray-500);">{{ entry.tests }} test yechgan</p>
+                            <div class="fw-bold" style="color: var(--primary); font-size: 1.25rem;">{{ entry.xp }} XP</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Full Leaderboard -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">
+                                {{ subject.icon|default:"📚" }} {{ subject.name }} Top 100
+                            </h5>
+                            <a href="{% url 'tests_app:tests_list' %}?subject={{ subject.slug }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil-square me-1"></i> Test yechish
+                            </a>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--gray-200);">
+                                        <th style="width: 60px; font-weight: 700; color: var(--dark);">O'rin</th>
+                                        <th style="font-weight: 700; color: var(--dark);">Foydalanuvchi</th>
+                                        <th class="text-center" style="font-weight: 700; color: var(--dark);">Testlar</th>
+                                        <th class="text-end" style="font-weight: 700; color: var(--dark);">XP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in leaderboard %}
+                                    <tr style="{% if user.is_authenticated and entry.user.id == user.id %}background: var(--primary-glow);{% endif %}">
+                                        <td>
+                                            {% if entry.rank == 1 %}
+                                                <span style="font-size: 1.3rem;">🥇</span>
+                                            {% elif entry.rank == 2 %}
+                                                <span style="font-size: 1.3rem;">🥈</span>
+                                            {% elif entry.rank == 3 %}
+                                                <span style="font-size: 1.3rem;">🥉</span>
+                                            {% elif entry.rank <= 10 %}
+                                                <span class="badge" style="background: var(--primary-glow); color: var(--primary-dark);">{{ entry.rank }}</span>
+                                            {% else %}
+                                                <span class="fw-bold" style="color: var(--gray-500);">{{ entry.rank }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div style="width: 40px; height: 40px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                                    {% if entry.user.avatar %}
+                                                        <img src="{{ entry.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                        <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold" style="color: var(--dark);">{{ entry.user.full_name|default:entry.user.phone_number }}</div>
+                                                    <small style="color: var(--gray-500);">Level {{ entry.user.level }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge" style="background: var(--gray-100); color: var(--dark);">
+                                                {{ entry.tests }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold" style="color: var(--primary);">{{ entry.xp }}</span>
+                                            <small style="color: var(--gray-500);">XP</small>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5">
+                                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300);"></i>
+                                            <p class="mt-2 mb-0" style="color: var(--gray-500);">Bu fandan hali hech kim test yechmagan</p>
+                                            <a href="{% url 'tests_app:tests_list' %}?subject={{ subject.slug }}" class="btn btn-primary mt-3">
+                                                Birinchi bo'ling! <i class="bi bi-arrow-right ms-1"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

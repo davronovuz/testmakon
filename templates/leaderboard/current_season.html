@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ season.name }} - Mavsum - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); padding: 4rem 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}" style="color: var(--gray-400);">Bosh sahifa</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}" style="color: var(--gray-400);">Reyting</a></li>
+                <li class="breadcrumb-item active" style="color: var(--gray-300);">{{ season.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span style="font-size: 3.5rem;">🏅</span>
+                    <div>
+                        <span class="badge mb-2" style="background: var(--accent); color: var(--dark);">Joriy mavsum</span>
+                        <h1 class="text-white mb-0">{{ season.name }}</h1>
+                    </div>
+                </div>
+                <p class="text-white mb-4" style="opacity: 0.8; font-size: 1.1rem;">{{ season.description }}</p>
+
+                <!-- Season Progress -->
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="text-white" style="opacity: 0.7;">{{ season.start_date|date:"d M" }}</span>
+                    <div class="flex-grow-1" style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 10px; overflow: hidden;">
+                        <div id="season-progress" style="background: var(--gradient-primary); height: 100%; border-radius: 10px; transition: width 0.5s;"></div>
+                    </div>
+                    <span class="text-white" style="opacity: 0.7;">{{ season.end_date|date:"d M" }}</span>
+                </div>
+                <p class="text-white mb-0" style="opacity: 0.7;">
+                    <i class="bi bi-clock me-1"></i> Mavsum tugashiga: <span id="days-remaining" class="fw-bold"></span>
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                {% if user.is_authenticated and not user_participant %}
+                <a href="#" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i> Qatnashish
+                </a>
+                {% elif user_participant %}
+                <div style="background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 1.5rem; display: inline-block;">
+                    <p class="text-white mb-1" style="opacity: 0.8;">Sizning o'rningiz</p>
+                    <div class="text-white" style="font-size: 3rem; font-weight: 800;">#{{ user_participant.rank|default:"—" }}</div>
+                    <span class="badge" style="background: var(--accent); color: var(--dark);">{{ user_participant.total_xp }} XP</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Main Leaderboard -->
+            <div class="col-lg-8">
+                <!-- Top 3 Podium -->
+                {% if participants %}
+                <div class="card mb-4 p-4" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: none;">
+                    <h5 class="fw-bold text-center mb-4">🏆 Mavsum TOP 3</h5>
+                    <div class="row align-items-end text-center">
+                        <!-- 2nd Place -->
+                        <div class="col-4">
+                            {% if participants|length >= 2 %}
+                            {% with participants.1 as second %}
+                            <div style="width: 70px; height: 70px; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #C0C0C0;">
+                                {% if second.user.avatar %}
+                                    <img src="{{ second.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <i class="bi bi-person-fill" style="font-size: 1.5rem; color: var(--gray-500);"></i>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 1.5rem;" class="mt-2">🥈</div>
+                            <p class="fw-bold mb-1 small">{{ second.user.full_name|default:second.user.phone_number|truncatechars:12 }}</p>
+                            <span class="badge" style="background: var(--dark); color: white;">{{ second.total_xp }} XP</span>
+                            {% endwith %}
+                            {% endif %}
+                        </div>
+                        <!-- 1st Place -->
+                        <div class="col-4">
+                            {% if participants|length >= 1 %}
+                            {% with participants.0 as first %}
+                            <span style="font-size: 1.5rem;">👑</span>
+                            <div style="width: 90px; height: 90px; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 4px solid #FFD700;">
+                                {% if first.user.avatar %}
+                                    <img src="{{ first.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 2rem;" class="mt-2">🥇</div>
+                            <p class="fw-bold mb-1">{{ first.user.full_name|default:first.user.phone_number|truncatechars:15 }}</p>
+                            <span class="badge" style="background: var(--primary); color: white; font-size: 0.9rem;">{{ first.total_xp }} XP</span>
+                            {% endwith %}
+                            {% endif %}
+                        </div>
+                        <!-- 3rd Place -->
+                        <div class="col-4">
+                            {% if participants|length >= 3 %}
+                            {% with participants.2 as third %}
+                            <div style="width: 70px; height: 70px; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #CD7F32;">
+                                {% if third.user.avatar %}
+                                    <img src="{{ third.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <i class="bi bi-person-fill" style="font-size: 1.5rem; color: var(--gray-500);"></i>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 1.5rem;" class="mt-2">🥉</div>
+                            <p class="fw-bold mb-1 small">{{ third.user.full_name|default:third.user.phone_number|truncatechars:12 }}</p>
+                            <span class="badge" style="background: var(--dark); color: white;">{{ third.total_xp }} XP</span>
+                            {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Full Leaderboard -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4">
+                            <i class="bi bi-list-ol me-2" style="color: var(--primary);"></i> Mavsum reytingi
+                        </h5>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--gray-200);">
+                                        <th style="width: 60px; font-weight: 700; color: var(--dark);">O'rin</th>
+                                        <th style="font-weight: 700; color: var(--dark);">Ishtirokchi</th>
+                                        <th class="text-center" style="font-weight: 700; color: var(--dark);">Testlar</th>
+                                        <th class="text-center" style="font-weight: 700; color: var(--dark);">Aniqlik</th>
+                                        <th class="text-end" style="font-weight: 700; color: var(--dark);">XP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in participants %}
+                                    <tr style="{% if user.is_authenticated and p.user.id == user.id %}background: var(--primary-glow);{% endif %}">
+                                        <td>
+                                            {% if p.rank == 1 %}
+                                                <span style="font-size: 1.3rem;">🥇</span>
+                                            {% elif p.rank == 2 %}
+                                                <span style="font-size: 1.3rem;">🥈</span>
+                                            {% elif p.rank == 3 %}
+                                                <span style="font-size: 1.3rem;">🥉</span>
+                                            {% elif p.rank <= 10 %}
+                                                <span class="badge" style="background: var(--primary-glow); color: var(--primary-dark);">{{ p.rank }}</span>
+                                            {% else %}
+                                                <span class="fw-bold" style="color: var(--gray-500);">{{ p.rank }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div style="width: 40px; height: 40px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                                    {% if p.user.avatar %}
+                                                        <img src="{{ p.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                        <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold" style="color: var(--dark);">{{ p.user.full_name|default:p.user.phone_number }}</div>
+                                                    <small style="color: var(--gray-500);">Level {{ p.user.level }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge" style="background: var(--gray-100); color: var(--dark);">
+                                                {{ p.total_tests }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span style="color: {% if p.accuracy_rate >= 80 %}var(--primary){% elif p.accuracy_rate >= 60 %}var(--accent){% else %}var(--gray-500){% endif %};">
+                                                {{ p.accuracy_rate|floatformat:0 }}%
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold" style="color: var(--primary);">{{ p.total_xp }}</span>
+                                            <small style="color: var(--gray-500);">XP</small>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5">
+                                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300);"></i>
+                                            <p class="mt-2 mb-0" style="color: var(--gray-500);">Hali ishtirokchilar yo'q</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Prizes -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4">
+                            <i class="bi bi-gift me-2" style="color: var(--accent);"></i> Sovrinlar
+                        </h5>
+
+                        {% if season.prizes %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for prize in season.prizes %}
+                            <div class="d-flex align-items-center gap-3 p-3" style="background: {% if forloop.counter == 1 %}linear-gradient(90deg, #FEF3C7 0%, transparent 100%){% elif forloop.counter == 2 %}linear-gradient(90deg, #E5E7EB 0%, transparent 100%){% elif forloop.counter == 3 %}linear-gradient(90deg, #FED7AA 0%, transparent 100%){% else %}var(--gray-100){% endif %}; border-radius: var(--radius);">
+                                <span style="font-size: 1.5rem;">
+                                    {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}🎁{% endif %}
+                                </span>
+                                <div>
+                                    <div class="fw-bold" style="color: var(--dark);">{{ forloop.counter }}-o'rin</div>
+                                    <small style="color: var(--gray-500);">{{ prize }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-center" style="color: var(--gray-500);">Sovrinlar e'lon qilinadi</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Rules -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i> Qoidalar
+                        </h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex align-items-start gap-2 mb-2">
+                                <span style="color: var(--primary);">✓</span>
+                                <span style="color: var(--gray-500);">Test yeching va XP to'plang</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2 mb-2">
+                                <span style="color: var(--primary);">✓</span>
+                                <span style="color: var(--gray-500);">Faqat mavsum davomida to'plangan XP hisoblanadi</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <span style="color: var(--primary);">✓</span>
+                                <span style="color: var(--gray-500);">Mavsum oxirida g'oliblar aniqlanadi</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="card" style="background: var(--gradient-primary); border: none;">
+                    <div class="card-body text-center">
+                        <span style="font-size: 3rem;">🚀</span>
+                        <h5 class="text-white mt-2 mb-2">G'olib bo'ling!</h5>
+                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 0.9rem;">
+                            Hoziroq test yechib, reytingda ko'tariling
+                        </p>
+                        <a href="{% url 'tests_app:tests_list' %}" class="btn btn-light">
+                            Test boshlash <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Calculate season progress
+const startDate = new Date('{{ season.start_date|date:"Y-m-d" }}');
+const endDate = new Date('{{ season.end_date|date:"Y-m-d" }}');
+const now = new Date();
+
+const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+const passedDays = (now - startDate) / (1000 * 60 * 60 * 24);
+const remainingDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+
+const progress = Math.min(Math.max((passedDays / totalDays) * 100, 0), 100);
+document.getElementById('season-progress').style.width = progress + '%';
+document.getElementById('days-remaining').textContent = remainingDays > 0 ? remainingDays + ' kun' : 'Tugadi';
+</script>
+{% endblock %}

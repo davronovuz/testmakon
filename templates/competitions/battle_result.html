@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Jang natijasi - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Result Card -->
+                <div class="card" style="overflow: visible;">
+                    <!-- Header with Result -->
+                    <div style="padding: 3rem 2rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+                        {% if battle.is_draw %}
+                        background: linear-gradient(135deg, #64748B 0%, #475569 100%);
+                        {% elif battle.winner == user %}
+                        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+                        {% else %}
+                        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                        {% endif %}">
+                        <div class="text-center">
+                            {% if battle.is_draw %}
+                            <span style="font-size: 4rem;">🤝</span>
+                            <h2 class="text-white mt-3 mb-0">Durrang!</h2>
+                            {% elif battle.winner == user %}
+                            <span style="font-size: 4rem;">🏆</span>
+                            <h2 class="text-white mt-3 mb-0">G'alaba!</h2>
+                            <p class="text-white mt-2 mb-0" style="opacity: 0.9;">+{{ battle.winner_xp }} XP</p>
+                            {% else %}
+                            <span style="font-size: 4rem;">😔</span>
+                            <h2 class="text-white mt-3 mb-0">Mag'lubiyat</h2>
+                            <p class="text-white mt-2 mb-0" style="opacity: 0.9;">+{{ battle.loser_xp }} XP</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <!-- Score Comparison -->
+                        <div class="row text-center mb-4">
+                            <!-- Challenger -->
+                            <div class="col-5">
+                                <div class="position-relative d-inline-block">
+                                    <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid {% if battle.winner == battle.challenger %}#22C55E{% elif battle.is_draw %}var(--gray-400){% else %}#EF4444{% endif %};">
+                                        {% if battle.challenger.avatar %}
+                                        <img src="{{ battle.challenger.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                        {% else %}
+                                        <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
+                                        {% endif %}
+                                    </div>
+                                    {% if battle.winner == battle.challenger %}
+                                    <span class="position-absolute" style="bottom: -5px; right: -5px; font-size: 1.5rem;">👑</span>
+                                    {% endif %}
+                                </div>
+                                <h5 class="fw-bold mt-3 mb-1">{{ battle.challenger.first_name|default:"Chaqiruvchi" }}</h5>
+                                <div style="font-size: 2.5rem; font-weight: 800; color: {% if battle.winner == battle.challenger %}#22C55E{% else %}var(--dark){% endif %};">
+                                    {{ battle.challenger_correct }}
+                                </div>
+                                <small style="color: var(--gray-500);">to'g'ri javob</small>
+
+                                <div class="mt-3 p-2" style="background: var(--gray-100); border-radius: var(--radius);">
+                                    <div class="d-flex justify-content-between small">
+                                        <span style="color: var(--gray-500);">Vaqt:</span>
+                                        <span class="fw-bold">{{ battle.challenger_time }}s</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VS -->
+                            <div class="col-2 d-flex align-items-center justify-content-center">
+                                <div style="width: 50px; height: 50px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <span class="fw-bold" style="color: var(--gray-500);">VS</span>
+                                </div>
+                            </div>
+
+                            <!-- Opponent -->
+                            <div class="col-5">
+                                <div class="position-relative d-inline-block">
+                                    <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid {% if battle.winner == battle.opponent %}#22C55E{% elif battle.is_draw %}var(--gray-400){% else %}#EF4444{% endif %};">
+                                        {% if battle.opponent.avatar %}
+                                        <img src="{{ battle.opponent.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                        {% else %}
+                                        <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
+                                        {% endif %}
+                                    </div>
+                                    {% if battle.winner == battle.opponent %}
+                                    <span class="position-absolute" style="bottom: -5px; right: -5px; font-size: 1.5rem;">👑</span>
+                                    {% endif %}
+                                </div>
+                                <h5 class="fw-bold mt-3 mb-1">{{ battle.opponent.first_name|default:"Raqib" }}</h5>
+                                <div style="font-size: 2.5rem; font-weight: 800; color: {% if battle.winner == battle.opponent %}#22C55E{% else %}var(--dark){% endif %};">
+                                    {{ battle.opponent_correct }}
+                                </div>
+                                <small style="color: var(--gray-500);">to'g'ri javob</small>
+
+                                <div class="mt-3 p-2" style="background: var(--gray-100); border-radius: var(--radius);">
+                                    <div class="d-flex justify-content-between small">
+                                        <span style="color: var(--gray-500);">Vaqt:</span>
+                                        <span class="fw-bold">{{ battle.opponent_time }}s</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Battle Stats -->
+                        <div class="row g-3 text-center mb-4">
+                            <div class="col-4">
+                                <div style="color: var(--gray-500); font-size: 0.85rem;">Fan</div>
+                                <div class="fw-bold">{{ battle.subject.name|default:"Aralash" }}</div>
+                            </div>
+                            <div class="col-4">
+                                <div style="color: var(--gray-500); font-size: 0.85rem;">Savollar</div>
+                                <div class="fw-bold">{{ battle.question_count }}</div>
+                            </div>
+                            <div class="col-4">
+                                <div style="color: var(--gray-500); font-size: 0.85rem;">Sana</div>
+                                <div class="fw-bold">{{ battle.completed_at|date:"d M" }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex flex-wrap gap-3 justify-content-center">
+                            <a href="{% url 'competitions:battle_create' %}?opponent={% if is_challenger %}{{ battle.opponent.id }}{% else %}{{ battle.challenger.id }}{% endif %}" class="btn btn-primary">
+                                <i class="bi bi-arrow-repeat me-2"></i> Qayta jang
+                            </a>
+                            <a href="{% url 'competitions:battles_list' %}" class="btn btn-outline">
+                                Janglarga qaytish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share Card -->
+                <div class="card mt-4 p-4" style="background: var(--gray-100); border: none;">
+                    <div class="text-center">
+                        <h6 class="fw-bold mb-3">Natijangizni ulashing!</h6>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="#" class="btn btn-dark">
+                                <i class="bi bi-telegram me-1"></i> Telegram
+                            </a>
+                            <a href="#" class="btn btn-light">
+                                <i class="bi bi-link-45deg me-1"></i> Nusxa olish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

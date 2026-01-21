@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ competition.title }} - Reyting - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'competitions:competition_detail' competition.slug %}">{{ competition.title }}</a></li>
+                <li class="breadcrumb-item active">Reyting</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex align-items-center gap-3">
+            <span style="font-size: 3rem;">🏆</span>
+            <div>
+                <h1 class="mb-2">{{ competition.title }}</h1>
+                <p class="mb-0" style="color: var(--gray-500);">Musobaqa natijalari</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <!-- Top 3 Podium -->
+        {% if participants %}
+        <div class="card mb-4 p-4" style="background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border: none;">
+            <div class="row align-items-end text-center">
+                <!-- 2nd Place -->
+                <div class="col-4">
+                    {% if participants|length >= 2 %}
+                    {% with participants.1 as second %}
+                    <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #C0C0C0;">
+                        {% if second.user.avatar %}
+                        <img src="{{ second.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2" style="font-size: 2rem;">🥈</div>
+                    <p class="text-white fw-bold mb-1">{{ second.user.full_name|default:second.user.phone_number|truncatechars:15 }}</p>
+                    <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">{{ second.score|floatformat:0 }} ball</span>
+                    <div class="small text-white mt-1" style="opacity: 0.7;">{{ second.correct_answers }} to'g'ri</div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+                <!-- 1st Place -->
+                <div class="col-4">
+                    {% if participants|length >= 1 %}
+                    {% with participants.0 as first %}
+                    <span style="font-size: 1.5rem;">👑</span>
+                    <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 4px solid #FFD700;">
+                        {% if first.user.avatar %}
+                        <img src="{{ first.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <i class="bi bi-person-fill text-white" style="font-size: 2.5rem;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2" style="font-size: 2.5rem;">🥇</div>
+                    <p class="text-white fw-bold mb-1" style="font-size: 1.1rem;">{{ first.user.full_name|default:first.user.phone_number }}</p>
+                    <span class="badge" style="background: var(--accent); color: var(--dark); font-size: 0.9rem;">{{ first.score|floatformat:0 }} ball</span>
+                    <div class="small text-white mt-1" style="opacity: 0.7;">{{ first.correct_answers }} to'g'ri</div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+                <!-- 3rd Place -->
+                <div class="col-4">
+                    {% if participants|length >= 3 %}
+                    {% with participants.2 as third %}
+                    <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #CD7F32;">
+                        {% if third.user.avatar %}
+                        <img src="{{ third.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2" style="font-size: 2rem;">🥉</div>
+                    <p class="text-white fw-bold mb-1">{{ third.user.full_name|default:third.user.phone_number|truncatechars:15 }}</p>
+                    <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">{{ third.score|floatformat:0 }} ball</span>
+                    <div class="small text-white mt-1" style="opacity: 0.7;">{{ third.correct_answers }} to'g'ri</div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Full Leaderboard -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-list-ol me-2" style="color: var(--primary);"></i> Barcha ishtirokchilar
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--gray-200);">
+                                <th style="width: 60px; font-weight: 700;">O'rin</th>
+                                <th style="font-weight: 700;">Ishtirokchi</th>
+                                <th class="text-center" style="font-weight: 700;">To'g'ri</th>
+                                <th class="text-center" style="font-weight: 700;">Noto'g'ri</th>
+                                <th class="text-center" style="font-weight: 700;">Vaqt</th>
+                                <th class="text-end" style="font-weight: 700;">Ball</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in participants %}
+                            <tr style="{% if user.is_authenticated and p.user.id == user.id %}background: var(--primary-glow);{% endif %}">
+                                <td>
+                                    {% if p.rank == 1 %}
+                                        <span style="font-size: 1.3rem;">🥇</span>
+                                    {% elif p.rank == 2 %}
+                                        <span style="font-size: 1.3rem;">🥈</span>
+                                    {% elif p.rank == 3 %}
+                                        <span style="font-size: 1.3rem;">🥉</span>
+                                    {% elif p.rank <= 10 %}
+                                        <span class="badge" style="background: var(--primary-glow); color: var(--primary-dark);">{{ p.rank }}</span>
+                                    {% else %}
+                                        <span class="fw-bold" style="color: var(--gray-500);">{{ p.rank }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="width: 40px; height: 40px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                            {% if p.user.avatar %}
+                                            <img src="{{ p.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                            {% else %}
+                                            <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold" style="color: var(--dark);">{{ p.user.full_name|default:p.user.phone_number }}</div>
+                                            <small style="color: var(--gray-500);">Level {{ p.user.level }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="text-success fw-bold">{{ p.correct_answers }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="text-danger">{{ p.wrong_answers }}</span>
+                                </td>
+                                <td class="text-center" style="color: var(--gray-500);">
+                                    {% widthratio p.time_spent 60 1 %}d {{ p.time_spent|divisibleby:60 }}s
+                                </td>
+                                <td class="text-end">
+                                    <span class="fw-bold" style="color: var(--primary);">{{ p.score|floatformat:0 }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300);"></i>
+                                    <p class="mt-2 mb-0" style="color: var(--gray-500);">Hali ishtirokchilar yo'q</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-4">
+            <a href="{% url 'competitions:competition_detail' competition.slug %}" class="btn btn-outline">
+                <i class="bi bi-arrow-left me-2"></i> Musobaqaga qaytish
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

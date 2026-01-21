@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ competition.title }} - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); padding: 0;">
+    {% if competition.banner %}
+    <div style="height: 250px; background: url('{{ competition.banner.url }}') center/cover; position: relative;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,1) 0%, rgba(15,23,42,0.5) 100%);"></div>
+    </div>
+    {% else %}
+    <div style="height: 200px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 5rem;">🏆</span>
+    </div>
+    {% endif %}
+
+    <div class="container" style="margin-top: -80px; position: relative; z-index: 10; padding-bottom: 2rem;">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'competitions:competitions_list' %}" style="color: var(--gray-400);">Musobaqalar</a></li>
+                <li class="breadcrumb-item active" style="color: var(--gray-300);">{{ competition.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+            <span class="badge" style="{% if competition.status == 'active' %}background: #22C55E;{% elif competition.status == 'upcoming' %}background: var(--accent);{% else %}background: var(--gray-500);{% endif %} color: white; font-size: 0.85rem;">
+                {{ competition.get_status_display }}
+            </span>
+            <span class="badge" style="background: rgba(255,255,255,0.1); color: white;">
+                {{ competition.get_competition_type_display }}
+            </span>
+            {% if competition.is_premium_only %}
+            <span class="badge" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white;">
+                <i class="bi bi-star-fill me-1"></i> Premium
+            </span>
+            {% endif %}
+        </div>
+
+        <h1 class="text-white mb-3">{{ competition.title }}</h1>
+
+        <div class="d-flex flex-wrap gap-4 text-white" style="opacity: 0.8;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-people"></i>
+                <span>{{ competition.participants_count }} ishtirokchi</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-clock"></i>
+                <span>{{ competition.duration_minutes }} daqiqa</span>
+            </div>
+            {% if competition.subject %}
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-book"></i>
+                <span>{{ competition.subject.name }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Description -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i> Musobaqa haqida
+                        </h5>
+                        <p style="color: var(--gray-600); line-height: 1.8;">{{ competition.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Rules -->
+                {% if competition.rules %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-list-check me-2" style="color: var(--primary);"></i> Qoidalar
+                        </h5>
+                        <div style="color: var(--gray-600); line-height: 1.8;">{{ competition.rules|linebreaks }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Top Participants -->
+                {% if top_participants %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-trophy me-2" style="color: var(--accent);"></i> Top ishtirokchilar
+                            </h5>
+                            <a href="{% url 'competitions:competition_leaderboard' competition.slug %}" class="btn btn-sm btn-light">
+                                Barchasi
+                            </a>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--gray-200);">
+                                        <th style="width: 60px;">O'rin</th>
+                                        <th>Ishtirokchi</th>
+                                        <th class="text-center">To'g'ri</th>
+                                        <th class="text-end">Ball</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in top_participants %}
+                                    <tr>
+                                        <td>
+                                            {% if p.rank == 1 %}🥇{% elif p.rank == 2 %}🥈{% elif p.rank == 3 %}🥉{% else %}{{ p.rank }}{% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div style="width: 32px; height: 32px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                    {% if p.user.avatar %}
+                                                    <img src="{{ p.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                                    {% else %}
+                                                    <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <span class="fw-bold">{{ p.user.full_name|default:p.user.phone_number }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">{{ p.correct_answers }}/{{ p.correct_answers|add:p.wrong_answers }}</td>
+                                        <td class="text-end">
+                                            <span class="fw-bold" style="color: var(--primary);">{{ p.score|floatformat:0 }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Time Info -->
+                <div class="card mb-4" style="{% if competition.is_ongoing %}background: var(--gradient-primary); border: none;{% endif %}">
+                    <div class="card-body">
+                        {% if competition.is_ongoing %}
+                        <div class="text-center">
+                            <i class="bi bi-clock text-white" style="font-size: 2rem;"></i>
+                            <h5 class="text-white mt-2 mb-1">Davom etmoqda!</h5>
+                            <p class="text-white mb-0" style="opacity: 0.9;">Tugashiga qoldi</p>
+                            <div id="countdown" class="text-white mt-2" style="font-size: 1.5rem; font-weight: 700;"></div>
+                        </div>
+                        {% elif competition.status == 'upcoming' %}
+                        <div class="text-center">
+                            <i class="bi bi-hourglass-split" style="font-size: 2rem; color: var(--accent);"></i>
+                            <h5 class="mt-2 mb-1">Boshlanishiga</h5>
+                            <div id="countdown" style="font-size: 1.25rem; font-weight: 700; color: var(--dark);"></div>
+                            <p class="small mt-2 mb-0" style="color: var(--gray-500);">{{ competition.start_time|date:"d M Y, H:i" }}</p>
+                        </div>
+                        {% else %}
+                        <div class="text-center">
+                            <i class="bi bi-check-circle" style="font-size: 2rem; color: var(--gray-400);"></i>
+                            <h5 class="mt-2 mb-1">Yakunlangan</h5>
+                            <p class="small mb-0" style="color: var(--gray-500);">{{ competition.end_time|date:"d M Y" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Join/Start Button -->
+                {% if user.is_authenticated %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        {% if competition.is_finished %}
+                            <a href="{% url 'competitions:competition_leaderboard' competition.slug %}" class="btn btn-outline w-100">
+                                <i class="bi bi-trophy me-2"></i> Natijalarni ko'rish
+                            </a>
+                        {% elif is_participant %}
+                            {% if participant.is_completed %}
+                                <div class="text-center mb-3">
+                                    <span class="badge" style="background: #D1FAE5; color: #065F46; font-size: 0.9rem;">
+                                        <i class="bi bi-check-circle me-1"></i> Yakunladingiz
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span style="color: var(--gray-500);">Sizning balingiz:</span>
+                                    <span class="fw-bold" style="color: var(--primary);">{{ participant.score|floatformat:0 }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span style="color: var(--gray-500);">O'rningiz:</span>
+                                    <span class="fw-bold">#{{ participant.rank|default:"—" }}</span>
+                                </div>
+                            {% else %}
+                                <a href="{% url 'competitions:competition_start' competition.slug %}" class="btn btn-primary btn-lg w-100">
+                                    <i class="bi bi-play-fill me-2"></i> Boshlash
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            {% if competition.is_ongoing or competition.status == 'upcoming' %}
+                            <a href="{% url 'competitions:competition_join' competition.slug %}" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-plus-circle me-2"></i> Qatnashish
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <p class="mb-3" style="color: var(--gray-500);">Qatnashish uchun tizimga kiring</p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100">Kirish</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Prizes -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-gift me-2" style="color: var(--accent);"></i> Sovrinlar
+                        </h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center gap-3 p-2" style="background: linear-gradient(90deg, #FEF3C7 0%, transparent 100%); border-radius: var(--radius);">
+                                <span style="font-size: 1.5rem;">🥇</span>
+                                <div>
+                                    <div class="fw-bold">1-o'rin</div>
+                                    <small style="color: var(--gray-500);">+{{ competition.xp_reward_first }} XP</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 p-2" style="background: linear-gradient(90deg, #E5E7EB 0%, transparent 100%); border-radius: var(--radius);">
+                                <span style="font-size: 1.5rem;">🥈</span>
+                                <div>
+                                    <div class="fw-bold">2-o'rin</div>
+                                    <small style="color: var(--gray-500);">+{{ competition.xp_reward_second }} XP</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 p-2" style="background: linear-gradient(90deg, #FED7AA 0%, transparent 100%); border-radius: var(--radius);">
+                                <span style="font-size: 1.5rem;">🥉</span>
+                                <div>
+                                    <div class="fw-bold">3-o'rin</div>
+                                    <small style="color: var(--gray-500);">+{{ competition.xp_reward_third }} XP</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle" style="color: var(--primary);"></i>
+                            <small style="color: var(--gray-500);">Har bir ishtirokchi +{{ competition.xp_participation }} XP oladi</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share -->
+                <div class="card" style="background: var(--gray-100); border: none;">
+                    <div class="card-body text-center">
+                        <p class="small mb-2" style="color: var(--gray-500);">Do'stlaringizni taklif qiling</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="#" class="btn btn-sm btn-light"><i class="bi bi-telegram"></i></a>
+                            <a href="#" class="btn btn-sm btn-light"><i class="bi bi-whatsapp"></i></a>
+                            <a href="#" class="btn btn-sm btn-light"><i class="bi bi-link-45deg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+{% if competition.is_ongoing %}
+const endTime = new Date('{{ competition.end_time|date:"c" }}');
+{% elif competition.status == 'upcoming' %}
+const endTime = new Date('{{ competition.start_time|date:"c" }}');
+{% endif %}
+
+function updateCountdown() {
+    const now = new Date();
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+        document.getElementById('countdown').innerHTML = 'Tugadi';
+        return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    let text = '';
+    if (days > 0) text += days + 'k ';
+    text += hours + 's ' + minutes + 'd ' + seconds + 's';
+
+    document.getElementById('countdown').innerHTML = text;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
+{% endblock %}

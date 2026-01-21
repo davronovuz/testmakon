@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Jang - {{ battle.challenger.first_name }} vs {{ battle.opponent.first_name }} - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Battle Card -->
+                <div class="card" style="overflow: visible;">
+                    <!-- Header -->
+                    <div style="background: var(--gradient-dark); padding: 2rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                        <div class="text-center">
+                            <span class="badge mb-3" style="
+                                {% if battle.status == 'pending' %}background: #FEF3C7; color: #92400E;
+                                {% elif battle.status == 'accepted' %}background: #DBEAFE; color: #1E40AF;
+                                {% elif battle.status == 'in_progress' %}background: #D1FAE5; color: #065F46;
+                                {% elif battle.status == 'completed' %}background: var(--gray-200); color: var(--gray-600);
+                                {% elif battle.status == 'rejected' %}background: #FEE2E2; color: #991B1B;
+                                {% else %}background: var(--gray-200); color: var(--gray-600);{% endif %}">
+                                {{ battle.get_status_display }}
+                            </span>
+                            <h2 class="text-white mb-0">1v1 Jang</h2>
+                        </div>
+                    </div>
+
+                    <!-- Players -->
+                    <div class="p-4">
+                        <div class="row align-items-center text-center">
+                            <!-- Challenger -->
+                            <div class="col-5">
+                                <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid {% if is_challenger %}var(--primary){% else %}var(--gray-300){% endif %};">
+                                    {% if battle.challenger.avatar %}
+                                    <img src="{{ battle.challenger.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                    <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
+                                    {% endif %}
+                                </div>
+                                <h5 class="fw-bold mt-3 mb-1">{{ battle.challenger.full_name|default:battle.challenger.phone_number }}</h5>
+                                <small style="color: var(--gray-500);">Level {{ battle.challenger.level }}</small>
+                                {% if is_challenger %}
+                                <div class="mt-2">
+                                    <span class="badge badge-primary">Siz</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- VS -->
+                            <div class="col-2">
+                                <div style="width: 60px; height: 60px; background: var(--dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                    <span class="text-white fw-bold">VS</span>
+                                </div>
+                            </div>
+
+                            <!-- Opponent -->
+                            <div class="col-5">
+                                <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid {% if not is_challenger %}var(--primary){% else %}var(--gray-300){% endif %};">
+                                    {% if battle.opponent.avatar %}
+                                    <img src="{{ battle.opponent.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                    <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
+                                    {% endif %}
+                                </div>
+                                <h5 class="fw-bold mt-3 mb-1">{{ battle.opponent.full_name|default:battle.opponent.phone_number }}</h5>
+                                <small style="color: var(--gray-500);">Level {{ battle.opponent.level }}</small>
+                                {% if not is_challenger %}
+                                <div class="mt-2">
+                                    <span class="badge badge-primary">Siz</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Battle Info -->
+                        <div class="row g-3 text-center">
+                            <div class="col-4">
+                                <div style="color: var(--gray-500);">Fan</div>
+                                <div class="fw-bold">{{ battle.subject.name|default:"Aralash" }}</div>
+                            </div>
+                            <div class="col-4">
+                                <div style="color: var(--gray-500);">Savollar</div>
+                                <div class="fw-bold">{{ battle.question_count }}</div>
+                            </div>
+                            <div class="col-4">
+                                <div style="color: var(--gray-500);">Vaqt</div>
+                                <div class="fw-bold">{{ battle.time_per_question }}s/savol</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Actions based on status -->
+                        {% if battle.status == 'pending' %}
+                            {% if not is_challenger %}
+                            <div class="d-flex gap-3 justify-content-center">
+                                <a href="{% url 'competitions:battle_accept' battle.uuid %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check2 me-2"></i> Qabul qilish
+                                </a>
+                                <a href="{% url 'competitions:battle_reject' battle.uuid %}" class="btn btn-outline btn-lg">
+                                    Rad etish
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="text-center">
+                                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h5>Raqib javobini kutilmoqda...</h5>
+                                <p style="color: var(--gray-500);">{{ battle.opponent.first_name }} 24 soat ichida qabul qilishi kerak</p>
+                            </div>
+                            {% endif %}
+
+                        {% elif battle.status == 'accepted' or battle.status == 'in_progress' %}
+                            {% if is_challenger and battle.challenger_completed %}
+                            <div class="text-center">
+                                <div class="alert alert-success d-inline-block">
+                                    <i class="bi bi-check-circle me-2"></i> Siz yakunladingiz. Raqibni kuting.
+                                </div>
+                            </div>
+                            {% elif not is_challenger and battle.opponent_completed %}
+                            <div class="text-center">
+                                <div class="alert alert-success d-inline-block">
+                                    <i class="bi bi-check-circle me-2"></i> Siz yakunladingiz. Raqibni kuting.
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center">
+                                <a href="{% url 'competitions:battle_play' battle.uuid %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-play-fill me-2"></i> O'yinni boshlash
+                                </a>
+                            </div>
+                            {% endif %}
+
+                        {% elif battle.status == 'completed' %}
+                            <div class="text-center">
+                                <a href="{% url 'competitions:battle_result' battle.uuid %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-trophy me-2"></i> Natijani ko'rish
+                                </a>
+                            </div>
+
+                        {% elif battle.status == 'rejected' %}
+                            <div class="text-center">
+                                <div class="alert alert-danger d-inline-block">
+                                    <i class="bi bi-x-circle me-2"></i> Jang rad etildi
+                                </div>
+                            </div>
+
+                        {% elif battle.status == 'expired' %}
+                            <div class="text-center">
+                                <div class="alert alert-warning d-inline-block">
+                                    <i class="bi bi-clock me-2"></i> Jang muddati o'tdi
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Back Link -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'competitions:battles_list' %}" class="btn btn-outline">
+                        <i class="bi bi-arrow-left me-2"></i> Janglarga qaytish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if battle.status == 'pending' and is_challenger %}
+<script>
+// Auto refresh to check if opponent accepted
+setInterval(function() {
+    fetch('{% url "competitions:api_battle_status" battle.uuid %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== 'pending') {
+                location.reload();
+            }
+        });
+}, 5000);
+</script>
+{% endif %}
+{% endblock %}

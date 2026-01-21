@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Jang yaratish - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'competitions:battles_list' %}">Janglar</a></li>
+                <li class="breadcrumb-item active">Jang yaratish</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex align-items-center gap-3">
+            <span style="font-size: 3rem;">⚔️</span>
+            <div>
+                <h1 class="mb-2">Yangi <span class="text-gradient">jang</span> yaratish</h1>
+                <p class="mb-0" style="color: var(--gray-500);">Do'stingizni tanlang va bellashing!</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form method="POST" action="{% url 'competitions:battle_create' %}">
+                    {% csrf_token %}
+
+                    <!-- Step 1: Choose Opponent -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-4">
+                                <span class="badge badge-dark me-2">1</span> Raqibni tanlang
+                            </h5>
+
+                            {% if friends %}
+                            <div class="row g-3" id="friends-list">
+                                {% for friend in friends %}
+                                <div class="col-md-6">
+                                    <label class="w-100">
+                                        <input type="radio" name="opponent_id" value="{{ friend.id }}" class="d-none opponent-radio" required>
+                                        <div class="card p-3 h-100 opponent-card" style="cursor: pointer; transition: all 0.3s ease;">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div style="width: 50px; height: 50px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                                    {% if friend.avatar %}
+                                                    <img src="{{ friend.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                    <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold" style="color: var(--dark);">{{ friend.full_name|default:friend.phone_number }}</div>
+                                                    <small style="color: var(--gray-500);">Level {{ friend.level }}</small>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <i class="bi bi-circle check-icon" style="font-size: 1.25rem; color: var(--gray-300);"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-people" style="font-size: 3rem; color: var(--gray-300);"></i>
+                                <h5 class="mt-3">Do'stlar topilmadi</h5>
+                                <p style="color: var(--gray-500);">Jang yaratish uchun avval do'st qo'shing</p>
+                                <a href="#" class="btn btn-primary">Do'st qo'shish</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if friends %}
+                    <!-- Step 2: Choose Subject -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-4">
+                                <span class="badge badge-dark me-2">2</span> Fan tanlang
+                            </h5>
+
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="w-100">
+                                        <input type="radio" name="subject_id" value="" class="d-none subject-radio" checked>
+                                        <div class="card p-3 h-100 subject-card selected-subject" style="cursor: pointer;">
+                                            <div class="text-center">
+                                                <span style="font-size: 2rem;">🎲</span>
+                                                <div class="fw-bold mt-2">Aralash</div>
+                                                <small style="color: var(--gray-500);">Turli fanlardan</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% for subject in subjects %}
+                                <div class="col-md-4">
+                                    <label class="w-100">
+                                        <input type="radio" name="subject_id" value="{{ subject.id }}" class="d-none subject-radio">
+                                        <div class="card p-3 h-100 subject-card" style="cursor: pointer;">
+                                            <div class="text-center">
+                                                <span style="font-size: 2rem;">{{ subject.icon|default:"📚" }}</span>
+                                                <div class="fw-bold mt-2">{{ subject.name }}</div>
+                                                <small style="color: var(--gray-500);">{{ subject.questions_count|default:0 }} savol</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Settings -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-4">
+                                <span class="badge badge-dark me-2">3</span> Sozlamalar
+                            </h5>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Savollar soni</label>
+                                    <select name="question_count" class="form-control">
+                                        <option value="5">5 ta savol</option>
+                                        <option value="10" selected>10 ta savol</option>
+                                        <option value="15">15 ta savol</option>
+                                        <option value="20">20 ta savol</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Har bir savol uchun vaqt</label>
+                                    <select name="time_per_question" class="form-control">
+                                        <option value="20">20 soniya</option>
+                                        <option value="30" selected>30 soniya</option>
+                                        <option value="45">45 soniya</option>
+                                        <option value="60">60 soniya</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary & Submit -->
+                    <div class="card" style="background: var(--gradient-dark); border: none;">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="text-white mb-2">Jang so'rovini yuborish</h5>
+                                    <p class="text-white mb-0" style="opacity: 0.8;">
+                                        Raqib 24 soat ichida qabul qilishi kerak
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-send me-2"></i> Yuborish
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .opponent-card.selected {
+        border: 2px solid var(--primary) !important;
+        background: var(--primary-glow);
+    }
+    .opponent-card.selected .check-icon {
+        color: var(--primary) !important;
+    }
+    .opponent-card.selected .check-icon::before {
+        content: "\F26B"; /* bi-check-circle-fill */
+    }
+
+    .subject-card {
+        border: 2px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+    .subject-card:hover {
+        border-color: var(--primary-light);
+    }
+    .subject-card.selected-subject {
+        border: 2px solid var(--primary) !important;
+        background: var(--primary-glow);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Opponent selection
+document.querySelectorAll('.opponent-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.opponent-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        this.closest('label').querySelector('.opponent-card').classList.add('selected');
+    });
+});
+
+// Subject selection
+document.querySelectorAll('.subject-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.subject-card').forEach(card => {
+            card.classList.remove('selected-subject');
+        });
+        this.closest('label').querySelector('.subject-card').classList.add('selected-subject');
+    });
+});
+
+// Pre-select opponent from URL
+const urlParams = new URLSearchParams(window.location.search);
+const opponentId = urlParams.get('opponent');
+if (opponentId) {
+    const radio = document.querySelector(`input[name="opponent_id"][value="${opponentId}"]`);
+    if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+    }
+}
+</script>
+{% endblock %}

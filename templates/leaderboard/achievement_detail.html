@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ achievement.name }} - Yutuq - TestMakon{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}">Reyting</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'leaderboard:achievements_list' %}">Yutuqlar</a></li>
+                <li class="breadcrumb-item active">{{ achievement.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Achievement Card -->
+                <div class="card p-4 mb-4 {% if is_earned %}card-glow{% endif %}"
+                     style="{% if is_earned %}border: 2px solid var(--primary);{% endif %}">
+                    <div class="text-center">
+                        <!-- Icon -->
+                        <div class="d-inline-block position-relative mb-4">
+                            <div style="width: 120px; height: 120px; background: {% if is_earned %}var(--gradient-primary){% else %}var(--gray-200){% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: {% if is_earned %}var(--shadow-primary){% else %}var(--shadow){% endif %};">
+                                {% if achievement.icon %}
+                                    <img src="{{ achievement.icon.url }}" alt="" style="width: 64px; height: 64px; object-fit: contain; {% if not is_earned %}filter: grayscale(100%);{% endif %}">
+                                {% else %}
+                                    <i class="bi bi-award" style="font-size: 3rem; color: {% if is_earned %}white{% else %}var(--gray-400){% endif %};"></i>
+                                {% endif %}
+                            </div>
+                            {% if is_earned %}
+                            <div class="position-absolute" style="bottom: 0; right: 0; width: 36px; height: 36px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);">
+                                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 1.5rem;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Name & Rarity -->
+                        <span class="badge mb-3" style="font-size: 0.8rem;
+                            {% if achievement.rarity == 'common' %}background: var(--gray-200); color: var(--gray-600);
+                            {% elif achievement.rarity == 'uncommon' %}background: #D1FAE5; color: #065F46;
+                            {% elif achievement.rarity == 'rare' %}background: #DBEAFE; color: #1E40AF;
+                            {% elif achievement.rarity == 'epic' %}background: #EDE9FE; color: #6D28D9;
+                            {% else %}background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E;
+                            {% endif %}">
+                            {{ achievement.get_rarity_display }}
+                        </span>
+
+                        <h2 class="mb-3">{{ achievement.name }}</h2>
+                        <p class="lead mb-4" style="color: var(--gray-500);">{{ achievement.description }}</p>
+
+                        {% if is_earned %}
+                        <div class="alert alert-success d-inline-block">
+                            <i class="bi bi-check-circle-fill me-2"></i> Siz bu yutuqni qo'lga kiritgansiz!
+                        </div>
+                        {% endif %}
+
+                        <!-- Stats -->
+                        <div class="row g-3 mt-4">
+                            <div class="col-md-4">
+                                <div style="background: var(--gray-100); border-radius: var(--radius-lg); padding: 1.5rem;">
+                                    <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">+{{ achievement.xp_reward }}</div>
+                                    <div style="color: var(--gray-500);">XP mukofot</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div style="background: var(--gray-100); border-radius: var(--radius-lg); padding: 1.5rem;">
+                                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ achievement.total_earned }}</div>
+                                    <div style="color: var(--gray-500);">Jami olganlar</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div style="background: var(--gray-100); border-radius: var(--radius-lg); padding: 1.5rem;">
+                                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ achievement.earn_percentage }}%</div>
+                                    <div style="color: var(--gray-500);">Foydalanuvchilar</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How to Earn -->
+                {% if not is_earned %}
+                <div class="card p-4 mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i> Qanday olish mumkin?
+                    </h5>
+                    <div class="d-flex align-items-center gap-3 p-3" style="background: var(--gray-100); border-radius: var(--radius);">
+                        <div class="icon-box">
+                            <i class="bi bi-target"></i>
+                        </div>
+                        <div>
+                            <strong>Talab:</strong> {{ achievement.requirement_type|title }} - {{ achievement.requirement_value }}
+                        </div>
+                    </div>
+                    <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary mt-3">
+                        Test yechib boshlash <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Recent Earners -->
+                {% if recent_earners %}
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-people me-2" style="color: var(--primary);"></i> Oxirgi olganlar
+                    </h5>
+                    <div class="d-flex flex-column gap-3">
+                        {% for ua in recent_earners %}
+                        <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-100); border-radius: var(--radius);">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 44px; height: 44px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    {% if ua.user.avatar %}
+                                        <img src="{{ ua.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="color: var(--dark);">{{ ua.user.full_name|default:ua.user.phone_number }}</div>
+                                    <small style="color: var(--gray-500);">Level {{ ua.user.level }}</small>
+                                </div>
+                            </div>
+                            <small style="color: var(--gray-500);">
+                                <i class="bi bi-clock me-1"></i> {{ ua.earned_at|timesince }} oldin
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
