@@ -71,6 +71,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://testmakon.uz',
+    'https://www.testmakon.uz',
+    'http://testmakon.uz',
+    'http://www.testmakon.uz',
+]
+
 # Database
 DATABASES = {
     'default': {
