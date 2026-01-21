@@ -686,18 +686,19 @@ def telegram_callback(request):
     }
 
     # Bo'sh qiymatlarni olib tashlash
-    auth_data = {k: v for k, v in auth_data.items() if v}
+    auth_data_filtered = {k: v for k, v in auth_data.items() if v}
 
     # Tekshirish
-    if not verify_telegram_auth(auth_data.copy()):
+    if not verify_telegram_auth(auth_data_filtered.copy()):
         messages.error(request, 'Telegram autentifikatsiya xatosi')
-        return redirect('accounts:telegram_login')
+        return redirect('accounts:login')
 
-    telegram_id = auth_data.get('id')
-    first_name = auth_data.get('first_name', 'User')
-    last_name = auth_data.get('last_name', '')
-    username = auth_data.get('username', '')
-    photo_url = auth_data.get('photo_url', '')
+    # Ma'lumotlarni olish - INT GA O'TKAZISH!
+    telegram_id = int(auth_data_filtered.get('id'))
+    first_name = auth_data_filtered.get('first_name', 'User')
+    last_name = auth_data_filtered.get('last_name', '')
+    username = auth_data_filtered.get('username', '')
+    photo_url = auth_data_filtered.get('photo_url', '')
 
     # User ni topish yoki yaratish
     try:
@@ -717,7 +718,7 @@ def telegram_callback(request):
             counter += 1
             phone_number = f'+998{str(telegram_id + counter)[-9:].zfill(9)}'
             if counter > 10:
-                phone_number = f'+998{telegram_id}'[:13]
+                phone_number = f'+998{str(telegram_id)[:9].zfill(9)}'
                 break
 
         user = User.objects.create(
@@ -730,12 +731,13 @@ def telegram_callback(request):
             is_phone_verified=True,
         )
 
-    # Login
-    login(request, user)
+    # Login - BACKEND KO'RSATISH!
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     user.update_streak()
 
     messages.success(request, f'Xush kelibsiz, {user.first_name}!')
     return redirect('core:dashboard')
+
 
 
 def api_telegram_check(request):
