@@ -123,7 +123,7 @@
                                             <small style="color: var(--gray-500);">{{ attempt.created_at|date:"d.m.Y H:i" }}</small>
                                         </div>
                                     </div>
-                                    <a href="{% url 'tests_app:test_result' attempt.id %}" class="btn btn-light btn-sm">Ko'rish</a>
+                                    <a href="{% url 'tests_app:test_result' attempt.uuid %}" class="btn btn-light btn-sm">Ko'rish</a>
                                 </div>
                                 {% endfor %}
                             </div>
