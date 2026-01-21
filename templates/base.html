@@ -519,7 +519,7 @@
                             <a class="nav-link {% if 'ai-mentor' in request.path %}active{% endif %}" href="{% url 'ai_core:ai_mentor' %}">AI Mentor</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'competitions' in request.path %}active{% endif %}" href="{% url 'competitions:competition_list' %}">Musobaqalar</a>
+                            <a class="nav-link {% if 'competitions' in request.path %}active{% endif %}" href="{% url 'competitions:competition_lists' %}">Musobaqalar</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}" href="{% url 'leaderboard:global' %}">Reyting</a>
@@ -583,7 +583,7 @@
                         <div class="footer-links d-flex flex-column gap-2">
                             <a href="{% url 'tests_app:tests_list' %}">Testlar</a>
                             <a href="{% url 'ai_core:ai_mentor' %}">AI Mentor</a>
-                            <a href="{% url 'competitions:competition_list' %}">Musobaqalar</a>
+                            <a href="{% url 'competitions:competition_lists' %}">Musobaqalar</a>
                             <a href="{% url 'leaderboard:global' %}">Reyting</a>
                         </div>
                     </div>
