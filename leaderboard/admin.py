@@ -27,7 +27,7 @@ class GlobalLeaderboardAdmin(admin.ModelAdmin):
         'user__first_name', 'user__last_name', 'user__phone_number'
     ]
     readonly_fields = ['updated_at', 'rank_change_display', 'stats_overview']
-    autocomplete_fields = ['user']
+    raw_id_fields = ['user']
 
     fieldsets = (
         ('Foydalanuvchi', {
@@ -151,7 +151,7 @@ class SubjectLeaderboardAdmin(admin.ModelAdmin):
         'subject__name'
     ]
     readonly_fields = ['updated_at']
-    autocomplete_fields = ['user', 'subject']
+    raw_id_fields = ['user', 'subject']
 
     @admin.display(description='O\'rin', ordering='rank')
     def rank_badge(self, obj):
@@ -330,7 +330,7 @@ class UserAchievementAdmin(admin.ModelAdmin):
         'achievement__name'
     ]
     readonly_fields = ['earned_at']
-    autocomplete_fields = ['user', 'achievement']
+    raw_id_fields = ['user', 'achievement']
     date_hierarchy = 'earned_at'
 
     @admin.display(description='Yutuq')
@@ -374,7 +374,7 @@ class UserStatsAdmin(admin.ModelAdmin):
         'test_stats_overview', 'battle_stats_overview',
         'time_stats_overview', 'weekly_stats_overview'
     ]
-    autocomplete_fields = ['user']
+    raw_id_fields = ['user']
 
     fieldsets = (
         ('Foydalanuvchi', {
@@ -509,7 +509,7 @@ class SeasonalParticipantInline(admin.TabularInline):
     extra = 0
     readonly_fields = ['joined_at', 'updated_at']
     fields = ['user', 'rank', 'total_xp', 'total_tests', 'accuracy_rate']
-    autocomplete_fields = ['user']
+    raw_id_fields = ['user']
     max_num = 20
 
 
@@ -608,7 +608,7 @@ class SeasonalParticipantAdmin(admin.ModelAdmin):
         'season__name'
     ]
     readonly_fields = ['joined_at', 'updated_at']
-    autocomplete_fields = ['user', 'season']
+    raw_id_fields = ['user', 'season']
 
     @admin.display(description='O\'rin', ordering='rank')
     def rank_badge(self, obj):
@@ -638,8 +638,3 @@ class SeasonalParticipantAdmin(admin.ModelAdmin):
             '<span style="color: {}; font-weight: bold;">{:.1f}%</span>',
             color, obj.accuracy_rate
         )
-
-
-# Admin site customization
-admin.site.site_header = 'TestMakon.uz - Reyting va Yutuqlar'
-admin.site.index_title = 'Leaderboard boshqaruvi'
