@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', 'testmakon.uz', 'www.testmakon.u
 
 # Application definition
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -136,4 +137,17 @@ MESSAGE_TAGS = {
     messages.SUCCESS: 'success',
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
+}
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Admin",
+    "site_header": "Admin",
+    "site_brand": "Admin",
+    "welcome_sign": "TestMakon  adminlar uchun",
+    "copyright": "TestMakon",
+    "custom_css": None,
+    "custom_js": None,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": True,
 }
