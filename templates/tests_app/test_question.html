@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load test_tags %}
 
 {% block title %}Savol {{ current_number }} - {{ test.title }}{% endblock %}
 
@@ -58,7 +59,7 @@
                                 <label class="answer-option d-flex align-items-center gap-3 p-4" style="border: 2px solid var(--gray-200); border-radius: 16px; cursor: pointer; transition: all 0.3s;">
                                     <input type="radio" name="answer" value="{{ option.id }}" class="d-none" required>
                                     <div class="option-letter" style="width: 44px; height: 44px; background: var(--gray-100); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--gray-600); transition: all 0.3s;">
-                                        {{ forloop.counter|add:64|chr }}
+                                        {{ forloop.counter|add:64|to_char }}
                                     </div>
                                     <span style="color: var(--dark); font-weight: 500;">{{ option.text }}</span>
                                 </label>
