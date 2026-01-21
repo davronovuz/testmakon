@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ conversation.title }} - TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .message { max-width: 85%; margin-bottom: 1rem; }
+    .message-user { margin-left: auto; }
+    .message-ai { margin-right: auto; }
+    .message-content {
+        padding: 1rem 1.25rem;
+        border-radius: 20px;
+        line-height: 1.6;
+    }
+    .message-user .message-content {
+        background: var(--gradient-primary);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    .message-ai .message-content {
+        background: var(--white);
+        color: var(--dark);
+        border: 1px solid var(--gray-200);
+        border-bottom-left-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Back -->
+                <a href="{% url 'ai_core:conversations_list' %}" class="btn btn-light mb-4" style="border-radius: 10px;">
+                    <i class="bi bi-arrow-left me-2"></i> Suhbatlarga qaytish
+                </a>
+
+                <!-- Conversation -->
+                <div class="card" style="border-radius: 20px;">
+                    <div class="d-flex align-items-center justify-content-between p-4" style="border-bottom: 1px solid var(--gray-200);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-box-gradient">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">{{ conversation.title|default:"AI Mentor suhbati" }}</h5>
+                                <small style="color: var(--gray-500);">{{ conversation.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-light btn-sm" data-bs-toggle="dropdown" style="border-radius: 10px;">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="return confirm('O\'chirilsinmi?') && document.getElementById('deleteForm').submit()"><i class="bi bi-trash me-2"></i> O'chirish</a></li>
+                            </ul>
+                        </div>
+                        <form id="deleteForm" method="post" action="{% url 'ai_core:conversation_delete' conversation.id %}" class="d-none">
+                            {% csrf_token %}
+                        </form>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Messages -->
+                        {% for message in messages %}
+                        <div class="message {% if message.is_user %}message-user{% else %}message-ai{% endif %}">
+                            {% if not message.is_user %}
+                            <div class="d-flex gap-3">
+                                <div style="width: 36px; height: 36px; background: var(--gradient-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="bi bi-robot text-white"></i>
+                                </div>
+                                <div class="message-content">{{ message.content|linebreaks }}</div>
+                            </div>
+                            {% else %}
+                            <div class="message-content">{{ message.content }}</div>
+                            {% endif %}
+                            <div class="text-{% if message.is_user %}end{% else %}start{% endif %} mt-1 {% if not message.is_user %}ms-5{% endif %}">
+                                <small style="color: var(--gray-400);">{{ message.created_at|date:"H:i" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <!-- Continue Chat -->
+                        <div class="mt-4 pt-4" style="border-top: 1px solid var(--gray-200);">
+                            <form method="post" action="{% url 'ai_core:conversation_continue' conversation.id %}">
+                                {% csrf_token %}
+                                <div class="d-flex gap-2">
+                                    <input type="text" name="message" class="form-control" placeholder="Davom ettirish uchun yozing..." style="border-radius: 12px;">
+                                    <button type="submit" class="btn btn-primary" style="border-radius: 12px;">
+                                        <i class="bi bi-send-fill"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

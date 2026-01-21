@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Test tahlili - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <div class="icon-box-gradient icon-box-lg mx-auto mb-3">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <h2 class="mb-2">AI Test Tahlili</h2>
+            <p style="color: var(--gray-500);">Sun'iy intellekt sizning natijalaringizni chuqur tahlil qiladi</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Overall Stats -->
+            <div class="col-lg-4">
+                <div class="card h-100" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Umumiy natijalar</h5>
+
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <svg width="150" height="150" viewBox="0 0 150 150">
+                                    <circle cx="75" cy="75" r="65" fill="none" stroke="var(--gray-200)" stroke-width="12"/>
+                                    <circle cx="75" cy="75" r="65" fill="none" stroke="url(#gradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ analysis.overall_score|default:75 }} 400" transform="rotate(-90 75 75)"/>
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" style="stop-color:#8BC540"/>
+                                            <stop offset="100%" style="stop-color:#6BA832"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                    <div class="fs-2 fw-bold text-gradient">{{ analysis.overall_score|default:75 }}%</div>
+                                    <small style="color: var(--gray-500);">Umumiy</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: var(--gray-500);">Jami testlar</span>
+                                <span class="fw-bold">{{ analysis.total_tests|default:24 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color: var(--gray-500);">To'g'ri javoblar</span>
+                                <span class="fw-bold text-success">{{ analysis.correct_answers|default:156 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color: var(--gray-500);">Xato javoblar</span>
+                                <span class="fw-bold text-danger">{{ analysis.wrong_answers|default:44 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color: var(--gray-500);">O'rtacha vaqt</span>
+                                <span class="fw-bold">{{ analysis.avg_time|default:"18 daq" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Analysis -->
+            <div class="col-lg-8">
+                <div class="card" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Fanlar bo'yicha tahlil</h5>
+
+                        <div class="d-flex flex-column gap-4">
+                            {% for subject in analysis.subjects %}
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span style="font-size: 1.25rem;">{{ subject.icon }}</span>
+                                        <span class="fw-semibold">{{ subject.name }}</span>
+                                    </div>
+                                    <span class="fw-bold" style="color: {% if subject.score >= 80 %}#059669{% elif subject.score >= 60 %}#B45309{% else %}#DC2626{% endif %};">{{ subject.score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 12px; border-radius: 6px;">
+                                    <div class="progress-bar" style="width: {{ subject.score }}%; background: {% if subject.score >= 80 %}linear-gradient(135deg, #22C55E 0%, #16A34A 100%){% elif subject.score >= 60 %}linear-gradient(135deg, #F59E0B 0%, #D97706 100%){% else %}linear-gradient(135deg, #EF4444 0%, #DC2626 100%){% endif %};"></div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="d-flex flex-column gap-4">
+                                <div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>📐 Matematika</span>
+                                        <span class="fw-bold text-success">82%</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px; border-radius: 6px;">
+                                        <div class="progress-bar" style="width: 82%; background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>⚡ Fizika</span>
+                                        <span class="fw-bold" style="color: #B45309;">68%</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px; border-radius: 6px;">
+                                        <div class="progress-bar" style="width: 68%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>🇬🇧 Ingliz tili</span>
+                                        <span class="fw-bold text-success">75%</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px; border-radius: 6px;">
+                                        <div class="progress-bar" style="width: 75%; background: var(--gradient-primary);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="card mt-4" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="icon-box-gradient">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">AI Tavsiyalari</h5>
+                        <small style="color: var(--gray-500);">Natijalaringiz asosida shaxsiy maslahatlar</small>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    {% for rec in analysis.recommendations %}
+                    <div class="col-md-6">
+                        <div class="p-4" style="background: var(--gray-50); border-radius: 16px;">
+                            <div class="d-flex align-items-start gap-3">
+                                <div style="width: 32px; height: 32px; background: var(--primary-glow); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-lightbulb text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">{{ rec.title }}</h6>
+                                    <p class="mb-0 small" style="color: var(--gray-500);">{{ rec.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-md-6">
+                        <div class="p-4" style="background: #D1FAE5; border-radius: 16px;">
+                            <div class="d-flex align-items-start gap-3">
+                                <div style="width: 32px; height: 32px; background: #22C55E; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-check-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Matematikada zo'rsiz!</h6>
+                                    <p class="mb-0 small" style="color: #065F46;">82% natija bilan eng yaxshi fansiz. Shu ruhda davom eting!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4" style="background: #FEF3C7; border-radius: 16px;">
+                            <div class="d-flex align-items-start gap-3">
+                                <div style="width: 32px; height: 32px; background: #F59E0B; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-exclamation-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Fizikaga e'tibor bering</h6>
+                                    <p class="mb-0 small" style="color: #92400E;">Mexanika va termodinamika mavzularini takrorlang.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'ai_core:detailed_analysis' %}" class="btn btn-primary" style="border-radius: 12px;">
+                        <i class="bi bi-bar-chart me-2"></i> Batafsil tahlil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

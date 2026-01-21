@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Natija - {{ attempt.test.title }} - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Back -->
+                <a href="{% url 'tests_app:my_results' %}" class="btn btn-light mb-4" style="border-radius: 10px;">
+                    <i class="bi bi-arrow-left me-2"></i> Natijalarimga qaytish
+                </a>
+
+                <!-- Header Card -->
+                <div class="card mb-4" style="border-radius: 20px; overflow: hidden;">
+                    <div style="background: {% if attempt.score >= 80 %}linear-gradient(135deg, #22C55E 0%, #16A34A 100%){% elif attempt.score >= 60 %}linear-gradient(135deg, #F59E0B 0%, #D97706 100%){% else %}linear-gradient(135deg, #EF4444 0%, #DC2626 100%){% endif %}; padding: 2rem;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="badge mb-2" style="background: rgba(255,255,255,0.2); color: white;">{{ attempt.test.subject.name }}</span>
+                                <h4 class="text-white mb-0">{{ attempt.test.title }}</h4>
+                            </div>
+                            <div class="text-center">
+                                <div class="fs-1 fw-bold text-white">{{ attempt.score }}%</div>
+                                <small class="text-white" style="opacity: 0.9;">Natija</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions Review -->
+                <div class="card" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-list-check text-primary me-2"></i> Savollar tahlili</h5>
+
+                        <div class="d-flex flex-column gap-4">
+                            {% for answer in attempt.answers.all %}
+                            <div class="question-review p-4" style="background: var(--gray-50); border-radius: 16px; border-left: 4px solid {% if answer.is_correct %}#22C55E{% else %}#EF4444{% endif %};">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <span class="badge {% if answer.is_correct %}badge-primary{% else %}badge-dark{% endif %}">
+                                        Savol {{ forloop.counter }}
+                                    </span>
+                                    <span class="badge" style="background: {% if answer.is_correct %}#D1FAE5{% else %}#FEE2E2{% endif %}; color: {% if answer.is_correct %}#059669{% else %}#DC2626{% endif %};">
+                                        {% if answer.is_correct %}To'g'ri{% else %}Noto'g'ri{% endif %}
+                                    </span>
+                                </div>
+
+                                <h6 class="fw-bold mb-3" style="color: var(--dark);">{{ answer.question.text }}</h6>
+
+                                {% if answer.question.image %}
+                                <div class="mb-3">
+                                    <img src="{{ answer.question.image.url }}" alt="Savol rasmi" class="img-fluid rounded-3" style="max-height: 200px;">
+                                </div>
+                                {% endif %}
+
+                                <div class="row g-2 mb-3">
+                                    {% for option in answer.question.options.all %}
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3" style="background: {% if option.is_correct %}#D1FAE5{% elif option == answer.selected_option and not answer.is_correct %}#FEE2E2{% else %}var(--white){% endif %}; border: 2px solid {% if option.is_correct %}#22C55E{% elif option == answer.selected_option and not answer.is_correct %}#EF4444{% else %}var(--gray-200){% endif %};">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if option.is_correct %}
+                                                <i class="bi bi-check-circle-fill text-success"></i>
+                                                {% elif option == answer.selected_option and not answer.is_correct %}
+                                                <i class="bi bi-x-circle-fill text-danger"></i>
+                                                {% else %}
+                                                <i class="bi bi-circle" style="color: var(--gray-400);"></i>
+                                                {% endif %}
+                                                <span style="color: var(--dark);">{{ option.text }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                {% if answer.question.explanation %}
+                                <div class="p-3" style="background: var(--primary-glow); border-radius: 12px;">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <i class="bi bi-lightbulb text-primary mt-1"></i>
+                                        <div>
+                                            <small class="fw-bold" style="color: var(--primary-dark);">Tushuntirish</small>
+                                            <p class="mb-0" style="color: var(--gray-600);">{{ answer.question.explanation }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Stats Card -->
+                <div class="card mb-4" style="border-radius: 20px; position: sticky; top: 100px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-4">Statistika</h6>
+
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color: var(--gray-500);">To'g'ri javoblar</span>
+                                <span class="fw-bold" style="color: #059669;">{{ attempt.correct_answers }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color: var(--gray-500);">Noto'g'ri javoblar</span>
+                                <span class="fw-bold" style="color: #DC2626;">{{ attempt.wrong_answers }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color: var(--gray-500);">Sarflangan vaqt</span>
+                                <span class="fw-bold" style="color: var(--dark);">{{ attempt.time_spent }} daq</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color: var(--gray-500);">Olingan XP</span>
+                                <span class="fw-bold text-gradient">+{{ attempt.xp_earned }}</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span style="color: var(--gray-500);">Sana</span>
+                                <span class="fw-bold" style="color: var(--dark);">{{ attempt.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="{% url 'tests_app:test_take' attempt.test.slug %}" class="btn btn-primary" style="border-radius: 12px;">
+                                <i class="bi bi-arrow-repeat me-2"></i> Qayta yechish
+                            </a>
+                            <a href="{% url 'tests_app:test_list' %}" class="btn btn-light" style="border-radius: 12px;">
+                                <i class="bi bi-grid me-2"></i> Boshqa testlar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

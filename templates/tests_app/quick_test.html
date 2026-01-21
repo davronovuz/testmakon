@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Tezkor Test - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <div class="icon-box-gradient icon-box-lg mx-auto mb-3">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <h2 class="mb-2">Tezkor Test</h2>
+                    <p style="color: var(--gray-500);">Tez va samarali bilimingizni tekshiring</p>
+                </div>
+
+                <!-- Settings Card -->
+                <div class="card" style="border-radius: 24px;">
+                    <div class="card-body p-4 p-md-5">
+                        <form method="get" action="{% url 'tests_app:test_take_quick' %}">
+
+                            <!-- Subject Selection -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Fan tanlang</label>
+                                <div class="row g-2">
+                                    {% for subject in subjects %}
+                                    <div class="col-6 col-md-4">
+                                        <input type="radio" name="subject" value="{{ subject.id }}" id="subject-{{ subject.id }}" class="d-none subject-radio" {% if forloop.first %}checked{% endif %}>
+                                        <label for="subject-{{ subject.id }}" class="card p-3 text-center h-100 subject-option" style="border-radius: 12px; cursor: pointer; border: 2px solid var(--gray-200); transition: all 0.3s;">
+                                            <div style="font-size: 2rem;">{{ subject.icon|default:"📖" }}</div>
+                                            <small class="fw-semibold" style="color: var(--dark);">{{ subject.name }}</small>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Question Count -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Savollar soni</label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="count" value="10" id="count-10" class="d-none count-radio" checked>
+                                    <label for="count-10" class="btn btn-light flex-grow-1 count-option" style="border-radius: 12px;">10 ta</label>
+
+                                    <input type="radio" name="count" value="20" id="count-20" class="d-none count-radio">
+                                    <label for="count-20" class="btn btn-light flex-grow-1 count-option" style="border-radius: 12px;">20 ta</label>
+
+                                    <input type="radio" name="count" value="30" id="count-30" class="d-none count-radio">
+                                    <label for="count-30" class="btn btn-light flex-grow-1 count-option" style="border-radius: 12px;">30 ta</label>
+                                </div>
+                            </div>
+
+                            <!-- Difficulty -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Qiyinchilik darajasi</label>
+                                <div class="d-flex gap-2">
+                                    <input type="radio" name="difficulty" value="all" id="diff-all" class="d-none diff-radio" checked>
+                                    <label for="diff-all" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">Barchasi</label>
+
+                                    <input type="radio" name="difficulty" value="easy" id="diff-easy" class="d-none diff-radio">
+                                    <label for="diff-easy" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">Oson</label>
+
+                                    <input type="radio" name="difficulty" value="medium" id="diff-medium" class="d-none diff-radio">
+                                    <label for="diff-medium" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">O'rta</label>
+
+                                    <input type="radio" name="difficulty" value="hard" id="diff-hard" class="d-none diff-radio">
+                                    <label for="diff-hard" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">Qiyin</label>
+                                </div>
+                            </div>
+
+                            <!-- Start Button -->
+                            <button type="submit" class="btn btn-primary btn-lg w-100" style="border-radius: 14px; padding: 1rem;">
+                                <i class="bi bi-play-fill me-2"></i> Testni boshlash
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .subject-radio:checked + .subject-option {
+        border-color: var(--primary) !important;
+        background: var(--primary-glow);
+    }
+    .count-radio:checked + .count-option,
+    .diff-radio:checked + .diff-option {
+        background: var(--gradient-primary) !important;
+        color: white !important;
+        border-color: var(--primary) !important;
+    }
+</style>
+{% endblock %}

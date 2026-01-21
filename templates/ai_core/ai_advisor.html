@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Maslahatchi - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <div class="icon-box-gradient icon-box-lg mx-auto mb-3">
+                <i class="bi bi-lightbulb"></i>
+            </div>
+            <h2 class="mb-2">AI Maslahatchi</h2>
+            <p style="color: var(--gray-500);">Universitet va karyera bo'yicha shaxsiy maslahatlar</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Advisor Cards -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-glow" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
+                        <h5 class="fw-bold mb-2">Universitet tanlash</h5>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;" class="mb-4">Ballaringiz va qiziqishlaringiz asosida eng mos universitetlarni toping</p>
+                        <a href="{% url 'ai_core:admission_results' %}" class="btn btn-primary w-100" style="border-radius: 12px;">
+                            Maslahat olish
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-glow" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                        <h5 class="fw-bold mb-2">Ball tahlili</h5>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;" class="mb-4">Test natijalaringizni tahlil qilib, qayerga kirishingiz mumkinligini bilib oling</p>
+                        <a href="{% url 'ai_core:test_analysis' %}" class="btn btn-primary w-100" style="border-radius: 12px;">
+                            Tahlil qilish
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-glow" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                        <h5 class="fw-bold mb-2">Karyera yo'nalishi</h5>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;" class="mb-4">Qiziqishlaring va qobiliyatlaring asosida karyera yo'lini tanlashda yordam</p>
+                        <a href="#careerModal" class="btn btn-primary w-100" style="border-radius: 12px;" data-bs-toggle="modal">
+                            Boshlash
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-glow" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                        <h5 class="fw-bold mb-2">O'qish rejasi</h5>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;" class="mb-4">Shaxsiy o'qish rejasi tuzing va maqsadlaringizga erishing</p>
+                        <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-primary w-100" style="border-radius: 12px;">
+                            Reja tuzish
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-glow" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">💡</div>
+                        <h5 class="fw-bold mb-2">Tavsiyalar</h5>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;" class="mb-4">AI sizning natijalaringiz asosida shaxsiy tavsiyalar beradi</p>
+                        <a href="{% url 'ai_core:recommendations_list' %}" class="btn btn-primary w-100" style="border-radius: 12px;">
+                            Ko'rish
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-glow" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📉</div>
+                        <h5 class="fw-bold mb-2">Zaif tomonlar</h5>
+                        <p style="color: var(--gray-500); font-size: 0.9rem;" class="mb-4">Qaysi mavzularda ko'proq ishlash kerakligini aniqlang</p>
+                        <a href="{% url 'ai_core:weak_topics' %}" class="btn btn-primary w-100" style="border-radius: 12px;">
+                            Tahlil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Chat Section -->
+        <div class="card mt-5" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="icon-box-gradient">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">AI Maslahatchi bilan suhbat</h5>
+                        <small style="color: var(--gray-500);">Savollaringizga javob beraman</small>
+                    </div>
+                </div>
+
+                <form action="{% url 'ai_core:ai_mentor' %}" method="get">
+                    <div class="d-flex gap-2">
+                        <input type="text" name="q" class="form-control" placeholder="Savolingizni yozing..." style="border-radius: 12px;">
+                        <button type="submit" class="btn btn-primary" style="border-radius: 12px;">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Career Modal -->
+<div class="modal fade" id="careerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius: 20px;">
+            <div class="modal-body p-5">
+                <h4 class="fw-bold mb-4 text-center">Karyera yo'nalishini aniqlash</h4>
+
+                <form method="post" action="{% url 'ai_core:career_analysis' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Qaysi fanlar sizga yoqadi?</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <label class="btn btn-light" style="border-radius: 10px;">
+                                <input type="checkbox" name="interests" value="math" class="d-none"> 📐 Matematika
+                            </label>
+                            <label class="btn btn-light" style="border-radius: 10px;">
+                                <input type="checkbox" name="interests" value="physics" class="d-none"> ⚡ Fizika
+                            </label>
+                            <label class="btn btn-light" style="border-radius: 10px;">
+                                <input type="checkbox" name="interests" value="chemistry" class="d-none"> 🧪 Kimyo
+                            </label>
+                            <label class="btn btn-light" style="border-radius: 10px;">
+                                <input type="checkbox" name="interests" value="biology" class="d-none"> 🧬 Biologiya
+                            </label>
+                            <label class="btn btn-light" style="border-radius: 10px;">
+                                <input type="checkbox" name="interests" value="languages" class="d-none"> 🌍 Tillar
+                            </label>
+                            <label class="btn btn-light" style="border-radius: 10px;">
+                                <input type="checkbox" name="interests" value="it" class="d-none"> 💻 IT
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Kelajakda qanday ish qilmoqchisiz?</label>
+                        <textarea name="goals" class="form-control" rows="3" placeholder="Masalan: Dasturchi, shifokor, muhandis..." style="border-radius: 12px;"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal" style="border-radius: 12px;">Bekor</button>
+                        <button type="submit" class="btn btn-primary flex-grow-1" style="border-radius: 12px;">Tahlil qilish</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

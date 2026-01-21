@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Saqlangan savollar - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <!-- Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-bookmark-star text-primary me-2"></i> Saqlangan savollar</h2>
+                <p style="color: var(--gray-500);" class="mb-0">Keyinroq o'rganish uchun saqlangan savollar</p>
+            </div>
+            {% if saved_questions %}
+            <a href="{% url 'tests_app:practice_saved' %}" class="btn btn-primary">
+                <i class="bi bi-play-fill me-2"></i> Mashq qilish
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Saved Questions List -->
+        <div class="card" style="border-radius: 20px;">
+            <div class="card-body p-4">
+                {% if saved_questions %}
+                <div class="d-flex flex-column gap-3">
+                    {% for item in saved_questions %}
+                    <div class="saved-question-item p-4" style="background: var(--gray-50); border-radius: 16px;">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge badge-primary">{{ item.question.subject.name }}</span>
+                                {% if item.question.topic %}
+                                <span class="badge" style="background: var(--gray-200); color: var(--gray-600);">{{ item.question.topic.name }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <small style="color: var(--gray-500);">{{ item.created_at|date:"d.m.Y" }}</small>
+                                <button type="button" class="btn btn-sm btn-light remove-saved" data-id="{{ item.id }}" style="border-radius: 8px;">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-3" style="color: var(--dark);">{{ item.question.text }}</h6>
+
+                        {% if item.question.image %}
+                        <div class="mb-3">
+                            <img src="{{ item.question.image.url }}" alt="Savol rasmi" class="img-fluid rounded-3" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-2 mb-3">
+                            {% for option in item.question.options.all %}
+                            <div class="col-md-6">
+                                <div class="p-2 rounded-3 {% if option.is_correct %}bg-success bg-opacity-10{% endif %}" style="border: 1px solid {% if option.is_correct %}#22C55E{% else %}var(--gray-200){% endif %};">
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if option.is_correct %}
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% else %}
+                                        <i class="bi bi-circle" style="color: var(--gray-400);"></i>
+                                        {% endif %}
+                                        <span style="color: var(--dark); font-size: 0.9rem;">{{ option.text }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if item.question.explanation %}
+                        <details class="mt-3">
+                            <summary class="fw-semibold" style="color: var(--primary); cursor: pointer;">
+                                <i class="bi bi-lightbulb me-1"></i> Tushuntirishni ko'rish
+                            </summary>
+                            <div class="p-3 mt-2" style="background: var(--primary-glow); border-radius: 12px;">
+                                <p class="mb-0 small" style="color: var(--gray-600);">{{ item.question.explanation }}</p>
+                            </div>
+                        </details>
+                        {% endif %}
+
+                        {% if item.note %}
+                        <div class="mt-3 p-3" style="background: #FEF3C7; border-radius: 12px;">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-sticky text-warning"></i>
+                                <div>
+                                    <small class="fw-bold" style="color: #B45309;">Sizning eslatmangiz:</small>
+                                    <p class="mb-0 small" style="color: #92400E;">{{ item.note }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div style="font-size: 4rem;">📌</div>
+                    <h5 class="mt-3" style="color: var(--dark);">Saqlangan savollar yo'q</h5>
+                    <p style="color: var(--gray-500);" class="mb-4">Test yechish vaqtida savollarni saqlashingiz mumkin</p>
+                    <a href="{% url 'tests_app:test_list' %}" class="btn btn-primary">
+                        <i class="bi bi-play-fill me-2"></i> Testlarni ko'rish
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.remove-saved').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (confirm("Saqlangan savolni o'chirmoqchimisiz?")) {
+            fetch(`/tests/saved/${this.dataset.id}/remove/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            }).then(() => {
+                this.closest('.saved-question-item').remove();
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

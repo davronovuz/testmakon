@@ -3,19 +3,37 @@
 {% block title %}Ro'yxatdan o'tish - TestMakon{% endblock %}
 
 {% block content %}
-<div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: var(--gray-50);">
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%);">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card" style="border-radius: 16px; box-shadow: var(--shadow-lg);">
+                <div class="card" style="border-radius: 24px; border: 2px solid var(--gray-200); box-shadow: var(--shadow-lg);">
                     <div class="card-body p-4 p-md-5">
                         <!-- Logo -->
                         <div class="text-center mb-4">
                             <a href="{% url 'core:home' %}" class="text-decoration-none">
-                                <i class="bi bi-mortarboard-fill fs-1 text-primary"></i>
-                                <h4 class="fw-bold mt-2" style="color: var(--dark);">TestMakon</h4>
+                                <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background: var(--gradient-primary); border-radius: 16px; box-shadow: var(--shadow-primary);">
+                                    <i class="bi bi-mortarboard-fill text-white fs-3"></i>
+                                </div>
+                                <h4 class="fw-bold" style="color: var(--dark);">TestMakon</h4>
                             </a>
-                            <p class="text-muted">Bepul ro'yxatdan o'ting</p>
+                            <p style="color: var(--gray-500);">Bepul ro'yxatdan o'ting</p>
+                        </div>
+
+                        <!-- Benefits -->
+                        <div class="d-flex justify-content-center gap-3 mb-4">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                <small style="color: var(--gray-500);">Bepul</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                <small style="color: var(--gray-500);">AI Mentor</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                <small style="color: var(--gray-500);">10K+ testlar</small>
+                            </div>
                         </div>
 
                         <!-- Register Form -->
@@ -29,6 +47,7 @@
                                            name="first_name"
                                            class="form-control"
                                            placeholder="Ism"
+                                           style="border-radius: 10px;"
                                            required>
                                 </div>
                                 <div class="col-6">
@@ -37,6 +56,7 @@
                                            name="last_name"
                                            class="form-control"
                                            placeholder="Familiya"
+                                           style="border-radius: 10px;"
                                            required>
                                 </div>
                             </div>
@@ -44,13 +64,13 @@
                             <div class="mt-3">
                                 <label class="form-label">Telefon raqam</label>
                                 <div class="input-group">
-                                    <span class="input-group-text" style="background: var(--gray-100); border: 1.5px solid var(--gray-300); border-right: none;">+998</span>
+                                    <span class="input-group-text" style="border-radius: 10px 0 0 10px;">+998</span>
                                     <input type="tel"
                                            name="phone_number"
                                            class="form-control"
                                            placeholder="90 123 45 67"
                                            maxlength="9"
-                                           style="border-left: none;"
+                                           style="border-radius: 0 10px 10px 0; border-left: none;"
                                            required>
                                 </div>
                             </div>
@@ -62,6 +82,7 @@
                                        class="form-control"
                                        placeholder="Kamida 6 ta belgi"
                                        minlength="6"
+                                       style="border-radius: 10px;"
                                        required>
                             </div>
 
@@ -72,35 +93,48 @@
                                        class="form-control"
                                        placeholder="Parolni qayta kiriting"
                                        minlength="6"
+                                       style="border-radius: 10px;"
                                        required>
                             </div>
 
                             <div class="mt-4">
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="terms" required>
-                                    <label class="form-check-label small text-muted" for="terms">
-                                        <a href="#" class="text-primary">Foydalanish shartlari</a> va
-                                        <a href="#" class="text-primary">Maxfiylik siyosati</a>ga roziman
+                                    <input type="checkbox" class="form-check-input" id="terms" style="border-radius: 4px;" required>
+                                    <label class="form-check-label" for="terms" style="color: var(--gray-500); font-size: 0.9rem;">
+                                        <a href="#" style="color: var(--primary);">Foydalanish shartlari</a> va
+                                        <a href="#" style="color: var(--primary);">Maxfiylik siyosati</a>ga roziman
                                     </label>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100 py-2 mt-4">
-                                Ro'yxatdan o'tish
+                            <button type="submit" class="btn btn-primary w-100 py-3 mt-4" style="border-radius: 12px; font-size: 1rem;">
+                                <i class="bi bi-person-plus me-2"></i> Ro'yxatdan o'tish
                             </button>
                         </form>
 
+                        <!-- Divider -->
+                        <div class="d-flex align-items-center my-4">
+                            <hr class="flex-grow-1" style="border-color: var(--gray-300);">
+                            <span class="px-3" style="color: var(--gray-400); font-size: 0.85rem;">yoki</span>
+                            <hr class="flex-grow-1" style="border-color: var(--gray-300);">
+                        </div>
+
+                        <!-- Telegram Register -->
+                        <a href="{% url 'accounts:telegram_login' %}" class="btn btn-light w-100 py-3" style="border-radius: 12px; border: 2px solid var(--gray-200);">
+                            <i class="bi bi-telegram me-2" style="color: #0088cc;"></i> Telegram orqali ro'yxatdan o'tish
+                        </a>
+
                         <!-- Login Link -->
                         <div class="text-center mt-4">
-                            <span class="text-muted">Akkountingiz bormi?</span>
-                            <a href="{% url 'accounts:login' %}" class="text-primary fw-semibold">Kirish</a>
+                            <span style="color: var(--gray-500);">Akkountingiz bormi?</span>
+                            <a href="{% url 'accounts:login' %}" class="fw-bold" style="color: var(--primary);">Kirish</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Back to home -->
                 <div class="text-center mt-4">
-                    <a href="{% url 'core:home' %}" class="text-muted small">
+                    <a href="{% url 'core:home' %}" style="color: var(--gray-500);">
                         <i class="bi bi-arrow-left me-1"></i> Bosh sahifaga qaytish
                     </a>
                 </div>

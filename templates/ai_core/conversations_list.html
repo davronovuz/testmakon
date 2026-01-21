@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Suhbatlar tarixi - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-1"><i class="bi bi-clock-history text-primary me-2"></i> Suhbatlar tarixi</h2>
+                        <p style="color: var(--gray-500);" class="mb-0">AI Mentor bilan bo'lgan suhbatlar</p>
+                    </div>
+                    <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-primary" style="border-radius: 12px;">
+                        <i class="bi bi-plus-lg me-2"></i> Yangi suhbat
+                    </a>
+                </div>
+
+                <!-- Conversations List -->
+                <div class="card" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        {% if conversations %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for conv in conversations %}
+                            <a href="{% url 'ai_core:conversation_detail' conv.id %}" class="d-flex align-items-center gap-3 p-3 text-decoration-none card-glow" style="background: var(--gray-50); border-radius: 16px;">
+                                <div class="icon-box" style="width: 48px; height: 48px;">
+                                    <i class="bi bi-chat-dots"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-1" style="color: var(--dark);">{{ conv.title|default:"Yangi suhbat" }}</h6>
+                                    <p class="mb-0 small" style="color: var(--gray-500);">{{ conv.last_message|truncatewords:10 }}</p>
+                                </div>
+                                <div class="text-end">
+                                    <small style="color: var(--gray-400);">{{ conv.updated_at|timesince }} oldin</small>
+                                    <div>
+                                        <span class="badge badge-primary">{{ conv.messages_count }} xabar</span>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+
+                        {% if conversations.has_other_pages %}
+                        <nav class="mt-4">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if conversations.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ conversations.previous_page_number }}" style="border-radius: 10px;">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                {% for num in conversations.paginator.page_range %}
+                                <li class="page-item {% if conversations.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}" style="border-radius: 10px; margin: 0 2px;">{{ num }}</a>
+                                </li>
+                                {% endfor %}
+                                {% if conversations.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ conversations.next_page_number }}" style="border-radius: 10px;">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-center py-5">
+                            <div style="font-size: 4rem;">💬</div>
+                            <h5 class="mt-3" style="color: var(--dark);">Suhbatlar yo'q</h5>
+                            <p style="color: var(--gray-500);" class="mb-4">AI Mentor bilan birinchi suhbatingizni boshlang</p>
+                            <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-primary" style="border-radius: 12px;">
+                                <i class="bi bi-robot me-2"></i> AI Mentor
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

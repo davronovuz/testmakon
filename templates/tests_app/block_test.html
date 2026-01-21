@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Blok Test - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <div class="icon-box-gradient icon-box-lg mx-auto mb-3">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </div>
+                    <h2 class="mb-2">Blok Test</h2>
+                    <p style="color: var(--gray-500);">DTM formatidagi to'liq blok test</p>
+                </div>
+
+                <!-- Block Info Card -->
+                <div class="card mb-4" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.05) 100%); border-radius: 12px; border-left: 4px solid var(--primary);">
+                            <i class="bi bi-info-circle text-primary fs-4"></i>
+                            <div>
+                                <p class="mb-0" style="color: var(--gray-600);">Blok test DTM imtihoni formatida tuzilgan. 3 ta fan bo'yicha 90 ta savol, 3 soat vaqt.</p>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-3">Blok tarkibi</h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="font-size: 1.5rem;">📐</div>
+                                    <div>
+                                        <div class="fw-semibold" style="color: var(--dark);">Majburiy fan</div>
+                                        <small style="color: var(--gray-500);">Matematika • 30 savol</small>
+                                    </div>
+                                </div>
+                                <span class="badge badge-primary">1.1 ball</span>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="font-size: 1.5rem;">📚</div>
+                                    <div>
+                                        <div class="fw-semibold" style="color: var(--dark);">Fan 1</div>
+                                        <small style="color: var(--gray-500);">Tanlangan fan • 30 savol</small>
+                                    </div>
+                                </div>
+                                <span class="badge badge-accent">2.1 ball</span>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="font-size: 1.5rem;">📖</div>
+                                    <div>
+                                        <div class="fw-semibold" style="color: var(--dark);">Fan 2</div>
+                                        <small style="color: var(--gray-500);">Tanlangan fan • 30 savol</small>
+                                    </div>
+                                </div>
+                                <span class="badge badge-dark">3.1 ball</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block Selection -->
+                <div class="card" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Blok tanlang</h6>
+
+                        <form method="post" action="{% url 'tests_app:block_test_start' %}">
+                            {% csrf_token %}
+
+                            <div class="mb-4">
+                                <label class="form-label">Fan 1 (asosiy)</label>
+                                <select name="subject1" class="form-control" style="border-radius: 12px;" required>
+                                    <option value="">Tanlang...</option>
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Fan 2 (qo'shimcha)</label>
+                                <select name="subject2" class="form-control" style="border-radius: 12px;" required>
+                                    <option value="">Tanlang...</option>
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" style="border-radius: 14px;">
+                                    <i class="bi bi-play-fill me-2"></i> Blok testni boshlash
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Recent Block Results -->
+                {% if recent_blocks %}
+                <div class="card mt-4" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">So'nggi natijalaringiz</h6>
+                        <div class="d-flex flex-column gap-2">
+                            {% for block in recent_blocks %}
+                            <a href="{% url 'tests_app:block_result' block.id %}" class="d-flex align-items-center justify-content-between p-3 text-decoration-none" style="background: var(--gray-50); border-radius: 12px;">
+                                <div>
+                                    <div class="fw-semibold" style="color: var(--dark);">{{ block.subjects_display }}</div>
+                                    <small style="color: var(--gray-500);">{{ block.created_at|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold" style="color: {% if block.score >= 80 %}#059669{% elif block.score >= 60 %}#B45309{% else %}#DC2626{% endif %};">{{ block.score }}%</div>
+                                    <small style="color: var(--gray-500);">{{ block.total_points }} ball</small>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

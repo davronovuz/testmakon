@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Natija - {{ attempt.test.title }} - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Result Card -->
+                <div class="card" style="border-radius: 24px; overflow: hidden;">
+                    <!-- Header -->
+                    <div style="background: {% if attempt.score >= 80 %}linear-gradient(135deg, #22C55E 0%, #16A34A 100%){% elif attempt.score >= 60 %}linear-gradient(135deg, #F59E0B 0%, #D97706 100%){% else %}linear-gradient(135deg, #EF4444 0%, #DC2626 100%){% endif %}; padding: 3rem; text-align: center;">
+                        <div style="font-size: 5rem; margin-bottom: 1rem;">
+                            {% if attempt.score >= 80 %}🎉{% elif attempt.score >= 60 %}👍{% else %}💪{% endif %}
+                        </div>
+                        <h2 class="text-white mb-2">
+                            {% if attempt.score >= 80 %}Ajoyib natija!{% elif attempt.score >= 60 %}Yaxshi natija!{% else %}Davom eting!{% endif %}
+                        </h2>
+                        <p class="text-white mb-0" style="opacity: 0.9;">{{ attempt.test.title }}</p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Score Circle -->
+                        <div class="text-center mb-4" style="margin-top: -60px;">
+                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px; background: var(--white); border-radius: 50%; box-shadow: var(--shadow-lg); border: 4px solid {% if attempt.score >= 80 %}#22C55E{% elif attempt.score >= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
+                                <div>
+                                    <div class="fs-1 fw-bold" style="color: var(--dark); line-height: 1;">{{ attempt.score }}</div>
+                                    <small style="color: var(--gray-500);">foiz</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: #D1FAE5; border-radius: 16px;">
+                                    <div class="fs-4 fw-bold" style="color: #059669;">{{ attempt.correct_answers }}</div>
+                                    <small style="color: #065F46;">To'g'ri</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: #FEE2E2; border-radius: 16px;">
+                                    <div class="fs-4 fw-bold" style="color: #DC2626;">{{ attempt.wrong_answers }}</div>
+                                    <small style="color: #991B1B;">Noto'g'ri</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: #DBEAFE; border-radius: 16px;">
+                                    <div class="fs-4 fw-bold" style="color: #2563EB;">{{ attempt.time_spent }}</div>
+                                    <small style="color: #1E40AF;">Daqiqa</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: var(--primary-glow); border-radius: 16px;">
+                                    <div class="fs-4 fw-bold text-gradient">+{{ attempt.xp_earned }}</div>
+                                    <small style="color: var(--primary-dark);">XP</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Comparison -->
+                        <div class="mb-4 p-4" style="background: var(--gray-50); border-radius: 16px;">
+                            <h6 class="fw-bold mb-3">Taqqoslash</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span style="color: var(--gray-600);">Sizning natijangiz</span>
+                                    <span class="fw-bold" style="color: var(--dark);">{{ attempt.score }}%</span>
+                                </div>
+                                <div class="progress" style="height: 10px; border-radius: 5px;">
+                                    <div class="progress-bar" style="width: {{ attempt.score }}%; background: var(--gradient-primary);"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span style="color: var(--gray-600);">O'rtacha natija</span>
+                                    <span class="fw-bold" style="color: var(--dark);">{{ attempt.test.average_score|default:65 }}%</span>
+                                </div>
+                                <div class="progress" style="height: 10px; border-radius: 5px;">
+                                    <div class="progress-bar" style="width: {{ attempt.test.average_score|default:65 }}%; background: var(--gray-400);"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Results -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-list-check text-primary me-2"></i> Batafsil natijalar
+                            </h6>
+                            <div class="d-flex flex-column gap-2">
+                                {% for answer in attempt.answers.all %}
+                                <div class="d-flex align-items-center gap-3 p-3" style="background: {% if answer.is_correct %}#D1FAE5{% else %}#FEE2E2{% endif %}; border-radius: 12px;">
+                                    <div style="width: 36px; height: 36px; background: {% if answer.is_correct %}#22C55E{% else %}#EF4444{% endif %}; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-{% if answer.is_correct %}check{% else %}x{% endif %} text-white"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="mb-0 fw-medium" style="color: var(--dark);">{{ forloop.counter }}. {{ answer.question.text|truncatewords:10 }}</p>
+                                        {% if not answer.is_correct %}
+                                        <small style="color: #DC2626;">Sizning javob: {{ answer.selected_option.text|truncatewords:5 }}</small>
+                                        {% endif %}
+                                    </div>
+                                    {% if not answer.is_correct %}
+                                    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#explain-{{ forloop.counter }}">
+                                        <i class="bi bi-lightbulb"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                {% if not answer.is_correct %}
+                                <div class="collapse" id="explain-{{ forloop.counter }}">
+                                    <div class="p-3 ms-5" style="background: var(--gray-50); border-radius: 12px; border-left: 3px solid var(--primary);">
+                                        <small class="fw-bold" style="color: var(--primary);">To'g'ri javob:</small>
+                                        <p class="mb-0" style="color: var(--gray-600);">{{ answer.question.correct_option.text }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="{% url 'tests_app:test_take' attempt.test.slug %}" class="btn btn-primary btn-lg flex-grow-1" style="border-radius: 12px;">
+                                <i class="bi bi-arrow-repeat me-2"></i> Qayta yechish
+                            </a>
+                            <a href="{% url 'tests_app:test_list' %}" class="btn btn-light btn-lg flex-grow-1" style="border-radius: 12px;">
+                                <i class="bi bi-grid me-2"></i> Boshqa testlar
+                            </a>
+                        </div>
+
+                        <!-- Share -->
+                        <div class="text-center mt-4 pt-4" style="border-top: 1px solid var(--gray-200);">
+                            <p style="color: var(--gray-500);" class="mb-3">Natijangizni do'stlaringiz bilan ulashing:</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text=Men TestMakon'da {{ attempt.score }}% natija oldim!" target="_blank" class="btn btn-light" style="border-radius: 10px;">
+                                    <i class="bi bi-telegram"></i>
+                                </a>
+                                <a href="#" class="btn btn-light" style="border-radius: 10px;" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}'); alert('Link nusxalandi!');">
+                                    <i class="bi bi-link-45deg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ test.title }} - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Back Button -->
+                <a href="{% url 'tests_app:test_list' %}" class="btn btn-light mb-4" style="border-radius: 10px;">
+                    <i class="bi bi-arrow-left me-2"></i> Testlarga qaytish
+                </a>
+
+                <!-- Test Card -->
+                <div class="card" style="border-radius: 24px; overflow: hidden;">
+                    <!-- Header -->
+                    <div style="background: var(--gradient-primary); padding: 2rem; position: relative;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width: 72px; height: 72px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                                {% if test.subject.slug == 'math' %}📐{% elif test.subject.slug == 'physics' %}⚡{% elif test.subject.slug == 'chemistry' %}🧪{% elif test.subject.slug == 'biology' %}🧬{% elif test.subject.slug == 'english' %}🇬🇧{% else %}📚{% endif %}
+                            </div>
+                            <div>
+                                <span class="badge mb-2" style="background: rgba(255,255,255,0.2); color: white;">{{ test.subject.name }}</span>
+                                <h3 class="text-white mb-0">{{ test.title }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Test Info -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                    <div class="icon-box mx-auto mb-2" style="width: 44px; height: 44px;">
+                                        <i class="bi bi-question-circle"></i>
+                                    </div>
+                                    <div class="fs-5 fw-bold" style="color: var(--dark);">{{ test.questions_count }}</div>
+                                    <small style="color: var(--gray-500);">Savollar</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                    <div class="icon-box mx-auto mb-2" style="width: 44px; height: 44px;">
+                                        <i class="bi bi-clock"></i>
+                                    </div>
+                                    <div class="fs-5 fw-bold" style="color: var(--dark);">{{ test.time_limit }}</div>
+                                    <small style="color: var(--gray-500);">Daqiqa</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                    <div class="icon-box mx-auto mb-2" style="width: 44px; height: 44px;">
+                                        <i class="bi bi-speedometer2"></i>
+                                    </div>
+                                    <div class="fs-5 fw-bold" style="color: var(--dark);">
+                                        {% if test.difficulty == 'easy' %}Oson{% elif test.difficulty == 'medium' %}O'rta{% else %}Qiyin{% endif %}
+                                    </div>
+                                    <small style="color: var(--gray-500);">Daraja</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                    <div class="icon-box mx-auto mb-2" style="width: 44px; height: 44px;">
+                                        <i class="bi bi-lightning-charge"></i>
+                                    </div>
+                                    <div class="fs-5 fw-bold" style="color: var(--dark);">+{{ test.xp_reward }}</div>
+                                    <small style="color: var(--gray-500);">XP</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        {% if test.description %}
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-2">Test haqida</h6>
+                            <p style="color: var(--gray-500);">{{ test.description }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Rules -->
+                        <div class="mb-4 p-4" style="background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.05) 100%); border-radius: 16px; border-left: 4px solid var(--primary);">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Qoidalar</h6>
+                            <ul class="mb-0" style="color: var(--gray-600); padding-left: 1.2rem;">
+                                <li class="mb-2">Test {{ test.time_limit }} daqiqa davom etadi</li>
+                                <li class="mb-2">Har bir savol uchun faqat bitta to'g'ri javob mavjud</li>
+                                <li class="mb-2">Vaqt tugaganda test avtomatik yakunlanadi</li>
+                                <li class="mb-2">Test yakunlangach natijangizni ko'rishingiz mumkin</li>
+                                <li>To'g'ri javoblar uchun XP ballar beriladi</li>
+                            </ul>
+                        </div>
+
+                        <!-- Stats -->
+                        {% if test.attempts_count > 0 %}
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Statistika</h6>
+                            <div class="d-flex flex-wrap gap-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-people" style="color: var(--primary);"></i>
+                                    <span style="color: var(--gray-600);">{{ test.attempts_count }} marta yechilgan</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-graph-up" style="color: var(--primary);"></i>
+                                    <span style="color: var(--gray-600);">O'rtacha ball: {{ test.average_score|default:"—" }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Previous Attempts -->
+                        {% if user_attempts %}
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Sizning natijalaringiz</h6>
+                            <div class="d-flex flex-column gap-2">
+                                {% for attempt in user_attempts %}
+                                <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="icon-box" style="width: 40px; height: 40px; {% if attempt.score >= 80 %}background: #D1FAE5; color: #059669;{% elif attempt.score >= 60 %}background: #FEF3C7; color: #B45309;{% else %}background: #FEE2E2; color: #DC2626;{% endif %}">
+                                            {% if attempt.score >= 80 %}<i class="bi bi-check-lg"></i>{% elif attempt.score >= 60 %}<i class="bi bi-dash-lg"></i>{% else %}<i class="bi bi-x-lg"></i>{% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold" style="color: var(--dark);">{{ attempt.score }}%</div>
+                                            <small style="color: var(--gray-500);">{{ attempt.created_at|date:"d.m.Y H:i" }}</small>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'tests_app:test_result' attempt.id %}" class="btn btn-light btn-sm">Ko'rish</a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Start Button -->
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'tests_app:test_take' test.slug %}" class="btn btn-primary btn-lg" style="border-radius: 14px; padding: 1rem;">
+                                <i class="bi bi-play-fill me-2"></i> Testni boshlash
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

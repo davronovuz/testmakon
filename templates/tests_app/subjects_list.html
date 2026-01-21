@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Fanlar - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <span class="badge badge-primary mb-3">📚 Fanlar</span>
+            <h2 class="mb-2">Fan tanlang</h2>
+            <p style="color: var(--gray-500);">Qaysi fandan test yechmoqchisiz?</p>
+        </div>
+
+        <!-- Subjects Grid -->
+        <div class="row g-4">
+            {% for subject in subjects %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'tests_app:subject_detail' subject.slug %}" class="card h-100 card-glow text-decoration-none" style="border-radius: 20px;">
+                    <div class="card-body p-4 text-center">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">{{ subject.icon|default:"📖" }}</div>
+                        <h5 class="fw-bold mb-2" style="color: var(--dark);">{{ subject.name }}</h5>
+                        <p class="mb-3" style="color: var(--gray-500); font-size: 0.9rem;">{{ subject.tests_count }} ta test</p>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge" style="background: #D1FAE5; color: #059669;">{{ subject.easy_count }} oson</span>
+                            <span class="badge" style="background: #FEF3C7; color: #B45309;">{{ subject.medium_count }} o'rta</span>
+                        </div>
+
+                        {% if subject.user_progress %}
+                        <div class="mt-3 pt-3" style="border-top: 1px solid var(--gray-200);">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small style="color: var(--gray-500);">Progress</small>
+                                <small class="fw-semibold" style="color: var(--primary);">{{ subject.user_progress }}%</small>
+                            </div>
+                            <div class="progress" style="height: 6px; border-radius: 3px;">
+                                <div class="progress-bar" style="width: {{ subject.user_progress }}%; background: var(--gradient-primary);"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card" style="border-radius: 20px;">
+                    <div class="card-body text-center py-5">
+                        <div style="font-size: 4rem;">📭</div>
+                        <h5 class="mt-3" style="color: var(--dark);">Fanlar topilmadi</h5>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

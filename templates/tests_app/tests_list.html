@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Testlar - TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+    <div class="container">
+        <!-- Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+            <div>
+                <h2 class="mb-1">
+                    <i class="bi bi-journal-text text-primary me-2"></i> Testlar
+                </h2>
+                <p style="color: var(--gray-500);" class="mb-0">O'zingizga kerakli fan va mavzuni tanlang</p>
+            </div>
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-funnel me-1"></i> Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?difficulty=easy">Oson</a></li>
+                        <li><a class="dropdown-item" href="?difficulty=medium">O'rta</a></li>
+                        <li><a class="dropdown-item" href="?difficulty=hard">Qiyin</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject Filter -->
+        <div class="card mb-4" style="border-radius: 16px;">
+            <div class="card-body p-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'tests_app:test_list' %}" class="btn {% if not current_subject %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        Barchasi
+                    </a>
+                    <a href="?subject=math" class="btn {% if current_subject == 'math' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        📐 Matematika
+                    </a>
+                    <a href="?subject=physics" class="btn {% if current_subject == 'physics' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        ⚡ Fizika
+                    </a>
+                    <a href="?subject=chemistry" class="btn {% if current_subject == 'chemistry' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        🧪 Kimyo
+                    </a>
+                    <a href="?subject=biology" class="btn {% if current_subject == 'biology' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        🧬 Biologiya
+                    </a>
+                    <a href="?subject=english" class="btn {% if current_subject == 'english' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        🇬🇧 Ingliz tili
+                    </a>
+                    <a href="?subject=uzbek" class="btn {% if current_subject == 'uzbek' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        📚 Ona tili
+                    </a>
+                    <a href="?subject=history" class="btn {% if current_subject == 'history' %}btn-primary{% else %}btn-light{% endif %} btn-sm">
+                        🌍 Tarix
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tests Grid -->
+        <div class="row g-4">
+            {% if tests %}
+                {% for test in tests %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 card-glow" style="border-radius: 20px;">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start justify-content-between mb-3">
+                                <div class="icon-box-gradient">
+                                    {% if test.subject.slug == 'math' %}
+                                        <span>📐</span>
+                                    {% elif test.subject.slug == 'physics' %}
+                                        <span>⚡</span>
+                                    {% elif test.subject.slug == 'chemistry' %}
+                                        <span>🧪</span>
+                                    {% elif test.subject.slug == 'biology' %}
+                                        <span>🧬</span>
+                                    {% elif test.subject.slug == 'english' %}
+                                        <span>🇬🇧</span>
+                                    {% else %}
+                                        <span>📚</span>
+                                    {% endif %}
+                                </div>
+                                <span class="badge {% if test.difficulty == 'easy' %}badge-primary{% elif test.difficulty == 'medium' %}badge-accent{% else %}badge-dark{% endif %}">
+                                    {% if test.difficulty == 'easy' %}Oson{% elif test.difficulty == 'medium' %}O'rta{% else %}Qiyin{% endif %}
+                                </span>
+                            </div>
+
+                            <h5 class="fw-bold mb-2">{{ test.title }}</h5>
+                            <p class="mb-3" style="color: var(--gray-500); font-size: 0.9rem;">{{ test.description|truncatewords:15 }}</p>
+
+                            <div class="d-flex align-items-center gap-3 mb-3" style="color: var(--gray-400); font-size: 0.85rem;">
+                                <span><i class="bi bi-question-circle me-1"></i> {{ test.questions_count }} savol</span>
+                                <span><i class="bi bi-clock me-1"></i> {{ test.time_limit }} daq</span>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between pt-3" style="border-top: 1px solid var(--gray-200);">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-people" style="color: var(--gray-400);"></i>
+                                    <small style="color: var(--gray-500);">{{ test.attempts_count }} marta yechilgan</small>
+                                </div>
+                                <a href="{% url 'tests_app:test_detail' test.slug %}" class="btn btn-primary btn-sm">
+                                    Boshlash <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="card" style="border-radius: 20px;">
+                        <div class="card-body text-center py-5">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
+                            <h5 style="color: var(--dark);">Testlar topilmadi</h5>
+                            <p style="color: var(--gray-500);">Ushbu bo'limda hozircha testlar mavjud emas</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if tests.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if tests.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tests.previous_page_number }}" style="border-radius: 10px; margin: 0 2px;">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in tests.paginator.page_range %}
+                <li class="page-item {% if tests.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}" style="border-radius: 10px; margin: 0 2px;">{{ num }}</a>
+                </li>
+                {% endfor %}
+
+                {% if tests.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tests.next_page_number }}" style="border-radius: 10px; margin: 0 2px;">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

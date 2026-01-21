@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Savol {{ current_number }} - {{ test.title }}{% endblock %}
+
+{% block content %}
+<section style="background: var(--gray-50); min-height: 100vh; padding: 1.5rem 0;">
+    <div class="container">
+        <!-- Top Bar -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box-gradient">
+                    {{ test.subject.icon|default:"📚" }}
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ test.title }}</h6>
+                    <small style="color: var(--gray-500);">Savol {{ current_number }}/{{ total_questions }}</small>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="timer-box" style="background: var(--white); border: 2px solid var(--gray-200); border-radius: 12px; padding: 0.75rem 1.25rem;">
+                    <i class="bi bi-clock me-2" style="color: var(--primary);"></i>
+                    <span class="fw-bold" id="timer">{{ time_remaining }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Progress -->
+                <div class="mb-4">
+                    <div class="progress" style="height: 8px; border-radius: 4px;">
+                        <div class="progress-bar" style="width: {{ progress }}%; background: var(--gradient-primary);"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="card" style="border-radius: 24px;">
+                    <div class="card-body p-4 p-md-5">
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <!-- Question -->
+                            <div class="mb-4">
+                                <span class="badge badge-primary mb-3">Savol {{ current_number }}</span>
+                                <h4 class="fw-bold" style="color: var(--dark); line-height: 1.6;">{{ question.text }}</h4>
+                            </div>
+
+                            {% if question.image %}
+                            <div class="mb-4 text-center">
+                                <img src="{{ question.image.url }}" alt="Savol rasmi" class="img-fluid rounded-3" style="max-height: 300px;">
+                            </div>
+                            {% endif %}
+
+                            <!-- Options -->
+                            <div class="d-flex flex-column gap-3 mb-4">
+                                {% for option in question.options.all %}
+                                <label class="answer-option d-flex align-items-center gap-3 p-4" style="border: 2px solid var(--gray-200); border-radius: 16px; cursor: pointer; transition: all 0.3s;">
+                                    <input type="radio" name="answer" value="{{ option.id }}" class="d-none" required>
+                                    <div class="option-letter" style="width: 44px; height: 44px; background: var(--gray-100); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--gray-600); transition: all 0.3s;">
+                                        {{ forloop.counter|add:64|chr }}
+                                    </div>
+                                    <span style="color: var(--dark); font-weight: 500;">{{ option.text }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-between align-items-center pt-4" style="border-top: 1px solid var(--gray-200);">
+                                {% if current_number > 1 %}
+                                <a href="{% url 'tests_app:test_question' test.slug current_number|add:'-1' %}" class="btn btn-light btn-lg" style="border-radius: 12px;">
+                                    <i class="bi bi-chevron-left me-2"></i> Oldingi
+                                </a>
+                                {% else %}
+                                <div></div>
+                                {% endif %}
+
+                                <button type="submit" class="btn btn-primary btn-lg" style="border-radius: 12px;">
+                                    {% if current_number == total_questions %}
+                                    Yakunlash <i class="bi bi-check-circle ms-2"></i>
+                                    {% else %}
+                                    Keyingi <i class="bi bi-chevron-right ms-2"></i>
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Save Question -->
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-sm btn-light" id="saveQuestion" style="border-radius: 10px;">
+                                <i class="bi bi-bookmark me-1"></i> Saqlash
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .answer-option:hover {
+        border-color: var(--primary) !important;
+        background: var(--primary-glow);
+    }
+    .answer-option:has(input:checked) {
+        border-color: var(--primary) !important;
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.15) 0%, rgba(139, 197, 64, 0.05) 100%);
+    }
+    .answer-option:has(input:checked) .option-letter {
+        background: var(--gradient-primary);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('saveQuestion')?.addEventListener('click', function() {
+    fetch(`/tests/question/{{ question.id }}/save/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        }
+    }).then(res => res.json()).then(data => {
+        if (data.saved) {
+            this.innerHTML = '<i class="bi bi-bookmark-fill me-1"></i> Saqlandi';
+            this.classList.remove('btn-light');
+            this.classList.add('btn-primary');
+        }
+    });
+});
+</script>
+{% endblock %}
