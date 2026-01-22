@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.full_name }} | Profil{% endblock %}
+
+{% block content %}
+<div class="section-sm pt-5">
+    <div class="container">
+        <div class="card border-0 shadow-lg mb-5 overflow-hidden">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <div class="col-lg-8 p-4 p-lg-5">
+                        <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4">
+                            <div class="position-relative">
+                                <div class="icon-box-lg shadow-lg" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 4px solid var(--white);">
+                                    {% if profile_user.avatar %}
+                                        <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.first_name }}" class="w-100 h-100 object-fit-cover">
+                                    {% else %}
+                                        <div class="w-100 h-100 bg-light d-flex align-items-center justify-content-center text-secondary fs-1">
+                                            {{ profile_user.first_name|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="position-absolute bottom-0 start-50 translate-middle-x badge bg-gradient-primary border border-2 border-white shadow-sm py-2 px-3 rounded-pill mt-n3">
+                                    {{ stats.level|upper }}
+                                </div>
+                            </div>
+
+                            <div class="text-center text-md-start flex-grow-1">
+                                <h2 class="mb-1 fw-bold">{{ profile_user.full_name }}</h2>
+                                <p class="text-muted mb-3">
+                                    <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+                                    {{ profile_user.region|default:"O'zbekiston" }}, {{ profile_user.school_name|default:"O'quvchi" }}
+                                </p>
+
+                                <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2 mb-4">
+                                    {% if profile_user.is_premium %}
+                                        <span class="badge bg-warning text-dark border border-warning bg-opacity-25">
+                                            <i class="bi bi-star-fill me-1"></i> PREMIUM
+                                        </span>
+                                    {% endif %}
+                                    <span class="badge bg-light text-dark border">
+                                        {{ profile_user.get_education_level_display }}
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        ID: #{{ profile_user.id }}
+                                    </span>
+                                </div>
+
+                                <div class="d-flex gap-2 justify-content-center justify-content-md-start">
+                                    {% if request.user == profile_user %}
+                                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary btn-sm px-4">
+                                            <i class="bi bi-pencil-square me-2"></i>Tahrirlash
+                                        </a>
+                                        <a href="{% url 'accounts:settings' %}" class="btn btn-light btn-sm px-3">
+                                            <i class="bi bi-gear-fill"></i>
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="bi bi-person-plus-fill me-2"></i>Do'stlashish
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 bg-light p-4 p-lg-5 d-flex flex-column justify-content-center border-start border-light">
+                        <div class="text-center">
+                            <div class="mb-2 text-uppercase fw-bold text-muted small tracking-wide">Joriy Streak</div>
+                            <div class="display-4 fw-black text-danger mb-0 float-animation">
+                                <i class="bi bi-fire"></i> {{ stats.streak }}
+                            </div>
+                            <p class="text-muted small mb-0">kun davomida uzluksiz ta'lim</p>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-top">
+                            <div class="row text-center">
+                                <div class="col-6 border-end">
+                                    <div class="h4 fw-bold mb-0 text-primary">{{ stats.battles_won }}</div>
+                                    <div class="small text-muted">Yutuqlar</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 fw-bold mb-0 text-primary">#{{ profile_user.global_rank|default:"-" }}</div>
+                                    <div class="small text-muted">Reyting</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h5 class="mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-bar-chart-fill text-primary"></i> Umumiy Statistika
+                </h5>
+                <div class="row g-3 mb-5">
+                    <div class="col-sm-6 col-md-4">
+                        <div class="card card-body h-100 border-0 shadow-sm bg-white card-glow">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle">
+                                    <i class="bi bi-lightning-charge-fill"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-0 fw-bold">{{ stats.xp }}</h4>
+                                    <small class="text-muted">XP Ballari</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-4">
+                        <div class="card card-body h-100 border-0 shadow-sm bg-white card-glow">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle">
+                                    <i class="bi bi-journal-check"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-0 fw-bold">{{ stats.tests }}</h4>
+                                    <small class="text-muted">Testlar</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-4">
+                        <div class="card card-body h-100 border-0 shadow-sm bg-white card-glow">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-circle">
+                                    <i class="bi bi-bullseye"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-0 fw-bold">{{ stats.accuracy }}%</h4>
+                                    <small class="text-muted">Aniqlik</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-award-fill text-primary"></i> Yutuqlar
+                    </h5>
+                    <a href="{% url 'accounts:badges' %}" class="btn btn-link text-decoration-none btn-sm">Barchasi <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-body">
+                        {% if badges %}
+                            <div class="row g-3">
+                                {% for user_badge in badges %}
+                                <div class="col-4 col-sm-3 col-md-2 text-center">
+                                    <div class="mb-2 position-relative" title="{{ user_badge.badge.name }}">
+                                        <img src="{{ user_badge.badge.icon.url }}" alt="{{ user_badge.badge.name }}" class="img-fluid drop-shadow" style="max-height: 64px;">
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success border border-white" style="font-size: 0.6rem;">
+                                            +{{ user_badge.badge.xp_reward }}
+                                        </span>
+                                    </div>
+                                    <small class="d-block text-truncate fw-semibold text-dark">{{ user_badge.badge.name }}</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ user_badge.earned_at|date:"d.m" }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <div class="icon-box bg-light text-muted rounded-circle mb-3 mx-auto">
+                                    <i class="bi bi-award"></i>
+                                </div>
+                                <p class="text-muted mb-0">Hozircha yutuqlar mavjud emas. Testlarni ishlang va yutuqlarga ega bo'ling!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card border-0 bg-dark text-white shadow-lg overflow-hidden position-relative mb-4">
+                    <div class="position-absolute top-0 end-0 opacity-10 p-4">
+                        <i class="bi bi-trophy-fill display-1"></i>
+                    </div>
+
+                    <div class="card-body p-4 position-relative">
+                        <h5 class="mb-3">Keyingi daraja sari</h5>
+                        <div class="d-flex justify-content-between mb-2 small text-white-50">
+                            <span>Joriy: {{ stats.level|title }}</span>
+                            <span>Keyingi: Master</span> </div>
+                        <div class="progress" style="height: 10px; background: rgba(255,255,255,0.1);">
+                            <div class="progress-bar bg-gradient-primary" role="progressbar" style="width: 65%;"></div>
+                        </div>
+                        <div class="mt-2 text-end small">
+                            <span class="text-white fw-bold">{{ stats.xp }} XP</span> to'plandi
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                {% if profile_user.bio %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3 text-dark">O'zim haqimda</h6>
+                        <p class="text-muted mb-0 small">{{ profile_user.bio }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if profile_user.target_university %}
+                <div class="card border-0 shadow-sm mb-4 bg-primary bg-opacity-10">
+                    <div class="card-body d-flex align-items-center gap-3">
+                        <div class="icon-box bg-white text-primary rounded-circle shadow-sm">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Maqsad</small>
+                            <div class="fw-bold text-dark text-truncate">{{ profile_user.target_university.name }}</div>
+                            <small class="text-primary">{{ profile_user.target_direction.name }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <h5 class="mb-3">So'nggi faoliyat</h5>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for activity in activities %}
+                            <li class="list-group-item px-4 py-3 border-light">
+                                <div class="d-flex gap-3">
+                                    <div class="mt-1">
+                                        {% if activity.activity_type == 'login' %}
+                                            <i class="bi bi-box-arrow-in-right text-info"></i>
+                                        {% elif activity.activity_type == 'test_complete' %}
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% elif activity.activity_type == 'badge_earn' %}
+                                            <i class="bi bi-award-fill text-warning"></i>
+                                        {% elif activity.activity_type == 'level_up' %}
+                                            <i class="bi bi-arrow-up-circle-fill text-primary"></i>
+                                        {% else %}
+                                            <i class="bi bi-circle-fill text-secondary small"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <p class="mb-1 small text-dark fw-medium">{{ activity.description }}</p>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <small class="text-muted" style="font-size: 0.75rem;">
+                                                {{ activity.created_at|timesince }} oldin
+                                            </small>
+                                            {% if activity.xp_earned > 0 %}
+                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill" style="font-size: 0.65rem;">
+                                                    +{{ activity.xp_earned }} XP
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item p-4 text-center text-muted border-0">
+                                Faoliyat tarixi topilmadi.
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-center py-3">
+                        <a href="{% url 'accounts:activity_log' %}" class="small text-decoration-none fw-bold">To'liq tarixni ko'rish</a>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                     <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold">Do'stlar <span class="badge bg-light text-dark ms-1">{{ friends_count }}</span></h6>
+                        <a href="{% url 'accounts:friends_list' %}" class="btn btn-sm btn-light rounded-pill"><i class="bi bi-plus-lg"></i></a>
+                    </div>
+                    </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Profile Specific CSS overrides */
+    .drop-shadow {
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        transition: transform 0.2s;
+    }
+    .drop-shadow:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .list-group-item:first-child { border-top: 0; }
+    .list-group-item:last-child { border-bottom: 0; }
+
+    /* Streak Animation */
+    @keyframes pulse-fire {
+        0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(220, 53, 69, 0.4)); }
+        50% { transform: scale(1.1); filter: drop-shadow(0 0 10px rgba(220, 53, 69, 0.7)); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(220, 53, 69, 0.4)); }
+    }
+
+    .bi-fire {
+        display: inline-block;
+        animation: pulse-fire 2s infinite;
+    }
+</style>
+{% endblock %}
