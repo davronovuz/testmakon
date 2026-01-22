@@ -1,181 +1,68 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Batafsil tahlil - TestMakon{% endblock %}
+{% block title %}Batafsil Tahlil | TestMakon{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+<div class="section-sm bg-light">
     <div class="container">
-        <!-- Back -->
-        <a href="{% url 'ai_core:test_analysis' %}" class="btn btn-light mb-4" style="border-radius: 10px;">
-            <i class="bi bi-arrow-left me-2"></i> Tahlilga qaytish
-        </a>
-
-        <!-- Header -->
-        <div class="card mb-4" style="border-radius: 20px; overflow: hidden;">
-            <div style="background: var(--gradient-primary); padding: 2rem;">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h3 class="text-white mb-2">Batafsil AI tahlili</h3>
-                        <p class="text-white mb-0" style="opacity: 0.9;">{{ user.first_name }}, bu sizning to'liq o'quv tahlilingiz</p>
-                    </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <span class="badge" style="background: rgba(255,255,255,0.2); color: white; font-size: 1rem; padding: 0.75rem 1.5rem;">
-                            <i class="bi bi-calendar me-2"></i> {{ analysis.date|default:"Yanvar 2024" }}
-                        </span>
-                    </div>
-                </div>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">Batafsil Tahlil</h3>
+            <a href="{% url 'tests_app:result_detail' uuid=attempt.uuid %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Ortga
+            </a>
         </div>
 
         <div class="row g-4">
-            <!-- Strengths -->
-            <div class="col-md-6">
-                <div class="card h-100" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-2 mb-4">
-                            <div style="width: 40px; height: 40px; background: #D1FAE5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                            </div>
-                            <h5 class="fw-bold mb-0">Kuchli tomonlar</h5>
-                        </div>
-
-                        <div class="d-flex flex-column gap-3">
-                            {% for strength in analysis.strengths %}
-                            <div class="p-3" style="background: #D1FAE5; border-radius: 12px;">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span style="font-size: 1.25rem;">{{ strength.icon }}</span>
-                                    <div>
-                                        <h6 class="fw-semibold mb-0" style="color: #065F46;">{{ strength.topic }}</h6>
-                                        <small style="color: #059669;">{{ strength.score }}% muvaffaqiyat</small>
-                                    </div>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="p-3" style="background: #D1FAE5; border-radius: 12px;">
-                                <h6 class="fw-semibold mb-0" style="color: #065F46;">📐 Algebra</h6>
-                                <small style="color: #059669;">92% muvaffaqiyat</small>
-                            </div>
-                            <div class="p-3" style="background: #D1FAE5; border-radius: 12px;">
-                                <h6 class="fw-semibold mb-0" style="color: #065F46;">📊 Statistika</h6>
-                                <small style="color: #059669;">88% muvaffaqiyat</small>
-                            </div>
-                            <div class="p-3" style="background: #D1FAE5; border-radius: 12px;">
-                                <h6 class="fw-semibold mb-0" style="color: #065F46;">🔤 Grammar</h6>
-                                <small style="color: #059669;">85% muvaffaqiyat</small>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Weaknesses -->
-            <div class="col-md-6">
-                <div class="card h-100" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-2 mb-4">
-                            <div style="width: 40px; height: 40px; background: #FEE2E2; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-exclamation-circle-fill text-danger"></i>
-                            </div>
-                            <h5 class="fw-bold mb-0">Yaxshilash kerak</h5>
-                        </div>
-
-                        <div class="d-flex flex-column gap-3">
-                            {% for weakness in analysis.weaknesses %}
-                            <div class="p-3" style="background: #FEE2E2; border-radius: 12px;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h6 class="fw-semibold mb-0" style="color: #991B1B;">{{ weakness.topic }}</h6>
-                                        <small style="color: #DC2626;">{{ weakness.score }}% - ko'proq mashq kerak</small>
-                                    </div>
-                                    <a href="{% url 'tests_app:topic_test' weakness.subject_slug weakness.topic_slug %}" class="btn btn-sm btn-danger" style="border-radius: 8px;">Mashq</a>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="p-3" style="background: #FEE2E2; border-radius: 12px;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h6 class="fw-semibold mb-0" style="color: #991B1B;">⚡ Termodinamika</h6>
-                                        <small style="color: #DC2626;">45% - ko'proq mashq kerak</small>
-                                    </div>
-                                    <a href="#" class="btn btn-sm btn-danger" style="border-radius: 8px;">Mashq</a>
-                                </div>
-                            </div>
-                            <div class="p-3" style="background: #FEE2E2; border-radius: 12px;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h6 class="fw-semibold mb-0" style="color: #991B1B;">🧪 Organik kimyo</h6>
-                                        <small style="color: #DC2626;">52% - ko'proq mashq kerak</small>
-                                    </div>
-                                    <a href="#" class="btn btn-sm btn-danger" style="border-radius: 8px;">Mashq</a>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Time Analysis -->
+            {% for ans in answers %}
             <div class="col-12">
-                <div class="card" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4"><i class="bi bi-clock text-primary me-2"></i> Vaqt tahlili</h5>
-
-                        <div class="row g-4">
-                            <div class="col-md-4">
-                                <div class="text-center p-4" style="background: var(--gray-50); border-radius: 16px;">
-                                    <div class="fs-2 fw-bold text-gradient">{{ analysis.avg_time_per_question|default:"45s" }}</div>
-                                    <small style="color: var(--gray-500);">O'rtacha savol uchun</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center p-4" style="background: var(--gray-50); border-radius: 16px;">
-                                    <div class="fs-2 fw-bold" style="color: #059669;">{{ analysis.fastest_subject|default:"Matematika" }}</div>
-                                    <small style="color: var(--gray-500);">Eng tez yechiladigan fan</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="text-center p-4" style="background: var(--gray-50); border-radius: 16px;">
-                                    <div class="fs-2 fw-bold" style="color: #B45309;">{{ analysis.slowest_subject|default:"Kimyo" }}</div>
-                                    <small style="color: var(--gray-500);">Ko'proq vaqt ketadigan fan</small>
-                                </div>
-                            </div>
-                        </div>
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                        <span class="badge {% if ans.is_correct %}bg-success{% else %}bg-danger{% endif %} bg-opacity-10 text-dark border px-3 py-2">
+                            Savol #{{ forloop.counter }}
+                        </span>
+                        <span class="text-muted small">Mavzu: {{ ans.question.topic.name|default:"Umumiy" }}</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- AI Summary -->
-            <div class="col-12">
-                <div class="card" style="border-radius: 20px; background: var(--gradient-dark);">
                     <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div style="width: 48px; height: 48px; background: rgba(139, 197, 64, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-robot text-primary fs-4"></i>
+                        <h5 class="lh-base mb-4">{{ ans.question.text|linebreaksbr }}</h5>
+
+                        {% if not ans.is_correct %}
+                        <div class="alert alert-info border-0 bg-info bg-opacity-10 d-flex gap-3 mb-4">
+                            <div class="icon-box bg-white text-info rounded-circle flex-shrink-0 shadow-sm">
+                                <i class="bi bi-robot"></i>
                             </div>
                             <div>
-                                <h5 class="fw-bold mb-0 text-white">AI Xulosa</h5>
-                                <small style="color: var(--gray-400);">Shaxsiy tahlil va tavsiyalar</small>
+                                <h6 class="fw-bold text-info mb-1">AI Tahlili</h6>
+                                <p class="mb-0 small text-dark opacity-75">
+                                    {{ ans.question.explanation|default:"Bu savolda ko'pchilik chalg'iydi. Asosiy e'tiborni savolning ikkinchi qismiga qaratish kerak." }}
+                                </p>
                             </div>
                         </div>
+                        {% endif %}
 
-                        <p class="text-white mb-4" style="line-height: 1.8;">
-                            {{ analysis.ai_summary|default:"Sizning umumiy natijangiz yaxshi darajada. Matematika fanida ajoyib natijalar ko'rsatyapsiz (82%). Fizika bo'yicha, ayniqsa termodinamika mavzusida ko'proq mashq qilishingiz tavsiya etiladi. Kuniga kamida 2 soat o'qish va har kuni 1 ta test yechish orqali imtihonga yaxshi tayyorlanishingiz mumkin." }}
-                        </p>
-
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-primary" style="border-radius: 12px;">
-                                <i class="bi bi-calendar-check me-2"></i> O'qish rejasi tuzish
-                            </a>
-                            <a href="{% url 'ai_core:weak_topics' %}" class="btn btn-light" style="border-radius: 12px;">
-                                <i class="bi bi-target me-2"></i> Zaif mavzularni mashq qilish
-                            </a>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 {% if ans.is_correct %}border-success bg-success bg-opacity-10{% else %}border-danger bg-danger bg-opacity-10{% endif %}">
+                                    <small class="text-uppercase fw-bold opacity-50 mb-1 d-block">Sizning javobingiz</small>
+                                    <span class="fw-bold">{{ ans.selected_answer.text|default:"Belgilanmagan" }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border border-success bg-success bg-opacity-10 rounded-3">
+                                    <small class="text-uppercase fw-bold text-success opacity-50 mb-1 d-block">To'g'ri javob</small>
+                                    <span class="fw-bold text-dark">
+                                        {% for opt in ans.question.answers.all %}
+                                            {% if opt.is_correct %}{{ opt.text }}{% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

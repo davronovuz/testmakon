@@ -1,146 +1,86 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}AI Tutor - {{ subject.name }} - TestMakon{% endblock %}
+{% block title %}AI O'qituvchi | TestMakon{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+<div class="section-sm bg-light">
     <div class="container">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-4 mb-4">
-                <div class="card" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <!-- Subject Info -->
-                        <div class="text-center mb-4">
-                            <div style="font-size: 4rem;">{{ subject.icon|default:"📚" }}</div>
-                            <h4 class="fw-bold mt-2">{{ subject.name }} Tutor</h4>
-                            <p style="color: var(--gray-500);">AI yordamida {{ subject.name }} o'rganing</p>
-                        </div>
-
-                        <!-- Topics -->
-                        <h6 class="fw-bold mb-3">Mavzular</h6>
-                        <div class="d-flex flex-column gap-2 mb-4">
-                            {% for topic in topics %}
-                            <a href="?topic={{ topic.id }}" class="d-flex align-items-center justify-content-between p-3 text-decoration-none {% if current_topic.id == topic.id %}border-primary{% endif %}" style="background: var(--gray-50); border-radius: 12px; border: 2px solid {% if current_topic.id == topic.id %}var(--primary){% else %}transparent{% endif %};">
-                                <span style="color: var(--dark);">{{ topic.name }}</span>
-                                <i class="bi bi-chevron-right" style="color: var(--gray-400);"></i>
-                            </a>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'tests_app:subject_detail' subject.slug %}" class="btn btn-light" style="border-radius: 12px;">
-                                <i class="bi bi-journal-text me-2"></i> Testlar
-                            </a>
-                            <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-primary" style="border-radius: 12px;">
-                                <i class="bi bi-robot me-2"></i> AI Mentor
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="col-lg-8">
-                {% if current_topic %}
-                <!-- Topic Content -->
-                <div class="card mb-4" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="icon-box-gradient">
-                                <i class="bi bi-bookmark-star"></i>
-                            </div>
-                            <div>
-                                <h4 class="fw-bold mb-0">{{ current_topic.name }}</h4>
-                                <small style="color: var(--gray-500);">{{ current_topic.lessons_count }} ta dars</small>
-                            </div>
-                        </div>
-
-                        <!-- AI Explanation -->
-                        <div class="p-4 mb-4" style="background: var(--primary-glow); border-radius: 16px;">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="ai-avatar" style="width: 40px; height: 40px; background: var(--gradient-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="bi bi-robot text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-2">AI Tushuntirish</h6>
-                                    <p style="color: var(--gray-600);">{{ current_topic.ai_explanation|default:"Bu mavzu haqida AI tushuntirishini ko'rish uchun savollar bering." }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Key Concepts -->
-                        {% if current_topic.key_concepts %}
-                        <h6 class="fw-bold mb-3">Asosiy tushunchalar</h6>
-                        <div class="row g-3 mb-4">
-                            {% for concept in current_topic.key_concepts %}
-                            <div class="col-md-6">
-                                <div class="p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                    <h6 class="fw-semibold mb-1" style="color: var(--dark);">{{ concept.title }}</h6>
-                                    <small style="color: var(--gray-500);">{{ concept.description }}</small>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <!-- Formulas -->
-                        {% if current_topic.formulas %}
-                        <h6 class="fw-bold mb-3">Formulalar</h6>
-                        <div class="d-flex flex-column gap-2 mb-4">
-                            {% for formula in current_topic.formulas %}
-                            <div class="p-3" style="background: #FEF3C7; border-radius: 12px; font-family: monospace;">
-                                {{ formula }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <!-- Practice -->
-                        <div class="d-flex gap-3">
-                            <a href="{% url 'tests_app:topic_test' subject.slug current_topic.slug %}" class="btn btn-primary" style="border-radius: 12px;">
-                                <i class="bi bi-play-fill me-2"></i> Test yechish
-                            </a>
-                            <button class="btn btn-light" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#askModal">
-                                <i class="bi bi-chat-dots me-2"></i> Savol berish
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <!-- Welcome -->
-                <div class="card" style="border-radius: 20px;">
-                    <div class="card-body p-5 text-center">
-                        <div style="font-size: 4rem;">🎓</div>
-                        <h4 class="fw-bold mt-3">{{ subject.name }} bo'yicha o'rganing</h4>
-                        <p style="color: var(--gray-500);" class="mb-4">Chap tarafdan mavzuni tanlang yoki AI Mentordan yordam so'rang</p>
-                        <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-primary btn-lg" style="border-radius: 14px;">
-                            <i class="bi bi-robot me-2"></i> AI Mentor bilan gaplashish
-                        </a>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+        <div class="text-center mb-5">
+            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill mb-3">
+                <i class="bi bi-robot me-1"></i> 24/7 Yordam
+            </span>
+            <h2 class="fw-bold display-6">AI O'qituvchi</h2>
+            <p class="text-muted lead">Qaysi mavzuni tushunishda qiynalyapsiz? Shunchaki so'rang.</p>
         </div>
-    </div>
-</section>
 
-<!-- Ask Modal -->
-<div class="modal fade" id="askModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px;">
-            <div class="modal-body p-4">
-                <h5 class="fw-bold mb-3">AI dan so'rang</h5>
-                <form method="post" action="{% url 'ai_core:ai_chat_api' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="topic" value="{{ current_topic.id }}">
-                    <textarea class="form-control mb-3" name="question" rows="4" placeholder="Savolingizni yozing..." style="border-radius: 12px;"></textarea>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal" style="border-radius: 12px;">Bekor</button>
-                        <button type="submit" class="btn btn-primary flex-grow-1" style="border-radius: 12px;">Yuborish</button>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5">
+                    <div class="card-body p-4 p-md-5">
+                        <form action="{% url 'ai_core:ai_explain_topic' %}" method="post">
+                            {% csrf_token %}
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Fanni tanlang</label>
+                                <div class="row g-2">
+                                    {% for subject in subjects %}
+                                    <div class="col-6 col-md-4">
+                                        <input type="radio" class="btn-check" name="subject_id" id="sub{{ subject.id }}" value="{{ subject.id }}" required>
+                                        <label class="btn btn-outline-light text-dark border w-100 py-3 d-flex flex-column align-items-center gap-2 h-100" for="sub{{ subject.id }}">
+                                            <div class="fs-4">{{ subject.icon|safe }}</div>
+                                            <span class="small fw-bold">{{ subject.name }}</span>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Mavzu nomi</label>
+                                <input type="text" name="topic" class="form-control form-control-lg bg-light border-0"
+                                       placeholder="Masalan: Nyuton qonunlari..." required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Tushuntirish darajasi</label>
+                                <select name="detail_level" class="form-select form-select-lg bg-light border-0">
+                                    <option value="normal" selected>O'rta (Standard)</option>
+                                    <option value="simple">Sodda (Bolalar uchun)</option>
+                                    <option value="detailed">Batafsil (Akademik)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-primary py-3">
+                                <i class="bi bi-stars me-2"></i> Tushuntirib ber
+                            </button>
+                        </form>
                     </div>
-                </form>
+                </div>
+
+                <div class="row g-4 text-center">
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <i class="bi bi-lightning-charge-fill text-warning fs-1 mb-3"></i>
+                            <h6 class="fw-bold">Tezkor Javob</h6>
+                            <p class="text-muted small">Saniyalar ichida to'liq tushuntirish oling.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <i class="bi bi-translate text-primary fs-1 mb-3"></i>
+                            <h6 class="fw-bold">O'zbek Tilida</h6>
+                            <p class="text-muted small">Barcha ma'lumotlar tushunarli o'zbek tilida.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <i class="bi bi-layers-fill text-success fs-1 mb-3"></i>
+                            <h6 class="fw-bold">Misollar Bilan</h6>
+                            <p class="text-muted small">Nazariya amaliy misollar bilan mustahkamlanadi.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

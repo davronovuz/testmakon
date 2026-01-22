@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}O'quv Rejalar | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold mb-1">Mening Rejalarim</h2>
+                <p class="text-muted mb-0">Maqsad sari qadam-baqadam.</p>
+            </div>
+            <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-primary fw-bold shadow-primary px-4">
+                <i class="bi bi-plus-lg me-2"></i> Yangi Reja
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for plan in plans %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 position-relative overflow-hidden hover-lift">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge {% if plan.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} bg-opacity-10 text-dark border px-2 py-1">
+                                {{ plan.get_status_display }}
+                            </span>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}">Ko'rish</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold mb-2">
+                            <a href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}" class="text-dark text-decoration-none stretched-link">
+                                {{ plan.title }}
+                            </a>
+                        </h5>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-muted">Progress</span>
+                                <span class="fw-bold text-primary">{{ plan.progress_percentage }}%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: {{ plan.progress_percentage }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto d-flex align-items-center gap-3 text-muted small border-top pt-3">
+                            <span><i class="bi bi-list-check me-1"></i> {{ plan.completed_tasks }}/{{ plan.total_tasks }}</span>
+                            <span><i class="bi bi-clock me-1"></i> {{ plan.daily_hours }} soat/kun</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <img src="{% static 'img/empty-plan.svg' %}" alt="No plans" style="width: 150px; opacity: 0.5;" class="mb-3">
+                <h5>Hozircha rejalar yo'q</h5>
+                <p class="text-muted">O'z maqsadingizga erishish uchun birinchi rejani tuzing.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

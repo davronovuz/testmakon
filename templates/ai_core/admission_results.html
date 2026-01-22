@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Qabul Ehtimolligi | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Sizning Imkoniyatlaringiz</h2>
+            <p class="text-muted">
+                Kiritilgan <strong>{{ total_score }} ball</strong> asosida AI tahlili.
+            </p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            {% for rec in recommendations %}
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-box bg-light text-primary rounded-3">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">{{ rec.university.name }}</h5>
+                                <small class="text-muted">{{ rec.direction.name }}</small>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6 border-end-md">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold text-uppercase text-muted">Grant</span>
+                                    <span class="fw-bold {% if rec.grant_chance > 50 %}text-success{% else %}text-warning{% endif %}">
+                                        {{ rec.grant_chance }}%
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar {% if rec.grant_chance > 80 %}bg-success{% elif rec.grant_chance > 40 %}bg-warning{% else %}bg-danger{% endif %}"
+                                         role="progressbar" style="width: {{ rec.grant_chance }}%"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">O'tgan yilgi ball: {{ rec.last_grant_score }}</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small fw-bold text-uppercase text-muted">Kontrakt</span>
+                                    <span class="fw-bold {% if rec.contract_chance > 50 %}text-primary{% else %}text-warning{% endif %}">
+                                        {{ rec.contract_chance }}%
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar {% if rec.contract_chance > 80 %}bg-primary{% elif rec.contract_chance > 40 %}bg-info{% else %}bg-warning{% endif %}"
+                                         role="progressbar" style="width: {{ rec.contract_chance }}%"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">O'tgan yilgi ball: {{ rec.last_contract_score }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted">
+                Afsuski, ushbu ball bilan tavsiyalar topilmadi.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
