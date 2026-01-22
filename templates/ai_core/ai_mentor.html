@@ -3,31 +3,118 @@
 
 {% block title %}AI Mentor | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* AI Gradient Background */
+    .ai-hero-card {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Orqa fon dekoratsiyasi */
+    .ai-hero-decoration {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        font-size: 20rem;
+        opacity: 0.05;
+        color: white;
+        transform: rotate(15deg);
+        pointer-events: none;
+    }
+
+    .ai-hero-circle {
+        position: absolute;
+        bottom: -100px;
+        left: -50px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(0,0,0,0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* Glassmorphism Badge */
+    .glass-badge {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    /* Hover Effects for Cards */
+    .feature-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+        border-color: var(--primary);
+    }
+
+    .icon-wrapper {
+        width: 60px; height: 60px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 16px;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s;
+    }
+    .feature-card:hover .icon-wrapper {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
+<div class="section-sm bg-light min-vh-100">
     <div class="container">
-        <div class="card border-0 shadow-lg overflow-hidden mb-5 bg-dark text-white position-relative">
-            <div class="position-absolute top-0 end-0 p-4 opacity-25">
-                <i class="bi bi-robot display-1"></i>
+
+        <div class="card ai-hero-card shadow-lg rounded-5 mb-5">
+            <div class="ai-hero-decoration">
+                <i class="bi bi-robot"></i>
             </div>
+            <div class="ai-hero-circle"></div>
+
             <div class="card-body p-5 position-relative z-1">
                 <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <span class="badge bg-primary bg-gradient mb-3 px-3 py-2 rounded-pill">
-                            <i class="bi bi-stars me-1"></i> Sun'iy Intellekt
+                    <div class="col-lg-7 text-white">
+                        <span class="badge glass-badge px-3 py-2 rounded-pill mb-4">
+                            <i class="bi bi-stars me-1 text-warning"></i> Sun'iy Intellekt 2.0
                         </span>
-                        <h1 class="fw-bold display-5 mb-3">Shaxsiy AI Mentoringiz</h1>
-                        <p class="lead text-white-50 mb-4">
-                            Savollaringizga javob oling, o'quv reja tuzing va natijalaringizni tahlil qiling.
-                            Barchasi sizning muvaffaqiyatingiz uchun.
+                        <h1 class="fw-bold display-4 mb-3">Shaxsiy AI Mentoringiz</h1>
+                        <p class="lead text-white-50 mb-4" style="font-weight: 300;">
+                            Savollaringizga soniyalar ichida javob oling, o'quv reja tuzing va bilimingizdagi bo'shliqlarni aniqlang. Barchasi bitta joyda.
                         </p>
+
                         <div class="d-flex flex-wrap gap-3">
-                            <a href="{% url 'ai_core:ai_chat' %}" class="btn btn-primary btn-lg fw-bold shadow-primary">
-                                <i class="bi bi-chat-text-fill me-2"></i> Suhbatni boshlash
+                            <a href="{% url 'ai_core:ai_chat' %}" class="btn btn-primary btn-lg fw-bold shadow-lg px-4 py-3 rounded-4 border-0" style="background: #4f46e5;">
+                                <i class="bi bi-chat-dots-fill me-2"></i> Suhbatni boshlash
                             </a>
-                            <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-outline-light btn-lg fw-bold">
+                            <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-outline-light btn-lg fw-bold px-4 py-3 rounded-4">
                                 <i class="bi bi-calendar-plus me-2"></i> Reja tuzish
                             </a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5 d-none d-lg-block text-end">
+                        <div class="glass-badge p-4 rounded-4 d-inline-block text-start" style="max-width: 300px;">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bg-success rounded-circle p-2">
+                                    <i class="bi bi-check-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="small text-white-50">Bugungi holat</div>
+                                    <div class="fw-bold">Faol o'rganish</div>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 6px; width: 100%; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            </div>
+                            <div class="mt-2 small text-white-50">Sizning AI tahlilingiz tayyorlanmoqda...</div>
                         </div>
                     </div>
                 </div>
@@ -36,75 +123,80 @@
 
         <div class="row g-4 mb-5">
             <div class="col-md-6 col-lg-3">
-                <a href="{% url 'ai_core:ai_tutor' %}" class="card h-100 border-0 shadow-sm card-glow text-decoration-none">
-                    <div class="card-body p-4 text-center">
-                        <div class="icon-box-lg bg-info bg-opacity-10 text-info rounded-circle mb-3 mx-auto">
+                <a href="{% url 'ai_core:ai_tutor' %}" class="card feature-card h-100 border-0 shadow-sm rounded-4 text-decoration-none">
+                    <div class="card-body p-4">
+                        <div class="icon-wrapper bg-info bg-opacity-10 text-info">
                             <i class="bi bi-book-half"></i>
                         </div>
-                        <h5 class="fw-bold text-dark">Mavzu Tushuntirish</h5>
-                        <p class="text-muted small mb-0">Murakkab mavzularni sodda tilda o'rganing.</p>
+                        <h5 class="fw-bold text-dark mb-2">Mavzu Tushuntirish</h5>
+                        <p class="text-muted small mb-0">Murakkab mavzularni sodda tilda va misollar bilan o'rganing.</p>
                     </div>
                 </a>
             </div>
+
             <div class="col-md-6 col-lg-3">
-                <a href="{% url 'ai_core:ai_advisor' %}" class="card h-100 border-0 shadow-sm card-glow text-decoration-none">
-                    <div class="card-body p-4 text-center">
-                        <div class="icon-box-lg bg-warning bg-opacity-10 text-warning rounded-circle mb-3 mx-auto">
+                <a href="{% url 'ai_core:ai_advisor' %}" class="card feature-card h-100 border-0 shadow-sm rounded-4 text-decoration-none">
+                    <div class="card-body p-4">
+                        <div class="icon-wrapper bg-warning bg-opacity-10 text-warning">
                             <i class="bi bi-bank2"></i>
                         </div>
-                        <h5 class="fw-bold text-dark">Universitet Maslahati</h5>
-                        <p class="text-muted small mb-0">Ballingizga mos OTMlarni aniqlang.</p>
+                        <h5 class="fw-bold text-dark mb-2">Universitet Maslahati</h5>
+                        <p class="text-muted small mb-0">Ballingizga mos keladigan eng yaxshi OTMlarni aniqlang.</p>
                     </div>
                 </a>
             </div>
+
             <div class="col-md-6 col-lg-3">
-                <a href="{% url 'ai_core:study_plan_list' %}" class="card h-100 border-0 shadow-sm card-glow text-decoration-none">
-                    <div class="card-body p-4 text-center">
-                        <div class="icon-box-lg bg-success bg-opacity-10 text-success rounded-circle mb-3 mx-auto">
+                <a href="{% url 'ai_core:study_plan_list' %}" class="card feature-card h-100 border-0 shadow-sm rounded-4 text-decoration-none">
+                    <div class="card-body p-4">
+                        <div class="icon-wrapper bg-success bg-opacity-10 text-success">
                             <i class="bi bi-calendar-check"></i>
                         </div>
-                        <h5 class="fw-bold text-dark">O'quv Rejalar</h5>
-                        <p class="text-muted small mb-0">Shaxsiy rivojlanish dasturingiz.</p>
+                        <h5 class="fw-bold text-dark mb-2">O'quv Rejalar</h5>
+                        <p class="text-muted small mb-0">Maqsadingizga erishish uchun shaxsiy jadval tuzing.</p>
                     </div>
                 </a>
             </div>
+
             <div class="col-md-6 col-lg-3">
-                <a href="{% url 'ai_core:weak_topics' %}" class="card h-100 border-0 shadow-sm card-glow text-decoration-none">
-                    <div class="card-body p-4 text-center">
-                        <div class="icon-box-lg bg-danger bg-opacity-10 text-danger rounded-circle mb-3 mx-auto">
+                <a href="{% url 'ai_core:weak_topics' %}" class="card feature-card h-100 border-0 shadow-sm rounded-4 text-decoration-none">
+                    <div class="card-body p-4">
+                        <div class="icon-wrapper bg-danger bg-opacity-10 text-danger">
                             <i class="bi bi-activity"></i>
                         </div>
-                        <h5 class="fw-bold text-dark">Sust Mavzular</h5>
-                        <p class="text-muted small mb-0">Xatolaringiz ustida ishlang.</p>
+                        <h5 class="fw-bold text-dark mb-2">Sust Mavzular</h5>
+                        <p class="text-muted small mb-0">Xatolaringiz ustida ishlab, natijangizni oshiring.</p>
                     </div>
                 </a>
             </div>
         </div>
 
         {% if conversations %}
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">So'nggi suhbatlar</h5>
-                <a href="{% url 'ai_core:conversations_list' %}" class="btn btn-sm btn-light">Barchasi</a>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-dark">So'nggi faolliklar</h5>
+            <a href="{% url 'ai_core:conversations_list' %}" class="text-decoration-none fw-bold small">Barchasini ko'rish</a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="list-group list-group-flush">
                 {% for chat in conversations %}
-                <a href="{% url 'ai_core:conversation_detail' uuid=chat.uuid %}" class="list-group-item list-group-item-action py-3 border-light">
+                <a href="{% url 'ai_core:conversation_detail' uuid=chat.uuid %}" class="list-group-item list-group-item-action p-3 border-light">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="icon-box bg-light text-primary rounded-circle">
-                            <i class="bi bi-chat-dots"></i>
+                        <div class="bg-light rounded-circle p-2 text-primary">
+                            <i class="bi bi-chat-left-text"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="fw-bold mb-1 text-dark">{{ chat.title|truncatechars:60 }}</h6>
-                            <small class="text-muted">{{ chat.updated_at|timesince }} oldin • {{ chat.get_conversation_type_display }}</small>
+                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">{{ chat.title|default:"Yangi suhbat" }}</h6>
+                            <small class="text-muted">{{ chat.updated_at|timesince }} oldin</small>
                         </div>
-                        <i class="bi bi-chevron-right text-muted"></i>
+                        <i class="bi bi-chevron-right text-muted small"></i>
                     </div>
                 </a>
                 {% endfor %}
             </div>
         </div>
         {% endif %}
+
     </div>
 </div>
 {% endblock %}
