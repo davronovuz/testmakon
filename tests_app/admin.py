@@ -1,155 +1,134 @@
+"""
+TestMakon.uz - Tests App Admin
+"""
+
 from django.contrib import admin
 from django.utils.html import format_html
+
 from .models import (
     Subject, Topic, Question, Answer,
-    Test, TestQuestion, TestAttempt,
-    AttemptAnswer, SavedQuestion
+    Test, TestQuestion, TestAttempt, AttemptAnswer, SavedQuestion
 )
 
-
-# --- INLINES ---
 
 class AnswerInline(admin.TabularInline):
     model = Answer
     extra = 4
-    fields = ('text', 'is_correct', 'order', 'image')
+    fields = ('text', 'is_correct', 'order')
 
 
-class TestQuestionInline(admin.TabularInline):
-    model = TestQuestion
-    extra = 5
-    autocomplete_fields = ['question']
+class TopicInline(admin.TabularInline):
+    model = Topic
+    extra = 1
+    fields = ('name', 'slug', 'order', 'is_active')
+    prepopulated_fields = {'slug': ('name',)}
 
-
-class AttemptAnswerInline(admin.TabularInline):
-    model = AttemptAnswer
-    extra = 0
-    readonly_fields = ('question', 'selected_answer', 'is_correct', 'time_spent', 'answered_at')
-    can_delete = False
-
-
-# --- ADMIN CLASSES ---
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('icon_display', 'name', 'total_questions', 'total_tests', 'order', 'is_active')
+    list_display = ('name', 'icon', 'total_questions', 'total_tests', 'is_active', 'order')
     list_editable = ('order', 'is_active')
-    search_fields = ('name', 'description')
+    search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
-    list_filter = ('is_active',)
-
-    def icon_display(self, obj):
-        return format_html('<span style="font-size: 1.2rem;">{}</span>', obj.icon)
-
-    icon_display.short_description = 'Ikonka'
+    inlines = [TopicInline]
 
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ('name', 'subject', 'parent', 'order', 'is_active')
+    list_display = ('name', 'subject', 'order', 'is_active')
     list_filter = ('subject', 'is_active')
+    list_editable = ('order', 'is_active')
     search_fields = ('name', 'subject__name')
     prepopulated_fields = {'slug': ('name',)}
-    autocomplete_fields = ['subject', 'parent']
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('text_short', 'subject', 'topic', 'question_type', 'difficulty', 'correct_rate_display',
-                    'is_active')
-    list_filter = ('subject', 'difficulty', 'question_type', 'is_active', 'created_at')
-    search_fields = ('text', 'explanation', 'source')
-    autocomplete_fields = ['subject', 'topic', 'created_by']
+    list_display = ('short_text', 'subject', 'topic', 'difficulty', 'is_active')
+    list_filter = ('subject', 'topic', 'difficulty', 'is_active')
+    list_editable = ('is_active',)
+    search_fields = ('text', 'subject__name', 'topic__name')
     inlines = [AnswerInline]
-    readonly_fields = ('times_answered', 'times_correct', 'correct_rate_display')
 
     fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('subject', 'topic', 'text', 'image', 'question_type', 'difficulty')
+        ('Asosiy', {
+            'fields': ('subject', 'topic', 'text', 'image')
         }),
-        ('Ball va Vaqt', {
-            'fields': ('points', 'time_limit')
+        ('Sozlamalar', {
+            'fields': ('question_type', 'difficulty', 'points', 'time_limit')
         }),
-        ('Tushuntirish va Maslahat', {
-            'fields': ('explanation', 'hint')
+        ('Tushuntirish', {
+            'fields': ('explanation', 'hint'),
+            'classes': ('collapse',)
         }),
-        ('Statistika va Manba', {
-            'fields': ('source', 'year', 'times_answered', 'times_correct', 'is_active', 'created_by')
+        ('Boshqa', {
+            'fields': ('source', 'year', 'is_active'),
+            'classes': ('collapse',)
         }),
     )
 
-    def text_short(self, obj):
-        return obj.text[:80] + "..." if len(obj.text) > 80 else obj.text
+    def short_text(self, obj):
+        return obj.text[:80] + '...' if len(obj.text) > 80 else obj.text
+    short_text.short_description = 'Savol'
 
-    text_short.short_description = 'Savol matni'
 
-    def correct_rate_display(self, obj):
-        rate = obj.correct_rate
-        color = "red" if rate < 40 else "orange" if rate < 70 else "green"
-        return format_html('<b style="color: {};">{}%</b>', color, rate)
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ('short_text', 'question_short', 'is_correct')
+    list_filter = ('is_correct',)
+    search_fields = ('text', 'question__text')
 
-    correct_rate_display.short_description = 'To\'g\'rilik %'
+    def short_text(self, obj):
+        return obj.text[:50] + '...' if len(obj.text) > 50 else obj.text
+    short_text.short_description = 'Javob'
+
+    def question_short(self, obj):
+        return obj.question.text[:40] + '...'
+    question_short.short_description = 'Savol'
 
 
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
-    list_display = ('title', 'test_type', 'subject', 'question_count', 'is_active', 'is_premium', 'is_available')
-    list_filter = ('test_type', 'is_active', 'is_premium', 'subject')
-    search_fields = ('title', 'description')
+    list_display = ('title', 'test_type', 'subject', 'question_count', 'time_limit', 'is_active', 'is_premium')
+    list_filter = ('test_type', 'subject', 'is_active', 'is_premium')
+    list_editable = ('is_active', 'is_premium')
+    search_fields = ('title',)
     prepopulated_fields = {'slug': ('title',)}
-    filter_horizontal = ('subjects',)  # Block testlar uchun fanlarni tanlash qulay bo'lishi uchun
-    inlines = [TestQuestionInline]
+    filter_horizontal = ('questions',)
 
     fieldsets = (
-        ('Umumiy', {
-            'fields': ('title', 'slug', 'description', 'test_type', 'subject', 'subjects', 'is_active', 'is_premium')
+        ('Asosiy', {
+            'fields': ('title', 'slug', 'description', 'test_type', 'subject')
         }),
         ('Sozlamalar', {
-            'fields': ('time_limit', 'question_count', 'passing_score', 'shuffle_questions', 'shuffle_answers',
-                       'show_correct_answers')
+            'fields': ('time_limit', 'question_count', 'passing_score', 'shuffle_questions', 'shuffle_answers', 'show_correct_answers')
         }),
-        ('Vaqt oralig\'i', {
-            'fields': ('start_date', 'end_date')
+        ('Mavjudlik', {
+            'fields': ('is_active', 'is_premium', 'start_date', 'end_date')
         }),
-        ('Statistika', {
-            'fields': ('total_attempts', 'average_score'),
-            'classes': ('collapse',)
+        ('Savollar', {
+            'fields': ('questions',)
         }),
     )
 
 
 @admin.register(TestAttempt)
 class TestAttemptAdmin(admin.ModelAdmin):
-    list_display = ('user', 'test', 'status', 'score_display', 'time_spent_min', 'started_at')
-    list_filter = ('status', 'started_at', 'test__test_type')
-    search_fields = ('user__username', 'test__title')
-    readonly_fields = (
-        'uuid', 'user', 'test', 'status', 'current_question',
-        'total_questions', 'correct_answers', 'wrong_answers',
-        'skipped_questions', 'score', 'percentage', 'xp_earned',
-        'time_spent', 'started_at', 'completed_at',
-        'ai_analysis', 'ai_recommendations', 'weak_topics', 'strong_topics'
-    )
-    inlines = [AttemptAnswerInline]
+    list_display = ('user', 'test', 'status', 'correct_answers', 'total_questions', 'percentage', 'started_at')
+    list_filter = ('status', 'test__subject', 'started_at')
+    search_fields = ('user__phone_number', 'user__first_name', 'test__title')
+    readonly_fields = ('uuid', 'user', 'test', 'status', 'total_questions', 'correct_answers', 'wrong_answers', 'percentage', 'xp_earned', 'started_at', 'completed_at')
 
-    def score_display(self, obj):
-        return format_html('<b>{}%</b> ({} ta to\'g\'ri)', obj.percentage, obj.correct_answers)
-
-    score_display.short_description = 'Natija'
-
-    def time_spent_min(self, obj):
-        return f"{obj.time_spent // 60}m {obj.time_spent % 60}s"
-
-    time_spent_min.short_description = 'Sarflangan vaqt'
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(SavedQuestion)
 class SavedQuestionAdmin(admin.ModelAdmin):
     list_display = ('user', 'question', 'created_at')
-    search_fields = ('user__username', 'question__text')
+    list_filter = ('created_at',)
+    search_fields = ('user__phone_number', 'question__text')
 
 
-# Savollarni autocomplete ishlatishi uchun kerak
-admin.site.site_header = "TestMakon.uz Admin"
-admin.site.site_title = "TestMakon Admin Portali"
-admin.site.index_title = "Tizim boshqaruvi"
+admin.site.site_header = "TestMakon Admin"
+admin.site.site_title = "TestMakon"
