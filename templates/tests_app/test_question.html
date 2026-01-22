@@ -1,213 +1,396 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Test Ishlash | TestMakon{% endblock %}
+{% block title %}Test Jarayoni | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Fokus rejimi uchun maxsus stillar */
-    body { background-color: #f8fafc; }
+    /* 1. Asosiy Ekran Sozlamalari */
+    body { background-color: #f8fafc; height: 100vh; overflow: hidden; }
+    .navbar, .footer { display: none !important; } /* Standart menyuni yashirish */
 
-    /* Navbar va Footerni yashirish yoki minimallashtirish (ixtiyoriy) */
-    .navbar, .footer { display: none !important; }
+    /* 2. Grid Layout (Chap va O'ng tomon) */
+    .exam-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        height: 100vh;
+    }
 
-    .test-header {
-        background: white;
-        height: 70px;
-        box-shadow: 0 4px 20px -5px rgba(0,0,0,0.1);
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        z-index: 1000;
+    /* --- CHAP TOMON (Savol qismi) --- */
+    .question-area {
+        overflow-y: auto;
+        padding: 2rem;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        padding: 0 2rem;
+        background: #f1f5f9;
     }
 
-    .question-container {
-        margin-top: 100px;
-        margin-bottom: 80px;
+    .question-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        width: 100%;
         max-width: 900px;
+        padding: 40px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
     }
 
-    /* Timer Styles */
-    .timer-box {
+    /* Toolbar (AI, Chat, Save tugmalari) */
+    .tools-bar {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 900px;
+        margin-bottom: 20px;
+    }
+
+    .tool-btn {
+        border: none;
+        background: white;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        color: var(--dark-600);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    .tool-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+    .btn-ai { color: #8B5CF6; border: 1px solid rgba(139, 92, 246, 0.2); }
+    .btn-ai:hover { background: #8B5CF6; color: white; }
+
+    .btn-save { color: #F59E0B; }
+    .btn-report { color: #EF4444; }
+
+    /* Javob Variantlari */
+    .option-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 15px;
+        background: white;
+    }
+
+    .option-card:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+    .option-card.selected {
+        border-color: var(--primary);
+        background: rgba(139, 197, 64, 0.05);
+        box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .option-key {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: #e2e8f0;
+        color: #64748b;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .option-card.selected .option-key {
+        background: var(--primary); color: white;
+    }
+
+    /* --- O'NG TOMON (Sidebar) --- */
+    .sidebar-panel {
+        background: white;
+        border-left: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        height: 100vh;
+        z-index: 100;
+        box-shadow: -5px 0 20px rgba(0,0,0,0.02);
+    }
+
+    .timer-display {
         background: var(--dark);
         color: white;
-        padding: 8px 16px;
-        border-radius: 50px;
-        font-weight: 700;
-        font-family: monospace;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: var(--shadow-md);
-        transition: all 0.3s ease;
-    }
-    .timer-box.warning { background: #ef4444; animation: pulse 1s infinite; }
-
-    /* Answer Cards */
-    .answer-option {
-        position: relative;
-        padding: 1.25rem 1.5rem;
-        background: white;
-        border: 2px solid var(--gray-200);
+        font-family: 'Courier New', monospace;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 15px;
         border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
+    .timer-display.danger { background: #EF4444; animation: pulse 1s infinite; }
 
-    .answer-option:hover {
-        border-color: var(--primary-light);
-        background: var(--gray-50);
-        transform: translateY(-2px);
-    }
-
-    .answer-option.selected {
-        border-color: var(--primary);
-        background: var(--primary-glow);
-        box-shadow: 0 4px 12px var(--primary-glow);
-    }
-
-    .answer-radio {
-        width: 24px;
-        height: 24px;
-        border: 2px solid var(--gray-400);
-        border-radius: 50%;
-        position: relative;
-        flex-shrink: 0;
-        transition: all 0.2s;
-    }
-
-    .answer-option.selected .answer-radio {
-        border-color: var(--primary);
-        border-width: 6px;
-    }
-
-    /* Progress Bar */
-    .progress-track {
-        height: 6px;
-        background: var(--gray-200);
-        border-radius: 3px;
-        overflow: hidden;
+    .q-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        overflow-y: auto;
         flex-grow: 1;
-        margin: 0 20px;
-    }
-    .progress-fill {
-        height: 100%;
-        background: var(--gradient-primary);
-        transition: width 0.5s ease;
+        padding-bottom: 20px;
+        align-content: start;
     }
 
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    .q-cell {
+        aspect-ratio: 1;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        text-decoration: none;
     }
 
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-        .test-header { padding: 0 1rem; height: 60px; }
-        .question-container { margin-top: 80px; padding: 0 1rem; }
-        .answer-option { padding: 1rem; }
-        .desktop-only { display: none; }
+    .q-cell:hover { background: #e2e8f0; transform: translateY(-1px); }
+    .q-cell.current { border: 2px solid var(--primary); color: var(--primary); background: white; }
+    .q-cell.answered { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Mobil Moslashuv */
+    @media (max-width: 992px) {
+        .exam-wrapper { grid-template-columns: 1fr; }
+        .sidebar-panel {
+            position: fixed; right: -100%; top: 0;
+            transition: 0.3s; width: 280px;
+        }
+        .sidebar-panel.active { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.2); }
+        .question-area { padding-top: 80px; padding-left: 1rem; padding-right: 1rem; }
+        .mobile-header { display: flex !important; }
+    }
+
+    .mobile-header {
+        display: none; position: fixed; top: 0; left: 0; right: 0;
+        height: 60px; background: white; z-index: 99;
+        align-items: center; justify-content: space-between; padding: 0 20px;
+        border-bottom: 1px solid #e2e8f0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<header class="test-header">
+
+<div class="mobile-header">
+    <div class="fw-bold text-truncate" style="max-width: 200px;">{{ attempt.test.title }}</div>
     <div class="d-flex align-items-center gap-3">
-        <a href="{% url 'core:dashboard' %}" class="btn btn-light btn-sm rounded-circle shadow-sm" title="Chiqish" onclick="return confirm('Testni to\'xtatmoqchimisiz? Natijalar saqlanmaydi.');">
-            <i class="bi bi-x-lg"></i>
-        </a>
-        <div class="d-flex flex-column">
-            <span class="fw-bold text-dark small">{{ attempt.test.title|truncatechars:30 }}</span>
-            <div class="d-flex align-items-center gap-2 small text-muted desktop-only">
-                <span>{{ attempt.test.subject.name }}</span>
-                <span>•</span>
-                <span>{{ current_index|add:"1" }} / {{ total_questions }}</span>
+        <span class="badge bg-dark" id="mobileTimer">00:00</span>
+        <button class="btn btn-light border" onclick="toggleSidebar()"><i class="bi bi-grid-fill"></i></button>
+    </div>
+</div>
+
+<div class="exam-wrapper">
+    <main class="question-area">
+
+        <div class="tools-bar">
+            <div class="d-flex gap-2">
+                <button type="button" class="tool-btn btn-ai" data-bs-toggle="modal" data-bs-target="#aiModal">
+                    <i class="bi bi-stars"></i> AI Yordam
+                </button>
+                <button type="button" class="tool-btn btn-chat" data-bs-toggle="offcanvas" data-bs-target="#commentsCanvas">
+                    <i class="bi bi-chat-text"></i> Chat
+                </button>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'tests_app:save_question' question_id=question.id %}?next={{ request.path }}" class="tool-btn btn-save text-decoration-none" title="Savolni saqlash">
+                    <i class="bi bi-bookmark"></i>
+                </a>
+                <button type="button" class="tool-btn btn-report" title="Xatolik haqida xabar">
+                    <i class="bi bi-flag"></i>
+                </button>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'tests_app:test_submit_answer' uuid=attempt.uuid %}" id="mainForm" class="w-100 d-flex flex-column align-items-center">
+            {% csrf_token %}
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+            <input type="hidden" name="time_spent" id="time_spent" value="0">
+            <input type="hidden" name="used_ai" id="used_ai" value="false">
+
+            <div class="question-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">Savol #{{ current_index|add:"1" }}</span>
+                    <span class="fw-bold text-primary">{{ question.points }} Ball</span>
+                </div>
+
+                <h4 class="fw-bold text-dark lh-base mb-4" style="font-size: 1.25rem;">
+                    {{ question.text|linebreaksbr }}
+                </h4>
+
+                {% if question.image %}
+                    <div class="text-center mb-4">
+                        <img src="{{ question.image.url }}" class="img-fluid rounded-3 border" style="max-height: 350px;">
+                    </div>
+                {% endif %}
+
+                <div class="options-list">
+                    {% for answer in answers %}
+                    <label class="option-card {% if answer.id == selected_answer_id %}selected{% endif %}" onclick="selectOption(this)">
+                        <input type="radio" name="answer_id" value="{{ answer.id }}" class="d-none"
+                               {% if answer.id == selected_answer_id %}checked{% endif %}>
+                        <div class="option-key">
+                            {% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% elif forloop.counter == 4 %}D{% else %}E{% endif %}
+                        </div>
+                        <div class="flex-grow-1 fw-medium text-dark">{{ answer.text }}</div>
+                        {% if answer.image %}
+                            <img src="{{ answer.image.url }}" class="rounded" style="height: 40px;">
+                        {% endif %}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between w-100 max-w-900 mt-2">
+                {% if current_index > 0 %}
+                <a href="{% url 'tests_app:test_question_jump' uuid=attempt.uuid question_index=current_index %}" class="btn btn-white border px-4 py-2 fw-bold text-muted">
+                    <i class="bi bi-arrow-left me-2"></i> Oldingi
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if current_index|add:"1" < total_questions %}
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-primary">
+                    Keyingi <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-success px-5 py-2 fw-bold shadow-success" data-bs-toggle="modal" data-bs-target="#finishModal">
+                    Yakunlash <i class="bi bi-check-circle-fill ms-2"></i>
+                </button>
+                {% endif %}
+            </div>
+        </form>
+    </main>
+
+    <aside class="sidebar-panel" id="sidebar">
+        <div class="d-flex justify-content-between align-items-center d-lg-none mb-4">
+            <h5 class="fw-bold m-0">Menu</h5>
+            <button class="btn-close" onclick="toggleSidebar()"></button>
+        </div>
+
+        <div class="timer-display" id="desktopTimer">00:00</div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <small class="text-muted fw-bold text-uppercase">Savollar xaritasi</small>
+            <span class="badge bg-light text-dark border">{{ total_questions }} ta</span>
+        </div>
+
+        <div class="q-grid">
+            {% for q_map in questions_map %}
+            <a href="{% url 'tests_app:test_question_jump' uuid=attempt.uuid question_index=q_map.index %}"
+               class="q-cell {{ q_map.status }}">
+                {{ q_map.index }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="mt-auto pt-3 border-top">
+            <button class="btn btn-outline-danger w-100 fw-bold py-2" data-bs-toggle="modal" data-bs-target="#exitModal">
+                <i class="bi bi-box-arrow-right me-2"></i> Chiqish
+            </button>
+        </div>
+    </aside>
+</div>
+
+<div class="modal fade" id="aiModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary bg-gradient text-white border-0">
+                <h5 class="modal-title"><i class="bi bi-robot me-2"></i>AI Mentor</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="aiWarning">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-exclamation-diamond-fill text-warning display-4"></i>
+                        <h5 class="fw-bold mt-3">Diqqat!</h5>
+                        <p class="text-muted">
+                            Agar AI yordamidan foydalansangiz, bu savol uchun beriladigan ball
+                            <span class="text-danger fw-bold">50% ga kamayadi</span>.
+                        </p>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary fw-bold" onclick="showAiHint()">
+                            Roziman, yordam bering
+                        </button>
+                        <button class="btn btn-light" data-bs-dismiss="modal">Bekor qilish</button>
+                    </div>
+                </div>
+
+                <div id="aiContent" class="d-none">
+                    <div class="d-flex gap-3">
+                        <div class="icon-box bg-primary text-white rounded-circle flex-shrink-0" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="bg-light p-3 rounded-3 w-100">
+                            <h6 class="fw-bold text-primary mb-1">AI Maslahati:</h6>
+                            <p class="mb-0 text-dark small">
+                                {{ question.hint|default:"Ushbu savol uchun hozircha maslahat yo'q." }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="progress-track desktop-only" style="max-width: 300px;">
-        <div class="progress-fill" style="width: {% widthratio current_index total_questions 100 %}%"></div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="commentsCanvas">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold">Munozara</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
-
-    <div class="timer-box" id="timer">
-        <i class="bi bi-stopwatch"></i>
-        <span id="time-display">00:00</span>
+    <div class="offcanvas-body bg-light p-0">
+        <div class="p-3 d-flex flex-column gap-3" style="height: calc(100vh - 130px); overflow-y: auto;">
+            <div class="text-center text-muted small py-5">
+                <i class="bi bi-chat-square-dots display-4 d-block mb-3 opacity-25"></i>
+                Hozircha fikrlar yo'q. Birinchi bo'lib yozing!
+            </div>
+        </div>
+        <div class="p-3 bg-white border-top position-absolute bottom-0 w-100">
+            <div class="input-group">
+                <input type="text" class="form-control bg-light" placeholder="Fikringizni yozing...">
+                <button class="btn btn-primary"><i class="bi bi-send-fill"></i></button>
+            </div>
+        </div>
     </div>
-</header>
+</div>
 
-<div class="container question-container">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <form method="post" action="{% url 'tests_app:test_submit_answer' uuid=attempt.uuid %}" id="questionForm">
-                {% csrf_token %}
-                <input type="hidden" name="question_id" value="{{ question.id }}">
-                <input type="hidden" name="time_spent" id="time_spent" value="0">
-
-                <div class="card border-0 shadow-lg rounded-4 mb-4 overflow-hidden animate__animated animate__fadeIn">
-                    <div class="card-body p-4 p-md-5">
-                        <div class="d-flex justify-content-between mb-4">
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill">
-                                Savol {{ current_index|add:"1" }}
-                            </span>
-                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
-                                {{ question.points }} Ball
-                            </span>
-                        </div>
-
-                        <h4 class="fw-bold text-dark mb-4 lh-base" style="font-size: 1.35rem;">
-                            {{ question.text|linebreaksbr }}
-                        </h4>
-
-                        {% if question.image %}
-                        <div class="mb-4 text-center">
-                            <img src="{{ question.image.url }}" class="img-fluid rounded-3 border shadow-sm" style="max-height: 400px;" alt="Question Image">
-                        </div>
-                        {% endif %}
-                    </div>
+<div class="modal fade" id="finishModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-check-circle-fill text-success display-4 mb-3"></i>
+                <h4 class="fw-bold">Testni yakunlaysizmi?</h4>
+                <p class="text-muted">Barcha belgilanmagan javoblar xato deb hisoblanadi.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Qaytish</button>
+                    <a href="{% url 'tests_app:test_finish' uuid=attempt.uuid %}" class="btn btn-success px-4 fw-bold">Ha, Yakunlash</a>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div class="row g-3">
-                    {% for answer in answers %}
-                    <div class="col-12 col-md-6">
-                        <label class="answer-option h-100" onclick="selectAnswer(this)">
-                            <div class="answer-radio"></div>
-                            <input type="radio" name="answer_id" value="{{ answer.id }}" class="d-none" required>
-
-                            <div class="flex-grow-1">
-                                {% if answer.image %}
-                                    <img src="{{ answer.image.url }}" class="img-fluid rounded mb-2 d-block" style="max-height: 150px;">
-                                {% endif %}
-                                <span class="fw-medium text-dark-700" style="font-size: 1.05rem;">{{ answer.text }}</span>
-                            </div>
-                        </label>
-                    </div>
-                    {% endfor %}
+<div class="modal fade" id="exitModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-pause-circle-fill text-warning display-4 mb-3"></i>
+                <h4 class="fw-bold">Chiqishni xohlaysizmi?</h4>
+                <p class="text-muted">Test jarayoni saqlanadi va keyinroq davom ettirishingiz mumkin.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Yo'q</button>
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-warning px-4">Ha, Chiqish</a>
                 </div>
-
-                <div class="d-flex justify-content-between align-items-center mt-5">
-                    <div class="text-muted small">
-                        {% if current_index > 0 %}
-                            {% endif %}
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow-primary rounded-pill d-flex align-items-center gap-2">
-                        {% if current_index|add:"1" == total_questions %}
-                            Yakunlash <i class="bi bi-check-circle-fill"></i>
-                        {% else %}
-                            Keyingi <i class="bi bi-arrow-right"></i>
-                        {% endif %}
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -216,46 +399,44 @@
 
 {% block extra_js %}
 <script>
-    // Timer Logic
+    // 1. Timer Logic
     let totalSeconds = {{ remaining_time }};
-    let timeSpent = 0;
-    const timerDisplay = document.getElementById('time-display');
-    const timerBox = document.getElementById('timer');
-    const timeSpentInput = document.getElementById('time_spent');
+    const timerEls = [document.getElementById('desktopTimer'), document.getElementById('mobileTimer')];
 
-    function updateTimer() {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-
-        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        // Warning state
-        if (totalSeconds < 60) {
-            timerBox.classList.add('warning');
+    setInterval(() => {
+        if(totalSeconds <= 0) {
+            window.location.href = "{% url 'tests_app:test_finish' uuid=attempt.uuid %}";
+            return;
         }
+        totalSeconds--;
+        const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const s = (totalSeconds % 60).toString().padStart(2, '0');
 
-        if (totalSeconds <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById('questionForm').submit(); // Auto submit
-        } else {
-            totalSeconds--;
-            timeSpent++;
-            timeSpentInput.value = timeSpent;
-        }
+        timerEls.forEach(el => {
+            if(el) {
+                el.textContent = `${m}:${s}`;
+                if(totalSeconds < 300) el.classList.add('danger'); // Last 5 mins warning
+            }
+        });
+    }, 1000);
+
+    // 2. UI Actions
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
     }
 
-    const timerInterval = setInterval(updateTimer, 1000);
-    updateTimer(); // Initial call
+    function selectOption(card) {
+        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        card.querySelector('input').checked = true;
+    }
 
-    // Selection UI Logic
-    function selectAnswer(element) {
-        // Remove selected class from all
-        document.querySelectorAll('.answer-option').forEach(el => el.classList.remove('selected'));
-        // Add to clicked
-        element.classList.add('selected');
-        // Check the radio inside (redundant but safe)
-        const radio = element.querySelector('input[type="radio"]');
-        radio.checked = true;
+    // 3. AI Logic
+    function showAiHint() {
+        document.getElementById('aiWarning').classList.add('d-none');
+        document.getElementById('aiContent').classList.remove('d-none');
+        document.getElementById('used_ai').value = "true";
+        // Optional: Send AJAX to backend to deduct points immediately
     }
 </script>
 {% endblock %}
