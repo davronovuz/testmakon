@@ -3,55 +3,546 @@
 
 {% block title %}TestMakon - AI quvvatli ta'lim platformasi{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Hero Section Styles */
+    .hero-section {
+        background: linear-gradient(135deg, #F8FAFC 0%, #E8F5E9 50%, #F1F5F9 100%);
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(139, 197, 64, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-badge {
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.15) 0%, rgba(139, 197, 64, 0.05) 100%);
+        color: var(--primary-dark);
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba(139, 197, 64, 0.3);
+    }
+
+    .hero-title {
+        font-size: 3.8rem;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: var(--gray-500);
+        line-height: 1.8;
+    }
+
+    /* Feature Cards - Premium Design */
+    .feature-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px -12px rgba(139, 197, 64, 0.25);
+        border-color: var(--primary-light);
+    }
+
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .feature-icon.ai-mentor {
+        background: linear-gradient(135deg, #8BC540 0%, #6BA832 100%);
+        color: white;
+        box-shadow: 0 10px 30px -10px rgba(139, 197, 64, 0.5);
+    }
+
+    .feature-icon.ai-tahlil {
+        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        color: white;
+        box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
+    }
+
+    .feature-icon.universitet {
+        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        color: white;
+        box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.5);
+    }
+
+    .feature-icon.musobaqa {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+        box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.5);
+    }
+
+    .feature-icon.blok-test {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+        box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.5);
+    }
+
+    .feature-icon.reyting {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.5);
+    }
+
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-desc {
+        color: var(--gray-500);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .feature-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-dark);
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-top: 1.25rem;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .feature-link {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .feature-link:hover {
+        gap: 0.75rem;
+    }
+
+    /* Subject Cards */
+    .subject-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .subject-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-light);
+    }
+
+    .subject-card:hover::after {
+        transform: scaleX(1);
+    }
+
+    .subject-emoji {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .subject-card:hover .subject-emoji {
+        transform: scale(1.15);
+    }
+
+    .subject-name {
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .subject-count {
+        color: var(--gray-500);
+        font-size: 0.85rem;
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: linear-gradient(135deg, var(--dark) 0%, #0F172A 100%);
+        padding: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238BC540' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .stat-item {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--white);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number span {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--gray-400);
+        font-weight: 500;
+    }
+
+    /* Steps Section */
+    .step-circle {
+        width: 90px;
+        height: 90px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 15px 40px -10px rgba(139, 197, 64, 0.5);
+        position: relative;
+    }
+
+    .step-circle::after {
+        content: '';
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        border: 2px dashed var(--primary-light);
+        border-radius: 50%;
+        animation: spin 20s linear infinite;
+    }
+
+    @keyframes spin {
+        100% { transform: rotate(360deg); }
+    }
+
+    .step-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+    }
+
+    .step-desc {
+        color: var(--gray-500);
+        line-height: 1.7;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #8BC540 0%, #6BA832 50%, #5A9428 100%);
+        padding: 5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .cta-section::after {
+        content: '';
+        position: absolute;
+        bottom: -50%;
+        left: -20%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .cta-btn {
+        background: white;
+        color: var(--primary-dark);
+        font-weight: 800;
+        padding: 1.1rem 2.5rem;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.3);
+        color: var(--primary-dark);
+    }
+
+    /* Floating Cards Animation */
+    .float-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--gray-200);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+
+    .float-animation {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .float-animation-delay {
+        animation: float 4s ease-in-out infinite;
+        animation-delay: 1s;
+    }
+
+    /* AI Chat Preview */
+    .ai-chat-card {
+        background: var(--white);
+        border-radius: 24px;
+        padding: 1.75rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        border: 2px solid var(--gray-200);
+    }
+
+    .chat-bubble-user {
+        background: var(--gray-100);
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .chat-bubble-ai {
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.12) 0%, rgba(139, 197, 64, 0.05) 100%);
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        border-left: 4px solid var(--primary);
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .avatar-user {
+        background: var(--dark);
+        color: white;
+    }
+
+    .avatar-ai {
+        background: var(--gradient-primary);
+        color: white;
+    }
+
+    /* Section Styles */
+    .section-badge {
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.15) 0%, rgba(139, 197, 64, 0.05) 100%);
+        color: var(--primary-dark);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+        color: var(--gray-500);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Check Items */
+    .check-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .check-icon {
+        width: 26px;
+        height: 26px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+    }
+
+    .check-text {
+        color: var(--dark-600);
+        font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+        .stat-number {
+            font-size: 2.25rem;
+        }
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 5rem 0;">
+<section class="hero-section">
     <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
-                <span class="badge badge-primary mb-3">
-                    <i class="bi bi-stars me-1"></i> #1 Ta'lim platformasi
+                <span class="hero-badge">
+                    <i class="bi bi-stars"></i> O'zbekistonning #1 test platformasi
                 </span>
-                <h1 class="mb-4" style="font-size: 3.5rem; line-height: 1.1;">
-                    Universitetga tayyorlan
-                    <span class="text-gradient">AI yordamida</span>
+                <h1 class="hero-title mt-4 mb-4">
+                    Orzuingizdagi universitetga
+                    <span class="text-gradient">AI bilan tayyorlaning</span>
                 </h1>
-                <p class="lead mb-4" style="font-size: 1.2rem; color: var(--gray-500); line-height: 1.8;">
-                    TestMakon - O'zbekiston abituriyentlari uchun sun'iy intellekt quvvatli zamonaviy ta'lim platformasi. 24/7 shaxsiy AI mentor, minglab testlar va raqobatlar.
+                <p class="hero-subtitle mb-4">
+                    TestMakon — sun'iy intellekt quvvatli ta'lim platformasi. Shaxsiy AI mentoringiz 24/7 yoningizda, minglab testlar va real imtihon simulyatorlari bilan maqsadingizga erishing oson.
                 </p>
                 <div class="d-flex flex-wrap gap-3 mb-4">
                     <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
                         Bepul boshlash <i class="bi bi-arrow-right ms-2"></i>
                     </a>
                     <a href="{% url 'tests_app:tests_list' %}" class="btn btn-outline btn-lg">
-                        <i class="bi bi-play-circle me-2"></i> Demo ko'rish
+                        <i class="bi bi-play-circle me-2"></i> Testlarni ko'rish
                     </a>
                 </div>
-                <div class="d-flex flex-wrap align-items-center gap-4 pt-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <div style="width: 24px; height: 24px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-check text-white" style="font-size: 0.8rem;"></i>
-                        </div>
-                        <span style="color: var(--dark-600); font-weight: 500;">Bepul boshlash</span>
+                <div class="d-flex flex-wrap gap-4 pt-3">
+                    <div class="check-item">
+                        <div class="check-icon"><i class="bi bi-check"></i></div>
+                        <span class="check-text">To'liq bepul</span>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div style="width: 24px; height: 24px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-check text-white" style="font-size: 0.8rem;"></i>
-                        </div>
-                        <span style="color: var(--dark-600); font-weight: 500;">24/7 AI mentor</span>
+                    <div class="check-item">
+                        <div class="check-icon"><i class="bi bi-check"></i></div>
+                        <span class="check-text">24/7 AI mentor</span>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div style="width: 24px; height: 24px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-check text-white" style="font-size: 0.8rem;"></i>
-                        </div>
-                        <span style="color: var(--dark-600); font-weight: 500;">10,000+ testlar</span>
+                    <div class="check-item">
+                        <div class="check-icon"><i class="bi bi-check"></i></div>
+                        <span class="check-text">10,000+ test savollari</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="position-relative">
-                    <!-- Main Card -->
-                    <div class="card p-4 card-glow" style="border-radius: 24px; border: 2px solid var(--gray-200);">
+                    <!-- AI Chat Card -->
+                    <div class="ai-chat-card">
                         <div class="d-flex align-items-center gap-3 mb-4">
                             <div class="icon-box-gradient icon-box-lg">
                                 <i class="bi bi-robot"></i>
@@ -59,52 +550,64 @@
                             <div>
                                 <h5 class="mb-0 fw-bold">AI Mentor</h5>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span style="width: 8px; height: 8px; background: #22C55E; border-radius: 50%; display: inline-block;"></span>
-                                    <small style="color: var(--gray-500);">Online • Tayyor yordam berishga</small>
+                                    <span style="width: 8px; height: 8px; background: #22C55E; border-radius: 50%;"></span>
+                                    <small style="color: var(--gray-500);">Online • Har doim tayyor</small>
                                 </div>
                             </div>
                         </div>
-                        <div style="background: var(--gray-100); border-radius: 16px; padding: 16px;" class="mb-3">
-                            <div class="d-flex align-items-start gap-2">
-                                <div style="width: 32px; height: 32px; background: var(--dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <i class="bi bi-person-fill text-white" style="font-size: 0.9rem;"></i>
+
+                        <div class="chat-bubble-user">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="avatar avatar-user">
+                                    <i class="bi bi-person-fill"></i>
                                 </div>
-                                <p class="mb-0" style="color: var(--dark);">"Matematikadan kvadrat tenglamalarni qanday yechish kerak?"</p>
+                                <p class="mb-0" style="color: var(--dark);">Kvadrat tenglamani diskriminant orqali qanday yechaman?</p>
                             </div>
                         </div>
-                        <div style="background: linear-gradient(135deg, rgba(139, 197, 64, 0.15) 0%, rgba(139, 197, 64, 0.05) 100%); border-radius: 16px; padding: 16px; border-left: 4px solid var(--primary);">
-                            <div class="d-flex align-items-start gap-2">
-                                <div style="width: 32px; height: 32px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <i class="bi bi-robot text-white" style="font-size: 0.9rem;"></i>
+
+                        <div class="chat-bubble-ai">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="avatar avatar-ai">
+                                    <i class="bi bi-robot"></i>
                                 </div>
                                 <div>
-                                    <p class="mb-0" style="color: var(--dark-600);">Kvadrat tenglama <strong>ax² + bx + c = 0</strong> ko'rinishida bo'ladi. Yechish uchun diskriminant <strong>D = b² - 4ac</strong> formulasidan foydalanamiz...</p>
+                                    <p class="mb-0" style="color: var(--dark-600);">
+                                        Ajoyib savol! 🎯 Kvadrat tenglama <strong>ax² + bx + c = 0</strong> ko'rinishida bo'ladi.
+                                        <br><br>
+                                        <strong>1-qadam:</strong> D = b² - 4ac (diskriminant)
+                                        <br>
+                                        <strong>2-qadam:</strong> x = (-b ± √D) / 2a
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Floating Cards -->
-                    <div class="position-absolute d-none d-lg-block float-animation" style="top: -30px; right: -30px; background: var(--white); border-radius: 20px; padding: 20px 24px; box-shadow: var(--shadow-lg); border: 1px solid var(--gray-200);">
-                        <div class="d-flex align-items-center gap-3">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <span style="font-size: 1.5rem;">🎯</span>
-                            </div>
-                            <div>
-                                <div class="fw-bold fs-4" style="color: var(--dark);">94%</div>
-                                <small style="color: var(--gray-500);">Muvaffaqiyat darajasi</small>
+                    <!-- Floating Stats Cards -->
+                    <div class="position-absolute d-none d-lg-block float-animation" style="top: -25px; right: -40px;">
+                        <div class="float-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                                    <span style="font-size: 1.5rem;">🎯</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-4" style="color: var(--dark);">94%</div>
+                                    <small style="color: var(--gray-500);">Kirish muvaffaqiyati</small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="position-absolute d-none d-lg-block float-animation" style="bottom: -30px; left: -30px; background: var(--white); border-radius: 20px; padding: 20px 24px; box-shadow: var(--shadow-lg); border: 1px solid var(--gray-200); animation-delay: 0.5s;">
-                        <div class="d-flex align-items-center gap-3">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <span style="font-size: 1.5rem;">👥</span>
-                            </div>
-                            <div>
-                                <div class="fw-bold fs-4" style="color: var(--dark);">50,000+</div>
-                                <small style="color: var(--gray-500);">Faol foydalanuvchilar</small>
+                    <div class="position-absolute d-none d-lg-block float-animation-delay" style="bottom: -25px; left: -40px;">
+                        <div class="float-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                                    <span style="font-size: 1.5rem;">👥</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-4" style="color: var(--dark);">50K+</div>
+                                    <small style="color: var(--gray-500);">Faol foydalanuvchi</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -115,24 +618,32 @@
 </section>
 
 <!-- Stats Section -->
-<section style="background: var(--dark); padding: 3rem 0;">
+<section class="stats-section">
     <div class="container">
-        <div class="row g-4 text-center">
+        <div class="row g-4">
             <div class="col-6 col-md-3">
-                <div class="fs-2 fw-bold text-white mb-1">50,000+</div>
-                <div style="color: var(--gray-400);">Foydalanuvchilar</div>
+                <div class="stat-item">
+                    <div class="stat-number">50<span>K+</span></div>
+                    <div class="stat-label">Foydalanuvchilar</div>
+                </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="fs-2 fw-bold text-white mb-1">10,000+</div>
-                <div style="color: var(--gray-400);">Testlar</div>
+                <div class="stat-item">
+                    <div class="stat-number">10<span>K+</span></div>
+                    <div class="stat-label">Test savollari</div>
+                </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="fs-2 fw-bold text-white mb-1">15+</div>
-                <div style="color: var(--gray-400);">Fanlar</div>
+                <div class="stat-item">
+                    <div class="stat-number">15<span>+</span></div>
+                    <div class="stat-label">Fanlar</div>
+                </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="fs-2 fw-bold text-white mb-1">94%</div>
-                <div style="color: var(--gray-400);">Muvaffaqiyat</div>
+                <div class="stat-item">
+                    <div class="stat-number">94<span>%</span></div>
+                    <div class="stat-label">Muvaffaqiyat</div>
+                </div>
             </div>
         </div>
     </div>
@@ -142,69 +653,87 @@
 <section class="section">
     <div class="container">
         <div class="text-center mb-5">
-            <span class="badge badge-primary mb-3">Imkoniyatlar</span>
-            <h2 class="mb-3">Nima uchun <span class="text-gradient">TestMakon</span>?</h2>
-            <p style="color: var(--gray-500); max-width: 600px; margin: 0 auto;">Muvaffaqiyatga olib boradigan barcha vositalar bir joyda. Zamonaviy texnologiyalar bilan ta'lim oling.</p>
+            <span class="section-badge">✨ Imkoniyatlar</span>
+            <h2 class="section-title">Nima uchun aynan <span class="text-gradient">TestMakon</span>?</h2>
+            <p class="section-subtitle">Boshqa platformalarda yo'q imkoniyatlar — faqat bizda. Sun'iy intellekt kuchi bilan ta'lim oling.</p>
         </div>
 
         <div class="row g-4">
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 card-glow">
-                    <div class="icon-box-gradient mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon ai-mentor">
                         <i class="bi bi-robot"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">AI Mentor</h5>
-                    <p class="mb-0" style="color: var(--gray-500);">24/7 shaxsiy o'qituvchi. Har qanday savolga tushuntirish olish, mavzularni chuqur o'rganish.</p>
+                    <h4 class="feature-title">AI Mentor</h4>
+                    <p class="feature-desc">Shaxsiy sun'iy intellekt o'qituvchingiz. Tushunmagan mavzuni so'rang — aniq va tushunarli tushuntiradi. 24/7 yoningizda.</p>
+                    <a href="{% url 'ai_core:ai_mentor' %}" class="feature-link">
+                        Sinab ko'rish <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 card-glow">
-                    <div class="icon-box-gradient mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon ai-tahlil">
                         <i class="bi bi-graph-up-arrow"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">AI Tahlil</h5>
-                    <p class="mb-0" style="color: var(--gray-500);">Sun'iy intellekt sizning kuchli va sust tomonlaringizni tahlil qilib, shaxsiy tavsiyalar beradi.</p>
+                    <h4 class="feature-title">AI Tahlil</h4>
+                    <p class="feature-desc">Bilimingizni chuqur tahlil qiladi. Qaysi mavzuda kuchli, qayerda ishlash kerak — aniq ko'rsatadi va reja tuzadi.</p>
+                    <a href="#" class="feature-link">
+                        Batafsil <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 card-glow">
-                    <div class="icon-box-gradient mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon universitet">
                         <i class="bi bi-mortarboard"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Universitet Kalkulyator</h5>
-                    <p class="mb-0" style="color: var(--gray-500);">Ballaringiz asosida qaysi universitetlarga o'tish imkoniyatingizni AI hisoblab beradi.</p>
+                    <h4 class="feature-title">Universitet Kalkulyator</h4>
+                    <p class="feature-desc">Balingizni kiriting — qaysi universitetlarga o'tish imkoniyatingiz borligini ko'ring. O'tgan yillar statistikasi asosida.</p>
+                    <a href="#" class="feature-link">
+                        Hisoblash <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 card-glow">
-                    <div class="icon-box-gradient mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon musobaqa">
                         <i class="bi bi-trophy"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Musobaqalar</h5>
-                    <p class="mb-0" style="color: var(--gray-500);">Do'stlaringiz bilan 1v1 bellashuvlar, turnirlar va sovrinli musobaqalarda qatnashing.</p>
+                    <h4 class="feature-title">Musobaqalar</h4>
+                    <p class="feature-desc">Do'stlaringiz bilan 1v1 bellashing, haftalik turnirda qatnashing va g'olib bo'ling. Motivatsiya va sovrinlar!</p>
+                    <a href="{% url 'competitions:competitions_list' %}" class="feature-link">
+                        Qatnashish <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 card-glow">
-                    <div class="icon-box-gradient mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon blok-test">
                         <i class="bi bi-lightning-charge"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Blok Testlar</h5>
-                    <p class="mb-0" style="color: var(--gray-500);">DTM formatidagi blok testlar. Real imtihonga tayyorlanish uchun eng yaxshi usul.</p>
+                    <h4 class="feature-title">Blok Testlar</h4>
+                    <p class="feature-desc">Real DTM imtihoni formatida. Vaqt chegarasi, real savollar — haqiqiy imtihonga to'liq tayyorlaning.</p>
+                    <a href="{% url 'tests_app:tests_list' %}" class="feature-link">
+                        Boshlash <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 card-glow">
-                    <div class="icon-box-gradient mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon reyting">
                         <i class="bi bi-bar-chart"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Reyting tizimi</h5>
-                    <p class="mb-0" style="color: var(--gray-500);">O'zbekiston bo'ylab reyting. Eng yaxshilar qatoridan joy oling va motivatsiya oling.</p>
+                    <h4 class="feature-title">Reyting Tizimi</h4>
+                    <p class="feature-desc">O'zbekiston bo'ylab reyting. Eng yaxshilar qatoriga kiring, o'z maktabingizda birinchi bo'ling!</p>
+                    <a href="{% url 'leaderboard:global_leaderboard' %}" class="feature-link">
+                        Reytingni ko'rish <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -215,100 +744,101 @@
 <section class="section" style="background: var(--gray-100);">
     <div class="container">
         <div class="text-center mb-5">
-            <span class="badge badge-primary mb-3">Fanlar</span>
-            <h2 class="mb-3">Barcha fanlar bo'yicha testlar</h2>
-            <p style="color: var(--gray-500);">DTM imtihonlaridagi barcha fanlar qamrab olingan</p>
+            <span class="section-badge">📚 Fanlar</span>
+            <h2 class="section-title">Barcha DTM fanlari bir joyda</h2>
+            <p class="section-subtitle">Qaysi fandan tayyorlanasiz? Tanlang va hoziroq boshlang!</p>
         </div>
 
         <div class="row g-3">
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">📐</div>
-                    <h6 class="fw-bold mb-1">Matematika</h6>
-                    <small style="color: var(--gray-500);">2,500+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">📐</span>
+                    <h6 class="subject-name">Matematika</h6>
+                    <span class="subject-count">2,500+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚡</div>
-                    <h6 class="fw-bold mb-1">Fizika</h6>
-                    <small style="color: var(--gray-500);">2,100+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">⚡</span>
+                    <h6 class="subject-name">Fizika</h6>
+                    <span class="subject-count">2,100+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🧪</div>
-                    <h6 class="fw-bold mb-1">Kimyo</h6>
-                    <small style="color: var(--gray-500);">1,800+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">🧪</span>
+                    <h6 class="subject-name">Kimyo</h6>
+                    <span class="subject-count">1,800+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🧬</div>
-                    <h6 class="fw-bold mb-1">Biologiya</h6>
-                    <small style="color: var(--gray-500);">1,900+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">🧬</span>
+                    <h6 class="subject-name">Biologiya</h6>
+                    <span class="subject-count">1,900+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🇬🇧</div>
-                    <h6 class="fw-bold mb-1">Ingliz tili</h6>
-                    <small style="color: var(--gray-500);">2,000+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">🇬🇧</span>
+                    <h6 class="subject-name">Ingliz tili</h6>
+                    <span class="subject-count">2,000+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">📚</div>
-                    <h6 class="fw-bold mb-1">Ona tili</h6>
-                    <small style="color: var(--gray-500);">1,500+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">📖</span>
+                    <h6 class="subject-name">Ona tili</h6>
+                    <span class="subject-count">1,500+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🌍</div>
-                    <h6 class="fw-bold mb-1">Tarix</h6>
-                    <small style="color: var(--gray-500);">1,700+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">🌍</span>
+                    <h6 class="subject-name">Tarix</h6>
+                    <span class="subject-count">1,700+ savol</span>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="card p-4 text-center h-100 card-glow" style="cursor: pointer;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">🇷🇺</div>
-                    <h6 class="fw-bold mb-1">Rus tili</h6>
-                    <small style="color: var(--gray-500);">1,400+ savol</small>
+                <div class="subject-card">
+                    <span class="subject-emoji">🇷🇺</span>
+                    <h6 class="subject-name">Rus tili</h6>
+                    <span class="subject-count">1,400+ savol</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- How it works -->
+<!-- How it Works Section -->
 <section class="section">
     <div class="container">
         <div class="text-center mb-5">
-            <span class="badge badge-primary mb-3">Qanday ishlaydi?</span>
-            <h2 class="mb-3">3 oddiy qadamda boshlang</h2>
+            <span class="section-badge">🚀 Qanday boshlash?</span>
+            <h2 class="section-title">3 oddiy qadamda boshlang</h2>
+            <p class="section-subtitle">Ro'yxatdan o'ting va 1 daqiqada testlarni yechishni boshlang</p>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-5">
             <div class="col-md-4">
                 <div class="text-center">
-                    <div class="d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; background: var(--gradient-primary); color: white; border-radius: 50%; font-size: 2rem; font-weight: 800; box-shadow: var(--shadow-primary);">1</div>
-                    <h5 class="fw-bold mb-2">Ro'yxatdan o'ting</h5>
-                    <p style="color: var(--gray-500);">Telegram orqali bir bosishda yoki telefon raqamingiz bilan ro'yxatdan o'ting.</p>
+                    <div class="step-circle">1</div>
+                    <h4 class="step-title">Ro'yxatdan o'ting</h4>
+                    <p class="step-desc">Telegram orqali bir bosishda yoki telefon raqamingiz bilan. 30 soniyada tayyor.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="text-center">
-                    <div class="d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; background: var(--gradient-primary); color: white; border-radius: 50%; font-size: 2rem; font-weight: 800; box-shadow: var(--shadow-primary);">2</div>
-                    <h5 class="fw-bold mb-2">Fanlarni tanlang</h5>
-                    <p style="color: var(--gray-500);">O'zingizga kerakli fanlarni tanlab, testlarni yechishni boshlang.</p>
+                    <div class="step-circle">2</div>
+                    <h4 class="step-title">Fanlarni tanlang</h4>
+                    <p class="step-desc">Imtihon topshiradigan fanlaringizni belgilang. Shaxsiy reja tuziladi.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="text-center">
-                    <div class="d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; background: var(--gradient-primary); color: white; border-radius: 50%; font-size: 2rem; font-weight: 800; box-shadow: var(--shadow-primary);">3</div>
-                    <h5 class="fw-bold mb-2">Rivojlaning</h5>
-                    <p style="color: var(--gray-500);">AI tahlillari asosida kuchsiz tomonlaringizni yaxshilang va universitetga kiring!</p>
+                    <div class="step-circle">3</div>
+                    <h4 class="step-title">Natijaga erishing</h4>
+                    <p class="step-desc">Har kuni test yeching, AI tavsiyalariga amal qiling va orzuingizdagi universitetga kiring!</p>
                 </div>
             </div>
         </div>
@@ -316,15 +846,17 @@
 </section>
 
 <!-- CTA Section -->
-<section class="section" style="background: var(--gradient-primary);">
-    <div class="container">
+<section class="cta-section">
+    <div class="container position-relative" style="z-index: 1;">
         <div class="row justify-content-center">
             <div class="col-lg-8 text-center">
-                <span style="font-size: 3rem;">🚀</span>
-                <h2 class="text-white mb-3 mt-3">Kelajagingizni bugundan boshlang</h2>
-                <p class="text-white mb-4" style="opacity: 0.9; font-size: 1.1rem;">50,000+ abituriyent allaqachon TestMakon bilan tayyorlanmoqda. Siz ham qo'shiling!</p>
-                <a href="{% url 'accounts:register' %}" class="btn btn-lg" style="background: white; color: var(--primary-dark); font-weight: 700; padding: 1rem 2.5rem;">
-                    Bepul ro'yxatdan o'tish <i class="bi bi-arrow-right ms-2"></i>
+                <span style="font-size: 4rem;">🎓</span>
+                <h2 class="text-white mb-3 mt-3" style="font-size: 2.5rem; font-weight: 900;">Kelajagingiz bugundan boshlanadi</h2>
+                <p class="text-white mb-4" style="opacity: 0.95; font-size: 1.15rem; max-width: 500px; margin: 0 auto;">
+                    50,000+ abituriyent allaqachon TestMakon bilan tayyorlanmoqda. Siz ham qo'shiling — bepul!
+                </p>
+                <a href="{% url 'accounts:register' %}" class="cta-btn">
+                    Hoziroq boshlash <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
