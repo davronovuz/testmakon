@@ -1,99 +1,82 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Tezkor Test - TestMakon{% endblock %}
+{% block title %}Tezkor Test | TestMakon{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+<div class="section-sm bg-light">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Header -->
+            <div class="col-lg-6 col-md-8">
                 <div class="text-center mb-5">
-                    <div class="icon-box-gradient icon-box-lg mx-auto mb-3">
-                        <i class="bi bi-lightning-charge"></i>
+                    <div class="icon-box-lg bg-gradient-primary text-white rounded-circle shadow-primary mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
+                        <i class="bi bi-lightning-fill"></i>
                     </div>
-                    <h2 class="mb-2">Tezkor Test</h2>
-                    <p style="color: var(--gray-500);">Tez va samarali bilimingizni tekshiring</p>
+                    <h2 class="fw-bold">Tezkor Test</h2>
+                    <p class="text-muted">Parametrlarni tanlang va bilimingizni sinab ko'ring.</p>
                 </div>
 
-                <!-- Settings Card -->
-                <div class="card" style="border-radius: 24px;">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="card-body p-4 p-md-5">
-                        <form method="get" action="{% url 'tests_app:test_take_quick' %}">
+                        <form method="post" action="{% url 'tests_app:quick_test_start' %}">
+                            {% csrf_token %}
 
-                            <!-- Subject Selection -->
                             <div class="mb-4">
-                                <label class="form-label fw-bold">Fan tanlang</label>
-                                <div class="row g-2">
+                                <label class="form-label fw-bold text-dark">Fanni tanlang</label>
+                                <select name="subject_id" class="form-select form-select-lg bg-light border-0" required>
+                                    <option value="" selected disabled>Ro'yxatdan tanlang...</option>
                                     {% for subject in subjects %}
-                                    <div class="col-6 col-md-4">
-                                        <input type="radio" name="subject" value="{{ subject.id }}" id="subject-{{ subject.id }}" class="d-none subject-radio" {% if forloop.first %}checked{% endif %}>
-                                        <label for="subject-{{ subject.id }}" class="card p-3 text-center h-100 subject-option" style="border-radius: 12px; cursor: pointer; border: 2px solid var(--gray-200); transition: all 0.3s;">
-                                            <div style="font-size: 2rem;">{{ subject.icon|default:"📖" }}</div>
-                                            <small class="fw-semibold" style="color: var(--dark);">{{ subject.name }}</small>
+                                        <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-dark d-flex justify-content-between">
+                                    Savollar soni
+                                    <span class="text-primary fw-bold" id="rangeValue">15</span>
+                                </label>
+                                <input type="range" class="form-range" name="question_count" min="5" max="50" step="5" value="15" id="questionRange" oninput="document.getElementById('rangeValue').innerText = this.value">
+                                <div class="d-flex justify-content-between text-muted small px-1">
+                                    <span>5</span>
+                                    <span>50</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-5">
+                                <label class="form-label fw-bold text-dark mb-3">Qiyinlik darajasi</label>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="difficulty" id="diff1" value="easy" checked>
+                                        <label class="btn btn-outline-success w-100 py-3 rounded-3 fw-bold border-2" for="diff1">
+                                            Oson
                                         </label>
                                     </div>
-                                    {% endfor %}
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="difficulty" id="diff2" value="medium">
+                                        <label class="btn btn-outline-warning w-100 py-3 rounded-3 fw-bold border-2" for="diff2">
+                                            O'rta
+                                        </label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="radio" class="btn-check" name="difficulty" id="diff3" value="hard">
+                                        <label class="btn btn-outline-danger w-100 py-3 rounded-3 fw-bold border-2" for="diff3">
+                                            Qiyin
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Question Count -->
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">Savollar soni</label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="count" value="10" id="count-10" class="d-none count-radio" checked>
-                                    <label for="count-10" class="btn btn-light flex-grow-1 count-option" style="border-radius: 12px;">10 ta</label>
-
-                                    <input type="radio" name="count" value="20" id="count-20" class="d-none count-radio">
-                                    <label for="count-20" class="btn btn-light flex-grow-1 count-option" style="border-radius: 12px;">20 ta</label>
-
-                                    <input type="radio" name="count" value="30" id="count-30" class="d-none count-radio">
-                                    <label for="count-30" class="btn btn-light flex-grow-1 count-option" style="border-radius: 12px;">30 ta</label>
-                                </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-primary py-3">
+                                    Boshlash <i class="bi bi-play-fill ms-2"></i>
+                                </button>
                             </div>
-
-                            <!-- Difficulty -->
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">Qiyinchilik darajasi</label>
-                                <div class="d-flex gap-2">
-                                    <input type="radio" name="difficulty" value="all" id="diff-all" class="d-none diff-radio" checked>
-                                    <label for="diff-all" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">Barchasi</label>
-
-                                    <input type="radio" name="difficulty" value="easy" id="diff-easy" class="d-none diff-radio">
-                                    <label for="diff-easy" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">Oson</label>
-
-                                    <input type="radio" name="difficulty" value="medium" id="diff-medium" class="d-none diff-radio">
-                                    <label for="diff-medium" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">O'rta</label>
-
-                                    <input type="radio" name="difficulty" value="hard" id="diff-hard" class="d-none diff-radio">
-                                    <label for="diff-hard" class="btn btn-light flex-grow-1 diff-option" style="border-radius: 12px;">Qiyin</label>
-                                </div>
-                            </div>
-
-                            <!-- Start Button -->
-                            <button type="submit" class="btn btn-primary btn-lg w-100" style="border-radius: 14px; padding: 1rem;">
-                                <i class="bi bi-play-fill me-2"></i> Testni boshlash
-                            </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .subject-radio:checked + .subject-option {
-        border-color: var(--primary) !important;
-        background: var(--primary-glow);
-    }
-    .count-radio:checked + .count-option,
-    .diff-radio:checked + .diff-option {
-        background: var(--gradient-primary) !important;
-        color: white !important;
-        border-color: var(--primary) !important;
-    }
-</style>
+</div>
 {% endblock %}

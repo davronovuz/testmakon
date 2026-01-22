@@ -1,148 +1,268 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Natija - {{ attempt.test.title }} - TestMakon{% endblock %}
+{% block title %}Natijalar | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .score-circle {
+        width: 180px; height: 180px;
+        border-radius: 50%;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 2;
+        margin: 0 auto;
+    }
+
+    .result-header-bg {
+        background: var(--gradient-dark);
+        color: white;
+        padding-top: 4rem;
+        padding-bottom: 6rem;
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+        margin-bottom: -4rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        height: 100%;
+        border: 1px solid var(--gray-100);
+        transition: transform 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+
+    .question-review-item {
+        border-left: 4px solid transparent;
+    }
+    .question-review-item.correct { border-left-color: #10B981; background: #F0FDF4; }
+    .question-review-item.wrong { border-left-color: #EF4444; background: #FEF2F2; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+<div class="result-header-bg text-center">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Result Card -->
-                <div class="card" style="border-radius: 24px; overflow: hidden;">
-                    <!-- Header -->
-                    <div style="background: {% if attempt.score >= 80 %}linear-gradient(135deg, #22C55E 0%, #16A34A 100%){% elif attempt.score >= 60 %}linear-gradient(135deg, #F59E0B 0%, #D97706 100%){% else %}linear-gradient(135deg, #EF4444 0%, #DC2626 100%){% endif %}; padding: 3rem; text-align: center;">
-                        <div style="font-size: 5rem; margin-bottom: 1rem;">
-                            {% if attempt.score >= 80 %}🎉{% elif attempt.score >= 60 %}👍{% else %}💪{% endif %}
+        <h5 class="text-white-50 text-uppercase letter-spacing-2 mb-2">Test Yakunlandi</h5>
+        <h2 class="fw-bold display-5 mb-0">{{ attempt.test.title }}</h2>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <div class="text-center position-relative">
+                <div class="score-circle animate__animated animate__zoomIn">
+                    <span class="display-4 fw-black {% if attempt.percentage >= 80 %}text-success{% elif attempt.percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ attempt.percentage|floatformat:0 }}%
+                    </span>
+                    <small class="text-muted fw-bold">Natija</small>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 pt-5 mt-n5 overflow-hidden">
+                <div class="card-body p-4 p-md-5 text-center mt-3">
+                    <h3 class="fw-bold mb-2">
+                        {% if attempt.percentage >= 90 %}
+                            Ajoyib natija! 🏆
+                        {% elif attempt.percentage >= 70 %}
+                            Yaxshi natija! 👏
+                        {% else %}
+                            Yana harakat qiling 💪
+                        {% endif %}
+                    </h3>
+                    <p class="text-muted mb-4">Siz <strong>{{ attempt.total_questions }}</strong> ta savoldan <strong>{{ attempt.correct_answers }}</strong> tasiga to'g'ri javob berdingiz.</p>
+
+                    <div class="d-flex justify-content-center gap-3 mb-4">
+                        <div class="badge bg-success bg-opacity-10 text-success p-3 rounded-pill d-flex align-items-center gap-2">
+                            <i class="bi bi-lightning-fill"></i> +{{ attempt.xp_earned }} XP
                         </div>
-                        <h2 class="text-white mb-2">
-                            {% if attempt.score >= 80 %}Ajoyib natija!{% elif attempt.score >= 60 %}Yaxshi natija!{% else %}Davom eting!{% endif %}
-                        </h2>
-                        <p class="text-white mb-0" style="opacity: 0.9;">{{ attempt.test.title }}</p>
+                        <div class="badge bg-primary bg-opacity-10 text-primary p-3 rounded-pill d-flex align-items-center gap-2">
+                            <i class="bi bi-clock"></i> {{ attempt.time_spent|divisibleby:60 }} daq
+                        </div>
                     </div>
 
-                    <div class="card-body p-4">
-                        <!-- Score Circle -->
-                        <div class="text-center mb-4" style="margin-top: -60px;">
-                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px; background: var(--white); border-radius: 50%; box-shadow: var(--shadow-lg); border: 4px solid {% if attempt.score >= 80 %}#22C55E{% elif attempt.score >= 60 %}#F59E0B{% else %}#EF4444{% endif %};">
-                                <div>
-                                    <div class="fs-1 fw-bold" style="color: var(--dark); line-height: 1;">{{ attempt.score }}</div>
-                                    <small style="color: var(--gray-500);">foiz</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Stats Grid -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-6 col-md-3">
-                                <div class="text-center p-3" style="background: #D1FAE5; border-radius: 16px;">
-                                    <div class="fs-4 fw-bold" style="color: #059669;">{{ attempt.correct_answers }}</div>
-                                    <small style="color: #065F46;">To'g'ri</small>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="text-center p-3" style="background: #FEE2E2; border-radius: 16px;">
-                                    <div class="fs-4 fw-bold" style="color: #DC2626;">{{ attempt.wrong_answers }}</div>
-                                    <small style="color: #991B1B;">Noto'g'ri</small>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="text-center p-3" style="background: #DBEAFE; border-radius: 16px;">
-                                    <div class="fs-4 fw-bold" style="color: #2563EB;">{{ attempt.time_spent }}</div>
-                                    <small style="color: #1E40AF;">Daqiqa</small>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <div class="text-center p-3" style="background: var(--primary-glow); border-radius: 16px;">
-                                    <div class="fs-4 fw-bold text-gradient">+{{ attempt.xp_earned }}</div>
-                                    <small style="color: var(--primary-dark);">XP</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Comparison -->
-                        <div class="mb-4 p-4" style="background: var(--gray-50); border-radius: 16px;">
-                            <h6 class="fw-bold mb-3">Taqqoslash</h6>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: var(--gray-600);">Sizning natijangiz</span>
-                                    <span class="fw-bold" style="color: var(--dark);">{{ attempt.score }}%</span>
-                                </div>
-                                <div class="progress" style="height: 10px; border-radius: 5px;">
-                                    <div class="progress-bar" style="width: {{ attempt.score }}%; background: var(--gradient-primary);"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: var(--gray-600);">O'rtacha natija</span>
-                                    <span class="fw-bold" style="color: var(--dark);">{{ attempt.test.average_score|default:65 }}%</span>
-                                </div>
-                                <div class="progress" style="height: 10px; border-radius: 5px;">
-                                    <div class="progress-bar" style="width: {{ attempt.test.average_score|default:65 }}%; background: var(--gray-400);"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Detailed Results -->
-                        <div class="mb-4">
-                            <h6 class="fw-bold mb-3">
-                                <i class="bi bi-list-check text-primary me-2"></i> Batafsil natijalar
-                            </h6>
-                            <div class="d-flex flex-column gap-2">
-                                {% for answer in attempt.answers.all %}
-                                <div class="d-flex align-items-center gap-3 p-3" style="background: {% if answer.is_correct %}#D1FAE5{% else %}#FEE2E2{% endif %}; border-radius: 12px;">
-                                    <div style="width: 36px; height: 36px; background: {% if answer.is_correct %}#22C55E{% else %}#EF4444{% endif %}; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="bi bi-{% if answer.is_correct %}check{% else %}x{% endif %} text-white"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium" style="color: var(--dark);">{{ forloop.counter }}. {{ answer.question.text|truncatewords:10 }}</p>
-                                        {% if not answer.is_correct %}
-                                        <small style="color: #DC2626;">Sizning javob: {{ answer.selected_option.text|truncatewords:5 }}</small>
-                                        {% endif %}
-                                    </div>
-                                    {% if not answer.is_correct %}
-                                    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#explain-{{ forloop.counter }}">
-                                        <i class="bi bi-lightbulb"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                                {% if not answer.is_correct %}
-                                <div class="collapse" id="explain-{{ forloop.counter }}">
-                                    <div class="p-3 ms-5" style="background: var(--gray-50); border-radius: 12px; border-left: 3px solid var(--primary);">
-                                        <small class="fw-bold" style="color: var(--primary);">To'g'ri javob:</small>
-                                        <p class="mb-0" style="color: var(--gray-600);">{{ answer.question.correct_option.text }}</p>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="{% url 'tests_app:test_take' attempt.test.slug %}" class="btn btn-primary btn-lg flex-grow-1" style="border-radius: 12px;">
-                                <i class="bi bi-arrow-repeat me-2"></i> Qayta yechish
-                            </a>
-                            <a href="{% url 'tests_app:test_list' %}" class="btn btn-light btn-lg flex-grow-1" style="border-radius: 12px;">
-                                <i class="bi bi-grid me-2"></i> Boshqa testlar
-                            </a>
-                        </div>
-
-                        <!-- Share -->
-                        <div class="text-center mt-4 pt-4" style="border-top: 1px solid var(--gray-200);">
-                            <p style="color: var(--gray-500);" class="mb-3">Natijangizni do'stlaringiz bilan ulashing:</p>
-                            <div class="d-flex justify-content-center gap-2">
-                                <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text=Men TestMakon'da {{ attempt.score }}% natija oldim!" target="_blank" class="btn btn-light" style="border-radius: 10px;">
-                                    <i class="bi bi-telegram"></i>
-                                </a>
-                                <a href="#" class="btn btn-light" style="border-radius: 10px;" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}'); alert('Link nusxalandi!');">
-                                    <i class="bi bi-link-45deg"></i>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'tests_app:tests_list' %}" class="btn btn-outline-dark px-4 fw-bold">Testlar ro'yxati</a>
+                        <a href="{% url 'tests_app:test_start' slug=attempt.test.slug %}" class="btn btn-primary px-4 fw-bold shadow-primary">Qayta ishlash</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ attempt.correct_answers }}</h5>
+                        <small class="text-muted">To'g'ri javoblar</small>
+                    </div>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: {% widthratio attempt.correct_answers attempt.total_questions 100 %}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger rounded-circle">
+                        <i class="bi bi-x-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ attempt.wrong_answers }}</h5>
+                        <small class="text-muted">Noto'g'ri javoblar</small>
+                    </div>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-danger" style="width: {% widthratio attempt.wrong_answers attempt.total_questions 100 %}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-circle">
+                        <i class="bi bi-dash-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ attempt.skipped_questions }}</h5>
+                        <small class="text-muted">Belgilanmagan</small>
+                    </div>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-warning" style="width: {% widthratio attempt.skipped_questions attempt.total_questions 100 %}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">Mavzular bo'yicha tahlil</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        {% for topic, data in topic_stats.items %}
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-bold text-dark">{{ topic }}</span>
+                                <span class="fw-bold {% if data.percentage >= 70 %}text-success{% else %}text-warning{% endif %}">{{ data.percentage }}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px; background-color: var(--gray-100);">
+                                <div class="progress-bar {% if data.percentage >= 70 %}bg-success{% else %}bg-warning{% endif %}"
+                                     role="progressbar" style="width: {{ data.percentage }}%"></div>
+                            </div>
+                            <small class="text-muted mt-1 d-block">{{ data.correct }} / {{ data.total }} to'g'ri</small>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center text-muted">
+                            Mavzular bo'yicha ma'lumot yo'q.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">Savollar tahlili</h5>
+            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#answersCollapse">
+                Ko'rsatish/Yashirish
+            </button>
+        </div>
+        <div class="collapse show" id="answersCollapse">
+            <div class="card-body p-0">
+                {% for ans in answers %}
+                <div class="p-4 border-bottom question-review-item {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
+                    <div class="d-flex gap-3">
+                        <div class="fw-bold text-muted">#{{ forloop.counter }}</div>
+                        <div class="flex-grow-1">
+                            <p class="fw-bold mb-2 text-dark">{{ ans.question.text }}</p>
+
+                            <div class="d-flex flex-wrap gap-4 small mt-3">
+                                <div class="text-muted">
+                                    Sizning javobingiz:
+                                    <span class="fw-bold {% if ans.is_correct %}text-success{% else %}text-danger{% endif %}">
+                                        {{ ans.selected_answer.text|default:"Belgilanmagan" }}
+                                    </span>
+                                </div>
+                                {% if not ans.is_correct %}
+                                <div class="text-success">
+                                    To'g'ri javob:
+                                    {% for opt in ans.question.answers.all %}
+                                        {% if opt.is_correct %}
+                                            <span class="fw-bold">{{ opt.text }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            {% if ans.question.explanation %}
+                            <div class="mt-3 p-3 bg-white rounded border border-light">
+                                <small class="text-primary fw-bold text-uppercase mb-1 d-block">Tushuntirish</small>
+                                <p class="mb-0 text-muted small">{{ ans.question.explanation }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="fs-4">
+                            {% if ans.is_correct %}
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Confetti effect on high scores
+    {% if attempt.percentage >= 70 %}
+    document.addEventListener('DOMContentLoaded', function() {
+        var duration = 3 * 1000;
+        var animationEnd = Date.now() + duration;
+        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function random(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        var interval = setInterval(function() {
+          var timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          var particleCount = 50 * (timeLeft / duration);
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    });
+    {% endif %}
+</script>
 {% endblock %}

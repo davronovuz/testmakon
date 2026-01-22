@@ -1,122 +1,83 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{{ topic.name }} - TestMakon{% endblock %}
+{% block title %}{{ topic.name }} - Test | TestMakon{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+<div class="section-sm bg-light">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <!-- Back -->
-                <a href="{% url 'tests_app:subject_detail' subject.slug %}" class="btn btn-light mb-4" style="border-radius: 10px;">
-                    <i class="bi bi-arrow-left me-2"></i> {{ subject.name }}ga qaytish
-                </a>
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5">
+                    <div class="card-header bg-white py-4 border-bottom text-center position-relative overflow-hidden">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10"
+                             style="background: {{ subject.color }};"></div>
 
-                <!-- Topic Card -->
-                <div class="card" style="border-radius: 24px; overflow: hidden;">
-                    <div style="background: var(--gradient-primary); padding: 2rem;">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="icon-box-gradient icon-box-lg" style="background: rgba(255,255,255,0.2);">
-                                <i class="bi bi-bookmark-star text-white"></i>
-                            </div>
-                            <div>
-                                <span class="badge mb-2" style="background: rgba(255,255,255,0.2); color: white;">{{ subject.name }}</span>
-                                <h3 class="text-white mb-0">{{ topic.name }}</h3>
-                            </div>
+                        <div class="position-relative z-1">
+                            <span class="badge bg-white text-dark shadow-sm border mb-3 rounded-pill px-3">
+                                {{ subject.name }}
+                            </span>
+                            <h2 class="fw-bold mb-2">{{ topic.name }}</h2>
+                            <p class="text-muted mb-0">Mavzulashtirilgan maxsus test</p>
                         </div>
                     </div>
 
-                    <div class="card-body p-4">
-                        <!-- Stats -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-4">
-                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                    <div class="fs-4 fw-bold text-gradient">{{ topic.questions_count }}</div>
-                                    <small style="color: var(--gray-500);">Savollar</small>
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row g-4 mb-5">
+                            <div class="col-sm-4 text-center">
+                                <div class="mb-2 text-primary">
+                                    <i class="bi bi-question-square-fill fs-1"></i>
                                 </div>
+                                <h4 class="fw-bold mb-0">{{ questions_count }}</h4>
+                                <small class="text-muted">Mavjud savollar</small>
                             </div>
-                            <div class="col-4">
-                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                    <div class="fs-4 fw-bold" style="color: var(--dark);">{{ topic.time_limit|default:15 }}</div>
-                                    <small style="color: var(--gray-500);">Daqiqa</small>
+                            <div class="col-sm-4 text-center border-start border-end">
+                                <div class="mb-2 text-warning">
+                                    <i class="bi bi-clock-fill fs-1"></i>
                                 </div>
+                                <h4 class="fw-bold mb-0">30 daq</h4>
+                                <small class="text-muted">Ajratilgan vaqt</small>
                             </div>
-                            <div class="col-4">
-                                <div class="text-center p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                    <div class="fs-4 fw-bold" style="color: #059669;">+{{ topic.xp_reward|default:50 }}</div>
-                                    <small style="color: var(--gray-500);">XP</small>
+                            <div class="col-sm-4 text-center">
+                                <div class="mb-2 text-success">
+                                    <i class="bi bi-bar-chart-fill fs-1"></i>
                                 </div>
+                                <h4 class="fw-bold mb-0">O'rta</h4>
+                                <small class="text-muted">Qiyinlik darajasi</small>
                             </div>
                         </div>
 
-                        {% if topic.description %}
-                        <div class="mb-4">
-                            <h6 class="fw-bold mb-2">Mavzu haqida</h6>
-                            <p style="color: var(--gray-500);">{{ topic.description }}</p>
-                        </div>
-                        {% endif %}
-
-                        <!-- Test Options -->
-                        <h6 class="fw-bold mb-3">Test turini tanlang</h6>
-                        <div class="d-flex flex-column gap-3 mb-4">
-                            <a href="{% url 'tests_app:quick_test' %}?topic={{ topic.id }}&count=10" class="card p-3 text-decoration-none card-glow" style="border-radius: 16px;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="icon-box" style="background: #DBEAFE; color: #2563EB;">
-                                        <i class="bi bi-lightning-charge"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="fw-bold mb-0" style="color: var(--dark);">Tezkor test</h6>
-                                        <small style="color: var(--gray-500);">10 ta savol • 5 daqiqa</small>
-                                    </div>
-                                    <i class="bi bi-chevron-right" style="color: var(--gray-400);"></i>
-                                </div>
-                            </a>
-
-                            <a href="{% url 'tests_app:quick_test' %}?topic={{ topic.id }}&count=20" class="card p-3 text-decoration-none card-glow" style="border-radius: 16px;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="icon-box" style="background: var(--primary-glow); color: var(--primary-dark);">
-                                        <i class="bi bi-journal-text"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="fw-bold mb-0" style="color: var(--dark);">O'rta test</h6>
-                                        <small style="color: var(--gray-500);">20 ta savol • 15 daqiqa</small>
-                                    </div>
-                                    <i class="bi bi-chevron-right" style="color: var(--gray-400);"></i>
-                                </div>
-                            </a>
-
-                            <a href="{% url 'tests_app:quick_test' %}?topic={{ topic.id }}&count=30" class="card p-3 text-decoration-none card-glow" style="border-radius: 16px;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="icon-box" style="background: #FEF3C7; color: #B45309;">
-                                        <i class="bi bi-file-earmark-text"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="fw-bold mb-0" style="color: var(--dark);">To'liq test</h6>
-                                        <small style="color: var(--gray-500);">30 ta savol • 25 daqiqa</small>
-                                    </div>
-                                    <i class="bi bi-chevron-right" style="color: var(--gray-400);"></i>
-                                </div>
-                            </a>
+                        <div class="bg-light p-4 rounded-3 border mb-4">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Test haqida:</h6>
+                            <ul class="mb-0 text-muted small ps-3">
+                                <li class="mb-2">Ushbu test faqat <strong>{{ topic.name }}</strong> mavzusiga oid savollarni o'z ichiga oladi.</li>
+                                <li class="mb-2">Savollar soni cheklangan bo'lishi mumkin.</li>
+                                <li>Natijalar umumiy reytingga ta'sir qiladi.</li>
+                            </ul>
                         </div>
 
-                        <!-- Your Progress -->
-                        {% if user_progress %}
-                        <div class="p-4" style="background: var(--gray-50); border-radius: 16px;">
-                            <h6 class="fw-bold mb-3">Sizning natijangiz</h6>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span style="color: var(--gray-600);">To'g'ri javoblar</span>
-                                <span class="fw-bold" style="color: var(--primary);">{{ user_progress.correct_rate }}%</span>
+                        <form method="post" action="{% url 'tests_app:quick_test_start' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="subject_id" value="{{ subject.id }}">
+                            <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                            <input type="hidden" name="question_count" value="15">
+
+                            <div class="d-grid">
+                                {% if questions_count > 0 %}
+                                    <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-primary py-3">
+                                        Testni Boshlash <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-secondary btn-lg fw-bold py-3" disabled>
+                                        Savollar mavjud emas
+                                    </button>
+                                {% endif %}
                             </div>
-                            <div class="progress mb-3" style="height: 10px; border-radius: 5px;">
-                                <div class="progress-bar" style="width: {{ user_progress.correct_rate }}%; background: var(--gradient-primary);"></div>
-                            </div>
-                            <small style="color: var(--gray-500);">{{ user_progress.attempts_count }} marta yechilgan</small>
-                        </div>
-                        {% endif %}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

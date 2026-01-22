@@ -1,130 +1,199 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Blok Test - TestMakon{% endblock %}
+{% block title %}DTM Blok Test | TestMakon{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
+<div class="section-sm bg-light">
     <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill mb-3">
+                <i class="bi bi-mortarboard-fill me-1"></i> DTM Standarti
+            </span>
+            <h1 class="fw-bold display-5 mb-3">Blok Test Simulyatori</h1>
+            <p class="text-muted lead mx-auto" style="max-width: 700px;">
+                Haqiqiy kirish imtihonidagi kabi 5 ta fandan iborat kompleks test.
+                O'z yo'nalishingizni tanlang va bilimingizni sinovdan o'tkazing.
+            </p>
+        </div>
+
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Header -->
-                <div class="text-center mb-5">
-                    <div class="icon-box-gradient icon-box-lg mx-auto mb-3">
-                        <i class="bi bi-grid-3x3-gap"></i>
-                    </div>
-                    <h2 class="mb-2">Blok Test</h2>
-                    <p style="color: var(--gray-500);">DTM formatidagi to'liq blok test</p>
-                </div>
+            <div class="col-lg-10">
+                <form method="post" action="{% url 'tests_app:block_test_start' %}" id="blockTestForm">
+                    {% csrf_token %}
 
-                <!-- Block Info Card -->
-                <div class="card mb-4" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.05) 100%); border-radius: 12px; border-left: 4px solid var(--primary);">
-                            <i class="bi bi-info-circle text-primary fs-4"></i>
-                            <div>
-                                <p class="mb-0" style="color: var(--gray-600);">Blok test DTM imtihoni formatida tuzilgan. 3 ta fan bo'yicha 90 ta savol, 3 soat vaqt.</p>
-                            </div>
+                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+                        <div class="card-header bg-white py-4 border-bottom">
+                            <h5 class="fw-bold mb-0 text-center">Imtihon konfiguratsiyasi</h5>
                         </div>
+                        <div class="card-body p-4 p-md-5">
 
-                        <h6 class="fw-bold mb-3">Blok tarkibi</h6>
-                        <div class="d-flex flex-column gap-3">
-                            <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div style="font-size: 1.5rem;">📐</div>
-                                    <div>
-                                        <div class="fw-semibold" style="color: var(--dark);">Majburiy fan</div>
-                                        <small style="color: var(--gray-500);">Matematika • 30 savol</small>
+                            <div class="mb-5">
+                                <h6 class="fw-bold text-uppercase text-muted small mb-3">
+                                    <i class="bi bi-lock-fill me-1"></i> Majburiy Fanlar (Har biri 10 tadan)
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 opacity-75">
+                                            <div class="icon-box bg-white text-primary shadow-sm rounded-circle">
+                                                <i class="bi bi-translate"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">Ona tili</div>
+                                                <div class="small text-muted">10 ta savol</div>
+                                            </div>
+                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
+                                        </div>
+                                        <input type="hidden" name="subjects" value="1"> </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 opacity-75">
+                                            <div class="icon-box bg-white text-primary shadow-sm rounded-circle">
+                                                <i class="bi bi-hourglass-split"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">O'zb. Tarixi</div>
+                                                <div class="small text-muted">10 ta savol</div>
+                                            </div>
+                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
+                                        </div>
+                                        <input type="hidden" name="subjects" value="2">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 opacity-75">
+                                            <div class="icon-box bg-white text-primary shadow-sm rounded-circle">
+                                                <i class="bi bi-calculator"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark">Matematika</div>
+                                                <div class="small text-muted">10 ta savol</div>
+                                            </div>
+                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
+                                        </div>
+                                        <input type="hidden" name="subjects" value="3">
                                     </div>
                                 </div>
-                                <span class="badge badge-primary">1.1 ball</span>
                             </div>
 
-                            <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div style="font-size: 1.5rem;">📚</div>
-                                    <div>
-                                        <div class="fw-semibold" style="color: var(--dark);">Fan 1</div>
-                                        <small style="color: var(--gray-500);">Tanlangan fan • 30 savol</small>
-                                    </div>
+                            <div class="mb-5">
+                                <h6 class="fw-bold text-uppercase text-muted small mb-3">
+                                    <i class="bi bi-pencil-fill me-1"></i> Mutaxassislik Fanlari (Har biri 30 tadan)
+                                </h6>
+                                <div class="alert alert-info border-0 bg-info bg-opacity-10 mb-4">
+                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                    Yo'nalishingizga mos 2 ta asosiy fanni tanlang.
                                 </div>
-                                <span class="badge badge-accent">2.1 ball</span>
-                            </div>
 
-                            <div class="d-flex align-items-center justify-content-between p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div style="font-size: 1.5rem;">📖</div>
-                                    <div>
-                                        <div class="fw-semibold" style="color: var(--dark);">Fan 2</div>
-                                        <small style="color: var(--gray-500);">Tanlangan fan • 30 savol</small>
-                                    </div>
-                                </div>
-                                <span class="badge badge-dark">3.1 ball</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Block Selection -->
-                <div class="card" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h6 class="fw-bold mb-3">Blok tanlang</h6>
-
-                        <form method="post" action="{% url 'tests_app:block_test_start' %}">
-                            {% csrf_token %}
-
-                            <div class="mb-4">
-                                <label class="form-label">Fan 1 (asosiy)</label>
-                                <select name="subject1" class="form-control" style="border-radius: 12px;" required>
-                                    <option value="">Tanlang...</option>
+                                <div class="row g-3">
                                     {% for subject in subjects %}
-                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
+                                        {% if subject.id > 3 %}
+                                        <div class="col-md-6 col-lg-4">
+                                            <input type="checkbox" class="btn-check subject-checkbox"
+                                                   name="subjects" id="sub{{ subject.id }}"
+                                                   value="{{ subject.id }}" autocomplete="off">
+                                            <label class="btn btn-outline-light text-dark border w-100 p-3 d-flex align-items-center gap-3 text-start hover-shadow position-relative" for="sub{{ subject.id }}">
+                                                <div class="icon-box shadow-sm rounded-circle" style="background: {{ subject.color }}20; color: {{ subject.color }};">
+                                                    {{ subject.icon|safe }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">{{ subject.name }}</div>
+                                                    <div class="small text-muted">3.1 ball</div>
+                                                </div>
+                                                <div class="position-absolute top-0 end-0 m-3 check-icon opacity-0 transition-all">
+                                                    <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        {% endif %}
                                     {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label">Fan 2 (qo'shimcha)</label>
-                                <select name="subject2" class="form-control" style="border-radius: 12px;" required>
-                                    <option value="">Tanlang...</option>
-                                    {% for subject in subjects %}
-                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg" style="border-radius: 14px;">
-                                    <i class="bi bi-play-fill me-2"></i> Blok testni boshlash
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Recent Block Results -->
-                {% if recent_blocks %}
-                <div class="card mt-4" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h6 class="fw-bold mb-3">So'nggi natijalaringiz</h6>
-                        <div class="d-flex flex-column gap-2">
-                            {% for block in recent_blocks %}
-                            <a href="{% url 'tests_app:block_result' block.id %}" class="d-flex align-items-center justify-content-between p-3 text-decoration-none" style="background: var(--gray-50); border-radius: 12px;">
-                                <div>
-                                    <div class="fw-semibold" style="color: var(--dark);">{{ block.subjects_display }}</div>
-                                    <small style="color: var(--gray-500);">{{ block.created_at|date:"d.m.Y H:i" }}</small>
                                 </div>
-                                <div class="text-end">
-                                    <div class="fw-bold" style="color: {% if block.score >= 80 %}#059669{% elif block.score >= 60 %}#B45309{% else %}#DC2626{% endif %};">{{ block.score }}%</div>
-                                    <small style="color: var(--gray-500);">{{ block.total_points }} ball</small>
+                            </div>
+
+                            <div class="bg-light p-4 rounded-3 border">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8 mb-3 mb-md-0">
+                                        <div class="d-flex align-items-center gap-4">
+                                            <div>
+                                                <small class="text-muted d-block text-uppercase fw-bold">Jami Savollar</small>
+                                                <span class="h4 fw-bold mb-0">90 ta</span>
+                                            </div>
+                                            <div class="vr"></div>
+                                            <div>
+                                                <small class="text-muted d-block text-uppercase fw-bold">Ajratilgan Vaqt</small>
+                                                <span class="h4 fw-bold mb-0">3 soat</span>
+                                            </div>
+                                            <div class="vr"></div>
+                                            <div>
+                                                <small class="text-muted d-block text-uppercase fw-bold">Maksimal Ball</small>
+                                                <span class="h4 fw-bold text-primary mb-0">189.0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-primary px-5 pulse-animation" id="startBtn" disabled>
+                                            Boshlash <i class="bi bi-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </a>
-                            {% endfor %}
+                            </div>
+
                         </div>
                     </div>
-                </div>
-                {% endif %}
+                </form>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+{% block extra_js %}
+<script>
+    // Checkbox logic: Max 2 subjects
+    const checkboxes = document.querySelectorAll('.subject-checkbox');
+    const startBtn = document.getElementById('startBtn');
+
+    checkboxes.forEach(chk => {
+        chk.addEventListener('change', () => {
+            const checked = document.querySelectorAll('.subject-checkbox:checked');
+
+            // Limit to 2
+            if (checked.length > 2) {
+                chk.checked = false;
+                alert("Faqat 2 ta mutaxassislik fanini tanlash mumkin!");
+                return;
+            }
+
+            // Visual active state
+            document.querySelectorAll('label[for^="sub"]').forEach(lbl => {
+                lbl.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
+                lbl.querySelector('.check-icon').classList.add('opacity-0');
+            });
+            checked.forEach(c => {
+                const label = document.querySelector(`label[for="${c.id}"]`);
+                label.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
+                label.querySelector('.check-icon').classList.remove('opacity-0');
+            });
+
+            // Enable button
+            if (checked.length === 2) {
+                startBtn.disabled = false;
+            } else {
+                startBtn.disabled = true;
+            }
+        });
+    });
+</script>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+    .subject-checkbox:checked + label {
+        border-color: var(--primary) !important;
+        background-color: var(--primary-glow);
+    }
+    .pulse-animation {
+        animation: pulse-soft 2s infinite;
+    }
+</style>
+{% endblock %}
 {% endblock %}
