@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sozlamalar | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light">
+    <div class="container">
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top: 100px;">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'accounts:profile_edit' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
+                                <div class="icon-box bg-light text-primary rounded-circle">
+                                    <i class="bi bi-person-gear"></i>
+                                </div>
+                                <span class="fw-medium">Profilni tahrirlash</span>
+                            </a>
+
+                            <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3 active bg-primary bg-opacity-10 text-primary border-start border-4 border-primary">
+                                <div class="icon-box bg-white text-primary rounded-circle">
+                                    <i class="bi bi-shield-lock"></i>
+                                </div>
+                                <span class="fw-bold">Xavfsizlik & Login</span>
+                            </a>
+
+                            <a href="{% url 'accounts:notification_settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
+                                <div class="icon-box bg-light text-warning rounded-circle">
+                                    <i class="bi bi-bell"></i>
+                                </div>
+                                <span class="fw-medium">Bildirishnomalar</span>
+                            </a>
+
+                            <a href="{% url 'accounts:privacy_settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
+                                <div class="icon-box bg-light text-success rounded-circle">
+                                    <i class="bi bi-eye-slash"></i>
+                                </div>
+                                <span class="fw-medium">Maxfiylik</span>
+                            </a>
+
+                            <a href="{% url 'accounts:logout' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3 text-danger mt-2 border-top">
+                                <div class="icon-box bg-danger bg-opacity-10 text-danger rounded-circle">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                </div>
+                                <span class="fw-bold">Chiqish</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <h3 class="fw-bold mb-4">Xavfsizlik va Kirish</h3>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-key me-2 text-primary"></i> Parolni o'zgartirish</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <form action="{% url 'accounts:change_password' %}" method="post">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted fw-bold">Joriy parol</label>
+                                    <input type="password" name="current_password" class="form-control bg-light border-0" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted fw-bold">Yangi parol</label>
+                                    <input type="password" name="new_password" class="form-control bg-light border-0" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted fw-bold">Parolni tasdiqlang</label>
+                                    <input type="password" name="confirm_password" class="form-control bg-light border-0" required>
+                                </div>
+                            </div>
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-primary fw-bold px-4">
+                                    Saqlash
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-phone me-2 text-success"></i> Kontakt ma'lumotlari</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Telefon raqam</small>
+                                <span class="fw-bold fs-5 text-dark">{{ user.phone_number }}</span>
+                                {% if user.is_phone_verified %}
+                                    <span class="badge bg-success bg-opacity-10 text-success ms-2"><i class="bi bi-check-circle-fill me-1"></i> Tasdiqlangan</span>
+                                {% else %}
+                                    <a href="{% url 'accounts:verify_phone' %}" class="badge bg-warning text-dark ms-2 text-decoration-none">Tasdiqlash kerak</a>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-light btn-sm disabled" title="Telefon raqamni o'zgartirish uchun admin bilan bog'laning"><i class="bi bi-pencil"></i></button>
+                        </div>
+
+                        <div class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Email manzil</small>
+                                {% if user.email %}
+                                    <span class="fw-bold fs-5 text-dark">{{ user.email }}</span>
+                                {% else %}
+                                    <span class="text-muted fst-italic">Kiritilmagan</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-secondary btn-sm fw-bold">O'zgartirish</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div class="card-body p-4 bg-info bg-opacity-10">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-white p-2 rounded-circle text-info shadow-sm">
+                                    <i class="bi bi-telegram fs-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Telegram orqali kirish</h5>
+                                    {% if user.telegram_id %}
+                                        <p class="mb-0 text-success small fw-bold">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Ulangan: @{{ user.telegram_username|default:user.first_name }}
+                                        </p>
+                                    {% else %}
+                                        <p class="mb-0 text-muted small">
+                                            Hisobingizni Telegram bilan bog'lang va oson kiring.
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if not user.telegram_id %}
+                                <a href="{% url 'accounts:telegram_login' %}" class="btn btn-info text-white fw-bold px-4">
+                                    Ulash <i class="bi bi-link-45deg ms-1"></i>
+                                </a>
+                            {% else %}
+                                <button class="btn btn-light text-danger fw-bold border" disabled>
+                                    Uzish
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 border-start border-4 border-danger">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold text-danger mb-1">Hisobni o'chirish</h6>
+                                <p class="mb-0 text-muted small">Barcha ma'lumotlaringiz butunlay o'chib ketadi.</p>
+                            </div>
+                            <button class="btn btn-outline-danger fw-bold btn-sm">O'chirish</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
