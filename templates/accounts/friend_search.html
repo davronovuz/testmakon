@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Do'st Qidirish | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold mb-3">Do'stlarni Toping</h2>
+                    <div class="card border-0 shadow-lg rounded-pill overflow-hidden p-1">
+                        <form action="{% url 'accounts:friend_search' %}" method="get" class="d-flex">
+                            <input type="text" name="q" class="form-control border-0 shadow-none form-control-lg ps-4 rounded-pill"
+                                   placeholder="Ism, familiya yoki telefon raqam..." value="{{ query }}" autocomplete="off" autofocus>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold m-1 shadow-sm">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {% if query %}
+                    <h6 class="fw-bold text-muted mb-3 ps-2">Qidiruv natijalari:</h6>
+                    <div class="list-group shadow-sm rounded-4 border-0 overflow-hidden">
+                        {% for user in users %}
+                        <div class="list-group-item p-3 border-light d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                        {{ user.first_name|first }}
+                                    </div>
+                                {% endif %}
+
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ user.full_name }}</h6>
+                                    <small class="text-muted">{{ user.get_level_display }} • {{ user.xp_points }} XP</small>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="{% url 'accounts:friend_add' user_id=user.id %}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Qo'shish
+                                </a>
+                                <a href="{% url 'accounts:profile_public' uuid=user.uuid %}" class="btn btn-sm btn-light rounded-circle ms-1" title="Profilni ko'rish">
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5 bg-white">
+                            <i class="bi bi-emoji-frown display-4 text-muted mb-3 d-block"></i>
+                            <h5 class="fw-bold">Hech kim topilmadi</h5>
+                            <p class="text-muted">Boshqa so'z bilan qidirib ko'ring.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 opacity-50">
+                        <i class="bi bi-search display-1 text-secondary mb-3"></i>
+                        <p>Qidirishni boshlash uchun yuqoridagi maydonga yozing.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

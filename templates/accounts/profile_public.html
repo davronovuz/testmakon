@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.full_name }} | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+            <div class="h-100px bg-dark"></div> <div class="card-body p-4 position-relative">
+                <div class="row align-items-end">
+                    <div class="col-auto">
+                        <div class="position-relative mt-n5">
+                            {% if profile_user.avatar %}
+                                <img src="{{ profile_user.avatar.url }}" class="rounded-circle border border-4 border-white shadow-md object-fit-cover" style="width: 120px; height: 120px;">
+                            {% else %}
+                                <div class="rounded-circle border border-4 border-white shadow-md bg-white d-flex align-items-center justify-content-center text-dark fw-bold display-4" style="width: 120px; height: 120px;">
+                                    {{ profile_user.first_name|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <h2 class="fw-bold mb-1">{{ profile_user.full_name }}</h2>
+                        <div class="d-flex flex-wrap gap-2 text-muted small fw-bold align-items-center">
+                            <span class="badge bg-warning text-dark border"><i class="bi bi-star-fill me-1"></i> {{ profile_user.get_level_display }}</span>
+                            <span><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ profile_user.region|default:"O'zbekiston" }}</span>
+                        </div>
+                        {% if profile_user.bio %}
+                            <p class="text-muted small mt-2 mb-0 fst-italic">"{{ profile_user.bio }}"</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md text-md-end">
+                        {% if user.is_authenticated and user != profile_user %}
+                            {% if is_friend %}
+                                <button class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" disabled>
+                                    <i class="bi bi-check-lg me-1"></i> Do'stlar
+                                </button>
+                                <a href="#" class="btn btn-light rounded-circle shadow-sm border" title="Xabar yozish"><i class="bi bi-chat-text"></i></a>
+                            {% elif friend_request_sent %}
+                                <button class="btn btn-secondary fw-bold px-4 rounded-pill" disabled>
+                                    <i class="bi bi-clock me-1"></i> So'rov yuborilgan
+                                </button>
+                            {% elif friend_request_received %}
+                                <a href="{% url 'accounts:friend_requests' %}" class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm">
+                                    <i class="bi bi-exclamation-circle me-1"></i> So'rovni ko'rish
+                                </a>
+                            {% else %}
+                                <a href="{% url 'accounts:friend_add' user_id=profile_user.id %}" class="btn btn-primary fw-bold px-4 rounded-pill shadow-primary">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Do'stlashish
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100 border-0 shadow-sm text-center py-3">
+                            <h3 class="fw-bold text-primary mb-0">{{ stats.xp }}</h3>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">XP Ball</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100 border-0 shadow-sm text-center py-3">
+                            <h3 class="fw-bold text-dark mb-0">{{ stats.tests }}</h3>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Testlar</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100 border-0 shadow-sm text-center py-3">
+                            <h3 class="fw-bold text-success mb-0">{{ stats.accuracy }}%</h3>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Aniqlik</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100 border-0 shadow-sm text-center py-3">
+                            <h3 class="fw-bold text-info mb-0">#{{ stats.rank|default:"-" }}</h3>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Reyting</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="fw-bold mb-0">Yutuqlar</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex gap-3 overflow-auto pb-2">
+                            {% for ub in badges %}
+                            <div class="text-center" style="min-width: 80px;">
+                                <img src="{{ ub.badge.icon.url }}" class="mb-2" style="width: 50px; height: 50px;">
+                                <div class="small fw-bold text-dark lh-sm">{{ ub.badge.name }}</div>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted small w-100 text-center">Hozircha badjlar yo'q.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p

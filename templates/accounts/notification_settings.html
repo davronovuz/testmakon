@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bildirishnomalar | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="row g-4">
+
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top: 100px;">
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'accounts:profile_edit' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
+                            <div class="icon-box bg-light text-primary rounded-circle"><i class="bi bi-person-gear"></i></div>
+                            <span class="fw-medium">Profilni tahrirlash</span>
+                        </a>
+                        <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
+                            <div class="icon-box bg-light text-primary rounded-circle"><i class="bi bi-shield-lock"></i></div>
+                            <span class="fw-medium">Xavfsizlik</span>
+                        </a>
+                        <a href="{% url 'accounts:notification_settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3 active bg-warning bg-opacity-10 text-dark border-start border-4 border-warning">
+                            <div class="icon-box bg-white text-warning rounded-circle"><i class="bi bi-bell"></i></div>
+                            <span class="fw-bold">Bildirishnomalar</span>
+                        </a>
+                        <a href="{% url 'accounts:privacy_settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
+                            <div class="icon-box bg-light text-success rounded-circle"><i class="bi bi-eye-slash"></i></div>
+                            <span class="fw-medium">Maxfiylik</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <h3 class="fw-bold mb-4">Bildirishnoma Sozlamalari</h3>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <h6 class="fw-bold text-primary mb-3">Tizim va Xavfsizlik</h6>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark" for="notif1">Kirish haqida ogohlantirish</label>
+                                        <p class="text-muted small mb-0">Yangi qurilmadan kirilganda xabar berish.</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input fs-5" type="checkbox" id="notif1" checked>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark" for="notif2">Parol o'zgarishi</label>
+                                        <p class="text-muted small mb-0">Parol yoki shaxsiy ma'lumotlar o'zgarganda.</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input fs-5" type="checkbox" id="notif2" checked disabled>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="text-muted opacity-25 my-4">
+
+                            <h6 class="fw-bold text-success mb-3">O'quv Jarayoni</h6>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark" for="notif3">AI Mentor tavsiyalari</label>
+                                        <p class="text-muted small mb-0">Haftalik tahlil va yangi tavsiyalar haqida.</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input fs-5" type="checkbox" id="notif3" checked>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark" for="notif4">Test natijalari</label>
+                                        <p class="text-muted small mb-0">Test yakunlanganda natijani yuborish.</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input fs-5" type="checkbox" id="notif4" checked>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="text-muted opacity-25 my-4">
+
+                            <h6 class="fw-bold text-info mb-3">Ijtimoiy Faollik</h6>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark" for="notif5">Do'stlik so'rovlari</label>
+                                        <p class="text-muted small mb-0">Yangi do'stlik taklifi tushganda.</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input fs-5" type="checkbox" id="notif5" checked>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-dark" for="notif6">Musobaqalar</label>
+                                        <p class="text-muted small mb-0">Yangi musobaqa boshlanganda.</p>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input fs-5" type="checkbox" id="notif6">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-primary fw-bold px-4 rounded-pill shadow-primary">Saqlash</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
