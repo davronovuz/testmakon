@@ -534,8 +534,14 @@
 
                     <div class="d-flex align-items-center gap-2">
                         {% if user.is_authenticated %}
+                            {% if not user.is_premium %}
+                                <a href="{% url 'subscriptions:pricing' %}" class="btn btn-warning fw-bold d-none d-md-block shadow-sm">
+                                    <i class="bi bi-gem me-1"></i> Premium
+                                </a>
+                            {% endif %}
                             <a href="{% url 'accounts:profile' %}" class="btn btn-light btn-sm">
-                                <i class="bi bi-person-circle me-1"></i>{{ user.first_name }}
+                                <i class="bi bi-person-circle me-1"></i>
+                                <span class="d-none d-sm-inline">{{ user.first_name }}</span>
                             </a>
                             <a href="{% url 'accounts:logout' %}" class="btn btn-dark btn-sm">Chiqish</a>
                         {% else %}

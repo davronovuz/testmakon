@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}To'lov Muvaffaqiyatli! | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100 d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card border-0 shadow-lg rounded-4 text-center p-5">
+                    <div class="icon-box-lg bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-4 float-animation">
+                        <i class="bi bi-check-lg display-4"></i>
+                    </div>
+
+                    <h2 class="fw-bold mb-3">To'lov Qabul Qilindi!</h2>
+                    <p class="text-muted mb-4">
+                        Sizning <strong>{{ payment.plan.name }}</strong> obunangiz muvaffaqiyatli faollashtirildi. Barcha imkoniyatlardan hoziroq foydalanishni boshlang.
+                    </p>
+
+                    <div class="bg-light p-3 rounded-3 mb-4 text-start small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">ID:</span>
+                            <span class="fw-bold font-monospace">{{ payment.order_id }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Sana:</span>
+                            <span>{{ payment.paid_at|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Summa:</span>
+                            <span class="fw-bold text-success">{{ payment.amount }} so'm</span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-primary">
+                        Bosh sahifaga qaytish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

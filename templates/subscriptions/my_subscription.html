@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Mening Obunam | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Joriy Holat</h5>
+
+                        {% if current %}
+                            <div class="text-center mb-4">
+                                <div class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill mb-3 border border-success border-opacity-25">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Faol Obuna
+                                </div>
+                                <h3 class="fw-bold mb-1">{{ current.plan.name }}</h3>
+                                <p class="text-muted small">Tugash sanasi: {{ current.expires_at|date:"d.m.Y" }}</p>
+                            </div>
+
+                            <div class="alert alert-light border mb-4 text-center">
+                                <div class="fs-1 fw-bold text-primary mb-0">{{ current.days_remaining }}</div>
+                                <small class="text-muted text-uppercase fw-bold">Qolgan kun</small>
+                            </div>
+
+                            <form action="{% url 'subscriptions:cancel_subscription' %}" method="post" onsubmit="return confirm('Ishonchingiz komilmi?');">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger w-100 btn-sm rounded-pill">Obunani bekor qilish</button>
+                            </form>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="icon-box bg-light rounded-circle text-muted mb-3 mx-auto">
+                                    <i class="bi bi-slash-circle"></i>
+                                </div>
+                                <h5>Sizda faol obuna yo'q</h5>
+                                <a href="{% url 'subscriptions:pricing' %}" class="btn btn-primary btn-sm mt-3 rounded-pill px-4">Tarif tanlash</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="fw-bold mb-0">To'lovlar Tarixi</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4">Sana</th>
+                                    <th class="border-0">Tarif</th>
+                                    <th class="border-0">Summa</th>
+                                    <th class="border-0">Holat</th>
+                                    <th class="border-0 text-end pe-4">ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td class="ps-4 text-muted small">{{ payment.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td class="fw-bold">{{ payment.plan.name }}</td>
+                                    <td>{{ payment.amount|intcomma }} so'm</td>
+                                    <td>
+                                        {% if payment.status == 'completed' %}
+                                            <span class="badge bg-success bg-opacity-10 text-success">Muvaffaqiyatli</span>
+                                        {% elif payment.status == 'pending' %}
+                                            <span class="badge bg-warning bg-opacity-10 text-warning">Kutilmoqda</span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger">Xatolik</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4 font-monospace small text-muted">{{ payment.order_id|slice:"-8:" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">To'lovlar tarixi bo'sh</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

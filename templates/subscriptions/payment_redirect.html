@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}To'lov tizimini tanlang | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100 d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-body p-5 text-center">
+                        <h4 class="fw-bold mb-4">To'lov usulini tanlang</h4>
+                        <p class="text-muted mb-5">
+                            <strong>{{ plan.name }}</strong> uchun to'lov miqdori: <span class="text-dark fw-bold fs-5">{{ payment.amount|intcomma }} so'm</span>
+                        </p>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <form action="https://my.click.uz/services/pay" method="get"> <input type="hidden" name="merchant_id" value="SIZNING_ID">
+                                    <input type="hidden" name="amount" value="{{ payment.amount }}">
+                                    <input type="hidden" name="transaction_param" value="{{ payment.order_id }}">
+
+                                    <button type="button" onclick="alert('Demo rejim: To\'lov tasdiqlandi deb hisoblaymiz.'); window.location.href='{% url 'subscriptions:success' uuid=payment.uuid %}'"
+                                            class="btn btn-outline-primary w-100 py-3 rounded-4 d-flex align-items-center justify-content-center gap-3 border-2 hover-bg-light">
+                                        <span class="fw-bold fs-5 text-primary">CLICK</span>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">Tavsiya</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="col-12">
+                                <button disabled class="btn btn-outline-secondary w-100 py-3 rounded-4 d-flex align-items-center justify-content-center gap-3 border-2 opacity-50">
+                                    <span class="fw-bold fs-5">Payme</span>
+                                    <small>(Tez orada)</small>
+                                </button>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="alert alert-warning border-0 small">
+                                    Test rejimi uchun pastdagi tugmani bosing:
+                                </div>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="provider" value="demo">
+                                    {% if promo_code %}<input type="hidden" name="promo_code" value="{{ promo_code }}">{% endif %}
+                                    <button type="submit" class="btn btn-dark w-100 fw-bold py-3 rounded-pill">
+                                        Test to'lov (Bepul)
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="text-muted small text-decoration-none">
+                                <i class="bi bi-arrow-left me-1"></i> Bekor qilish va qaytish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
