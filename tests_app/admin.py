@@ -1,8 +1,9 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.utils.text import slugify
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
 from import_export.admin import ImportExportModelAdmin
+import uuid
 
 from .models import (
     Subject, Topic, Question, Answer,
@@ -11,10 +12,9 @@ from .models import (
 
 
 # ---------------------------------------------------------
-# 1. Excel Import Resursi (Miya qismi)
+# 1. Excel Import Resursi
 # ---------------------------------------------------------
 class QuestionResource(resources.ModelResource):
-    # Excel ustunlarini Model maydonlariga bog'laymiz
     subject = fields.Field(
         column_name='Fan',
         attribute='subject',
@@ -28,7 +28,6 @@ class QuestionResource(resources.ModelResource):
     text = fields.Field(attribute='text', column_name='Savol matni')
     difficulty = fields.Field(attribute='difficulty', column_name='Qiyinlik')
 
-    # Variantlar (Excelda bor, bazada yo'q maydonlar)
     option_a = fields.Field(column_name='A variant')
     option_b = fields.Field(column_name='B variant')
     option_c = fields.Field(column_name='C variant')
@@ -38,30 +37,54 @@ class QuestionResource(resources.ModelResource):
     class Meta:
         model = Question
         fields = ('text', 'subject', 'topic', 'difficulty')
-        import_id_fields = ('text',)  # Savol matni ID sifatida ishlatiladi
+        import_id_fields = ('text',)
+
+    # --- YANGI QO'SHILGAN QISM: Avtomatik yaratish ---
+    def before_import_row(self, row, **kwargs):
+        self.current_row = row
+
+        # 1. FANNI TEKSHIRISH VA YARATISH
+        subject_name = row.get('Fan')
+        subject_obj = None
+
+        if subject_name:
+            # Slug yaratish (Matematika -> matematika)
+            slug = slugify(subject_name)
+            if not slug: slug = str(uuid.uuid4())[:8]  # Kirillcha bo'lsa muammo chiqmasligi uchun
+
+            subject_obj, created = Subject.objects.get_or_create(
+                name=subject_name,
+                defaults={'slug': slug, 'is_active': True}
+            )
+
+        # 2. MAVZUNI TEKSHIRISH VA YARATISH
+        topic_name = row.get('Mavzu')
+        if topic_name and subject_obj:
+            slug = slugify(topic_name)
+            if not slug: slug = str(uuid.uuid4())[:8]
+
+            Topic.objects.get_or_create(
+                name=topic_name,
+                subject=subject_obj,  # Mavzuni fanga bog'laymiz
+                defaults={'slug': slug, 'is_active': True}
+            )
 
     def after_save_instance(self, instance, using_transactions, dry_run):
         if dry_run: return
 
         row = self.current_row
-
-        # Exceldan variantlarni o'qish
         options = [
             {'text': row.get('A variant'), 'key': 'A'},
             {'text': row.get('B variant'), 'key': 'B'},
             {'text': row.get('C variant'), 'key': 'C'},
             {'text': row.get('D variant'), 'key': 'D'},
         ]
-
-        # To'g'ri javobni aniqlash (A, B, C, D)
         correct_key = str(row.get("To'g'ri javob")).strip().upper()
 
-        # Eski javoblarni tozalash (update paytida)
         instance.answers.all().delete()
 
-        # Yangi javoblarni yaratish
         for idx, opt in enumerate(options):
-            if opt['text']:  # Bo'sh bo'lmasa
+            if opt['text']:
                 is_correct = (opt['key'] == correct_key)
                 Answer.objects.create(
                     question=instance,
@@ -69,9 +92,6 @@ class QuestionResource(resources.ModelResource):
                     is_correct=is_correct,
                     order=idx
                 )
-
-    def before_import_row(self, row, **kwargs):
-        self.current_row = row
 
 
 # ---------------------------------------------------------
@@ -109,10 +129,9 @@ class TopicAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
-# --- MANA SHU YERDA O'ZGARISH BO'LDI (ImportExportModelAdmin) ---
 @admin.register(Question)
 class QuestionAdmin(ImportExportModelAdmin):
-    resource_class = QuestionResource  # Excel importni ulaymiz
+    resource_class = QuestionResource
 
     list_display = ('short_text', 'subject', 'topic', 'difficulty', 'is_active')
     list_filter = ('subject', 'topic', 'difficulty', 'is_active')
@@ -120,7 +139,6 @@ class QuestionAdmin(ImportExportModelAdmin):
     search_fields = ('text', 'subject__name', 'topic__name')
     inlines = [AnswerInline]
 
-    # Sizning eski chiroyli fieldsets dizayningiz
     fieldsets = (
         ('Asosiy', {
             'fields': ('subject', 'topic', 'text', 'image')
