@@ -3,167 +3,635 @@
 
 {% block title %}{{ university.name }} | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .uni-hero {
+        position: relative;
+        background: var(--gradient-dark);
+        padding-top: 0;
+        overflow: hidden;
+    }
+
+    .uni-hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.3;
+    }
+
+    .uni-hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.95) 100%);
+    }
+
+    .uni-hero-content {
+        position: relative;
+        z-index: 2;
+        padding: 4rem 0 5rem;
+    }
+
+    /* University Card */
+    .uni-main-card {
+        margin-top: -3rem;
+        position: relative;
+        z-index: 10;
+    }
+
+    .uni-logo {
+        width: 100px;
+        height: 100px;
+        border-radius: var(--radius-lg);
+        background: var(--white);
+        padding: 0.5rem;
+        box-shadow: var(--shadow-md);
+        object-fit: contain;
+        border: 2px solid var(--gray-200);
+    }
+
+    .uni-logo-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: var(--radius-lg);
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--white);
+        box-shadow: var(--shadow-primary);
+    }
+
+    /* Stats */
+    .uni-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray-500);
+        font-size: 0.9rem;
+    }
+
+    .uni-stat i {
+        font-size: 1rem;
+    }
+
+    /* Tabs */
+    .uni-tabs {
+        border-bottom: 2px solid var(--gray-100);
+        gap: 0.5rem;
+    }
+
+    .uni-tab {
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: var(--gray-500);
+        border: none;
+        background: transparent;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .uni-tab:hover {
+        color: var(--primary);
+    }
+
+    .uni-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    /* Info Cards */
+    .info-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: var(--primary-light);
+        box-shadow: var(--shadow-md);
+    }
+
+    .info-card-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    /* Faculty Card */
+    .faculty-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .faculty-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-light);
+    }
+
+    .faculty-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--primary-glow);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-dark);
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Review Card */
+    .review-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+        border-color: var(--gray-300);
+        box-shadow: var(--shadow);
+    }
+
+    .review-avatar {
+        width: 44px;
+        height: 44px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .review-stars {
+        color: var(--accent);
+        font-size: 0.85rem;
+    }
+
+    /* Sidebar CTA */
+    .cta-card {
+        background: var(--gradient-primary);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        color: var(--white);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .cta-card h5 {
+        color: var(--white);
+    }
+
+    .btn-white {
+        background: var(--white);
+        color: var(--primary-dark);
+        font-weight: 700;
+    }
+
+    .btn-white:hover {
+        background: var(--gray-100);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Direction Card */
+    .direction-mini {
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        padding: 1rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
+
+    .direction-mini:hover {
+        background: var(--primary-glow);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--gray-300);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="position-relative">
-    <div class="h-200px bg-dark w-100 overflow-hidden">
-        {% if university.cover_image %}
-            <img src="{{ university.cover_image.url }}" class="w-100 h-100 object-fit-cover opacity-50">
-        {% endif %}
+<!-- Hero Section -->
+<section class="uni-hero">
+    {% if university.cover_image %}
+        <img src="{{ university.cover_image.url }}" class="uni-hero-bg" alt="">
+    {% endif %}
+    <div class="uni-hero-overlay"></div>
+
+    <div class="uni-hero-content">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'core:home' %}" class="text-white-50 text-decoration-none">
+                            <i class="bi bi-house me-1"></i>Bosh sahifa
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'universities:universities_list' %}" class="text-white-50 text-decoration-none">Universitetlar</a>
+                    </li>
+                    <li class="breadcrumb-item text-white active">{{ university.name|truncatechars:30 }}</li>
+                </ol>
+            </nav>
+
+            <!-- Badges -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-white bg-opacity-20 text-white px-3 py-2">
+                    {{ university.get_university_type_display }}
+                </span>
+                <span class="badge bg-white bg-opacity-10 text-white px-3 py-2">
+                    <i class="bi bi-geo-alt-fill me-1"></i>{{ university.region }}
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-white fw-bold mb-0" style="font-size: 2.5rem;">{{ university.name }}</h1>
+        </div>
     </div>
-    <div class="container position-relative mt-n5">
-        <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
-            <div class="card-body p-4 p-md-5">
-                <div class="row align-items-center">
-                    <div class="col-md-auto text-center text-md-start mb-3 mb-md-0">
+</section>
+
+<!-- Main Content -->
+<section class="section-sm bg-light">
+    <div class="container">
+
+        <!-- Main Card -->
+        <div class="card border-0 shadow-lg uni-main-card mb-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center g-4">
+                    <!-- Logo -->
+                    <div class="col-auto">
                         {% if university.logo %}
-                            <img src="{{ university.logo.url }}" class="rounded-4 shadow bg-white p-2 border" style="width: 120px; height: 120px; object-fit: contain;">
+                            <img src="{{ university.logo.url }}" class="uni-logo" alt="{{ university.name }}">
                         {% else %}
-                            <div class="rounded-4 shadow bg-white p-2 border d-flex align-items-center justify-content-center text-primary fw-bold display-4" style="width: 120px; height: 120px;">
+                            <div class="uni-logo-placeholder">
                                 {{ university.name|first }}
                             </div>
                         {% endif %}
                     </div>
-                    <div class="col-md">
-                        <div class="d-flex flex-wrap gap-2 mb-2 justify-content-center justify-content-md-start">
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ university.get_university_type_display }}</span>
-                            <span class="badge bg-light text-dark border"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ university.region }}</span>
-                        </div>
-                        <h2 class="fw-bold mb-2 text-center text-md-start">{{ university.name }}</h2>
 
-                        <div class="d-flex gap-4 text-muted small justify-content-center justify-content-md-start">
-                            <span><i class="bi bi-star-fill text-warning me-1"></i> <strong>{{ university.rating }}</strong> ({{ university.reviews_count }} sharh)</span>
-                            <span><i class="bi bi-people-fill me-1"></i> {{ university.student_count|default:"3000+" }} talaba</span>
+                    <!-- Info -->
+                    <div class="col">
+                        <h2 class="fw-bold mb-2">{{ university.name }}</h2>
+                        <div class="d-flex flex-wrap gap-4">
+                            <div class="uni-stat">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <strong class="text-dark">{{ university.rating|default:"4.5" }}</strong>
+                                <span>({{ university.reviews_count|default:"0" }} sharh)</span>
+                            </div>
+                            <div class="uni-stat">
+                                <i class="bi bi-people-fill text-primary"></i>
+                                <span>{{ university.student_count|default:"3000+" }} talaba</span>
+                            </div>
+                            <div class="uni-stat">
+                                <i class="bi bi-building text-secondary"></i>
+                                <span>{{ university.faculties.count|default:"0" }} fakultet</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-auto mt-3 mt-md-0 text-center">
-                        <a href="{% url 'universities:university_directions' slug=university.slug %}" class="btn btn-primary btn-lg fw-bold shadow-primary px-4 rounded-pill">
-                            Yo'nalishlar <i class="bi bi-arrow-right ms-2"></i>
+
+                    <!-- CTA Button -->
+                    <div class="col-md-auto">
+                        <a href="{% url 'universities:university_directions' slug=university.slug %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-mortarboard me-2"></i>Yo'nalishlar
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div class="card-footer bg-white border-top p-0">
-                <ul class="nav nav-tabs nav-justified border-0" id="uniTab" role="tablist">
-                    <li class="nav-item"><a class="nav-link active py-3 fw-bold border-0 border-bottom border-3 border-primary" data-bs-toggle="tab" href="#about">Ma'lumot</a></li>
-                    <li class="nav-item"><a class="nav-link py-3 fw-bold border-0 text-muted" data-bs-toggle="tab" href="#faculties">Fakultetlar</a></li>
-                    <li class="nav-item"><a class="nav-link py-3 fw-bold border-0 text-muted" data-bs-toggle="tab" href="#reviews">Sharhlar</a></li>
-                </ul>
+            <!-- Tabs -->
+            <div class="card-footer bg-white border-top-0 p-0">
+                <div class="d-flex uni-tabs px-4" id="uniTabs">
+                    <button class="uni-tab active" data-tab="about">
+                        <i class="bi bi-info-circle me-2"></i>Ma'lumot
+                    </button>
+                    <button class="uni-tab" data-tab="faculties">
+                        <i class="bi bi-grid me-2"></i>Fakultetlar
+                    </button>
+                    <button class="uni-tab" data-tab="reviews">
+                        <i class="bi bi-chat-quote me-2"></i>Sharhlar
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="section-sm bg-light">
-    <div class="container">
         <div class="row g-4">
+            <!-- Main Column -->
             <div class="col-lg-8">
-                <div class="tab-content" id="uniTabContent">
 
-                    <div class="tab-pane fade show active" id="about">
-                        <div class="card border-0 shadow-sm rounded-4 mb-4">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-3">Universitet haqida</h5>
-                                <div class="text-muted lh-lg mb-4">
-                                    {{ university.description|linebreaks }}
-                                </div>
-
-                                <h5 class="fw-bold mb-3">Bog'lanish</h5>
-                                <div class="row g-3">
-                                    <div class="col-sm-6">
-                                        <div class="p-3 bg-light rounded-3">
-                                            <small class="text-muted d-block">Vebsayt</small>
-                                            <a href="{{ university.website }}" target="_blank" class="fw-bold text-decoration-none">{{ university.website }}</a>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="p-3 bg-light rounded-3">
-                                            <small class="text-muted d-block">Telefon</small>
-                                            <span class="fw-bold text-dark">{{ university.phone }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="p-3 bg-light rounded-3">
-                                            <small class="text-muted d-block">Manzil</small>
-                                            <span class="fw-bold text-dark">{{ university.address }}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- About Tab -->
+                <div class="tab-content" id="about-content">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-building text-primary me-2"></i>Universitet haqida
+                            </h5>
+                            <div class="text-muted lh-lg">
+                                {{ university.description|linebreaks|default:"Ma'lumot kiritilmagan." }}
                             </div>
                         </div>
                     </div>
 
-                    <div class="tab-pane fade" id="faculties">
-                        <div class="row g-3">
-                            {% for faculty in faculties %}
-                            <div class="col-md-6">
-                                <div class="card h-100 border-0 shadow-sm rounded-4">
-                                    <div class="card-body p-4">
-                                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mb-3">
-                                            <i class="bi bi-mortarboard"></i>
+                    <!-- Contact Info -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">
+                                <i class="bi bi-telephone text-primary me-2"></i>Bog'lanish
+                            </h5>
+                            <div class="row g-3">
+                                {% if university.website %}
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="info-card-icon bg-primary bg-opacity-10 text-primary">
+                                                <i class="bi bi-globe"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Vebsayt</small>
+                                                <a href="{{ university.website }}" target="_blank" class="fw-semibold text-decoration-none">
+                                                    {{ university.website|truncatechars:25 }}
+                                                    <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                                </a>
+                                            </div>
                                         </div>
-                                        <h6 class="fw-bold mb-2">{{ faculty.name }}</h6>
-                                        <p class="text-muted small mb-0">{{ faculty.description|truncatechars:80 }}</p>
                                     </div>
                                 </div>
-                            </div>
-                            {% empty %}
-                            <div class="col-12 text-center py-4">Fakultetlar ma'lumoti yo'q.</div>
-                            {% endfor %}
-                        </div>
-                    </div>
+                                {% endif %}
 
-                    <div class="tab-pane fade" id="reviews">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold mb-0">Talabalar fikri</h5>
-                            <a href="{% url 'universities:add_review' slug=university.slug %}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
-                                <i class="bi bi-pencil-square me-1"></i> Fikr qoldirish
-                            </a>
-                        </div>
-
-                        <div class="list-group list-group-flush rounded-4 overflow-hidden border-0 shadow-sm">
-                            {% for review in reviews %}
-                            <div class="list-group-item p-4 border-light bg-white">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="fw-bold">{{ review.user.full_name }}</div>
-                                        <span class="badge bg-light text-muted border">{{ review.created_at|date:"d.m.Y" }}</span>
-                                    </div>
-                                    <div class="text-warning small">
-                                        {% for i in "12345"|make_list %}
-                                            <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill{% endif %}"></i>
-                                        {% endfor %}
+                                {% if university.phone %}
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="info-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                                                <i class="bi bi-telephone"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Telefon</small>
+                                                <span class="fw-semibold text-dark">{{ university.phone }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <h6 class="fw-bold">{{ review.title }}</h6>
-                                <p class="text-muted mb-0 small">{{ review.content }}</p>
+                                {% endif %}
+
+                                {% if university.email %}
+                                <div class="col-md-6">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="info-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+                                                <i class="bi bi-envelope"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Email</small>
+                                                <span class="fw-semibold text-dark">{{ university.email }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if university.address %}
+                                <div class="col-12">
+                                    <div class="info-card">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="info-card-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                                                <i class="bi bi-geo-alt"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block">Manzil</small>
+                                                <span class="fw-semibold text-dark">{{ university.address }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
-                            {% empty %}
-                            <div class="text-center py-5 bg-white rounded-4 shadow-sm">
-                                <i class="bi bi-chat-square-quote display-4 text-muted mb-3 d-block"></i>
-                                <p class="text-muted">Hozircha sharhlar yo'q. Birinchi bo'ling!</p>
-                            </div>
-                            {% endfor %}
                         </div>
                     </div>
                 </div>
+
+                <!-- Faculties Tab -->
+                <div class="tab-content d-none" id="faculties-content">
+                    <div class="row g-3">
+                        {% for faculty in faculties %}
+                        <div class="col-md-6">
+                            <div class="faculty-card">
+                                <div class="faculty-icon">
+                                    <i class="bi bi-mortarboard"></i>
+                                </div>
+                                <h6 class="fw-bold mb-2">{{ faculty.name }}</h6>
+                                <p class="text-muted small mb-0">{{ faculty.description|truncatechars:100|default:"" }}</p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="empty-state">
+                                <i class="bi bi-mortarboard d-block"></i>
+                                <h6 class="fw-bold text-muted">Fakultetlar ma'lumoti yo'q</h6>
+                                <p class="text-muted small mb-0">Tez orada qo'shiladi</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div class="tab-content d-none" id="reviews-content">
+                    <!-- Add Review Button -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Talabalar fikri</h5>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'universities:add_review' slug=university.slug %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-pencil-square me-1"></i>Fikr qoldirish
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="d-flex flex-column gap-3">
+                        {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="review-avatar">
+                                        {{ review.user.first_name|first|default:"U" }}
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">{{ review.user.get_full_name|default:review.user.username }}</h6>
+                                        <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
+                                    </div>
+                                </div>
+                                <div class="review-stars">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if review.title %}
+                            <h6 class="fw-semibold mb-2">{{ review.title }}</h6>
+                            {% endif %}
+                            <p class="text-muted mb-0">{{ review.content }}</p>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state">
+                            <i class="bi bi-chat-square-quote d-block"></i>
+                            <h6 class="fw-bold text-muted">Hozircha sharhlar yo'q</h6>
+                            <p class="text-muted small mb-3">Birinchi bo'lib fikr qoldiring!</p>
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'universities:add_review' slug=university.slug %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-pencil-square me-1"></i>Sharh yozish
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
             </div>
 
+            <!-- Sidebar -->
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 bg-primary text-white overflow-hidden mb-4">
-                    <div class="card-body p-4 position-relative z-1">
-                        <h5 class="fw-bold mb-3">Qabul 2024</h5>
-                        <p class="mb-4 text-white-50 small">Ushbu universitetga kirish ballarini bilmoqchimisiz? Bizning AI kalkulyatorimizdan foydalaning.</p>
-                        <a href="{% url 'ai_core:ai_advisor' %}" class="btn btn-white text-primary fw-bold w-100 rounded-pill shadow-sm">
-                            <i class="bi bi-calculator me-2"></i> Hisoblash
+
+                <!-- AI Calculator CTA -->
+                <div class="cta-card mb-4">
+                    <div class="position-relative z-1">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <i class="bi bi-trophy-fill" style="font-size: 1.5rem;"></i>
+                            <h5 class="fw-bold mb-0">Qabul 2026</h5>
+                        </div>
+                        <p class="mb-4 opacity-75 small">
+                            Ushbu universitetga kirish ballarini bilmoqchimisiz? AI kalkulyatordan foydalaning.
+                        </p>
+                        <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-white w-100">
+                            <i class="bi bi-calculator me-2"></i>Ballarni hisoblash
                         </a>
                     </div>
-                    <div class="position-absolute top-0 end-0 opacity-10 p-3">
-                        <i class="bi bi-trophy display-1"></i>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-graph-up text-primary me-2"></i>Tez ma'lumot
+                        </h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="direction-mini">
+                                <span class="text-muted small">O'rtacha ball</span>
+                                <span class="fw-bold text-primary">{{ university.avg_passing_score|default:"180" }}</span>
+                            </div>
+                            <div class="direction-mini">
+                                <span class="text-muted small">Yo'nalishlar soni</span>
+                                <span class="fw-bold">{{ university.directions.count|default:"0" }}</span>
+                            </div>
+                            <div class="direction-mini">
+                                <span class="text-muted small">Grant o'rinlari</span>
+                                <span class="fw-bold text-success">{{ university.grant_places|default:"500+" }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Social Links -->
+                {% if university.telegram or university.instagram %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-share text-primary me-2"></i>Ijtimoiy tarmoqlar
+                        </h6>
+                        <div class="d-flex gap-2">
+                            {% if university.telegram %}
+                            <a href="{{ university.telegram }}" target="_blank" class="btn btn-light flex-fill">
+                                <i class="bi bi-telegram text-primary me-1"></i>Telegram
+                            </a>
+                            {% endif %}
+                            {% if university.instagram %}
+                            <a href="{{ university.instagram }}" target="_blank" class="btn btn-light flex-fill">
+                                <i class="bi bi-instagram text-danger me-1"></i>Instagram
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
-</div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab switching
+    document.querySelectorAll('.uni-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active from all tabs
+            document.querySelectorAll('.uni-tab').forEach(t => t.classList.remove('active'));
+            // Add active to clicked tab
+            this.classList.add('active');
+
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('d-none'));
+            // Show target content
+            const targetId = this.dataset.tab + '-content';
+            document.getElementById(targetId).classList.remove('d-none');
+        });
+    });
+</script>
 {% endblock %}
