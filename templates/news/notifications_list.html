@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bildirishnomalar | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold mb-0">Bildirishnomalar</h3>
+                    {% if notifications %}
+                    <a href="{% url 'news:notifications_mark_all_read' %}" class="btn btn-light btn-sm fw-bold text-primary">
+                        <i class="bi bi-check-all me-1"></i> Barchasini o'qilgan qilish
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="list-group list-group-flush">
+                        {% for notif in notifications %}
+                        <a href="{% url 'news:notification_mark_read' id=notif.id %}" class="list-group-item list-group-item-action p-4 border-light {% if not notif.is_read %}bg-primary bg-opacity-10{% endif %}">
+                            <div class="d-flex gap-3">
+                                <div class="flex-shrink-0">
+                                    <div class="icon-box
+                                        {% if notif.notification_type == 'system' %}bg-secondary bg-opacity-10 text-secondary
+                                        {% elif notif.notification_type == 'news' %}bg-info bg-opacity-10 text-info
+                                        {% elif notif.notification_type == 'competition' %}bg-warning bg-opacity-10 text-warning
+                                        {% elif notif.notification_type == 'achievement' %}bg-success bg-opacity-10 text-success
+                                        {% else %}bg-primary bg-opacity-10 text-primary{% endif %}
+                                        rounded-circle">
+
+                                        {% if notif.notification_type == 'system' %}<i class="bi bi-gear-fill"></i>
+                                        {% elif notif.notification_type == 'news' %}<i class="bi bi-newspaper"></i>
+                                        {% elif notif.notification_type == 'competition' %}<i class="bi bi-trophy-fill"></i>
+                                        {% elif notif.notification_type == 'achievement' %}<i class="bi bi-star-fill"></i>
+                                        {% else %}<i class="bi bi-bell-fill"></i>{% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="fw-bold mb-1 text-dark">{{ notif.title }}</h6>
+                                        <small class="text-muted text-nowrap ms-2">{{ notif.created_at|timesince }} oldin</small>
+                                    </div>
+                                    <p class="mb-0 text-muted small">{{ notif.message }}</p>
+                                </div>
+
+                                {% if not notif.is_read %}
+                                <div class="align-self-center">
+                                    <span class="badge bg-primary p-1 rounded-circle d-block"></span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <div class="icon-box-lg bg-light rounded-circle mx-auto mb-3 text-muted">
+                                <i class="bi bi-bell-slash"></i>
+                            </div>
+                            <h5>Bildirishnomalar yo'q</h5>
+                            <p class="text-muted">Sizda hozircha yangi xabarlar yo'q.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

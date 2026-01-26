@@ -522,6 +522,9 @@
                             <a class="nav-link {% if 'competitions' in request.path %}active{% endif %}" href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if 'news' in request.path %}active{% endif %}" href="{% url 'news:news_list' %}">Yangiliklar</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}" href="{% url 'leaderboard:global_leaderboard' %}">Reyting</a>
                         </li>
                     </ul>

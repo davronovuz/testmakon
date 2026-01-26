@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} | Yangiliklar{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3 mb-5">
+            <a href="{% url 'news:news_list' %}" class="btn btn-light rounded-circle shadow-sm"><i class="bi bi-arrow-left"></i></a>
+            <div>
+                <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ category.articles.count }} ta maqola</span>
+                <h2 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                    <span style="font-size: 2rem;">{{ category.icon|safe }}</span> {{ category.name }}
+                </h2>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for article in articles %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift transition-all">
+                    <div class="position-relative">
+                        {% if article.featured_image %}
+                            <img src="{{ article.featured_image.url }}" class="card-img-top object-fit-cover" style="height: 200px;">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                                <i class="bi bi-image fs-1"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="text-muted small mb-2">{{ article.published_at|date:"d.m.Y" }}</div>
+                        <h5 class="fw-bold mb-3">
+                            <a href="{% url 'news:article_detail' slug=article.slug %}" class="text-dark text-decoration-none stretched-link">
+                                {{ article.title }}
+                            </a>
+                        </h5>
+                        <p class="text-muted small mb-0 line-clamp-3">{{ article.excerpt }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">Bu kategoriyada hali maqolalar yo'q.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Maslahatlar | TestMakon{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill mb-3">
+                <i class="bi bi-lightbulb-fill me-1"></i> Foydali
+            </span>
+            <h2 class="fw-bold display-6">O'qish bo'yicha Maslahatlar</h2>
+            <p class="text-muted lead">Samarali o'rganish va imtihonga tayyorlanish sirlari.</p>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap">
+            <a href="{% url 'news:tips_list' %}" class="btn {% if not request.GET.subject %}btn-dark{% else %}btn-light{% endif %} rounded-pill px-4 fw-bold">
+                Barchasi
+            </a>
+            {% for subject in subjects %}
+            <a href="?subject={{ subject.slug }}" class="btn {% if request.GET.subject == subject.slug %}btn-primary{% else %}btn-light{% endif %} rounded-pill px-4 fw-bold d-flex align-items-center gap-2">
+                {{ subject.icon|safe }} {{ subject.name }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="row g-4">
+            {% for tip in tips %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 bg-white hover-lift position-relative overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle">
+                                <i class="bi bi-lightbulb"></i>
+                            </div>
+                            {% if tip.subject %}
+                            <span class="badge bg-light text-dark border">{{ tip.subject.name }}</span>
+                            {% endif %}
+                        </div>
+
+                        <h5 class="fw-bold mb-3">
+                            <a href="{% url 'news:article_detail' slug=tip.slug %}" class="text-dark text-decoration-none stretched-link">
+                                {{ tip.title }}
+                            </a>
+                        </h5>
+
+                        <p class="text-muted small mb-0">{{ tip.excerpt|truncatechars:120 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                        <small class="text-muted fw-bold">O'qish uchun bosing <i class="bi bi-arrow-right ms-1"></i></small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <h5>Maslahatlar topilmadi</h5>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
