@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ university.name }} | TestMakon{% endblock %}
+
+{% block content %}
+<div class="position-relative">
+    <div class="h-200px bg-dark w-100 overflow-hidden">
+        {% if university.cover_image %}
+            <img src="{{ university.cover_image.url }}" class="w-100 h-100 object-fit-cover opacity-50">
+        {% endif %}
+    </div>
+    <div class="container position-relative mt-n5">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="row align-items-center">
+                    <div class="col-md-auto text-center text-md-start mb-3 mb-md-0">
+                        {% if university.logo %}
+                            <img src="{{ university.logo.url }}" class="rounded-4 shadow bg-white p-2 border" style="width: 120px; height: 120px; object-fit: contain;">
+                        {% else %}
+                            <div class="rounded-4 shadow bg-white p-2 border d-flex align-items-center justify-content-center text-primary fw-bold display-4" style="width: 120px; height: 120px;">
+                                {{ university.name|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md">
+                        <div class="d-flex flex-wrap gap-2 mb-2 justify-content-center justify-content-md-start">
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">{{ university.get_university_type_display }}</span>
+                            <span class="badge bg-light text-dark border"><i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ university.region }}</span>
+                        </div>
+                        <h2 class="fw-bold mb-2 text-center text-md-start">{{ university.name }}</h2>
+
+                        <div class="d-flex gap-4 text-muted small justify-content-center justify-content-md-start">
+                            <span><i class="bi bi-star-fill text-warning me-1"></i> <strong>{{ university.rating }}</strong> ({{ university.reviews_count }} sharh)</span>
+                            <span><i class="bi bi-people-fill me-1"></i> {{ university.student_count|default:"3000+" }} talaba</span>
+                        </div>
+                    </div>
+                    <div class="col-md-auto mt-3 mt-md-0 text-center">
+                        <a href="{% url 'universities:university_directions' slug=university.slug %}" class="btn btn-primary btn-lg fw-bold shadow-primary px-4 rounded-pill">
+                            Yo'nalishlar <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-top p-0">
+                <ul class="nav nav-tabs nav-justified border-0" id="uniTab" role="tablist">
+                    <li class="nav-item"><a class="nav-link active py-3 fw-bold border-0 border-bottom border-3 border-primary" data-bs-toggle="tab" href="#about">Ma'lumot</a></li>
+                    <li class="nav-item"><a class="nav-link py-3 fw-bold border-0 text-muted" data-bs-toggle="tab" href="#faculties">Fakultetlar</a></li>
+                    <li class="nav-item"><a class="nav-link py-3 fw-bold border-0 text-muted" data-bs-toggle="tab" href="#reviews">Sharhlar</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-sm bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="tab-content" id="uniTabContent">
+
+                    <div class="tab-pane fade show active" id="about">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-3">Universitet haqida</h5>
+                                <div class="text-muted lh-lg mb-4">
+                                    {{ university.description|linebreaks }}
+                                </div>
+
+                                <h5 class="fw-bold mb-3">Bog'lanish</h5>
+                                <div class="row g-3">
+                                    <div class="col-sm-6">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <small class="text-muted d-block">Vebsayt</small>
+                                            <a href="{{ university.website }}" target="_blank" class="fw-bold text-decoration-none">{{ university.website }}</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <small class="text-muted d-block">Telefon</small>
+                                            <span class="fw-bold text-dark">{{ university.phone }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="p-3 bg-light rounded-3">
+                                            <small class="text-muted d-block">Manzil</small>
+                                            <span class="fw-bold text-dark">{{ university.address }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="faculties">
+                        <div class="row g-3">
+                            {% for faculty in faculties %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm rounded-4">
+                                    <div class="card-body p-4">
+                                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mb-3">
+                                            <i class="bi bi-mortarboard"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-2">{{ faculty.name }}</h6>
+                                        <p class="text-muted small mb-0">{{ faculty.description|truncatechars:80 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12 text-center py-4">Fakultetlar ma'lumoti yo'q.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="reviews">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">Talabalar fikri</h5>
+                            <a href="{% url 'universities:add_review' slug=university.slug %}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                                <i class="bi bi-pencil-square me-1"></i> Fikr qoldirish
+                            </a>
+                        </div>
+
+                        <div class="list-group list-group-flush rounded-4 overflow-hidden border-0 shadow-sm">
+                            {% for review in reviews %}
+                            <div class="list-group-item p-4 border-light bg-white">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="fw-bold">{{ review.user.full_name }}</div>
+                                        <span class="badge bg-light text-muted border">{{ review.created_at|date:"d.m.Y" }}</span>
+                                    </div>
+                                    <div class="text-warning small">
+                                        {% for i in "12345"|make_list %}
+                                            <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <h6 class="fw-bold">{{ review.title }}</h6>
+                                <p class="text-muted mb-0 small">{{ review.content }}</p>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                                <i class="bi bi-chat-square-quote display-4 text-muted mb-3 d-block"></i>
+                                <p class="text-muted">Hozircha sharhlar yo'q. Birinchi bo'ling!</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 bg-primary text-white overflow-hidden mb-4">
+                    <div class="card-body p-4 position-relative z-1">
+                        <h5 class="fw-bold mb-3">Qabul 2024</h5>
+                        <p class="mb-4 text-white-50 small">Ushbu universitetga kirish ballarini bilmoqchimisiz? Bizning AI kalkulyatorimizdan foydalaning.</p>
+                        <a href="{% url 'ai_core:ai_advisor' %}" class="btn btn-white text-primary fw-bold w-100 rounded-pill shadow-sm">
+                            <i class="bi bi-calculator me-2"></i> Hisoblash
+                        </a>
+                    </div>
+                    <div class="position-absolute top-0 end-0 opacity-10 p-3">
+                        <i class="bi bi-trophy display-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

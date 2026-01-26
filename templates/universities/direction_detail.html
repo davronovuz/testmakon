@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ direction.name }} | Statistika{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100">
+    <div class="container">
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4 p-lg-5 text-center">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill mb-3">
+                    Kod: {{ direction.code }}
+                </span>
+                <h1 class="fw-bold mb-2">{{ direction.name }}</h1>
+                <p class="text-muted fs-5 mb-4">{{ direction.university.name }}</p>
+
+                <div class="d-flex justify-content-center gap-2">
+                    <span class="badge bg-light text-dark border p-2">{{ direction.get_education_form_display }}</span>
+                    <span class="badge bg-light text-dark border p-2">{{ direction.duration_years }} yil</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="fw-bold mb-0">O'tish Ballari (Tarix)</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% for score in passing_scores %}
+                        <div class="mb-4 last-mb-0">
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <span class="badge bg-dark">{{ score.year }}-yil</span>
+                                <small class="text-muted">Tanlov: 1 o'runga {{ score.competition_ratio }} kishi</small>
+                            </div>
+
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="fw-bold text-success">Grant</span>
+                                    <span class="fw-bold">{{ score.grant_score|default:"-" }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: {% widthratio score.grant_score 189 100 %}%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="fw-bold text-primary">Kontrakt</span>
+                                    <span class="fw-bold">{{ score.contract_score|default:"-" }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: {% widthratio score.contract_score 189 100 %}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="text-muted opacity-25">
+                        {% empty %}
+                        <div class="text-center py-4 text-muted">Statistika mavjud emas.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0">Majburiy Fanlar</h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for subject in direction.required_subjects.all %}
+                        <li class="list-group-item py-3 d-flex align-items-center gap-3">
+                            <div class="icon-box bg-light text-primary rounded-circle">
+                                {{ subject.icon|safe|default:"📚" }}
+                            </div>
+                            <span class="fw-bold">{{ subject.name }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item py-3 text-muted">Fanlar kiritilmagan</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

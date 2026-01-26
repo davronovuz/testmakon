@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sharh qoldirish | {{ university.short_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Star Rating CSS */
+    .rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+    .rating input { display: none; }
+    .rating label {
+        cursor: pointer;
+        color: #ddd;
+        font-size: 1.5rem;
+        transition: color 0.2s;
+    }
+    .rating label:hover,
+    .rating label:hover ~ label,
+    .rating input:checked ~ label {
+        color: #ffc107;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section-sm bg-light min-vh-100 d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg rounded-4">
+                    <div class="card-header bg-white py-4 border-bottom text-center">
+                        <h4 class="fw-bold mb-1">Fikringiz muhim!</h4>
+                        <p class="text-muted mb-0 small">{{ university.name }}</p>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <div class="mb-4 text-center">
+                                <label class="fw-bold d-block mb-2">Umumiy baho</label>
+                                <div class="rating justify-content-center">
+                                    {% for i in "54321"|make_list %}
+                                    <input type="radio" name="rating" value="{{ i }}" id="r{{ i }}" required>
+                                    <label for="r{{ i }}"><i class="bi bi-star-fill"></i></label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Sarlavha (Qisqacha)</label>
+                                <input type="text" name="title" class="form-control bg-light border-0" placeholder="Masalan: Ajoyib universitet..." required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small text-muted">Batafsil fikringiz</label>
+                                <textarea name="content" class="form-control bg-light border-0" rows="5" placeholder="Ta'lim sifati, sharoitlar va o'qituvchilar haqida..." required></textarea>
+                            </div>
+
+                            <div class="row g-3 mb-4 bg-light p-3 rounded-3">
+                                <div class="col-4 text-center">
+                                    <small class="d-block mb-1">Ta'lim</small>
+                                    <select name="education_rating" class="form-select form-select-sm border-0">
+                                        <option value="5">5</option>
+                                        <option value="4">4</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <small class="d-block mb-1">Sharoit</small>
+                                    <select name="facility_rating" class="form-select form-select-sm border-0">
+                                        <option value="5">5</option>
+                                        <option value="4">4</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <small class="d-block mb-1">Xodimlar</small>
+                                    <select name="staff_rating" class="form-select form-select-sm border-0">
+                                        <option value="5">5</option>
+                                        <option value="4">4</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                <a href="{% url 'universities:university_detail' slug=university.slug %}" class="btn btn-light w-100 fw-bold">Bekor qilish</a>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-primary">Yuborish</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
