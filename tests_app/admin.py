@@ -94,7 +94,6 @@ class TestAdmin(admin.ModelAdmin):
     list_editable = ('is_active', 'is_premium')
     search_fields = ('title',)
     prepopulated_fields = {'slug': ('title',)}
-    filter_horizontal = ('questions',)
 
     fieldsets = (
         ('Asosiy', {
@@ -105,9 +104,6 @@ class TestAdmin(admin.ModelAdmin):
         }),
         ('Mavjudlik', {
             'fields': ('is_active', 'is_premium', 'start_date', 'end_date')
-        }),
-        ('Savollar', {
-            'fields': ('questions',)
         }),
     )
 

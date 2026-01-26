@@ -187,3 +187,49 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.title}"
+
+
+class SystemBanner(models.Model):
+    """Tizim banneri — navbar tagida aylanib turadigan xabar"""
+
+    BANNER_TYPES = [
+        ('info', 'Ma\'lumot'),
+        ('warning', 'Ogohlantirish'),
+        ('success', 'Muvaffaqiyat'),
+        ('danger', 'Muhim'),
+        ('promo', 'Reklama'),
+    ]
+
+    message = models.CharField('Xabar matni', max_length=500)
+    banner_type = models.CharField('Turi', max_length=20, choices=BANNER_TYPES, default='info')
+
+    link = models.URLField('Havola', blank=True)
+    link_text = models.CharField('Havola matni', max_length=50, blank=True)
+    icon = models.CharField('Ikonka', max_length=50, blank=True)
+
+    is_scrolling = models.BooleanField('Aylanib tursin', default=True)
+    scroll_speed = models.PositiveIntegerField('Tezlik (soniya)', default=15)
+
+    start_date = models.DateTimeField('Boshlanish', null=True, blank=True)
+    end_date = models.DateTimeField('Tugash', null=True, blank=True)
+
+    is_active = models.BooleanField('Faol', default=True)
+    is_dismissable = models.BooleanField('Yopsa bo\'ladi', default=False)
+
+    order = models.PositiveIntegerField('Tartib', default=0)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Tizim banneri'
+        verbose_name_plural = 'Tizim bannerlari'
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.message[:50]

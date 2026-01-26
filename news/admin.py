@@ -26,3 +26,15 @@ class NotificationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 admin.site.register(ArticleLike)
+
+
+
+from .models import SystemBanner
+
+@admin.register(SystemBanner)
+class SystemBannerAdmin(admin.ModelAdmin):
+    list_display = ['message', 'banner_type', 'is_active', 'is_scrolling', 'order', 'created_at']
+    list_filter = ['banner_type', 'is_active', 'is_scrolling']
+    list_editable = ['is_active', 'order']
+    search_fields = ['message']
+    ordering = ['order', '-created_at']
