@@ -94,6 +94,7 @@ docker-compose.override.yml
 # DATABASE
 # =====================================================
 *.sqlite3
+db.sqlite3
 *.db
 *.sql
 !schema.sql
