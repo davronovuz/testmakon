@@ -1,12 +1,9 @@
 import json
 import uuid
 from django.contrib import admin
-from django.utils.html import format_html, mark_safe
-from django.db.models import JSONField
-from django.forms import widgets
+from django.utils.html import format_html
 from django.utils.text import slugify
 from import_export import resources, fields
-from import_export.widgets import ForeignKeyWidget
 from import_export.admin import ImportExportModelAdmin, ExportActionModelAdmin
 
 from .models import (
@@ -30,27 +27,21 @@ def pretty_json(data):
 
 
 # =========================================================
-# IMPORT-EXPORT RESURSLARI (TUZATILGAN)
+# IMPORT RESURSI (MUKAMMAL VERSIYA)
 # =========================================================
 
 class QuestionResource(resources.ModelResource):
-    """Exceldan savollarni yuklash uchun resurs"""
+    """
+    Exceldan savollarni yuklash uchun eng ishonchli resurs.
+    Xatoliklarni oldini olish uchun 'Widget' lardan voz kechib,
+    to'g'ridan-to'g'ri logika yozildi.
+    """
 
-    # Model maydonlarini Excel ustunlariga bog'lash
-    subject = fields.Field(
-        column_name='Fan',
-        attribute='subject',
-        widget=ForeignKeyWidget(Subject, field='name')
-    )
-    topic = fields.Field(
-        column_name='Mavzu',
-        attribute='topic',
-        widget=ForeignKeyWidget(Topic, field='name')
-    )
+    # Asosiy maydonlar
     text = fields.Field(attribute='text', column_name='Savol matni')
     difficulty = fields.Field(attribute='difficulty', column_name='Qiyinlik')
 
-    # Exceldagi vaqtinchalik maydonlar (Variantlar)
+    # Variantlar (faqat Excelda bo'ladi, bazada alohida model)
     option_a = fields.Field(column_name='A variant')
     option_b = fields.Field(column_name='B variant')
     option_c = fields.Field(column_name='C variant')
@@ -59,55 +50,70 @@ class QuestionResource(resources.ModelResource):
 
     class Meta:
         model = Question
+        # Barcha maydonlarni ro'yxatga kiritamiz
         fields = (
-            'id', 'text', 'subject', 'topic', 'difficulty', 'points',
+            'id', 'text', 'difficulty', 'points',
             'option_a', 'option_b', 'option_c', 'option_d', 'correct_option'
         )
-        import_id_fields = ('text',)
+        # MUHIM: Header xatoligini oldini olish uchun ID tekshiruvini o'chiramiz.
+        # Har bir qator yangi savol sifatida qo'shiladi.
+        import_id_fields = []
 
-    # --- 1. AVTOMATIK YARATISH LOGIKASI ---
     def before_import_row(self, row, **kwargs):
         """
-        Import qilishdan oldin Fan va Mavzuni tekshiradi.
-        Agar ular yo'q bo'lsa, avtomatik yaratadi.
+        Har bir qator import qilinishidan oldin ishlaydi.
+        Fan va Mavzuni aniqlaydi, agar yo'q bo'lsa yaratadi.
         """
-        # 1. FANNI TEKSHIRISH
-        subject_name = row.get('Fan')
-        subject_obj = None
+        # 1. FANNI ANIQLASH
+        # Exceldan 'Fan' ustunini olamiz. Agar bo'sh bo'lsa 'General' deb nomlaymiz.
+        sub_name = row.get('Fan')
+        if not sub_name:
+            sub_name = "Umumiy Fan"
 
-        if subject_name:
-            subject_name = str(subject_name).strip()
-            slug = slugify(subject_name)
-            if not slug: slug = str(uuid.uuid4())[:8]
+        sub_name = str(sub_name).strip()
+        sub_slug = slugify(sub_name) or str(uuid.uuid4())[:8]
 
-            subject_obj, created = Subject.objects.get_or_create(
-                name=subject_name,
-                defaults={'slug': slug, 'is_active': True}
-            )
-            row['Fan'] = subject_obj.name
+        # Fanni bazadan olish yoki yaratish
+        self.temp_subject, _ = Subject.objects.get_or_create(
+            name=sub_name,
+            defaults={'slug': sub_slug, 'is_active': True}
+        )
 
-        # 2. MAVZUNI TEKSHIRISH
-        topic_name = row.get('Mavzu')
-        if topic_name and subject_obj:
-            topic_name = str(topic_name).strip()
-            slug = slugify(topic_name)
-            if not slug: slug = str(uuid.uuid4())[:8]
+        # 2. MAVZUNI ANIQLASH
+        top_name = row.get('Mavzu')
+        if not top_name:
+            top_name = "Umumiy Mavzu"
 
-            topic_obj, created = Topic.objects.get_or_create(
-                name=topic_name,
-                subject=subject_obj,
-                defaults={'slug': slug, 'is_active': True}
-            )
-            row['Mavzu'] = topic_obj.name
+        top_name = str(top_name).strip()
+        top_slug = slugify(top_name) or str(uuid.uuid4())[:8]
 
-    # --- 2. JAVOBLARNI SAQLASH (TUZATILGAN QISM) ---
-    # Argumentlar o'zgartirildi: (instance, row, **kwargs)
+        # Mavzuni bazadan olish yoki yaratish
+        self.temp_topic, _ = Topic.objects.get_or_create(
+            name=top_name,
+            subject=self.temp_subject,
+            defaults={'slug': top_slug, 'is_active': True}
+        )
+
+    def before_save_instance(self, instance, using_transactions, dry_run):
+        """
+        Savol bazaga yozilishidan oldin unga Fan va Mavzuni bog'laymiz.
+        Bu 'IntegrityError: NOT NULL constraint failed' xatosini yo'qotadi.
+        """
+        if hasattr(self, 'temp_subject'):
+            instance.subject = self.temp_subject
+        if hasattr(self, 'temp_topic'):
+            instance.topic = self.temp_topic
+
     def after_save_instance(self, instance, row, **kwargs):
-        # Dry run (sinov) rejimini tekshirish
+        """
+        Savol saqlangandan keyin Javoblarni (Variantlarni) yaratamiz.
+        **kwargs - versiya xatolarini (TypeError) yutib yuboradi.
+        """
+        # Agar bu shunchaki "Preview" (dry_run) bo'lsa, javoblarni yozmaymiz
         if kwargs.get('dry_run', False):
             return
 
-        # Variantlarni ro'yxatga yig'ish
+        # Variantlar ro'yxati
         options = [
             {'text': row.get('A variant'), 'key': 'A'},
             {'text': row.get('B variant'), 'key': 'B'},
@@ -119,12 +125,12 @@ class QuestionResource(resources.ModelResource):
         correct_val = row.get("To'g'ri javob")
         correct_key = str(correct_val).strip().upper() if correct_val else ''
 
-        # Eski javoblarni o'chirish
+        # Eski javoblarni tozalash (dublikat bo'lmasligi uchun)
         instance.answers.all().delete()
 
         # Yangi javoblarni yaratish
         for idx, opt in enumerate(options):
-            if opt['text']:  # Agar variant bo'sh bo'lmasa
+            if opt['text']:  # Variant matni bor bo'lsa
                 Answer.objects.create(
                     question=instance,
                     text=str(opt['text']).strip(),
@@ -134,7 +140,7 @@ class QuestionResource(resources.ModelResource):
 
 
 # =========================================================
-# INLINES
+# ADMIN KLASSLAR (INLINES)
 # =========================================================
 
 class AnswerInline(admin.TabularInline):
@@ -163,12 +169,11 @@ class AttemptAnswerInline(admin.TabularInline):
     can_delete = False
     readonly_fields = ('question', 'selected_answer', 'is_correct', 'time_spent')
 
-    def has_add_permission(self, request, obj=None):
-        return False
+    def has_add_permission(self, request, obj=None): return False
 
 
 # =========================================================
-# ASOSIY ADMINLAR
+# MODEL ADMIN REGISTRATSIYASI
 # =========================================================
 
 @admin.register(Subject)
@@ -199,9 +204,13 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(ImportExportModelAdmin):
+    """
+    Savollar boshqaruvi + Excel Import/Export
+    """
     resource_class = QuestionResource
-    list_display = ('short_text', 'subject', 'topic', 'difficulty', 'question_type', 'is_active', 'created_at')
-    list_filter = ('subject', 'difficulty', 'question_type', 'is_active', 'created_at')
+
+    list_display = ('short_text', 'subject', 'topic', 'difficulty', 'is_active', 'created_at')
+    list_filter = ('subject', 'difficulty', 'is_active', 'created_at')
     search_fields = ('text', 'subject__name', 'topic__name')
     autocomplete_fields = ['subject', 'topic']
     inlines = [AnswerInline]
@@ -231,25 +240,12 @@ class QuestionAdmin(ImportExportModelAdmin):
 @admin.register(Test)
 class TestAdmin(admin.ModelAdmin):
     list_display = ('title', 'test_type', 'subject', 'question_count', 'status_badge', 'is_premium')
-    list_filter = ('test_type', 'subject', 'is_active', 'is_premium', 'created_at')
+    list_filter = ('test_type', 'subject', 'is_active', 'is_premium')
     search_fields = ('title', 'description')
     autocomplete_fields = ['subject']
     filter_horizontal = ('subjects',)
     inlines = [TestQuestionInline]
     prepopulated_fields = {'slug': ('title',)}
-
-    fieldsets = (
-        ('Asosiy', {
-            'fields': ('title', 'slug', 'description', ('test_type', 'subject'), 'subjects')
-        }),
-        ('Konfiguratsiya', {
-            'fields': (('time_limit', 'question_count', 'passing_score'),
-                       ('shuffle_questions', 'shuffle_answers', 'show_correct_answers'))
-        }),
-        ('Mavjudlik', {
-            'fields': ('is_active', 'is_premium', ('start_date', 'end_date'))
-        }),
-    )
 
     def status_badge(self, obj):
         if obj.is_available:
@@ -265,134 +261,74 @@ class TestAdmin(admin.ModelAdmin):
 class TestAttemptAdmin(ExportActionModelAdmin):
     list_display = ('user', 'test', 'score_display', 'status', 'started_at', 'time_spent_formatted')
     list_filter = ('status', 'test__subject', 'started_at')
-    search_fields = ('user__username', 'user__first_name', 'test__title')
+    search_fields = ('user__username', 'test__title')
     autocomplete_fields = ['user', 'test']
     readonly_fields = ('uuid', 'user', 'test', 'status', 'total_questions', 'correct_answers', 'wrong_answers', 'score',
                        'percentage', 'xp_earned', 'started_at', 'completed_at', 'json_analysis')
     inlines = [AttemptAnswerInline]
 
-    fieldsets = (
-        ('Foydalanuvchi va Test', {
-            'fields': (('user', 'test'), 'uuid')
-        }),
-        ('Natijalar', {
-            'fields': (('score', 'percentage', 'xp_earned'), ('correct_answers', 'wrong_answers', 'total_questions'))
-        }),
-        ('Vaqt va Holat', {
-            'fields': ('status', ('started_at', 'completed_at', 'time_spent'))
-        }),
-        ('AI Tahlili', {
-            'fields': ('ai_analysis', 'json_analysis'),
-            'classes': ('collapse',)
-        })
-    )
-
     def score_display(self, obj):
-        color = 'red'
-        if obj.percentage >= 80:
-            color = 'green'
-        elif obj.percentage >= 60:
-            color = 'orange'
+        color = 'green' if obj.percentage >= 80 else 'orange' if obj.percentage >= 60 else 'red'
         return format_html('<b style="color:{}">{}%</b>', color, obj.percentage)
 
     score_display.short_description = "Natija"
 
     def time_spent_formatted(self, obj):
-        mins = obj.time_spent // 60
-        secs = obj.time_spent % 60
-        return f"{mins}m {secs}s"
+        return f"{obj.time_spent // 60}m {obj.time_spent % 60}s"
 
     time_spent_formatted.short_description = "Vaqt"
 
     def json_analysis(self, obj):
-        data = {
-            "weak_topics": obj.weak_topics,
-            "strong_topics": obj.strong_topics,
-            "recommendations": obj.ai_recommendations
-        }
+        data = {"weak": obj.weak_topics, "strong": obj.strong_topics, "rec": obj.ai_recommendations}
         return pretty_json(data)
 
-    json_analysis.short_description = "JSON Data"
+    json_analysis.short_description = "AI Tahlili"
 
 
 # =========================================================
-# ANALYTICS VA STATISTIKA ADMINLARI
+# ANALYTICS ADMINLAR
 # =========================================================
 
 @admin.register(DailyUserStats)
 class DailyUserStatsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'date', 'tests_taken', 'accuracy_rate', 'total_time_spent')
+    list_display = ('user', 'date', 'tests_taken', 'accuracy_rate')
     list_filter = ('date',)
-    search_fields = ('user__username',)
     date_hierarchy = 'date'
-    readonly_fields = ('activity_json', 'subjects_json')
-
-    def activity_json(self, obj): return pretty_json(obj.activity_hours)
-
-    activity_json.short_description = "Faollik soatlari"
-
-    def subjects_json(self, obj): return pretty_json(obj.subjects_practiced)
-
-    subjects_json.short_description = "Fanlar"
 
 
 @admin.register(UserActivityLog)
 class UserActivityLogAdmin(admin.ModelAdmin):
-    list_display = ('user', 'action', 'device_type', 'created_at')
-    list_filter = ('action', 'created_at', 'device_type')
-    search_fields = ('user__username', 'ip_address')
+    list_display = ('user', 'action', 'created_at')
+    list_filter = ('action',)
     readonly_fields = ('details_pretty',)
 
     def details_pretty(self, obj): return pretty_json(obj.details)
 
-    details_pretty.short_description = "Tafsilotlar"
-
 
 @admin.register(UserTopicPerformance)
 class UserTopicPerformanceAdmin(admin.ModelAdmin):
-    list_display = ('user', 'topic', 'current_score', 'trend_icon', 'is_mastered')
-    list_filter = ('score_trend', 'is_weak', 'is_mastered', 'subject')
+    list_display = ('user', 'topic', 'current_score')
     search_fields = ('user__username', 'topic__name')
-    autocomplete_fields = ['user', 'topic', 'subject']
-
-    def trend_icon(self, obj):
-        icons = {'improving': '📈', 'stable': '➖', 'declining': '📉'}
-        return icons.get(obj.score_trend, '')
-
-    trend_icon.short_description = "Trend"
 
 
 @admin.register(UserSubjectPerformance)
 class UserSubjectPerformanceAdmin(admin.ModelAdmin):
-    list_display = ('user', 'subject', 'average_score', 'total_tests', 'subject_rank')
-    search_fields = ('user__username', 'subject__name')
-    list_filter = ('subject',)
+    list_display = ('user', 'subject', 'average_score')
 
 
 @admin.register(UserStudySession)
 class UserStudySessionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'started_at', 'duration_min', 'device_type', 'is_active')
-    list_filter = ('device_type', 'is_active', 'started_at')
-
-    def duration_min(self, obj):
-        return f"{obj.duration // 60} min"
-
-    duration_min.short_description = "Davomiylik"
+    list_display = ('user', 'started_at', 'duration')
 
 
 @admin.register(UserAnalyticsSummary)
 class UserAnalyticsSummaryAdmin(admin.ModelAdmin):
-    list_display = ('user', 'overall_accuracy', 'total_study_hours', 'learning_style')
-    search_fields = ('user__username',)
-
-    def total_study_hours(self, obj):
-        return f"{obj.total_study_time} soat"
+    list_display = ('user', 'overall_accuracy', 'total_study_time')
 
 
 @admin.register(SavedQuestion)
 class SavedQuestionAdmin(admin.ModelAdmin):
     list_display = ('user', 'question', 'created_at')
-    autocomplete_fields = ['user', 'question']
 
 
 # =========================================================
