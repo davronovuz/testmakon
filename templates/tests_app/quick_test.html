@@ -1,82 +1,358 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Tezkor Test | TestMakon{% endblock %}
+{% block title %}Tezkor test | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== HEADER ========== */
+    .quick-header {
+        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        padding: 3rem 0;
+        color: white;
+        text-align: center;
+    }
+
+    .quick-header-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+    }
+
+    .quick-header h1 {
+        font-size: 2.25rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .quick-header p {
+        font-size: 1.1rem;
+        color: rgba(255,255,255,0.9);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* ========== CONTENT ========== */
+    .quick-content {
+        padding: 3rem 0;
+    }
+
+    .quick-form-card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+    }
+
+    .quick-form-body {
+        padding: 2rem;
+    }
+
+    /* ========== FORM GROUPS ========== */
+    .quick-form-group {
+        margin-bottom: 2rem;
+    }
+
+    .quick-form-label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    /* Subject Selection */
+    .quick-subjects {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 480px) {
+        .quick-subjects {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .quick-subject {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-subject:hover {
+        background: var(--gray-100);
+    }
+
+    .quick-subject.selected {
+        border-color: #8B5CF6;
+        background: rgba(139, 92, 246, 0.1);
+    }
+
+    .quick-subject input {
+        display: none;
+    }
+
+    .quick-subject-radio {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .quick-subject.selected .quick-subject-radio {
+        border-color: #8B5CF6;
+        background: #8B5CF6;
+    }
+
+    .quick-subject.selected .quick-subject-radio::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+    }
+
+    .quick-subject-icon {
+        font-size: 1.5rem;
+    }
+
+    .quick-subject-info h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .quick-subject-info span {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    /* Options */
+    .quick-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .quick-option {
+        padding: 0.75rem 1.25rem;
+        background: var(--gray-100);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-option:hover {
+        background: var(--gray-200);
+    }
+
+    .quick-option.selected {
+        border-color: #8B5CF6;
+        background: rgba(139, 92, 246, 0.1);
+        color: #6D28D9;
+    }
+
+    /* ========== FOOTER ========== */
+    .quick-form-footer {
+        padding: 1.5rem 2rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .quick-summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .quick-summary-label {
+        color: var(--gray-500);
+    }
+
+    .quick-summary-value {
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .quick-start-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .quick-start-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.4);
+    }
+
+    .quick-start-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="section-sm bg-light">
+<!-- Header -->
+<div class="quick-header">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                <div class="text-center mb-5">
-                    <div class="icon-box-lg bg-gradient-primary text-white rounded-circle shadow-primary mx-auto mb-4" style="width: 80px; height: 80px; font-size: 2rem;">
+        <div class="quick-header-icon">
+            <i class="bi bi-lightning-fill"></i>
+        </div>
+        <h1>Tezkor test</h1>
+        <p>Fan tanlang va darhol boshlang</p>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="quick-content">
+    <div class="container">
+        <div class="quick-form-card">
+            <form action="{% url 'tests_app:practice_start' %}" method="post" id="quickForm">
+                {% csrf_token %}
+                <input type="hidden" name="subject_id" id="subjectInput" value="">
+                <input type="hidden" name="question_count" id="countInput" value="10">
+                <input type="hidden" name="difficulty" id="difficultyInput" value="all">
+                <input type="hidden" name="mode" id="modeInput" value="practice">
+
+                <div class="quick-form-body">
+                    <!-- Subject Selection -->
+                    <div class="quick-form-group">
+                        <label class="quick-form-label">Fan tanlang</label>
+                        <div class="quick-subjects">
+                            {% for subject in subjects %}
+                            <label class="quick-subject" data-id="{{ subject.id }}">
+                                <input type="radio" name="subject_select" value="{{ subject.id }}">
+                                <div class="quick-subject-radio"></div>
+                                <span class="quick-subject-icon">{{ subject.icon }}</span>
+                                <div class="quick-subject-info">
+                                    <h4>{{ subject.name }}</h4>
+                                    <span>{{ subject.questions_count }} savol</span>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Question Count -->
+                    <div class="quick-form-group">
+                        <label class="quick-form-label">Savollar soni</label>
+                        <div class="quick-options">
+                            <div class="quick-option selected" data-name="count" data-value="10">10 ta</div>
+                            <div class="quick-option" data-name="count" data-value="20">20 ta</div>
+                            <div class="quick-option" data-name="count" data-value="30">30 ta</div>
+                            <div class="quick-option" data-name="count" data-value="50">50 ta</div>
+                        </div>
+                    </div>
+
+                    <!-- Difficulty -->
+                    <div class="quick-form-group">
+                        <label class="quick-form-label">Qiyinlik</label>
+                        <div class="quick-options">
+                            <div class="quick-option selected" data-name="difficulty" data-value="all">Barchasi</div>
+                            <div class="quick-option" data-name="difficulty" data-value="easy">🟢 Oson</div>
+                            <div class="quick-option" data-name="difficulty" data-value="medium">🟡 O'rta</div>
+                            <div class="quick-option" data-name="difficulty" data-value="hard">🔴 Qiyin</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-form-footer">
+                    <div class="quick-summary">
+                        <span class="quick-summary-label">Tanlangan fan:</span>
+                        <span class="quick-summary-value" id="summarySubject">Tanlanmagan</span>
+                    </div>
+                    <div class="quick-summary">
+                        <span class="quick-summary-label">Savollar:</span>
+                        <span class="quick-summary-value" id="summaryCount">10 ta</span>
+                    </div>
+
+                    <button type="submit" class="quick-start-btn" id="startBtn" disabled>
                         <i class="bi bi-lightning-fill"></i>
-                    </div>
-                    <h2 class="fw-bold">Tezkor Test</h2>
-                    <p class="text-muted">Parametrlarni tanlang va bilimingizni sinab ko'ring.</p>
+                        Boshlash
+                    </button>
                 </div>
-
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-body p-4 p-md-5">
-                        <form method="post" action="{% url 'tests_app:quick_test_start' %}">
-                            {% csrf_token %}
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold text-dark">Fanni tanlang</label>
-                                <select name="subject_id" class="form-select form-select-lg bg-light border-0" required>
-                                    <option value="" selected disabled>Ro'yxatdan tanlang...</option>
-                                    {% for subject in subjects %}
-                                        <option value="{{ subject.id }}">{{ subject.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold text-dark d-flex justify-content-between">
-                                    Savollar soni
-                                    <span class="text-primary fw-bold" id="rangeValue">15</span>
-                                </label>
-                                <input type="range" class="form-range" name="question_count" min="5" max="50" step="5" value="15" id="questionRange" oninput="document.getElementById('rangeValue').innerText = this.value">
-                                <div class="d-flex justify-content-between text-muted small px-1">
-                                    <span>5</span>
-                                    <span>50</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-5">
-                                <label class="form-label fw-bold text-dark mb-3">Qiyinlik darajasi</label>
-                                <div class="row g-2">
-                                    <div class="col-4">
-                                        <input type="radio" class="btn-check" name="difficulty" id="diff1" value="easy" checked>
-                                        <label class="btn btn-outline-success w-100 py-3 rounded-3 fw-bold border-2" for="diff1">
-                                            Oson
-                                        </label>
-                                    </div>
-                                    <div class="col-4">
-                                        <input type="radio" class="btn-check" name="difficulty" id="diff2" value="medium">
-                                        <label class="btn btn-outline-warning w-100 py-3 rounded-3 fw-bold border-2" for="diff2">
-                                            O'rta
-                                        </label>
-                                    </div>
-                                    <div class="col-4">
-                                        <input type="radio" class="btn-check" name="difficulty" id="diff3" value="hard">
-                                        <label class="btn btn-outline-danger w-100 py-3 rounded-3 fw-bold border-2" for="diff3">
-                                            Qiyin
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-primary py-3">
-                                    Boshlash <i class="bi bi-play-fill ms-2"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Subject selection
+    document.querySelectorAll('.quick-subject').forEach(subject => {
+        subject.addEventListener('click', function() {
+            document.querySelectorAll('.quick-subject').forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            const id = this.dataset.id;
+            const name = this.querySelector('h4').textContent;
+
+            document.getElementById('subjectInput').value = id;
+            document.getElementById('summarySubject').textContent = name;
+            document.getElementById('startBtn').disabled = false;
+        });
+    });
+
+    // Options selection
+    document.querySelectorAll('.quick-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const name = this.dataset.name;
+            const value = this.dataset.value;
+
+            // Update UI
+            this.parentElement.querySelectorAll('.quick-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // Update hidden input
+            document.getElementById(name + 'Input').value = value;
+
+            // Update summary
+            if (name === 'count') {
+                document.getElementById('summaryCount').textContent = value + ' ta';
+            }
+        });
+    });
+</script>
 {% endblock %}

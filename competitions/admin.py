@@ -1,389 +1,705 @@
 """
-TestMakon.uz - Competition Admin
+TestMakon.uz - Competitions Admin
+Professional admin panel for competitions management
 """
 
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
-from django.db.models import Count, Avg, Sum
+from django.db.models import Count, Avg
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+
 from .models import (
-    Competition,
-    CompetitionParticipant,
-    Battle,
-    BattleInvitation,
-    DailyChallenge,
-    DailyChallengeParticipant
+    Competition, CompetitionParticipant, CompetitionPayment,
+    Certificate, Battle, BattleInvitation, MatchmakingQueue,
+    DailyChallenge, DailyChallengeParticipant,
+    WeeklyLeague, WeeklyLeagueParticipant
 )
 
+
+# ============================================================
+# INLINE ADMINS
+# ============================================================
 
 class CompetitionParticipantInline(admin.TabularInline):
     model = CompetitionParticipant
     extra = 0
-    readonly_fields = ('user', 'score', 'rank', 'xp_earned', 'joined_at')
-    fields = ('user', 'score', 'rank', 'is_completed', 'xp_earned')
+    readonly_fields = ['user', 'rank', 'score', 'percentage', 'correct_answers',
+                       'wrong_answers', 'time_spent', 'xp_earned', 'status', 'joined_at']
+    fields = ['user', 'status', 'rank', 'score', 'correct_answers', 'time_spent', 'xp_earned']
     can_delete = False
+    max_num = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
-@admin.register(Competition)
-class CompetitionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'competition_type', 'status', 'start_time', 'end_time', 'participants_count',
-                    'is_premium_only', 'type_badge', 'status_badge', 'time_status')
-    list_filter = ('competition_type', 'status', 'is_premium_only', 'is_active', 'start_time')
-    search_fields = ('title', 'slug', 'description')
-    prepopulated_fields = {'slug': ('title',)}
-    readonly_fields = ('uuid', 'participants_count', 'created_at', 'updated_at', 'banner_preview', 'time_remaining')
-    date_hierarchy = 'start_time'
-    inlines = [CompetitionParticipantInline]
+class CertificateInline(admin.TabularInline):
+    model = Certificate
+    extra = 0
+    readonly_fields = ['user', 'certificate_type', 'rank', 'score', 'verification_code', 'issued_at']
+    fields = ['user', 'certificate_type', 'rank', 'verification_code']
+    can_delete = False
+    max_num = 0
 
-    fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('uuid', 'title', 'slug', 'description', 'rules', 'competition_type', 'status')
-        }),
-        ('Media', {
-            'fields': ('banner', 'banner_preview')
-        }),
-        ('Fan va Test', {
-            'fields': ('subject', 'test')
-        }),
-        ('Vaqt sozlamalari', {
-            'fields': ('start_time', 'end_time', 'duration_minutes', 'time_remaining')
-        }),
-        ('Qatnashish shartlari', {
-            'fields': ('max_participants', 'min_level', 'is_premium_only')
-        }),
-        ('Sovrinlar va XP', {
-            'fields': ('prizes', 'xp_reward_first', 'xp_reward_second', 'xp_reward_third', 'xp_participation')
-        }),
-        ('Statistika', {
-            'fields': ('participants_count',),
-            'classes': ('collapse',)
-        }),
-        ('Tizim ma\'lumotlari', {
-            'fields': ('is_active', 'created_by', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-
-    actions = ['activate_competitions', 'cancel_competitions', 'mark_as_finished']
-
-    def banner_preview(self, obj):
-        if obj.banner:
-            return format_html(
-                '<img src="{}" style="max-width: 300px; max-height: 200px;" />',
-                obj.banner.url
-            )
-        return '-'
-
-    banner_preview.short_description = 'Banner ko\'rinishi'
-
-    def type_badge(self, obj):
-        colors = {
-            'daily': '#3498db',
-            'weekly': '#2ecc71',
-            'monthly': '#9b59b6',
-            'special': '#e67e22',
-            'olympiad': '#e74c3c',
-        }
-        return format_html(
-            '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px;">{}</span>',
-            colors.get(obj.competition_type, '#95a5a6'),
-            obj.get_competition_type_display()
-        )
-
-    type_badge.short_description = 'Turi'
-
-    def status_badge(self, obj):
-        colors = {
-            'upcoming': '#3498db',
-            'active': '#2ecc71',
-            'finished': '#95a5a6',
-            'cancelled': '#e74c3c',
-        }
-        return format_html(
-            '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px;">{}</span>',
-            colors.get(obj.status, '#95a5a6'),
-            obj.get_status_display()
-        )
-
-    status_badge.short_description = 'Holat'
-
-    def time_status(self, obj):
-        if obj.is_ongoing:
-            return format_html('<span style="color: #2ecc71; font-weight: bold;">⏱️ Davom etmoqda</span>')
-        elif obj.is_finished:
-            return format_html('<span style="color: #95a5a6;">✓ Tugagan</span>')
-        else:
-            return format_html('<span style="color: #3498db;">⏰ Kutilmoqda</span>')
-
-    time_status.short_description = 'Vaqt holati'
-
-    def activate_competitions(self, request, queryset):
-        queryset.update(is_active=True, status='active')
-
-    activate_competitions.short_description = "Faollashtirish"
-
-    def cancel_competitions(self, request, queryset):
-        queryset.update(status='cancelled')
-
-    cancel_competitions.short_description = "Bekor qilish"
-
-    def mark_as_finished(self, request, queryset):
-        queryset.update(status='finished')
-
-    mark_as_finished.short_description = "Yakunlangan deb belgilash"
-
-
-@admin.register(CompetitionParticipant)
-class CompetitionParticipantAdmin(admin.ModelAdmin):
-    list_display = ('user', 'competition', 'score', 'rank', 'correct_answers', 'wrong_answers', 'xp_earned',
-                    'is_completed', 'rank_badge')
-    list_filter = ('is_completed', 'is_started', 'competition__competition_type', 'joined_at')
-    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'competition__title')
-    readonly_fields = ('joined_at', 'started_at', 'completed_at')
-    date_hierarchy = 'joined_at'
-
-    fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('competition', 'user')
-        }),
-        ('Natijalar', {
-            'fields': ('score', 'correct_answers', 'wrong_answers', 'time_spent', 'rank', 'xp_earned')
-        }),
-        ('Holat', {
-            'fields': ('is_started', 'is_completed', 'started_at', 'completed_at')
-        }),
-        ('Tizim ma\'lumotlari', {
-            'fields': ('joined_at',)
-        }),
-    )
-
-    def rank_badge(self, obj):
-        if obj.rank == 1:
-            return format_html(
-                '<span style="background-color: #f1c40f; color: white; padding: 5px 10px; border-radius: 50%; font-weight: bold;">🥇 1</span>')
-        elif obj.rank == 2:
-            return format_html(
-                '<span style="background-color: #95a5a6; color: white; padding: 5px 10px; border-radius: 50%; font-weight: bold;">🥈 2</span>')
-        elif obj.rank == 3:
-            return format_html(
-                '<span style="background-color: #cd7f32; color: white; padding: 5px 10px; border-radius: 50%; font-weight: bold;">🥉 3</span>')
-        elif obj.rank:
-            return format_html(
-                '<span style="background-color: #3498db; color: white; padding: 5px 10px; border-radius: 50%;">{}</span>',
-                obj.rank)
-        return '-'
-
-    rank_badge.short_description = 'O\'rin'
-
-
-@admin.register(Battle)
-class BattleAdmin(admin.ModelAdmin):
-    list_display = ('challenger', 'opponent', 'subject', 'status', 'winner', 'is_draw', 'created_at', 'status_badge',
-                    'result_display')
-    list_filter = ('status', 'is_draw', 'is_block_test', 'created_at')
-    search_fields = ('challenger__email', 'opponent__email', 'uuid')
-    readonly_fields = ('uuid', 'created_at', 'accepted_at', 'started_at', 'completed_at', 'expires_at')
-    date_hierarchy = 'created_at'
-
-    fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('uuid', 'status', 'challenger', 'opponent', 'winner', 'is_draw')
-        }),
-        ('Sozlamalar', {
-            'fields': ('subject', 'is_block_test', 'question_count', 'time_per_question')
-        }),
-        ('Chaqiruvchi natijalari', {
-            'fields': ('challenger_score', 'challenger_correct', 'challenger_time', 'challenger_completed'),
-            'classes': ('collapse',)
-        }),
-        ('Raqib natijalari', {
-            'fields': ('opponent_score', 'opponent_correct', 'opponent_time', 'opponent_completed'),
-            'classes': ('collapse',)
-        }),
-        ('XP mukofotlar', {
-            'fields': ('winner_xp', 'loser_xp')
-        }),
-        ('Vaqt', {
-            'fields': ('created_at', 'accepted_at', 'started_at', 'completed_at', 'expires_at'),
-            'classes': ('collapse',)
-        }),
-    )
-
-    actions = ['cancel_battles', 'expire_battles']
-
-    def status_badge(self, obj):
-        colors = {
-            'pending': '#f39c12',
-            'accepted': '#3498db',
-            'in_progress': '#2ecc71',
-            'completed': '#95a5a6',
-            'rejected': '#e74c3c',
-            'expired': '#7f8c8d',
-        }
-        return format_html(
-            '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px;">{}</span>',
-            colors.get(obj.status, '#95a5a6'),
-            obj.get_status_display()
-        )
-
-    status_badge.short_description = 'Holat'
-
-    def result_display(self, obj):
-        if obj.status != 'completed':
-            return '-'
-
-        if obj.is_draw:
-            return format_html('<span style="color: #95a5a6; font-weight: bold;">DURRANG</span>')
-
-        if obj.winner:
-            winner_name = obj.winner.get_full_name() or obj.winner.email
-            return format_html(
-                '<span style="color: #2ecc71; font-weight: bold;">🏆 {}</span><br>'
-                '<small>{} : {} vs {} : {}</small>',
-                winner_name,
-                obj.challenger.get_full_name() or obj.challenger.email,
-                obj.challenger_correct,
-                obj.opponent_correct,
-                obj.opponent.get_full_name() or obj.opponent.email
-            )
-        return '-'
-
-    result_display.short_description = 'Natija'
-
-    def cancel_battles(self, request, queryset):
-        queryset.filter(status__in=['pending', 'accepted']).update(status='rejected')
-
-    cancel_battles.short_description = "Bekor qilish"
-
-    def expire_battles(self, request, queryset):
-        queryset.filter(status='pending').update(status='expired')
-
-    expire_battles.short_description = "Muddati o'tgan deb belgilash"
-
-
-@admin.register(BattleInvitation)
-class BattleInvitationAdmin(admin.ModelAdmin):
-    list_display = ('battle', 'sent_at', 'seen_at', 'responded_at', 'is_seen', 'is_responded')
-    list_filter = ('sent_at', 'seen_at', 'responded_at')
-    search_fields = ('battle__challenger__email', 'battle__opponent__email')
-    readonly_fields = ('sent_at', 'seen_at', 'responded_at')
-    date_hierarchy = 'sent_at'
-
-    def is_seen(self, obj):
-        if obj.seen_at:
-            return format_html('<span style="color: #2ecc71;">✓</span>')
-        return format_html('<span style="color: #e74c3c;">✗</span>')
-
-    is_seen.short_description = 'Ko\'rilgan'
-
-    def is_responded(self, obj):
-        if obj.responded_at:
-            return format_html('<span style="color: #2ecc71;">✓</span>')
-        return format_html('<span style="color: #e74c3c;">✗</span>')
-
-    is_responded.short_description = 'Javob berilgan'
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class DailyChallengeParticipantInline(admin.TabularInline):
     model = DailyChallengeParticipant
     extra = 0
-    readonly_fields = ('user', 'score', 'correct_answers', 'xp_earned', 'completed_at')
-    fields = ('user', 'score', 'correct_answers', 'time_spent', 'xp_earned')
+    readonly_fields = ['user', 'rank', 'score', 'correct_answers', 'time_spent', 'xp_earned', 'completed_at']
+    fields = ['user', 'rank', 'score', 'correct_answers', 'time_spent', 'xp_earned']
     can_delete = False
+    max_num = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
-@admin.register(DailyChallenge)
-class DailyChallengeAdmin(admin.ModelAdmin):
-    list_display = ('date', 'subject', 'xp_reward', 'participants_count', 'is_active', 'question_count_display')
-    list_filter = ('is_active', 'date', 'subject')
-    search_fields = ('date',)
-    filter_horizontal = ('questions',)
-    readonly_fields = ('participants_count', 'created_at')
-    date_hierarchy = 'date'
-    inlines = [DailyChallengeParticipantInline]
+class WeeklyLeagueParticipantInline(admin.TabularInline):
+    model = WeeklyLeagueParticipant
+    extra = 0
+    readonly_fields = ['user', 'rank', 'xp_earned', 'tests_completed', 'is_promoted', 'is_demoted']
+    fields = ['user', 'rank', 'xp_earned', 'tests_completed', 'is_promoted', 'is_demoted']
+    can_delete = False
+    max_num = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+# ============================================================
+# COMPETITION ADMIN
+# ============================================================
+
+@admin.register(Competition)
+class CompetitionAdmin(admin.ModelAdmin):
+    list_display = [
+        'title', 'competition_type_badge', 'status_badge', 'entry_type_badge',
+        'participants_display', 'prize_display', 'start_time', 'is_active'
+    ]
+    list_filter = [
+        'status', 'competition_type', 'entry_type', 'test_format',
+        'is_active', 'is_featured', 'certificate_enabled', 'subject'
+    ]
+    search_fields = ['title', 'slug', 'description']
+    prepopulated_fields = {'slug': ('title',)}
+    date_hierarchy = 'start_time'
+    ordering = ['-start_time']
+
+    readonly_fields = [
+        'uuid', 'participants_count', 'completed_count', 'average_score',
+        'created_at', 'updated_at', 'status_info'
+    ]
 
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
-            'fields': ('date', 'subject', 'questions')
+            'fields': ('title', 'slug', 'icon', 'short_description', 'description', 'rules', 'banner')
         }),
-        ('Mukofotlar', {
-            'fields': ('xp_reward',)
+        ('Tur va holat', {
+            'fields': ('competition_type', 'status', 'entry_type', 'entry_fee', 'test_format')
+        }),
+        ('Fan va test', {
+            'fields': ('subject', 'subjects', 'test', 'questions_per_subject', 'total_questions',
+                       'difficulty_distribution'),
+            'classes': ('collapse',)
+        }),
+        ('Vaqt sozlamalari', {
+            'fields': ('registration_start', 'registration_end', 'start_time', 'end_time', 'duration_minutes')
+        }),
+        ('Qatnashish shartlari', {
+            'fields': ('max_participants', 'min_participants', 'min_level', 'min_rating'),
+            'classes': ('collapse',)
+        }),
+        ('Sovrinlar', {
+            'fields': ('prize_pool', 'prizes', 'xp_reward_first', 'xp_reward_second', 'xp_reward_third',
+                       'xp_participation', 'xp_per_correct')
+        }),
+        ('Xususiyatlar', {
+            'fields': ('show_live_leaderboard', 'show_answers_after', 'allow_review', 'certificate_enabled',
+                       'anti_cheat_enabled'),
+            'classes': ('collapse',)
+        }),
+        ('Homiylar', {
+            'fields': ('sponsors',),
+            'classes': ('collapse',)
+        }),
+        ('Sozlamalar', {
+            'fields': ('is_active', 'is_featured', 'created_by')
         }),
         ('Statistika', {
-            'fields': ('participants_count', 'is_active'),
-        }),
-        ('Tizim ma\'lumotlari', {
-            'fields': ('created_at',),
+            'fields': ('uuid', 'participants_count', 'completed_count', 'average_score', 'status_info', 'created_at',
+                       'updated_at'),
             'classes': ('collapse',)
         }),
     )
 
-    actions = ['activate_challenges', 'deactivate_challenges']
+    filter_horizontal = ['subjects']
+    inlines = [CompetitionParticipantInline, CertificateInline]
 
-    def question_count_display(self, obj):
-        count = obj.questions.count()
+    actions = ['make_active', 'make_finished', 'calculate_ranks', 'generate_certificates']
+
+    def competition_type_badge(self, obj):
+        colors = {
+            'daily': '#10B981',
+            'weekly': '#3B82F6',
+            'monthly': '#8B5CF6',
+            'special': '#F59E0B',
+            'olympiad': '#EF4444',
+            'tournament': '#EC4899',
+        }
+        color = colors.get(obj.competition_type, '#6B7280')
         return format_html(
-            '<span style="background-color: #3498db; color: white; padding: 3px 10px; border-radius: 3px;">{} ta</span>',
-            count
+            '<span style="background:{}; color:white; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600;">{}</span>',
+            color, obj.get_competition_type_display()
         )
 
-    question_count_display.short_description = 'Savollar'
+    competition_type_badge.short_description = 'Turi'
 
-    def activate_challenges(self, request, queryset):
-        queryset.update(is_active=True)
+    def status_badge(self, obj):
+        colors = {
+            'draft': '#6B7280',
+            'upcoming': '#3B82F6',
+            'registration': '#8B5CF6',
+            'active': '#10B981',
+            'finished': '#6B7280',
+            'cancelled': '#EF4444',
+        }
+        color = colors.get(obj.status, '#6B7280')
+        return format_html(
+            '<span style="background:{}; color:white; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600;">{}</span>',
+            color, obj.get_status_display()
+        )
 
-    activate_challenges.short_description = "Faollashtirish"
+    status_badge.short_description = 'Holat'
 
-    def deactivate_challenges(self, request, queryset):
-        queryset.update(is_active=False)
+    def entry_type_badge(self, obj):
+        if obj.entry_type == 'free':
+            return format_html('<span style="color:#10B981; font-weight:600;">✓ Bepul</span>')
+        elif obj.entry_type == 'premium_only':
+            return format_html('<span style="color:#F59E0B; font-weight:600;">👑 Premium</span>')
+        else:
+            return format_html('<span style="color:#EF4444; font-weight:600;">💰 {} so\'m</span>', obj.entry_fee)
 
-    deactivate_challenges.short_description = "O'chirish"
+    entry_type_badge.short_description = 'Kirish'
+
+    def participants_display(self, obj):
+        if obj.max_participants:
+            return format_html(
+                '<span style="font-weight:600;">{}</span> / {}',
+                obj.participants_count, obj.max_participants
+            )
+        return format_html('<span style="font-weight:600;">{}</span>', obj.participants_count)
+
+    participants_display.short_description = 'Qatnashchilar'
+
+    def prize_display(self, obj):
+        if obj.prize_pool > 0:
+            return format_html(
+                '<span style="color:#10B981; font-weight:600;">{:,} so\'m</span>',
+                obj.prize_pool
+            )
+        return '-'
+
+    prize_display.short_description = 'Sovrin'
+
+    def status_info(self, obj):
+        now = timezone.now()
+        if obj.status == 'upcoming' and obj.start_time > now:
+            delta = obj.start_time - now
+            days = delta.days
+            hours = delta.seconds // 3600
+            return format_html('<span style="color:#3B82F6;">⏳ {} kun {} soat qoldi</span>', days, hours)
+        elif obj.status == 'active' and obj.end_time > now:
+            delta = obj.end_time - now
+            hours = delta.seconds // 3600
+            minutes = (delta.seconds % 3600) // 60
+            return format_html('<span style="color:#10B981;">🟢 {} soat {} daqiqa qoldi</span>', hours, minutes)
+        elif obj.status == 'finished':
+            return format_html('<span style="color:#6B7280;">✅ Yakunlangan</span>')
+        return '-'
+
+    status_info.short_description = 'Holat ma\'lumoti'
+
+    @admin.action(description='Faollashtirish')
+    def make_active(self, request, queryset):
+        queryset.update(status='active')
+        self.message_user(request, f'{queryset.count()} ta musobaqa faollashtirildi.')
+
+    @admin.action(description='Yakunlash')
+    def make_finished(self, request, queryset):
+        queryset.update(status='finished')
+        self.message_user(request, f'{queryset.count()} ta musobaqa yakunlandi.')
+
+    @admin.action(description='O\'rinlarni hisoblash')
+    def calculate_ranks(self, request, queryset):
+        for competition in queryset:
+            participants = CompetitionParticipant.objects.filter(
+                competition=competition,
+                status='completed'
+            ).order_by('-score', 'time_spent')
+
+            for rank, participant in enumerate(participants, 1):
+                participant.rank = rank
+
+                # XP hisoblash
+                if rank == 1:
+                    participant.xp_earned = competition.xp_reward_first
+                elif rank == 2:
+                    participant.xp_earned = competition.xp_reward_second
+                elif rank == 3:
+                    participant.xp_earned = competition.xp_reward_third
+                else:
+                    participant.xp_earned = competition.xp_participation
+
+                # Sovrin
+                prize = competition.get_prize_for_rank(rank)
+                if prize:
+                    participant.prize_amount = prize.get('amount', 0)
+
+                participant.save()
+
+            # Statistikani yangilash
+            competition.completed_count = participants.count()
+            if participants.exists():
+                competition.average_score = participants.aggregate(Avg('score'))['score__avg'] or 0
+            competition.save()
+
+        self.message_user(request, f'{queryset.count()} ta musobaqa uchun o\'rinlar hisoblandi.')
+
+    @admin.action(description='Sertifikatlar yaratish')
+    def generate_certificates(self, request, queryset):
+        count = 0
+        for competition in queryset.filter(certificate_enabled=True):
+            participants = CompetitionParticipant.objects.filter(
+                competition=competition,
+                status='completed'
+            ).select_related('user')
+
+            for participant in participants:
+                if hasattr(participant, 'certificate'):
+                    continue
+
+                # Sertifikat turini aniqlash
+                if participant.rank == 1:
+                    cert_type = 'winner'
+                elif participant.rank and participant.rank <= 3:
+                    cert_type = 'top3'
+                elif participant.rank and participant.rank <= 10:
+                    cert_type = 'top10'
+                else:
+                    cert_type = 'participation'
+
+                Certificate.objects.create(
+                    user=participant.user,
+                    competition=competition,
+                    participant=participant,
+                    certificate_type=cert_type,
+                    rank=participant.rank,
+                    score=participant.score
+                )
+                count += 1
+
+        self.message_user(request, f'{count} ta sertifikat yaratildi.')
+
+
+# ============================================================
+# COMPETITION PARTICIPANT ADMIN
+# ============================================================
+
+@admin.register(CompetitionParticipant)
+class CompetitionParticipantAdmin(admin.ModelAdmin):
+    list_display = [
+        'user', 'competition', 'status_badge', 'rank_display',
+        'score_display', 'correct_answers', 'time_display', 'xp_earned', 'joined_at'
+    ]
+    list_filter = ['status', 'competition', 'is_suspected']
+    search_fields = ['user__first_name', 'user__last_name', 'user__phone', 'competition__title']
+    ordering = ['-joined_at']
+    readonly_fields = [
+        'competition', 'user', 'score', 'percentage', 'correct_answers',
+        'wrong_answers', 'skipped_answers', 'time_spent', 'rank', 'xp_earned',
+        'prize_amount', 'started_at', 'completed_at', 'violations_count',
+        'violations_log', 'answers_data', 'joined_at'
+    ]
+
+    def status_badge(self, obj):
+        colors = {
+            'registered': '#6B7280',
+            'ready': '#3B82F6',
+            'in_progress': '#F59E0B',
+            'completed': '#10B981',
+            'disqualified': '#EF4444',
+        }
+        color = colors.get(obj.status, '#6B7280')
+        return format_html(
+            '<span style="background:{}; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">{}</span>',
+            color, obj.get_status_display()
+        )
+
+    status_badge.short_description = 'Holat'
+
+    def rank_display(self, obj):
+        if obj.rank:
+            if obj.rank == 1:
+                return format_html('<span style="font-size:16px;">🥇 1</span>')
+            elif obj.rank == 2:
+                return format_html('<span style="font-size:16px;">🥈 2</span>')
+            elif obj.rank == 3:
+                return format_html('<span style="font-size:16px;">🥉 3</span>')
+            return f'#{obj.rank}'
+        return '-'
+
+    rank_display.short_description = 'O\'rin'
+
+    def score_display(self, obj):
+        return format_html(
+            '<span style="font-weight:600;">{}</span> <span style="color:#6B7280;">({:.1f}%)</span>',
+            obj.score, obj.percentage
+        )
+
+    score_display.short_description = 'Ball'
+
+    def time_display(self, obj):
+        if obj.time_spent:
+            minutes = obj.time_spent // 60
+            seconds = obj.time_spent % 60
+            return f'{minutes}:{seconds:02d}'
+        return '-'
+
+    time_display.short_description = 'Vaqt'
+
+
+# ============================================================
+# PAYMENT ADMIN
+# ============================================================
+
+@admin.register(CompetitionPayment)
+class CompetitionPaymentAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'participant_user', 'participant_competition', 'amount_display', 'status_badge',
+                    'payment_method', 'paid_at']
+    list_filter = ['status', 'payment_method']
+    search_fields = ['uuid', 'participant__user__phone', 'transaction_id']
+    ordering = ['-created_at']
+    readonly_fields = ['uuid', 'participant', 'amount', 'created_at']
+
+    def participant_user(self, obj):
+        return obj.participant.user
+
+    participant_user.short_description = 'Foydalanuvchi'
+
+    def participant_competition(self, obj):
+        return obj.participant.competition.title
+
+    participant_competition.short_description = 'Musobaqa'
+
+    def amount_display(self, obj):
+        return format_html('<span style="font-weight:600;">{:,} so\'m</span>', obj.amount)
+
+    amount_display.short_description = 'Summa'
+
+    def status_badge(self, obj):
+        colors = {
+            'pending': '#F59E0B',
+            'completed': '#10B981',
+            'failed': '#EF4444',
+            'refunded': '#6B7280',
+        }
+        color = colors.get(obj.status, '#6B7280')
+        return format_html(
+            '<span style="background:{}; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">{}</span>',
+            color, obj.get_status_display()
+        )
+
+    status_badge.short_description = 'Holat'
+
+
+# ============================================================
+# CERTIFICATE ADMIN
+# ============================================================
+
+@admin.register(Certificate)
+class CertificateAdmin(admin.ModelAdmin):
+    list_display = ['verification_code', 'user', 'competition', 'type_badge', 'rank_display', 'score', 'issued_at']
+    list_filter = ['certificate_type', 'competition', 'is_verified']
+    search_fields = ['verification_code', 'user__first_name', 'user__last_name', 'user__phone']
+    ordering = ['-issued_at']
+    readonly_fields = ['uuid', 'verification_code', 'issued_at']
+
+    def type_badge(self, obj):
+        colors = {
+            'winner': '#F59E0B',
+            'top3': '#8B5CF6',
+            'top10': '#3B82F6',
+            'participation': '#6B7280',
+        }
+        icons = {
+            'winner': '🏆',
+            'top3': '🥉',
+            'top10': '🎖️',
+            'participation': '📜',
+        }
+        color = colors.get(obj.certificate_type, '#6B7280')
+        icon = icons.get(obj.certificate_type, '📜')
+        return format_html(
+            '<span style="background:{}; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">{} {}</span>',
+            color, icon, obj.get_certificate_type_display()
+        )
+
+    type_badge.short_description = 'Turi'
+
+    def rank_display(self, obj):
+        if obj.rank:
+            if obj.rank == 1:
+                return '🥇 1-o\'rin'
+            elif obj.rank == 2:
+                return '🥈 2-o\'rin'
+            elif obj.rank == 3:
+                return '🥉 3-o\'rin'
+            return f'#{obj.rank}'
+        return '-'
+
+    rank_display.short_description = 'O\'rin'
+
+
+# ============================================================
+# BATTLE ADMIN
+# ============================================================
+
+@admin.register(Battle)
+class BattleAdmin(admin.ModelAdmin):
+    list_display = [
+        'uuid_short', 'challenger', 'vs_display', 'opponent_display',
+        'subject', 'status_badge', 'winner_display', 'created_at'
+    ]
+    list_filter = ['status', 'opponent_type', 'bot_difficulty', 'subject', 'is_dtm_format']
+    search_fields = ['uuid', 'challenger__first_name', 'opponent__first_name']
+    ordering = ['-created_at']
+    readonly_fields = [
+        'uuid', 'challenger_score', 'challenger_correct', 'challenger_time',
+        'challenger_answers', 'challenger_completed', 'opponent_score',
+        'opponent_correct', 'opponent_time', 'opponent_answers', 'opponent_completed',
+        'winner', 'is_draw', 'winner_is_bot', 'xp_awarded', 'questions_data',
+        'created_at', 'accepted_at', 'started_at', 'completed_at'
+    ]
+
+    fieldsets = (
+        ('O\'yinchilar', {
+            'fields': ('challenger', 'opponent', 'opponent_type', 'bot_difficulty')
+        }),
+        ('Sozlamalar', {
+            'fields': ('subject', 'is_dtm_format', 'question_count', 'time_per_question', 'total_time')
+        }),
+        ('Holat', {
+            'fields': ('status', 'expires_at')
+        }),
+        ('Chaqiruvchi natijasi', {
+            'fields': ('challenger_score', 'challenger_correct', 'challenger_time', 'challenger_completed'),
+            'classes': ('collapse',)
+        }),
+        ('Raqib natijasi', {
+            'fields': ('opponent_score', 'opponent_correct', 'opponent_time', 'opponent_completed'),
+            'classes': ('collapse',)
+        }),
+        ('Natija', {
+            'fields': ('winner', 'is_draw', 'winner_is_bot', 'winner_xp', 'loser_xp', 'xp_awarded')
+        }),
+        ('Vaqtlar', {
+            'fields': ('created_at', 'accepted_at', 'started_at', 'completed_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def uuid_short(self, obj):
+        return str(obj.uuid)[:8]
+
+    uuid_short.short_description = 'ID'
+
+    def vs_display(self, obj):
+        return format_html('<span style="color:#6B7280; font-weight:600;">VS</span>')
+
+    vs_display.short_description = ''
+
+    def opponent_display(self, obj):
+        if obj.opponent_type == 'bot':
+            colors = {'easy': '#10B981', 'medium': '#F59E0B', 'hard': '#EF4444', 'expert': '#8B5CF6'}
+            color = colors.get(obj.bot_difficulty, '#6B7280')
+            return format_html(
+                '<span style="color:{};">🤖 Bot ({})</span>',
+                color, obj.get_bot_difficulty_display()
+            )
+        return obj.opponent or '-'
+
+    opponent_display.short_description = 'Raqib'
+
+    def status_badge(self, obj):
+        colors = {
+            'pending': '#F59E0B',
+            'searching': '#3B82F6',
+            'accepted': '#8B5CF6',
+            'in_progress': '#10B981',
+            'completed': '#6B7280',
+            'rejected': '#EF4444',
+            'expired': '#6B7280',
+            'cancelled': '#EF4444',
+        }
+        color = colors.get(obj.status, '#6B7280')
+        return format_html(
+            '<span style="background:{}; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">{}</span>',
+            color, obj.get_status_display()
+        )
+
+    status_badge.short_description = 'Holat'
+
+    def winner_display(self, obj):
+        if obj.is_draw:
+            return format_html('<span style="color:#F59E0B;">🤝 Durrang</span>')
+        elif obj.winner_is_bot:
+            return format_html('<span style="color:#EF4444;">🤖 Bot yutdi</span>')
+        elif obj.winner:
+            return format_html('<span style="color:#10B981;">🏆 {}</span>', obj.winner)
+        return '-'
+
+    winner_display.short_description = 'G\'olib'
+
+
+# ============================================================
+# MATCHMAKING ADMIN
+# ============================================================
+
+@admin.register(MatchmakingQueue)
+class MatchmakingQueueAdmin(admin.ModelAdmin):
+    list_display = ['user', 'subject', 'user_rating', 'question_count', 'is_matched', 'joined_at', 'expires_at']
+    list_filter = ['is_matched', 'subject']
+    search_fields = ['user__first_name', 'user__phone']
+    ordering = ['-joined_at']
+
+
+# ============================================================
+# DAILY CHALLENGE ADMIN
+# ============================================================
+
+@admin.register(DailyChallenge)
+class DailyChallengeAdmin(admin.ModelAdmin):
+    list_display = ['date', 'subject', 'question_count', 'participants_count', 'average_score_display', 'xp_reward',
+                    'is_active']
+    list_filter = ['is_active', 'subject']
+    search_fields = ['date']
+    ordering = ['-date']
+    filter_horizontal = ['questions']
+    inlines = [DailyChallengeParticipantInline]
+
+    def average_score_display(self, obj):
+        return f'{obj.average_score:.1f}%'
+
+    average_score_display.short_description = 'O\'rtacha ball'
 
 
 @admin.register(DailyChallengeParticipant)
 class DailyChallengeParticipantAdmin(admin.ModelAdmin):
-    list_display = ('user', 'challenge', 'score', 'correct_answers', 'time_spent', 'xp_earned', 'completed_at',
-                    'rank_display')
-    list_filter = ('challenge__date', 'completed_at')
-    search_fields = ('user__email', 'user__first_name', 'user__last_name')
-    readonly_fields = ('completed_at',)
-    date_hierarchy = 'completed_at'
+    list_display = ['user', 'challenge', 'rank', 'score', 'correct_answers', 'time_display', 'xp_earned',
+                    'completed_at']
+    list_filter = ['challenge']
+    search_fields = ['user__first_name', 'user__phone']
+    ordering = ['-completed_at']
 
-    fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('challenge', 'user')
-        }),
-        ('Natijalar', {
-            'fields': ('score', 'correct_answers', 'time_spent', 'xp_earned')
-        }),
-        ('Tizim ma\'lumotlari', {
-            'fields': ('completed_at',)
-        }),
-    )
+    def time_display(self, obj):
+        if obj.time_spent:
+            minutes = obj.time_spent // 60
+            seconds = obj.time_spent % 60
+            return f'{minutes}:{seconds:02d}'
+        return '-'
 
-    def rank_display(self, obj):
-        # Get rank within same challenge
-        rank = DailyChallengeParticipant.objects.filter(
-            challenge=obj.challenge,
-            score__gt=obj.score
-        ).count() + 1
+    time_display.short_description = 'Vaqt'
 
-        if rank == 1:
-            return format_html(
-                '<span style="background-color: #f1c40f; color: white; padding: 5px 10px; border-radius: 50%; font-weight: bold;">🥇 1</span>')
-        elif rank == 2:
-            return format_html(
-                '<span style="background-color: #95a5a6; color: white; padding: 5px 10px; border-radius: 50%; font-weight: bold;">🥈 2</span>')
-        elif rank == 3:
-            return format_html(
-                '<span style="background-color: #cd7f32; color: white; padding: 5px 10px; border-radius: 50%; font-weight: bold;">🥉 3</span>')
-        else:
-            return format_html(
-                '<span style="background-color: #3498db; color: white; padding: 5px 10px; border-radius: 50%;">{}</span>',
-                rank)
 
-    rank_display.short_description = 'Reyting'
+# ============================================================
+# WEEKLY LEAGUE ADMIN
+# ============================================================
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.select_related('user', 'challenge', 'challenge__subject')
+@admin.register(WeeklyLeague)
+class WeeklyLeagueAdmin(admin.ModelAdmin):
+    list_display = ['week_start', 'week_end', 'tier_badge', 'participants_count', 'xp_reward_first', 'is_active',
+                    'is_processed']
+    list_filter = ['tier', 'is_active', 'is_processed']
+    ordering = ['-week_start']
+    inlines = [WeeklyLeagueParticipantInline]
+
+    actions = ['process_league']
+
+    def tier_badge(self, obj):
+        colors = {
+            'bronze': '#CD7F32',
+            'silver': '#C0C0C0',
+            'gold': '#FFD700',
+            'platinum': '#E5E4E2',
+            'diamond': '#B9F2FF',
+            'master': '#FF6B6B',
+            'grandmaster': '#9B59B6',
+        }
+        color = colors.get(obj.tier, '#6B7280')
+        return format_html(
+            '<span style="background:{}; color:#1F2937; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600;">{}</span>',
+            color, obj.get_tier_display()
+        )
+
+    tier_badge.short_description = 'Daraja'
+
+    def participants_count(self, obj):
+        return obj.participants.count()
+
+    participants_count.short_description = 'Qatnashchilar'
+
+    @admin.action(description='Ligani hisoblash')
+    def process_league(self, request, queryset):
+        for league in queryset.filter(is_processed=False):
+            participants = WeeklyLeagueParticipant.objects.filter(
+                league=league
+            ).order_by('-xp_earned')
+
+            for rank, participant in enumerate(participants, 1):
+                participant.rank = rank
+
+                # Ko'tarilish/tushish
+                if rank <= league.promotion_count:
+                    participant.is_promoted = True
+                elif rank > participants.count() - league.demotion_count:
+                    participant.is_demoted = True
+
+                participant.save()
+
+            league.is_processed = True
+            league.save()
+
+        self.message_user(request, f'{queryset.count()} ta liga hisoblandi.')
+
+
+@admin.register(WeeklyLeagueParticipant)
+class WeeklyLeagueParticipantAdmin(admin.ModelAdmin):
+    list_display = ['user', 'league', 'rank', 'xp_earned', 'tests_completed', 'status_display']
+    list_filter = ['league', 'is_promoted', 'is_demoted']
+    search_fields = ['user__first_name', 'user__phone']
+    ordering = ['rank']
+
+    def status_display(self, obj):
+        if obj.is_promoted:
+            return format_html('<span style="color:#10B981;">⬆️ Ko\'tarildi</span>')
+        elif obj.is_demoted:
+            return format_html('<span style="color:#EF4444;">⬇️ Tushdi</span>')
+        return format_html('<span style="color:#6B7280;">➡️ Qoldi</span>')
+
+    status_display.short_description = 'Holat'
+
+
+# ============================================================
+# BATTLE INVITATION ADMIN
+# ============================================================
+
+@admin.register(BattleInvitation)
+class BattleInvitationAdmin(admin.ModelAdmin):
+    list_display = ['battle', 'sent_at', 'seen_at', 'responded_at', 'notification_sent']
+    list_filter = ['notification_sent']
+    ordering = ['-sent_at']

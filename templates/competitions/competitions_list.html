@@ -1,162 +1,973 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Musobaqalar - TestMakon{% endblock %}
+{% block title %}Musobaqalar | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== HERO SECTION ========== */
+    .comp-hero {
+        background: var(--gradient-dark);
+        padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .comp-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .comp-hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .comp-hero-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: center;
+    }
+
+    @media (max-width: 992px) {
+        .comp-hero-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+    }
+
+    .comp-hero-text h1 {
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .comp-hero-text h1 span {
+        color: var(--primary);
+    }
+
+    .comp-hero-text p {
+        font-size: 1.1rem;
+        color: var(--gray-400);
+        margin-bottom: 2rem;
+        line-height: 1.7;
+    }
+
+    .comp-hero-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 992px) {
+        .comp-hero-actions {
+            justify-content: center;
+        }
+    }
+
+    .comp-hero-btn {
+        padding: 1rem 2rem;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .comp-hero-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+    }
+
+    .comp-hero-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-primary);
+        color: white;
+    }
+
+    .comp-hero-btn.outline {
+        background: transparent;
+        color: white;
+        border: 2px solid var(--gray-600);
+    }
+
+    .comp-hero-btn.outline:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    /* Stats cards */
+    .comp-hero-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .comp-stat-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .comp-stat-card:hover {
+        background: rgba(255,255,255,0.08);
+        transform: translateY(-2px);
+    }
+
+    .comp-stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .comp-stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: white;
+    }
+
+    .comp-stat-label {
+        font-size: 0.85rem;
+        color: var(--gray-400);
+    }
+
+    /* ========== CONTENT ========== */
+    .comp-content {
+        padding: 3rem 0;
+    }
+
+    /* ========== SECTION ========== */
+    .comp-section {
+        margin-bottom: 3rem;
+    }
+
+    .comp-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .comp-section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+    }
+
+    .comp-section-title i {
+        color: var(--primary);
+    }
+
+    .comp-section-link {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .comp-section-link:hover {
+        color: var(--primary-dark);
+    }
+
+    /* ========== FEATURED CARDS ========== */
+    .featured-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .featured-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .featured-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s;
+        position: relative;
+    }
+
+    .featured-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .featured-card.highlight {
+        border: 2px solid var(--primary);
+    }
+
+    .featured-card.highlight::before {
+        content: '🔥 TRENDDA';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--gradient-primary);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        z-index: 2;
+    }
+
+    .featured-banner {
+        height: 140px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        position: relative;
+    }
+
+    .featured-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .featured-type {
+        position: absolute;
+        bottom: 0.75rem;
+        left: 0.75rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .featured-type.daily { background: #10B981; color: white; }
+    .featured-type.weekly { background: #3B82F6; color: white; }
+    .featured-type.monthly { background: #8B5CF6; color: white; }
+    .featured-type.olympiad { background: #EF4444; color: white; }
+    .featured-type.special { background: #F59E0B; color: white; }
+
+    .featured-body {
+        padding: 1.5rem;
+    }
+
+    .featured-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .featured-desc {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .featured-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+        color: var(--gray-500);
+    }
+
+    .featured-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .featured-meta i {
+        color: var(--primary);
+    }
+
+    .featured-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-100);
+    }
+
+    .featured-prize {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .featured-prize-icon {
+        width: 36px;
+        height: 36px;
+        background: #FEF3C7;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .featured-prize-amount {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .featured-prize-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .featured-btn {
+        padding: 0.6rem 1.25rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .featured-btn:hover {
+        box-shadow: var(--shadow-primary);
+        color: white;
+    }
+
+    /* ========== COMPETITION CARDS ========== */
+    .comp-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .comp-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .comp-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        display: flex;
+        gap: 1rem;
+        transition: all 0.2s;
+    }
+
+    .comp-card:hover {
+        box-shadow: var(--shadow);
+        border-color: var(--gray-300);
+    }
+
+    .comp-card-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--gray-100);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .comp-card-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .comp-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.35rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .comp-card-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin-bottom: 0.5rem;
+    }
+
+    .comp-card-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+    }
+
+    .comp-card-status.active {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .comp-card-status.upcoming {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .comp-card-status.finished {
+        background: var(--gray-100);
+        color: var(--gray-500);
+    }
+
+    /* ========== DAILY CHALLENGE CARD ========== */
+    .daily-card {
+        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .daily-card::before {
+        content: '📅';
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        font-size: 8rem;
+        opacity: 0.1;
+    }
+
+    .daily-card-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .daily-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .daily-card h3 {
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .daily-card p {
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 1.5rem;
+    }
+
+    .daily-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .daily-stat {
+        text-align: center;
+    }
+
+    .daily-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .daily-stat-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    .daily-btn {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #6D28D9;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .daily-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        color: #6D28D9;
+    }
+
+    .daily-btn.completed {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        cursor: default;
+    }
+
+    /* ========== BATTLES SECTION ========== */
+    .battles-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+
+    @media (max-width: 992px) {
+        .battles-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .battle-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        transition: all 0.2s;
+    }
+
+    .battle-card:hover {
+        box-shadow: var(--shadow);
+    }
+
+    .battle-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .battle-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+    }
+
+    .battle-status.pending {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .battle-status.active {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .battle-players {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .battle-player {
+        text-align: center;
+        flex: 1;
+    }
+
+    .battle-player-avatar {
+        width: 48px;
+        height: 48px;
+        background: var(--gray-200);
+        border-radius: 50%;
+        margin: 0 auto 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        overflow: hidden;
+    }
+
+    .battle-player-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .battle-player-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .battle-vs {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--gray-400);
+        padding: 0 1rem;
+    }
+
+    .battle-subject {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+    }
+
+    .battle-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .battle-btn {
+        flex: 1;
+        padding: 0.6rem;
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .battle-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+    }
+
+    .battle-btn.outline {
+        background: transparent;
+        border: 1px solid var(--gray-300);
+        color: var(--dark-600);
+    }
+
+    /* ========== QUICK ACTIONS ========== */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    @media (max-width: 992px) {
+        .quick-actions {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .quick-action {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .quick-action:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
+
+    .quick-action-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+
+    .quick-action-icon.battle {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .quick-action-icon.league {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .quick-action-icon.daily {
+        background: #EDE9FE;
+        color: #7C3AED;
+    }
+
+    .quick-action-icon.certificates {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .quick-action h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .quick-action p {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin: 0;
+    }
+
+    /* ========== EMPTY STATE ========== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--gray-500);
+        margin: 0;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+<div class="comp-hero">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <span class="badge badge-primary mb-3">
-                    <i class="bi bi-trophy me-1"></i> Musobaqalar
-                </span>
-                <h1 class="mb-3">Raqobatlashing va <span class="text-gradient">yutib oling!</span></h1>
-                <p class="lead mb-0" style="color: var(--gray-500);">
-                    Turli musobaqalarda qatnashing, do'stlaringiz bilan bellashing va sovrinlar yutib oling.
-                </p>
-            </div>
-            <div class="col-lg-4 text-end d-none d-lg-block">
-                <div style="font-size: 6rem;">🏆</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Quick Actions -->
-<section style="margin-top: -2rem; position: relative; z-index: 10;">
-    <div class="container">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <a href="{% url 'competitions:battles_list' %}" class="card p-4 text-decoration-none h-100" style="background: var(--gradient-primary); border: none;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-lightning-fill text-white" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div>
-                            <h5 class="text-white mb-1">1v1 Jang</h5>
-                            <small class="text-white" style="opacity: 0.9;">Do'stlar bilan bellashing</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="{% url 'competitions:daily_challenge' %}" class="card p-4 text-decoration-none h-100" style="background: var(--gradient-dark); border: none;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-calendar-check text-white" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div>
-                            <h5 class="text-white mb-1">Kunlik Challenge</h5>
-                            <small class="text-white" style="opacity: 0.9;">Har kuni yangi savollar</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="{% url 'leaderboard:leaderboard_main' %}" class="card p-4 text-decoration-none h-100 card-glow">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="icon-box-gradient">
-                            <i class="bi bi-bar-chart-fill"></i>
-                        </div>
-                        <div>
-                            <h5 class="mb-1" style="color: var(--dark);">Reyting</h5>
-                            <small style="color: var(--gray-500);">O'rningizni ko'ring</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section-sm">
-    <div class="container">
-        <!-- Active Competitions -->
-        {% if active %}
-        <div class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">
-                    <span style="color: #22C55E;">●</span> Faol musobaqalar
-                </h4>
-                <span class="badge" style="background: #D1FAE5; color: #065F46;">{{ active|length }} ta</span>
-            </div>
-
-            <div class="row g-4">
-                {% for comp in active %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 card-glow">
-                        {% if comp.banner %}
-                        <img src="{{ comp.banner.url }}" alt="" style="height: 160px; object-fit: cover;">
-                        {% else %}
-                        <div style="height: 160px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 4rem;">🏆</span>
-                        </div>
-                        {% endif %}
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge" style="background: #D1FAE5; color: #065F46;">Faol</span>
-                                <span class="badge" style="background: var(--gray-100); color: var(--gray-600);">
-                                    {{ comp.get_competition_type_display }}
-                                </span>
-                            </div>
-                            <h5 class="fw-bold mb-2">{{ comp.title }}</h5>
-                            <p class="small mb-3" style="color: var(--gray-500);">{{ comp.description|truncatechars:80 }}</p>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-people" style="color: var(--gray-500);"></i>
-                                    <small style="color: var(--gray-500);">{{ comp.participants_count }} ishtirokchi</small>
-                                </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-clock" style="color: var(--gray-500);"></i>
-                                    <small style="color: var(--gray-500);">{{ comp.time_remaining|timesince }} qoldi</small>
-                                </div>
-                            </div>
-
-                            <a href="{% url 'competitions:competition_detail' comp.slug %}" class="btn btn-primary w-100">
-                                Qatnashish <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
+        <div class="comp-hero-content">
+            <div class="comp-hero-grid">
+                <div class="comp-hero-text">
+                    <h1>Musobaqalarda <span>g'olib</span> bo'ling!</h1>
+                    <p>Olimpiadalarda qatnashing, do'stlaringiz bilan bellashing va qimmatbaho sovrinlar yutib oling. Bilimingizni sinab ko'ring!</p>
+                    <div class="comp-hero-actions">
+                        <a href="#featured" class="comp-hero-btn primary">
+                            <i class="bi bi-trophy"></i>
+                            Musobaqalar
+                        </a>
+                        <a href="{% url 'competitions:battles_list' %}" class="comp-hero-btn outline">
+                            <i class="bi bi-lightning"></i>
+                            1v1 Jang
+                        </a>
                     </div>
                 </div>
-                {% endfor %}
+
+                {% if user_stats %}
+                <div class="comp-hero-stats">
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">🏆</div>
+                        <div class="comp-stat-value">{{ user_stats.competitions_won }}</div>
+                        <div class="comp-stat-label">G'alabalar</div>
+                    </div>
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">⚔️</div>
+                        <div class="comp-stat-value">{{ user_stats.battles_won }}/{{ user_stats.battles_total }}</div>
+                        <div class="comp-stat-label">Janglar</div>
+                    </div>
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">🎯</div>
+                        <div class="comp-stat-value">{{ user_stats.competitions_joined }}</div>
+                        <div class="comp-stat-label">Ishtiroklar</div>
+                    </div>
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">⚡</div>
+                        <div class="comp-stat-value">{{ user_stats.total_xp_earned }}</div>
+                        <div class="comp-stat-label">Jami XP</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="comp-hero-stats">
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">🏆</div>
+                        <div class="comp-stat-value">500K+</div>
+                        <div class="comp-stat-label">Sovrinlar</div>
+                    </div>
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">👥</div>
+                        <div class="comp-stat-value">10K+</div>
+                        <div class="comp-stat-label">Qatnashchilar</div>
+                    </div>
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">📅</div>
+                        <div class="comp-stat-value">50+</div>
+                        <div class="comp-stat-label">Musobaqalar</div>
+                    </div>
+                    <div class="comp-stat-card">
+                        <div class="comp-stat-icon">⚡</div>
+                        <div class="comp-stat-value">24/7</div>
+                        <div class="comp-stat-label">Janglar</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="comp-content">
+    <div class="container">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{% url 'competitions:battle_create' %}" class="quick-action">
+                <div class="quick-action-icon battle">
+                    <i class="bi bi-lightning-fill"></i>
+                </div>
+                <h4>1v1 Jang</h4>
+                <p>Do'st yoki bot bilan</p>
+            </a>
+            <a href="{% url 'competitions:weekly_league' %}" class="quick-action">
+                <div class="quick-action-icon league">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </div>
+                <h4>Haftalik Liga</h4>
+                <p>Reytingda ko'taril</p>
+            </a>
+            <a href="{% url 'competitions:daily_challenge' %}" class="quick-action">
+                <div class="quick-action-icon daily">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                <h4>Kunlik Challenge</h4>
+                <p>Har kuni yangi</p>
+            </a>
+            <a href="{% url 'competitions:my_certificates' %}" class="quick-action">
+                <div class="quick-action-icon certificates">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+                <h4>Sertifikatlar</h4>
+                <p>Yutuqlaringiz</p>
+            </a>
+        </div>
+
+        <!-- Daily Challenge -->
+        {% if daily_challenge %}
+        <div class="comp-section">
+            <div class="daily-card">
+                <div class="daily-card-content">
+                    <div class="daily-badge">
+                        <i class="bi bi-calendar-check"></i>
+                        Bugungi challenge
+                    </div>
+                    <h3>{{ daily_challenge.subject.name|default:"Umumiy" }} Challenge</h3>
+                    <p>{{ daily_challenge.question_count }} ta savol, {{ daily_challenge.time_limit }} daqiqa</p>
+
+                    <div class="daily-stats">
+                        <div class="daily-stat">
+                            <div class="daily-stat-value">{{ daily_challenge.participants_count }}</div>
+                            <div class="daily-stat-label">Qatnashdi</div>
+                        </div>
+                        <div class="daily-stat">
+                            <div class="daily-stat-value">+{{ daily_challenge.xp_reward }}</div>
+                            <div class="daily-stat-label">XP mukofot</div>
+                        </div>
+                    </div>
+
+                    {% if daily_completed %}
+                    <span class="daily-btn completed">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Yakunladingiz
+                    </span>
+                    {% else %}
+                    <a href="{% url 'competitions:daily_challenge_start' %}" class="daily-btn">
+                        <i class="bi bi-play-fill"></i>
+                        Boshlash
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endif %}
 
-        <!-- Upcoming Competitions -->
-        {% if upcoming %}
-        <div class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">
-                    <i class="bi bi-clock me-2" style="color: var(--accent);"></i> Kutilayotgan musobaqalar
-                </h4>
+        <!-- Featured Competitions -->
+        {% if featured %}
+        <div class="comp-section" id="featured">
+            <div class="comp-section-header">
+                <h2 class="comp-section-title">
+                    <i class="bi bi-star-fill"></i>
+                    Tanlangan musobaqalar
+                </h2>
             </div>
 
-            <div class="row g-4">
-                {% for comp in upcoming %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100">
+            <div class="featured-grid">
+                {% for comp in featured %}
+                <div class="featured-card {% if forloop.first %}highlight{% endif %}">
+                    <div class="featured-banner">
                         {% if comp.banner %}
-                        <img src="{{ comp.banner.url }}" alt="" style="height: 140px; object-fit: cover; opacity: 0.8;">
+                        <img src="{{ comp.banner.url }}" alt="{{ comp.title }}">
                         {% else %}
-                        <div style="height: 140px; background: var(--gray-200); display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 3rem; opacity: 0.5;">🏆</span>
-                        </div>
+                        {{ comp.icon }}
                         {% endif %}
-                        <div class="card-body">
-                            <span class="badge mb-2" style="background: #FEF3C7; color: #92400E;">Tez kunda</span>
-                            <h5 class="fw-bold mb-2">{{ comp.title }}</h5>
-                            <p class="small mb-3" style="color: var(--gray-500);">{{ comp.description|truncatechars:60 }}</p>
+                        <span class="featured-type {{ comp.competition_type }}">{{ comp.get_competition_type_display }}</span>
+                    </div>
+                    <div class="featured-body">
+                        <h3 class="featured-title">{{ comp.title }}</h3>
+                        <p class="featured-desc">{{ comp.short_description|default:comp.description|truncatewords:15 }}</p>
 
-                            <div class="d-flex align-items-center gap-2 mb-3" style="color: var(--gray-500);">
-                                <i class="bi bi-calendar"></i>
-                                <small>{{ comp.start_time|date:"d M, H:i" }}</small>
+                        <div class="featured-meta">
+                            <span><i class="bi bi-people"></i> {{ comp.participants_count }} qatnashchi</span>
+                            <span><i class="bi bi-clock"></i> {{ comp.duration_minutes }} daqiqa</span>
+                        </div>
+
+                        <div class="featured-footer">
+                            {% if comp.prize_pool > 0 %}
+                            <div class="featured-prize">
+                                <div class="featured-prize-icon">🏆</div>
+                                <div>
+                                    <div class="featured-prize-amount">{{ comp.prize_pool|floatformat:0 }} so'm</div>
+                                    <div class="featured-prize-label">Sovrin fondi</div>
+                                </div>
                             </div>
-
-                            <a href="{% url 'competitions:competition_detail' comp.slug %}" class="btn btn-outline w-100">
+                            {% else %}
+                            <div class="featured-prize">
+                                <div class="featured-prize-icon">⚡</div>
+                                <div>
+                                    <div class="featured-prize-amount">+{{ comp.xp_reward_first }} XP</div>
+                                    <div class="featured-prize-label">1-o'rin uchun</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <a href="{% url 'competitions:competition_detail' slug=comp.slug %}" class="featured-btn">
                                 Batafsil
                             </a>
                         </div>
@@ -167,69 +978,175 @@
         </div>
         {% endif %}
 
-        <!-- Finished Competitions -->
-        {% if finished %}
-        <div>
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">
-                    <i class="bi bi-check-circle me-2" style="color: var(--gray-500);"></i> Yakunlangan
-                </h4>
+        <!-- Active Competitions -->
+        {% if active %}
+        <div class="comp-section">
+            <div class="comp-section-header">
+                <h2 class="comp-section-title">
+                    <i class="bi bi-play-circle-fill"></i>
+                    Faol musobaqalar
+                </h2>
             </div>
 
-            <div class="card">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr style="background: var(--gray-100);">
-                                    <th class="ps-4" style="font-weight: 700; color: var(--dark);">Musobaqa</th>
-                                    <th class="text-center" style="font-weight: 700; color: var(--dark);">Ishtirokchilar</th>
-                                    <th class="text-center" style="font-weight: 700; color: var(--dark);">Sana</th>
-                                    <th class="text-end pe-4"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for comp in finished %}
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div style="width: 48px; height: 48px; background: var(--gray-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center;">
-                                                <span>🏆</span>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold" style="color: var(--dark);">{{ comp.title }}</div>
-                                                <small style="color: var(--gray-500);">{{ comp.get_competition_type_display }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">{{ comp.participants_count }}</td>
-                                    <td class="text-center" style="color: var(--gray-500);">{{ comp.end_time|date:"d M Y" }}</td>
-                                    <td class="text-end pe-4">
-                                        <a href="{% url 'competitions:competition_leaderboard' comp.slug %}" class="btn btn-sm btn-light">
-                                            Natijalar
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <div class="comp-grid">
+                {% for comp in active %}
+                <a href="{% url 'competitions:competition_detail' slug=comp.slug %}" class="comp-card">
+                    <div class="comp-card-icon">{{ comp.icon }}</div>
+                    <div class="comp-card-info">
+                        <h4 class="comp-card-title">{{ comp.title }}</h4>
+                        <div class="comp-card-meta">
+                            <span><i class="bi bi-people"></i> {{ comp.participants_count }}</span>
+                            <span><i class="bi bi-clock"></i> {{ comp.duration_minutes }} daq</span>
+                        </div>
+                        <span class="comp-card-status active">🟢 Faol</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upcoming Competitions -->
+        {% if registration_open %}
+        <div class="comp-section">
+            <div class="comp-section-header">
+                <h2 class="comp-section-title">
+                    <i class="bi bi-calendar-event"></i>
+                    Ro'yxatga olish ochiq
+                </h2>
+            </div>
+
+            <div class="comp-grid">
+                {% for comp in registration_open %}
+                <a href="{% url 'competitions:competition_detail' slug=comp.slug %}" class="comp-card">
+                    <div class="comp-card-icon">{{ comp.icon }}</div>
+                    <div class="comp-card-info">
+                        <h4 class="comp-card-title">{{ comp.title }}</h4>
+                        <div class="comp-card-meta">
+                            <span><i class="bi bi-people"></i> {{ comp.participants_count }}</span>
+                            <span><i class="bi bi-calendar3"></i> {{ comp.start_time|date:"d.m" }}</span>
+                        </div>
+                        <span class="comp-card-status upcoming">📅 Kutilmoqda</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- User Battles -->
+        {% if user_battles %}
+        <div class="comp-section">
+            <div class="comp-section-header">
+                <h2 class="comp-section-title">
+                    <i class="bi bi-lightning-fill"></i>
+                    Sizning janglaringiz
+                </h2>
+                <a href="{% url 'competitions:battles_list' %}" class="comp-section-link">
+                    Barchasi <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="battles-grid">
+                {% for battle in user_battles %}
+                <div class="battle-card">
+                    <div class="battle-card-header">
+                        <span class="battle-status {{ battle.status }}">
+                            {% if battle.status == 'pending' %}⏳ Kutilmoqda
+                            {% elif battle.status == 'accepted' %}✅ Qabul qilindi
+                            {% elif battle.status == 'in_progress' %}🎮 Davom etmoqda
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="battle-players">
+                        <div class="battle-player">
+                            <div class="battle-player-avatar">
+                                {% if battle.challenger.avatar %}
+                                <img src="{{ battle.challenger.avatar.url }}" alt="">
+                                {% else %}
+                                {{ battle.challenger.first_name|slice:":1" }}
+                                {% endif %}
+                            </div>
+                            <div class="battle-player-name">
+                                {% if battle.challenger == request.user %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="battle-vs">VS</div>
+
+                        <div class="battle-player">
+                            <div class="battle-player-avatar">
+                                {% if battle.opponent_type == 'bot' %}
+                                🤖
+                                {% elif battle.opponent and battle.opponent.avatar %}
+                                <img src="{{ battle.opponent.avatar.url }}" alt="">
+                                {% else %}
+                                {{ battle.opponent.first_name|slice:":1"|default:"?" }}
+                                {% endif %}
+                            </div>
+                            <div class="battle-player-name">
+                                {% if battle.opponent_type == 'bot' %}Bot
+                                {% elif battle.opponent == request.user %}Siz
+                                {% else %}{{ battle.opponent.first_name|default:"Kutilmoqda" }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if battle.subject %}
+                    <div class="battle-subject">
+                        {{ battle.subject.icon }} {{ battle.subject.name }}
+                    </div>
+                    {% endif %}
+
+                    <div class="battle-actions">
+                        <a href="{% url 'competitions:battle_detail' uuid=battle.uuid %}" class="battle-btn primary">
+                            Ko'rish
+                        </a>
                     </div>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Finished Competitions -->
+        {% if finished %}
+        <div class="comp-section">
+            <div class="comp-section-header">
+                <h2 class="comp-section-title">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Yakunlangan
+                </h2>
+            </div>
+
+            <div class="comp-grid">
+                {% for comp in finished %}
+                <a href="{% url 'competitions:competition_detail' slug=comp.slug %}" class="comp-card">
+                    <div class="comp-card-icon">{{ comp.icon }}</div>
+                    <div class="comp-card-info">
+                        <h4 class="comp-card-title">{{ comp.title }}</h4>
+                        <div class="comp-card-meta">
+                            <span><i class="bi bi-people"></i> {{ comp.participants_count }}</span>
+                            <span><i class="bi bi-calendar3"></i> {{ comp.end_time|date:"d.m" }}</span>
+                        </div>
+                        <span class="comp-card-status finished">✅ Yakunlangan</span>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
         </div>
         {% endif %}
 
         <!-- Empty State -->
-        {% if not active and not upcoming and not finished %}
-        <div class="text-center py-5">
-            <span style="font-size: 5rem;">🏆</span>
-            <h3 class="mt-4 mb-3">Hozirda musobaqalar yo'q</h3>
-            <p class="mb-4" style="color: var(--gray-500);">Tez orada yangi musobaqalar e'lon qilinadi!</p>
-            <a href="{% url 'competitions:daily_challenge' %}" class="btn btn-primary btn-lg">
-                Kunlik Challengega o'tish <i class="bi bi-arrow-right ms-2"></i>
-            </a>
+        {% if not featured and not active and not registration_open %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🏆</div>
+            <h4>Hozircha musobaqalar yo'q</h4>
+            <p>Tez orada yangi musobaqalar e'lon qilinadi</p>
         </div>
         {% endif %}
     </div>
-</section>
+</div>
 {% endblock %}
