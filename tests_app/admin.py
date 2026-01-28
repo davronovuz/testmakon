@@ -1,8 +1,10 @@
 import json
+import uuid
 from django.contrib import admin
 from django.utils.html import format_html, mark_safe
 from django.db.models import JSONField
 from django.forms import widgets
+from django.utils.text import slugify
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
 from import_export.admin import ImportExportModelAdmin, ExportActionModelAdmin
@@ -16,7 +18,7 @@ from .models import (
 
 
 # =========================================================
-# YORDAMCHI FUNKSIYALAR (JSON chiroyli ko'rsatish uchun)
+# YORDAMCHI FUNKSIYALAR
 # =========================================================
 def pretty_json(data):
     """JSON ma'lumotlarni admin panelda chiroyli o'qish uchun"""
@@ -28,17 +30,27 @@ def pretty_json(data):
 
 
 # =========================================================
-# IMPORT-EXPORT RESURSLARI
+# IMPORT-EXPORT RESURSLARI (MUKAMMAL VERSIYA)
 # =========================================================
 
 class QuestionResource(resources.ModelResource):
     """Exceldan savollarni yuklash uchun resurs"""
-    subject = fields.Field(column_name='Fan', attribute='subject', widget=ForeignKeyWidget(Subject, field='name'))
-    topic = fields.Field(column_name='Mavzu', attribute='topic', widget=ForeignKeyWidget(Topic, field='name'))
+
+    # Model maydonlarini Excel ustunlariga bog'lash
+    subject = fields.Field(
+        column_name='Fan',
+        attribute='subject',
+        widget=ForeignKeyWidget(Subject, field='name')
+    )
+    topic = fields.Field(
+        column_name='Mavzu',
+        attribute='topic',
+        widget=ForeignKeyWidget(Topic, field='name')
+    )
     text = fields.Field(attribute='text', column_name='Savol matni')
     difficulty = fields.Field(attribute='difficulty', column_name='Qiyinlik')
 
-    # Variantlar (Excel uchun)
+    # Exceldagi vaqtinchalik maydonlar (Variantlar)
     option_a = fields.Field(column_name='A variant')
     option_b = fields.Field(column_name='B variant')
     option_c = fields.Field(column_name='C variant')
@@ -47,32 +59,87 @@ class QuestionResource(resources.ModelResource):
 
     class Meta:
         model = Question
-        # YANGI HOLAT (Variantlarni ham qo'shing):
+        # MUHIM: Xatolik chiqmasligi uchun barcha ishlatiladigan maydonlar shu yerda bo'lishi SHART
         fields = (
-            'text', 'subject', 'topic', 'difficulty', 'points',
+            'id', 'text', 'subject', 'topic', 'difficulty', 'points',
             'option_a', 'option_b', 'option_c', 'option_d', 'correct_option'
         )
+        # Import paytida savollarni matni bo'yicha tekshirish (dublikat bo'lmasligi uchun)
         import_id_fields = ('text',)
 
-    def after_save_instance(self, instance, using_transactions, dry_run):
+    # --- 1. AVTOMATIK YARATISH LOGIKASI (DoesNotExist xatosi uchun) ---
+    def before_import_row(self, row, **kwargs):
+        """
+        Import qilishdan oldin Fan va Mavzuni tekshiradi.
+        Agar ular yo'q bo'lsa, avtomatik yaratadi.
+        """
+        self.current_row = row
+
+        # 1. FANNI TEKSHIRISH
+        subject_name = row.get('Fan')
+        subject_obj = None
+
+        if subject_name:
+            subject_name = str(subject_name).strip()  # Bo'sh joylarni tozalash
+
+            # Slug yaratish
+            slug = slugify(subject_name)
+            if not slug: slug = str(uuid.uuid4())[:8]  # Agar slugify bo'sh qaytarsa (masalan kirillcha)
+
+            # Bazadan olish yoki yaratish
+            subject_obj, created = Subject.objects.get_or_create(
+                name=subject_name,
+                defaults={'slug': slug, 'is_active': True}
+            )
+            # Row'ni yangilash (ForeignKeyWidget topa olishi uchun)
+            row['Fan'] = subject_obj.name
+
+        # 2. MAVZUNI TEKSHIRISH
+        topic_name = row.get('Mavzu')
+        if topic_name and subject_obj:
+            topic_name = str(topic_name).strip()
+
+            slug = slugify(topic_name)
+            if not slug: slug = str(uuid.uuid4())[:8]
+
+            topic_obj, created = Topic.objects.get_or_create(
+                name=topic_name,
+                subject=subject_obj,
+                defaults={'slug': slug, 'is_active': True}
+            )
+            row['Mavzu'] = topic_obj.name
+
+    # --- 2. JAVOBLARNI SAQLASH (TypeError xatosi uchun) ---
+    # **kwargs qo'shildi - bu 'file_name' xatosini yo'qotadi
+    def after_save_instance(self, instance, using_transactions, dry_run, **kwargs):
         if dry_run: return
+
         row = self.current_row
+
+        # Variantlarni ro'yxatga yig'ish
         options = [
             {'text': row.get('A variant'), 'key': 'A'},
             {'text': row.get('B variant'), 'key': 'B'},
             {'text': row.get('C variant'), 'key': 'C'},
             {'text': row.get('D variant'), 'key': 'D'},
         ]
-        correct_key = str(row.get("To'g'ri javob")).strip().upper()
 
+        # To'g'ri javobni aniqlash
+        correct_val = row.get("To'g'ri javob")
+        correct_key = str(correct_val).strip().upper() if correct_val else ''
+
+        # Eski javoblarni o'chirish (savol yangilanganda dublikat bo'lmasligi uchun)
         instance.answers.all().delete()
-        for idx, opt in enumerate(options):
-            if opt['text']:
-                Answer.objects.create(question=instance, text=opt['text'], is_correct=(opt['key'] == correct_key),
-                                      order=idx)
 
-    def before_import_row(self, row, **kwargs):
-        self.current_row = row
+        # Yangi javoblarni yaratish
+        for idx, opt in enumerate(options):
+            if opt['text']:  # Agar variant bo'sh bo'lmasa
+                Answer.objects.create(
+                    question=instance,
+                    text=str(opt['text']).strip(),
+                    is_correct=(opt['key'] == correct_key),
+                    order=idx
+                )
 
 
 # =========================================================
@@ -136,7 +203,7 @@ class TopicAdmin(admin.ModelAdmin):
     list_display = ('name', 'subject', 'parent', 'is_active', 'order')
     list_filter = ('subject', 'is_active')
     search_fields = ('name', 'subject__name')
-    autocomplete_fields = ['parent', 'subject']  # Katta bazada qotmasligi uchun
+    autocomplete_fields = ['parent', 'subject']
     prepopulated_fields = {'slug': ('name',)}
 
 
@@ -177,7 +244,7 @@ class TestAdmin(admin.ModelAdmin):
     list_filter = ('test_type', 'subject', 'is_active', 'is_premium', 'created_at')
     search_fields = ('title', 'description')
     autocomplete_fields = ['subject']
-    filter_horizontal = ('subjects',)  # ManyToMany uchun qulay oyna
+    filter_horizontal = ('subjects',)
     inlines = [TestQuestionInline]
     prepopulated_fields = {'slug': ('title',)}
 
@@ -268,7 +335,7 @@ class DailyUserStatsAdmin(admin.ModelAdmin):
     list_display = ('user', 'date', 'tests_taken', 'accuracy_rate', 'total_time_spent')
     list_filter = ('date',)
     search_fields = ('user__username',)
-    date_hierarchy = 'date'  # Sana bo'yicha navigatsiya
+    date_hierarchy = 'date'
     readonly_fields = ('activity_json', 'subjects_json')
 
     def activity_json(self, obj): return pretty_json(obj.activity_hours)
