@@ -18,7 +18,6 @@ from .models import (
 # YORDAMCHI FUNKSIYALAR
 # =========================================================
 def pretty_json(data):
-    """JSON ma'lumotlarni admin panelda chiroyli o'qish uchun"""
     try:
         result = json.dumps(data, indent=4, ensure_ascii=False)
         return format_html('<pre>{}</pre>', result)
@@ -32,40 +31,37 @@ def pretty_json(data):
 
 class QuestionResource(resources.ModelResource):
     """
-    Exceldan savollarni yuklash uchun eng ishonchli resurs.
-    Xatoliklarni oldini olish uchun 'Widget' lardan voz kechib,
-    to'g'ridan-to'g'ri logika yozildi.
+    Excel/CSV dan savollarni yuklash.
+    Sizning CSV formatingizga moslashtirildi:
+    Savol, A, B, C, D, Togri_javob
     """
 
-    # Asosiy maydonlar
-    text = fields.Field(attribute='text', column_name='Savol matni')
-    difficulty = fields.Field(attribute='difficulty', column_name='Qiyinlik')
+    # CSV ustun nomlarini modelga bog'lash
+    text = fields.Field(attribute='text', column_name='Savol')
+    difficulty = fields.Field(attribute='difficulty',
+                              column_name='Qiyinlik')  # Agar faylda yo'q bo'lsa, default ishlaydi
 
-    # Variantlar (faqat Excelda bo'ladi, bazada alohida model)
-    option_a = fields.Field(column_name='A variant')
-    option_b = fields.Field(column_name='B variant')
-    option_c = fields.Field(column_name='C variant')
-    option_d = fields.Field(column_name='D variant')
-    correct_option = fields.Field(column_name="To'g'ri javob")
+    # Variantlar
+    option_a = fields.Field(column_name='A')
+    option_b = fields.Field(column_name='B')
+    option_c = fields.Field(column_name='C')
+    option_d = fields.Field(column_name='D')
+    correct_option = fields.Field(column_name='Togri_javob')
 
     class Meta:
         model = Question
-        # Barcha maydonlarni ro'yxatga kiritamiz
         fields = (
             'id', 'text', 'difficulty', 'points',
             'option_a', 'option_b', 'option_c', 'option_d', 'correct_option'
         )
-        # MUHIM: Header xatoligini oldini olish uchun ID tekshiruvini o'chiramiz.
-        # Har bir qator yangi savol sifatida qo'shiladi.
-        import_id_fields = []
+        import_id_fields = []  # ID tekshiruvi shart emas
 
     def before_import_row(self, row, **kwargs):
         """
-        Har bir qator import qilinishidan oldin ishlaydi.
-        Fan va Mavzuni aniqlaydi, agar yo'q bo'lsa yaratadi.
+        Fan va Mavzuni aniqlash.
+        Agar CSV da Fan/Mavzu ustuni bo'lmasa, 'Umumiy' deb yaratadi.
         """
         # 1. FANNI ANIQLASH
-        # Exceldan 'Fan' ustunini olamiz. Agar bo'sh bo'lsa 'General' deb nomlaymiz.
         sub_name = row.get('Fan')
         if not sub_name:
             sub_name = "Umumiy Fan"
@@ -73,7 +69,6 @@ class QuestionResource(resources.ModelResource):
         sub_name = str(sub_name).strip()
         sub_slug = slugify(sub_name) or str(uuid.uuid4())[:8]
 
-        # Fanni bazadan olish yoki yaratish
         self.temp_subject, _ = Subject.objects.get_or_create(
             name=sub_name,
             defaults={'slug': sub_slug, 'is_active': True}
@@ -87,50 +82,42 @@ class QuestionResource(resources.ModelResource):
         top_name = str(top_name).strip()
         top_slug = slugify(top_name) or str(uuid.uuid4())[:8]
 
-        # Mavzuni bazadan olish yoki yaratish
         self.temp_topic, _ = Topic.objects.get_or_create(
             name=top_name,
             subject=self.temp_subject,
             defaults={'slug': top_slug, 'is_active': True}
         )
 
-    def before_save_instance(self, instance, using_transactions, dry_run):
-        """
-        Savol bazaga yozilishidan oldin unga Fan va Mavzuni bog'laymiz.
-        Bu 'IntegrityError: NOT NULL constraint failed' xatosini yo'qotadi.
-        """
+    # --- TUZATILGAN JOY ---
+    # **kwargs qo'shildi: endi file_name kabi argumentlar xato bermaydi
+    def before_save_instance(self, instance, using_transactions, dry_run, **kwargs):
         if hasattr(self, 'temp_subject'):
             instance.subject = self.temp_subject
         if hasattr(self, 'temp_topic'):
             instance.topic = self.temp_topic
 
+    # --- TUZATILGAN JOY ---
+    # **kwargs qo'shildi
     def after_save_instance(self, instance, row, **kwargs):
-        """
-        Savol saqlangandan keyin Javoblarni (Variantlarni) yaratamiz.
-        **kwargs - versiya xatolarini (TypeError) yutib yuboradi.
-        """
-        # Agar bu shunchaki "Preview" (dry_run) bo'lsa, javoblarni yozmaymiz
         if kwargs.get('dry_run', False):
             return
 
-        # Variantlar ro'yxati
+        # Variantlarni olish (CSV headerlariga moslab)
         options = [
-            {'text': row.get('A variant'), 'key': 'A'},
-            {'text': row.get('B variant'), 'key': 'B'},
-            {'text': row.get('C variant'), 'key': 'C'},
-            {'text': row.get('D variant'), 'key': 'D'},
+            {'text': row.get('A'), 'key': 'A'},
+            {'text': row.get('B'), 'key': 'B'},
+            {'text': row.get('C'), 'key': 'C'},
+            {'text': row.get('D'), 'key': 'D'},
         ]
 
-        # To'g'ri javobni aniqlash
-        correct_val = row.get("To'g'ri javob")
+        # To'g'ri javobni olish
+        correct_val = row.get('Togri_javob')
         correct_key = str(correct_val).strip().upper() if correct_val else ''
 
-        # Eski javoblarni tozalash (dublikat bo'lmasligi uchun)
         instance.answers.all().delete()
 
-        # Yangi javoblarni yaratish
         for idx, opt in enumerate(options):
-            if opt['text']:  # Variant matni bor bo'lsa
+            if opt['text']:
                 Answer.objects.create(
                     question=instance,
                     text=str(opt['text']).strip(),
@@ -140,7 +127,7 @@ class QuestionResource(resources.ModelResource):
 
 
 # =========================================================
-# ADMIN KLASSLAR (INLINES)
+# ADMIN KLASSLAR
 # =========================================================
 
 class AnswerInline(admin.TabularInline):
@@ -173,7 +160,7 @@ class AttemptAnswerInline(admin.TabularInline):
 
 
 # =========================================================
-# MODEL ADMIN REGISTRATSIYASI
+# REGISTRATSIYA
 # =========================================================
 
 @admin.register(Subject)
@@ -190,8 +177,6 @@ class SubjectAdmin(admin.ModelAdmin):
             obj.total_tests, obj.total_questions
         )
 
-    stats_view.short_description = "Statistika"
-
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
@@ -204,9 +189,6 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(ImportExportModelAdmin):
-    """
-    Savollar boshqaruvi + Excel Import/Export
-    """
     resource_class = QuestionResource
 
     list_display = ('short_text', 'subject', 'topic', 'difficulty', 'is_active', 'created_at')
@@ -215,26 +197,8 @@ class QuestionAdmin(ImportExportModelAdmin):
     autocomplete_fields = ['subject', 'topic']
     inlines = [AnswerInline]
 
-    fieldsets = (
-        ('Asosiy Ma\'lumot', {
-            'fields': (('subject', 'topic'), 'text', 'image')
-        }),
-        ('Sozlamalar', {
-            'fields': (('difficulty', 'question_type'), ('points', 'time_limit'))
-        }),
-        ('AI va Tushuntirish', {
-            'fields': ('explanation', 'hint'),
-            'classes': ('collapse',)
-        }),
-        ('Meta', {
-            'fields': ('source', 'year', 'is_active', 'created_by')
-        }),
-    )
-
     def short_text(self, obj):
         return obj.text[:60] + "..." if len(obj.text) > 60 else obj.text
-
-    short_text.short_description = "Savol"
 
 
 @admin.register(Test)
@@ -254,8 +218,6 @@ class TestAdmin(admin.ModelAdmin):
         return format_html(
             '<span style="background:red; color:white; padding:3px 6px; border-radius:3px;">Inactive</span>')
 
-    status_badge.short_description = "Status"
-
 
 @admin.register(TestAttempt)
 class TestAttemptAdmin(ExportActionModelAdmin):
@@ -271,44 +233,28 @@ class TestAttemptAdmin(ExportActionModelAdmin):
         color = 'green' if obj.percentage >= 80 else 'orange' if obj.percentage >= 60 else 'red'
         return format_html('<b style="color:{}">{}%</b>', color, obj.percentage)
 
-    score_display.short_description = "Natija"
-
     def time_spent_formatted(self, obj):
         return f"{obj.time_spent // 60}m {obj.time_spent % 60}s"
-
-    time_spent_formatted.short_description = "Vaqt"
 
     def json_analysis(self, obj):
         data = {"weak": obj.weak_topics, "strong": obj.strong_topics, "rec": obj.ai_recommendations}
         return pretty_json(data)
 
-    json_analysis.short_description = "AI Tahlili"
 
-
-# =========================================================
-# ANALYTICS ADMINLAR
-# =========================================================
-
+# Qolgan adminlar
 @admin.register(DailyUserStats)
 class DailyUserStatsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'date', 'tests_taken', 'accuracy_rate')
-    list_filter = ('date',)
-    date_hierarchy = 'date'
+    list_display = ('user', 'date', 'tests_taken')
 
 
 @admin.register(UserActivityLog)
 class UserActivityLogAdmin(admin.ModelAdmin):
     list_display = ('user', 'action', 'created_at')
-    list_filter = ('action',)
-    readonly_fields = ('details_pretty',)
-
-    def details_pretty(self, obj): return pretty_json(obj.details)
 
 
 @admin.register(UserTopicPerformance)
 class UserTopicPerformanceAdmin(admin.ModelAdmin):
     list_display = ('user', 'topic', 'current_score')
-    search_fields = ('user__username', 'topic__name')
 
 
 @admin.register(UserSubjectPerformance)
@@ -323,7 +269,7 @@ class UserStudySessionAdmin(admin.ModelAdmin):
 
 @admin.register(UserAnalyticsSummary)
 class UserAnalyticsSummaryAdmin(admin.ModelAdmin):
-    list_display = ('user', 'overall_accuracy', 'total_study_time')
+    list_display = ('user', 'overall_accuracy')
 
 
 @admin.register(SavedQuestion)
@@ -331,9 +277,5 @@ class SavedQuestionAdmin(admin.ModelAdmin):
     list_display = ('user', 'question', 'created_at')
 
 
-# =========================================================
-# ADMIN HEADER SOZLAMALARI
-# =========================================================
 admin.site.site_header = "TestMakon SuperAdmin"
-admin.site.site_title = "TestMakon Tizimi"
-admin.site.index_title = "Boshqaruv Paneli"
+admin.site.site_title = "TestMakon"
