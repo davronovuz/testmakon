@@ -1,175 +1,444 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Xatolar Tahlili | TestMakon{% endblock %}
+{% block title %}Xatolar ustida ishlash | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== HEADER ========== */
+    .wrong-header {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+        border-bottom: 1px solid #FECACA;
+        padding: 2.5rem 0;
+    }
+
+    .wrong-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #991B1B;
+    }
+
+    .wrong-header p {
+        color: #B91C1C;
+        margin: 0;
+    }
+
+    .wrong-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .wrong-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(255,255,255,0.7);
+        border-radius: var(--radius);
+    }
+
+    .wrong-stat-icon {
+        width: 40px;
+        height: 40px;
+        background: #DC2626;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .wrong-stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #991B1B;
+    }
+
+    .wrong-stat-label {
+        font-size: 0.8rem;
+        color: #B91C1C;
+    }
+
+    /* ========== CONTENT ========== */
+    .wrong-content {
+        padding: 2.5rem 0;
+    }
+
+    /* ========== ACTION CARD ========== */
+    .wrong-action-card {
+        background: var(--gradient-primary);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .wrong-action-content h3 {
+        font-size: 1.25rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .wrong-action-content p {
+        color: rgba(255,255,255,0.9);
+        margin: 0;
+    }
+
+    .wrong-action-btn {
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--primary-dark);
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .wrong-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        color: var(--primary-dark);
+    }
+
+    /* ========== FILTERS ========== */
+    .wrong-filters {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .wrong-filter-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .wrong-filter-btn {
+        padding: 0.5rem 1rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .wrong-filter-btn:hover {
+        background: var(--gray-100);
+    }
+
+    .wrong-filter-btn.active {
+        background: #DC2626;
+        border-color: #DC2626;
+        color: white;
+    }
+
+    /* ========== WRONG LIST ========== */
+    .wrong-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .wrong-item {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-left: 4px solid #EF4444;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.2s;
+    }
+
+    .wrong-item:hover {
+        box-shadow: var(--shadow);
+    }
+
+    .wrong-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .wrong-item-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .wrong-item-subject {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.75rem;
+        background: var(--white);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .wrong-item-topic {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+    }
+
+    .wrong-item-date {
+        font-size: 0.8rem;
+        color: var(--gray-400);
+    }
+
+    .wrong-item-body {
+        padding: 1.25rem;
+    }
+
+    .wrong-item-question {
+        font-size: 1rem;
+        color: var(--dark);
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
+    }
+
+    .wrong-item-answers {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .wrong-answer {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+    }
+
+    .wrong-answer.user-selected {
+        background: #FEE2E2;
+        border: 1px solid #FECACA;
+        color: #991B1B;
+    }
+
+    .wrong-answer.correct {
+        background: #D1FAE5;
+        border: 1px solid #A7F3D0;
+        color: #065F46;
+    }
+
+    .wrong-answer.neutral {
+        background: var(--gray-50);
+        color: var(--dark-600);
+    }
+
+    .wrong-answer-letter {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .wrong-answer.user-selected .wrong-answer-letter {
+        background: #DC2626;
+        color: white;
+    }
+
+    .wrong-answer.correct .wrong-answer-letter {
+        background: #10B981;
+        color: white;
+    }
+
+    .wrong-answer.neutral .wrong-answer-letter {
+        background: var(--gray-200);
+        color: var(--dark-600);
+    }
+
+    .wrong-answer-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: auto;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+
+    .wrong-answer.user-selected .wrong-answer-label {
+        background: #DC2626;
+        color: white;
+    }
+
+    .wrong-answer.correct .wrong-answer-label {
+        background: #10B981;
+        color: white;
+    }
+
+    /* ========== EMPTY STATE ========== */
+    .wrong-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-200);
+    }
+
+    .wrong-empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #D1FAE5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: #10B981;
+    }
+
+    .wrong-empty h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: #065F46;
+    }
+
+    .wrong-empty p {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="section-sm bg-light">
+<!-- Header -->
+<div class="wrong-header">
     <div class="container">
-        <div class="card border-0 bg-danger bg-gradient text-white shadow-lg overflow-hidden mb-5 position-relative">
-            <div class="position-absolute end-0 top-0 h-100 w-50 d-none d-lg-block"
-                 style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1)); clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);"></div>
-
-            <div class="card-body p-4 p-lg-5 position-relative z-1">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="icon-box bg-white text-danger rounded-circle shadow-sm">
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                            </div>
-                            <h2 class="fw-bold mb-0">Xatolar ustida ishlash</h2>
-                        </div>
-                        <p class="lead mb-4 text-white-50">
-                            Xatolar — bu o'rganishning eng yaxshi usuli. Noto'g'ri javob berilgan savollarni tahlil qiling va bilimingizni mustahkamlang.
-                        </p>
-
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="{% url 'tests_app:wrong_answers_practice' %}" class="btn btn-light text-danger fw-bold px-4 py-2 shadow-sm pulse-animation">
-                                <i class="bi bi-arrow-repeat me-2"></i> Xatolarni qayta ishlash
-                            </a>
-                            <div class="vr bg-white opacity-25 d-none d-md-block"></div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold fs-5">{{ wrong_answers.count }}</span>
-                                <span class="small text-white-50">ta xato saqlangan</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h1>
+            <i class="bi bi-x-circle-fill"></i>
+            Xatolar ustida ishlash
+        </h1>
+        <p>Noto'g'ri javob bergan savollaringizni qayta ko'rib chiqing</p>
 
         {% if wrong_answers %}
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0 text-dark">So'nggi xatolar</h5>
-
-                    <div class="dropdown">
-                        <button class="btn btn-white border shadow-sm dropdown-toggle small" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-funnel me-1"></i> Fanlar bo'yicha
-                        </button>
-                        <ul class="dropdown-menu border-0 shadow-lg dropdown-menu-end">
-                            <li><a class="dropdown-item fw-bold" href="#">Barchasi</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Matematika</a></li>
-                            <li><a class="dropdown-item" href="#">Fizika</a></li>
-                        </ul>
-                    </div>
+        <div class="wrong-stats">
+            <div class="wrong-stat">
+                <div class="wrong-stat-icon">
+                    <i class="bi bi-x-lg"></i>
                 </div>
-
-                <div class="d-flex flex-column gap-4">
-                    {% for item in wrong_answers %}
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mistake-card">
-                        <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
-                            <span class="badge bg-light text-dark border d-flex align-items-center gap-2">
-                                <span style="color: {{ item.question.subject.color }}">
-                                    {{ item.question.subject.icon|safe }}
-                                </span>
-                                {{ item.question.subject.name }}
-                            </span>
-                            <small class="text-muted">
-                                <i class="bi bi-calendar-event me-1"></i> {{ item.answered_at|date:"d.m.Y" }}
-                            </small>
-                        </div>
-
-                        <div class="card-body pt-0 pb-4 px-4 px-md-5">
-                            <div class="mb-4">
-                                <h5 class="fw-bold text-dark lh-base">{{ item.question.text|linebreaksbr }}</h5>
-                                {% if item.question.image %}
-                                    <div class="mt-3">
-                                        <img src="{{ item.question.image.url }}" class="img-fluid rounded border" style="max-height: 200px;">
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 h-100 position-relative">
-                                        <div class="badge bg-danger position-absolute top-0 start-0 m-3">Sizning javobingiz</div>
-                                        <div class="mt-4 pt-2">
-                                            <p class="fw-bold text-dark mb-0">
-                                                {% if item.selected_answer %}
-                                                    {{ item.selected_answer.text }}
-                                                {% else %}
-                                                    <span class="fst-italic text-muted">Javob belgilanmagan (Vaqt tugagan)</span>
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="position-absolute bottom-0 end-0 m-3 text-danger opacity-25">
-                                            <i class="bi bi-x-circle-fill fs-3"></i>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25 h-100 position-relative">
-                                        <div class="badge bg-success position-absolute top-0 start-0 m-3">To'g'ri javob</div>
-                                        <div class="mt-4 pt-2">
-                                            <ul class="list-unstyled mb-0">
-                                                {% for ans in item.question.answers.all %}
-                                                    {% if ans.is_correct %}
-                                                        <li class="fw-bold text-dark">{{ ans.text }}</li>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                        <div class="position-absolute bottom-0 end-0 m-3 text-success opacity-25">
-                                            <i class="bi bi-check-circle-fill fs-3"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% if item.question.explanation %}
-                            <div class="mt-4">
-                                <button class="btn btn-link text-decoration-none p-0 fw-bold d-flex align-items-center gap-2 text-primary"
-                                        type="button" data-bs-toggle="collapse" data-bs-target="#explain{{ item.id }}">
-                                    <i class="bi bi-info-circle-fill"></i> Tushuntirishni ko'rish
-                                </button>
-                                <div class="collapse mt-2" id="explain{{ item.id }}">
-                                    <div class="card card-body bg-light border-0 text-muted small">
-                                        {{ item.question.explanation }}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
+                <div>
+                    <div class="wrong-stat-value">{{ wrong_answers|length }}</div>
+                    <div class="wrong-stat-label">Noto'g'ri javoblar</div>
                 </div>
             </div>
-        </div>
-        {% else %}
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="bi bi-stars display-1 text-warning"></i>
-            </div>
-            <h3 class="fw-bold">Ajoyib! Hozircha xatolar yo'q.</h3>
-            <p class="text-muted">
-                Siz hamma savollarga to'g'ri javob bergansiz yoki hali test ishlamagansiz.
-            </p>
-            <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary fw-bold px-4 mt-2">
-                Test ishlash
-            </a>
         </div>
         {% endif %}
     </div>
 </div>
 
-<style>
-    .mistake-card {
-        transition: transform 0.2s;
-    }
-    .mistake-card:hover {
-        transform: translateY(-3px);
-    }
-    .pulse-animation {
-        animation: pulse-soft 2s infinite;
-    }
-    @keyframes pulse-soft {
-        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-    }
-</style>
+<!-- Content -->
+<div class="wrong-content">
+    <div class="container">
+        {% if wrong_answers %}
+        <!-- Action Card -->
+        <div class="wrong-action-card">
+            <div class="wrong-action-content">
+                <h3>🎯 Xatolarni to'g'irlang!</h3>
+                <p>Barcha noto'g'ri javoblar bo'yicha mashq qiling</p>
+            </div>
+            <a href="{% url 'tests_app:wrong_answers_practice' %}" class="wrong-action-btn">
+                <i class="bi bi-arrow-repeat"></i>
+                Mashq boshlash
+            </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="wrong-filters">
+            <div class="wrong-filter-group">
+                <button class="wrong-filter-btn active" data-filter="all">Barchasi</button>
+            </div>
+        </div>
+
+        <!-- Wrong Answers List -->
+        <div class="wrong-list">
+            {% for item in wrong_answers %}
+            <div class="wrong-item">
+                <div class="wrong-item-header">
+                    <div class="wrong-item-meta">
+                        <span class="wrong-item-subject">
+                            {{ item.question.subject.icon }}
+                            {{ item.question.subject.name }}
+                        </span>
+                        {% if item.question.topic %}
+                        <span class="wrong-item-topic">{{ item.question.topic.name }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="wrong-item-date">
+                        {{ item.answered_at|date:"d.m.Y H:i" }}
+                    </span>
+                </div>
+
+                <div class="wrong-item-body">
+                    <div class="wrong-item-question">
+                        {{ item.question.text }}
+                    </div>
+
+                    <div class="wrong-item-answers">
+                        {% for answer in item.question.answers.all %}
+                        <div class="wrong-answer {% if item.selected_answer.id == answer.id %}user-selected{% elif answer.is_correct %}correct{% else %}neutral{% endif %}">
+                            <span class="wrong-answer-letter">
+                                {% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}
+                            </span>
+                            <span>{{ answer.text }}</span>
+                            {% if item.selected_answer.id == answer.id %}
+                            <span class="wrong-answer-label">Sizning javobingiz</span>
+                            {% elif answer.is_correct %}
+                            <span class="wrong-answer-label">To'g'ri javob</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="wrong-empty">
+            <div class="wrong-empty-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <h3>Zo'r! Xatolar yo'q</h3>
+            <p>Siz hali noto'g'ri javob bermadingiz yoki barcha xatolarni to'g'irladingiz</p>
+            <a href="{% url 'tests_app:question_bank' %}" class="btn btn-primary">
+                <i class="bi bi-play-fill me-2"></i>Yangi test boshlash
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

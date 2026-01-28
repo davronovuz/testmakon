@@ -1,123 +1,645 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}DTM Simulyatsiya | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ========== HEADER ========== */
+    .dtm-header {
+        background: var(--gradient-dark);
+        padding: 3rem 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dtm-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .dtm-header-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+
+    .dtm-header-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        box-shadow: var(--shadow-primary);
+    }
+
+    .dtm-header h1 {
+        font-size: 2.25rem;
+        color: white;
+        margin-bottom: 0.75rem;
+    }
+
+    .dtm-header p {
+        font-size: 1.1rem;
+        color: var(--gray-400);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* ========== CONTENT ========== */
+    .dtm-content {
+        padding: 3rem 0;
+    }
+
+    /* ========== PRESET BLOCKS ========== */
+    .dtm-section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dtm-section-title i {
+        color: var(--primary);
+    }
+
+    .dtm-presets {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 3rem;
+    }
+
+    @media (max-width: 992px) {
+        .dtm-presets {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .dtm-preset-card {
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .dtm-preset-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .dtm-preset-card.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .dtm-preset-card.popular::before {
+        content: 'Mashhur';
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--accent);
+        color: var(--dark);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+    }
+
+    .dtm-preset-icons {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .dtm-preset-icons span {
+        font-size: 1.75rem;
+    }
+
+    .dtm-preset-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dtm-preset-card p {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+    }
+
+    .dtm-preset-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .dtm-preset-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    /* ========== CUSTOM BLOCK ========== */
+    .dtm-custom-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+    }
+
+    .dtm-custom-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .dtm-custom-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .dtm-custom-hint {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+    }
+
+    .dtm-custom-body {
+        padding: 1.5rem;
+    }
+
+    /* Subject checkboxes */
+    .dtm-subjects-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .dtm-subjects-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dtm-subjects-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .dtm-subject-check {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .dtm-subject-check:hover {
+        background: var(--gray-100);
+    }
+
+    .dtm-subject-check.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .dtm-subject-check input {
+        display: none;
+    }
+
+    .dtm-subject-checkbox {
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--gray-300);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .dtm-subject-check.selected .dtm-subject-checkbox {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .dtm-subject-check.selected .dtm-subject-checkbox::after {
+        content: '✓';
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .dtm-subject-icon {
+        font-size: 1.5rem;
+    }
+
+    .dtm-subject-info h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .dtm-subject-info span {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    /* Settings */
+    .dtm-settings {
+        display: flex;
+        gap: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+        flex-wrap: wrap;
+    }
+
+    .dtm-setting-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .dtm-setting-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .dtm-setting-options {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .dtm-setting-option {
+        padding: 0.6rem 1rem;
+        background: var(--gray-100);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .dtm-setting-option:hover {
+        background: var(--gray-200);
+    }
+
+    .dtm-setting-option.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    /* Summary & Start */
+    .dtm-footer {
+        padding: 1.5rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .dtm-summary {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .dtm-summary-item {
+        text-align: center;
+    }
+
+    .dtm-summary-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .dtm-summary-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        text-transform: uppercase;
+    }
+
+    .dtm-start-btn {
+        padding: 1rem 2.5rem;
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dtm-start-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-primary);
+    }
+
+    .dtm-start-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ========== INFO CARD ========== */
+    .dtm-info {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: #DBEAFE;
+        border-radius: var(--radius-lg);
+        border-left: 4px solid #3B82F6;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .dtm-info-icon {
+        font-size: 1.5rem;
+        color: #2563EB;
+    }
+
+    .dtm-info-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.5rem;
+    }
+
+    .dtm-info-content p {
+        font-size: 0.9rem;
+        color: var(--dark-600);
+        margin: 0;
+    }
+
+    .dtm-info-content ul {
+        margin: 0.5rem 0 0;
+        padding-left: 1.25rem;
+        font-size: 0.9rem;
+        color: var(--dark-600);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <span class="badge bg-dark mb-2 px-3 py-2 rounded-pill">Imtihon Rejimi</span>
-        <h1 class="fw-bold display-6 mb-2">DTM Simulyatsiya</h1>
-        <p class="text-muted lead">Haqiqiy kirish imtihoni muhiti. 3 ta fan, majburiy fanlar bloki.</p>
+<!-- Header -->
+<div class="dtm-header">
+    <div class="container">
+        <div class="dtm-header-content">
+            <div class="dtm-header-icon">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h1>DTM Simulyatsiya</h1>
+            <p>Haqiqiy DTM imtihoni formatida blok test yeching va o'z tayyorgarligingizni tekshiring</p>
+        </div>
     </div>
+</div>
 
-    <div class="row g-4 justify-content-center">
-        {% for block in preset_blocks %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm hover-lift rounded-4">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2">
-                            <i class="bi bi-grid-3x3-gap-fill fs-4"></i>
-                        </div>
-                        <span class="badge bg-light text-muted border">Popular</span>
-                    </div>
+<!-- Content -->
+<div class="dtm-content">
+    <div class="container">
+        <!-- Preset Blocks -->
+        <div class="dtm-section-title">
+            <i class="bi bi-lightning-charge-fill"></i>
+            Tayyor bloklar
+        </div>
 
-                    <h4 class="fw-bold mb-1">{{ block.name }}</h4>
-                    <p class="text-muted small mb-4">{{ block.description }}</p>
-
-                    <div class="mt-auto">
-                        <div class="bg-light rounded-3 p-3 mb-4">
-                            <ul class="list-unstyled mb-0 small">
-                                {% for subj in block.subjects %}
-                                <li class="d-flex align-items-center mb-2">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    {{ subj|title }}
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-
-                        <button disabled class="btn btn-outline-dark w-100 rounded-3">
-                            <i class="bi bi-lock-fill me-1"></i> Tez orada...
-                        </button>
-                    </div>
+        <div class="dtm-presets">
+            {% for block in preset_blocks %}
+            <div class="dtm-preset-card {% if forloop.first %}popular{% endif %}"
+                 data-subjects="{{ block.subjects|join:',' }}">
+                <div class="dtm-preset-icons">
+                    {% for slug in block.subjects %}
+                        {% for subject in subjects %}
+                            {% if subject.slug == slug %}
+                                <span>{{ subject.icon }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                <h3>{{ block.name }}</h3>
+                <p>{{ block.description }}</p>
+                <div class="dtm-preset-meta">
+                    <span><i class="bi bi-journal-text"></i> 90 savol</span>
+                    <span><i class="bi bi-clock"></i> 3 soat</span>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-2 border-dashed border-secondary bg-light bg-opacity-50 rounded-4">
-                <div class="card-body p-4 d-flex flex-column justify-content-center text-center">
-                    <div class="mb-3 text-muted opacity-50">
-                        <i class="bi bi-hammer fs-1"></i>
+        <!-- Custom Block -->
+        <div class="dtm-section-title">
+            <i class="bi bi-sliders"></i>
+            O'zingiz tanlang
+        </div>
+
+        <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
+            {% csrf_token %}
+            <input type="hidden" name="questions_per_subject" id="questionsInput" value="30">
+
+            <div class="dtm-custom-card">
+                <div class="dtm-custom-header">
+                    <h3 class="dtm-custom-title">Fanlarni tanlang</h3>
+                    <span class="dtm-custom-hint">Kamida 2 ta fan tanlang</span>
+                </div>
+
+                <div class="dtm-custom-body">
+                    <div class="dtm-subjects-grid">
+                        {% for subject in subjects %}
+                        <label class="dtm-subject-check" data-id="{{ subject.id }}">
+                            <input type="checkbox" name="subjects" value="{{ subject.id }}">
+                            <div class="dtm-subject-checkbox"></div>
+                            <span class="dtm-subject-icon">{{ subject.icon }}</span>
+                            <div class="dtm-subject-info">
+                                <h4>{{ subject.name }}</h4>
+                                <span>{{ subject.questions_count }} savol</span>
+                            </div>
+                        </label>
+                        {% endfor %}
                     </div>
-                    <h4 class="fw-bold">O'z blokingizni tuzing</h4>
-                    <p class="text-muted small">Istalgan fanlarni tanlab test topshiring</p>
-                    <button class="btn btn-dark mt-3 rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#customBlockModal">
-                        <i class="bi bi-plus-lg me-1"></i> Blok yaratish
+
+                    <div class="dtm-settings">
+                        <div class="dtm-setting-group">
+                            <label class="dtm-setting-label">Har bir fandan savollar</label>
+                            <div class="dtm-setting-options">
+                                <div class="dtm-setting-option" data-value="10">10 ta</div>
+                                <div class="dtm-setting-option" data-value="20">20 ta</div>
+                                <div class="dtm-setting-option selected" data-value="30">30 ta</div>
+                                <div class="dtm-setting-option" data-value="40">40 ta</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dtm-footer">
+                    <div class="dtm-summary">
+                        <div class="dtm-summary-item">
+                            <div class="dtm-summary-value" id="totalSubjects">0</div>
+                            <div class="dtm-summary-label">Fan</div>
+                        </div>
+                        <div class="dtm-summary-item">
+                            <div class="dtm-summary-value" id="totalQuestions">0</div>
+                            <div class="dtm-summary-label">Savol</div>
+                        </div>
+                        <div class="dtm-summary-item">
+                            <div class="dtm-summary-value" id="totalTime">0</div>
+                            <div class="dtm-summary-label">Daqiqa</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
+                        <i class="bi bi-play-fill"></i>
+                        Simulyatsiyani boshlash
                     </button>
                 </div>
             </div>
+        </form>
+
+        <!-- Info -->
+        <div class="dtm-info">
+            <div class="dtm-info-icon">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+            <div class="dtm-info-content">
+                <h4>DTM formati haqida</h4>
+                <p>Haqiqiy DTM imtihonida:</p>
+                <ul>
+                    <li>3 ta fan bo'yicha 90 ta savol</li>
+                    <li>Umumiy vaqt: 3 soat (180 daqiqa)</li>
+                    <li>Har bir savol 2.1 ball</li>
+                    <li>Maksimal ball: 189</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<div class="modal fade" id="customBlockModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <form action="{% url 'tests_app:dtm_simulation_start' %}" method="POST" class="modal-content rounded-4 border-0 shadow-lg">
-            {% csrf_token %}
-            <div class="modal-header border-bottom-0 p-4">
-                <div>
-                    <h5 class="modal-title fw-bold">Blok Konstruktor</h5>
-                    <p class="text-muted small mb-0">Imtihon uchun fanlarni tanlang</p>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 pt-0">
-                <div class="alert alert-light border d-flex align-items-center mb-4" role="alert">
-                    <i class="bi bi-info-circle-fill text-primary me-2"></i>
-                    <div class="small">Kamida 2 ta, ko'pi bilan 4 ta fan tanlashingiz mumkin.</div>
-                </div>
+{% block extra_js %}
+<script>
+    const questionsPerSubject = 30;
+    let selectedSubjects = new Set();
 
-                <div class="row g-3">
-                    {% for subject in subjects %}
-                    <div class="col-md-4 col-sm-6">
-                        <div class="form-check custom-card-check h-100">
-                            <input class="form-check-input" type="checkbox" name="subjects" value="{{ subject.id }}" id="sub{{ subject.id }}">
-                            <label class="form-check-label card p-3 h-100 border shadow-sm" for="sub{{ subject.id }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-light rounded-circle p-2 me-2">
-                                        <i class="bi {{ subject.icon|default:'bi-book' }} text-dark"></i>
-                                    </div>
-                                    <span class="fw-medium">{{ subject.name }}</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+    // Subject checkbox click
+    document.querySelectorAll('.dtm-subject-check').forEach(check => {
+        check.addEventListener('click', function(e) {
+            if (e.target.tagName === 'INPUT') return;
 
-                <div class="mt-4 pt-4 border-top">
-                    <label class="form-label fw-bold">Har bir fan uchun savollar soni</label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" name="questions_per_subject" id="qps10" value="10">
-                        <label class="btn btn-outline-dark" for="qps10">10 ta</label>
+            const checkbox = this.querySelector('input');
+            checkbox.checked = !checkbox.checked;
+            this.classList.toggle('selected', checkbox.checked);
 
-                        <input type="radio" class="btn-check" name="questions_per_subject" id="qps20" value="20">
-                        <label class="btn btn-outline-dark" for="qps20">20 ta</label>
+            const id = this.dataset.id;
+            if (checkbox.checked) {
+                selectedSubjects.add(id);
+            } else {
+                selectedSubjects.delete(id);
+            }
 
-                        <input type="radio" class="btn-check" name="questions_per_subject" id="qps30" value="30" checked>
-                        <label class="btn btn-outline-dark" for="qps30">30 ta (Standart)</label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-top-0 p-4">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Bekor qilish</button>
-                <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold">Boshlash</button>
-            </div>
-        </form>
-    </div>
-</div>
+            updateSummary();
+
+            // Clear preset selection
+            document.querySelectorAll('.dtm-preset-card').forEach(p => p.classList.remove('selected'));
+        });
+    });
+
+    // Preset card click
+    document.querySelectorAll('.dtm-preset-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Clear all
+            document.querySelectorAll('.dtm-preset-card').forEach(p => p.classList.remove('selected'));
+            document.querySelectorAll('.dtm-subject-check').forEach(c => {
+                c.classList.remove('selected');
+                c.querySelector('input').checked = false;
+            });
+            selectedSubjects.clear();
+
+            // Select this preset
+            this.classList.add('selected');
+
+            // Select subjects
+            const subjects = this.dataset.subjects.split(',');
+            subjects.forEach(slug => {
+                document.querySelectorAll('.dtm-subject-check').forEach(check => {
+                    const name = check.querySelector('h4').textContent.toLowerCase();
+                    const subjectSlug = name.replace(/\s+/g, '-').replace("'", '');
+
+                    // Match by checking if slug is similar
+                    if (slug.includes(subjectSlug) || subjectSlug.includes(slug.replace('-', ''))) {
+                        check.classList.add('selected');
+                        check.querySelector('input').checked = true;
+                        selectedSubjects.add(check.dataset.id);
+                    }
+                });
+            });
+
+            updateSummary();
+        });
+    });
+
+    // Questions per subject option
+    document.querySelectorAll('.dtm-setting-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.dtm-setting-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('questionsInput').value = this.dataset.value;
+            updateSummary();
+        });
+    });
+
+    function updateSummary() {
+        const numSubjects = selectedSubjects.size;
+        const questionsPerSubj = parseInt(document.getElementById('questionsInput').value);
+        const totalQuestions = numSubjects * questionsPerSubj;
+        const totalTime = totalQuestions * 2; // 2 minutes per question
+
+        document.getElementById('totalSubjects').textContent = numSubjects;
+        document.getElementById('totalQuestions').textContent = totalQuestions;
+        document.getElementById('totalTime').textContent = totalTime;
+
+        // Enable/disable start button
+        document.getElementById('startBtn').disabled = numSubjects < 2;
+    }
+</script>
 {% endblock %}

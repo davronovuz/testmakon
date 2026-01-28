@@ -1,138 +1,600 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Sozlamalar | {{ subject.name }}{% endblock %}
+{% block title %}{{ subject.name }} - Mashq | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .ps-header {
+        padding: 2.5rem 0;
+        color: white;
+        position: relative;
+    }
+
+    /* Subject gradients */
+    .ps-header.matematika { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+    .ps-header.fizika { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
+    .ps-header.kimyo { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
+    .ps-header.biologiya { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+    .ps-header.ingliz-tili { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
+    .ps-header.tarix { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); }
+    .ps-header.geografiya { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
+    .ps-header.ona-tili { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
+    .ps-header.default { background: linear-gradient(135deg, #64748B 0%, #475569 100%); }
+
+    .ps-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .ps-breadcrumb a {
+        color: white;
+        opacity: 0.8;
+    }
+
+    .ps-breadcrumb a:hover {
+        opacity: 1;
+    }
+
+    .ps-header h1 {
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .ps-header p {
+        font-size: 1rem;
+        color: white;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* ========== CONTENT ========== */
+    .ps-content {
+        padding: 2rem 0 4rem;
+    }
+
+    .ps-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .ps-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== MAIN AREA ========== */
+    .ps-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .ps-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .ps-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ps-card-title i {
+        color: var(--primary);
+    }
+
+    .ps-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========== TOPICS LIST ========== */
+    .ps-topic-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .ps-topic-item:hover {
+        border-color: var(--gray-300);
+        background: var(--gray-50);
+    }
+
+    .ps-topic-item.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .ps-topic-radio {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        margin-right: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .ps-topic-item.selected .ps-topic-radio {
+        border-color: var(--primary);
+        background: var(--primary);
+    }
+
+    .ps-topic-item.selected .ps-topic-radio::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+    }
+
+    .ps-topic-info {
+        flex: 1;
+    }
+
+    .ps-topic-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.15rem;
+    }
+
+    .ps-topic-meta {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .ps-topic-count {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--gray-400);
+        padding: 0.35rem 0.75rem;
+        background: var(--gray-100);
+        border-radius: 20px;
+    }
+
+    .ps-topic-item.selected .ps-topic-count {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* All topics option */
+    .ps-all-topics {
+        background: var(--gray-50);
+        border-style: dashed;
+    }
+
+    .ps-all-topics .ps-topic-radio {
+        border-color: var(--primary-light);
+    }
+
+    /* ========== SIDEBAR ========== */
+    .ps-sidebar {
+        position: sticky;
+        top: 100px;
+        align-self: start;
+    }
+
+    /* Settings Card */
+    .ps-settings-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .ps-settings-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .ps-settings-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .ps-option {
+        padding: 0.6rem 1rem;
+        background: var(--gray-100);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ps-option:hover {
+        background: var(--gray-200);
+    }
+
+    .ps-option.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    /* Difficulty options */
+    .ps-option[data-value="easy"] { border-left: 3px solid #10B981; }
+    .ps-option[data-value="medium"] { border-left: 3px solid #F59E0B; }
+    .ps-option[data-value="hard"] { border-left: 3px solid #EF4444; }
+
+    /* Mode options */
+    .ps-mode-option {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ps-mode-option:hover {
+        background: var(--gray-100);
+    }
+
+    .ps-mode-option.selected {
+        background: var(--primary-glow);
+        border-color: var(--primary);
+    }
+
+    .ps-mode-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--gray-200);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: var(--dark-600);
+    }
+
+    .ps-mode-option.selected .ps-mode-icon {
+        background: var(--primary);
+        color: white;
+    }
+
+    .ps-mode-info h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .ps-mode-info span {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    /* Summary */
+    .ps-summary {
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ps-summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    .ps-summary-item:not(:last-child) {
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .ps-summary-label {
+        color: var(--gray-500);
+    }
+
+    .ps-summary-value {
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    /* Start Button */
+    .ps-start-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+        border-radius: var(--radius-lg);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .ps-start-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-primary);
+    }
+
+    .ps-start-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="card-header bg-white border-bottom p-4">
-                    <div class="d-flex align-items-center">
-                        <a href="{% url 'tests_app:practice_select' %}" class="btn btn-light rounded-circle border me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-arrow-left"></i>
-                        </a>
-                        <div>
-                            <h5 class="mb-0 fw-bold">{{ subject.name }}</h5>
-                            <small class="text-muted">Test parametrlarini sozlash</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body p-4 p-md-5 bg-light bg-opacity-25">
-                    <form action="{% url 'tests_app:practice_start' %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="subject_id" value="{{ subject.id }}">
-
-                        <div class="mb-4 bg-white p-4 rounded-3 border shadow-sm">
-                            <label class="form-label fw-bold mb-3 d-flex align-items-center">
-                                <i class="bi bi-list-ul me-2 text-success"></i> Mavzuni tanlang
-                            </label>
-                            <select name="topic_id" class="form-select form-select-lg border-light bg-light">
-                                <option value="">Barcha mavzular (Umumiy)</option>
-                                {% for topic in topics %}
-                                <option value="{{ topic.id }}">{{ topic.name }} ({{ topic.questions_count }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <div class="bg-white p-4 rounded-3 border shadow-sm h-100">
-                                    <label class="form-label fw-bold mb-3 d-flex align-items-center">
-                                        <i class="bi bi-123 me-2 text-primary"></i> Savollar soni
-                                    </label>
-                                    <div class="btn-group w-100" role="group">
-                                        <input type="radio" class="btn-check" name="question_count" id="q10" value="10" checked>
-                                        <label class="btn btn-outline-primary" for="q10">10</label>
-
-                                        <input type="radio" class="btn-check" name="question_count" id="q20" value="20">
-                                        <label class="btn btn-outline-primary" for="q20">20</label>
-
-                                        <input type="radio" class="btn-check" name="question_count" id="q30" value="30">
-                                        <label class="btn btn-outline-primary" for="q30">30</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="bg-white p-4 rounded-3 border shadow-sm h-100">
-                                    <label class="form-label fw-bold mb-3 d-flex align-items-center">
-                                        <i class="bi bi-speedometer2 me-2 text-warning"></i> Qiyinlik
-                                    </label>
-                                    <select name="difficulty" class="form-select border-light bg-light">
-                                        <option value="all" selected>Aralash</option>
-                                        <option value="easy">Oson</option>
-                                        <option value="medium">O'rta</option>
-                                        <option value="hard">Qiyin</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="form-label fw-bold mb-3">Test Rejimi</label>
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <div class="form-check custom-card-check h-100">
-                                        <input class="form-check-input" type="radio" name="mode" id="mode1" value="practice" checked>
-                                        <label class="form-check-label card h-100 p-3 border shadow-sm" for="mode1">
-                                            <i class="bi bi-lightning-charge-fill text-warning fs-3 mb-2"></i>
-                                            <div class="fw-bold text-dark">Practice</div>
-                                            <div class="small text-muted mt-1" style="font-size: 0.8rem;">Vaqt chegarasiz</div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check custom-card-check h-100">
-                                        <input class="form-check-input" type="radio" name="mode" id="mode2" value="timed">
-                                        <label class="form-check-label card h-100 p-3 border shadow-sm" for="mode2">
-                                            <i class="bi bi-stopwatch-fill text-danger fs-3 mb-2"></i>
-                                            <div class="fw-bold text-dark">Timed</div>
-                                            <div class="small text-muted mt-1" style="font-size: 0.8rem;">2 daq / savol</div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check custom-card-check h-100">
-                                        <input class="form-check-input" type="radio" name="mode" id="mode3" value="exam">
-                                        <label class="form-check-label card h-100 p-3 border shadow-sm" for="mode3">
-                                            <i class="bi bi-mortarboard-fill text-primary fs-3 mb-2"></i>
-                                            <div class="fw-bold text-dark">Real Exam</div>
-                                            <div class="small text-muted mt-1" style="font-size: 0.8rem;">Qattiq nazorat</div>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100 py-3 rounded-3 shadow hover-lift">
-                            <span class="fw-bold fs-5">Testni Boshlash</span>
-                            <i class="bi bi-arrow-right ms-2"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
+<!-- Header -->
+<div class="ps-header {{ subject.slug|default:'default' }}">
+    <div class="container">
+        <div class="ps-breadcrumb">
+            <a href="{% url 'tests_app:practice_select' %}">Mashq</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>{{ subject.name }}</span>
         </div>
+        <h1>
+            <span>{{ subject.icon }}</span>
+            {{ subject.name }}
+        </h1>
+        <p>Mavzu tanlang va mashq boshlang</p>
     </div>
 </div>
 
-<style>
-.custom-card-check .form-check-input {
-    display: none;
-}
-.custom-card-check .form-check-label {
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent !important;
-}
-.custom-card-check .form-check-input:checked + .form-check-label {
-    border-color: var(--bs-success) !important;
-    background-color: #f0fff4;
-    transform: translateY(-2px);
-}
-.hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-}
-</style>
+<!-- Content -->
+<div class="ps-content">
+    <div class="container">
+        <form action="{% url 'tests_app:practice_start' %}" method="post" id="practiceForm">
+            {% csrf_token %}
+            <input type="hidden" name="subject_id" value="{{ subject.id }}">
+            <input type="hidden" name="topic_id" id="topicInput" value="">
+            <input type="hidden" name="question_count" id="countInput" value="10">
+            <input type="hidden" name="difficulty" id="difficultyInput" value="all">
+            <input type="hidden" name="mode" id="modeInput" value="practice">
+
+            <div class="ps-layout">
+                <!-- Main Area - Topics -->
+                <div class="ps-main">
+                    <div class="ps-card">
+                        <div class="ps-card-header">
+                            <h3 class="ps-card-title">
+                                <i class="bi bi-folder"></i>
+                                Mavzu tanlang
+                            </h3>
+                            <span class="text-muted">{{ topics.count }} ta mavzu</span>
+                        </div>
+                        <div class="ps-card-body">
+                            <!-- All topics option -->
+                            <div class="ps-topic-item ps-all-topics selected" data-topic="">
+                                <div class="ps-topic-radio"></div>
+                                <div class="ps-topic-info">
+                                    <div class="ps-topic-name">📚 Barcha mavzular</div>
+                                    <div class="ps-topic-meta">Tasodifiy savollar barcha mavzulardan</div>
+                                </div>
+                                <span class="ps-topic-count">{{ total_questions }} savol</span>
+                            </div>
+
+                            {% for topic in topics %}
+                            <div class="ps-topic-item" data-topic="{{ topic.id }}">
+                                <div class="ps-topic-radio"></div>
+                                <div class="ps-topic-info">
+                                    <div class="ps-topic-name">{{ topic.name }}</div>
+                                    {% if topic.subtopics.count > 0 %}
+                                    <div class="ps-topic-meta">{{ topic.subtopics.count }} ta bo'lim</div>
+                                    {% endif %}
+                                </div>
+                                <span class="ps-topic-count">{{ topic.questions_count }} savol</span>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">Mavzular qo'shilmagan</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar - Settings -->
+                <div class="ps-sidebar">
+                    <div class="ps-card">
+                        <div class="ps-card-header">
+                            <h3 class="ps-card-title">
+                                <i class="bi bi-sliders"></i>
+                                Sozlamalar
+                            </h3>
+                        </div>
+                        <div class="ps-card-body">
+                            <!-- Question Count -->
+                            <div class="ps-settings-group">
+                                <label class="ps-settings-label">Savollar soni</label>
+                                <div class="ps-settings-options">
+                                    <div class="ps-option selected" data-name="count" data-value="10">10</div>
+                                    <div class="ps-option" data-name="count" data-value="20">20</div>
+                                    <div class="ps-option" data-name="count" data-value="30">30</div>
+                                    <div class="ps-option" data-name="count" data-value="50">50</div>
+                                </div>
+                            </div>
+
+                            <!-- Difficulty -->
+                            <div class="ps-settings-group">
+                                <label class="ps-settings-label">Qiyinlik darajasi</label>
+                                <div class="ps-settings-options">
+                                    <div class="ps-option selected" data-name="difficulty" data-value="all">Barchasi</div>
+                                    <div class="ps-option" data-name="difficulty" data-value="easy">Oson</div>
+                                    <div class="ps-option" data-name="difficulty" data-value="medium">O'rta</div>
+                                    <div class="ps-option" data-name="difficulty" data-value="hard">Qiyin</div>
+                                </div>
+                            </div>
+
+                            <!-- Mode -->
+                            <div class="ps-settings-group">
+                                <label class="ps-settings-label">Mashq turi</label>
+
+                                <div class="ps-mode-option selected" data-mode="practice">
+                                    <div class="ps-mode-icon">
+                                        <i class="bi bi-journal-check"></i>
+                                    </div>
+                                    <div class="ps-mode-info">
+                                        <h4>Oddiy mashq</h4>
+                                        <span>Vaqt chegarasisiz</span>
+                                    </div>
+                                </div>
+
+                                <div class="ps-mode-option" data-mode="timed">
+                                    <div class="ps-mode-icon">
+                                        <i class="bi bi-stopwatch"></i>
+                                    </div>
+                                    <div class="ps-mode-info">
+                                        <h4>Vaqt bilan</h4>
+                                        <span>Har savolga 2 daqiqa</span>
+                                    </div>
+                                </div>
+
+                                <div class="ps-mode-option" data-mode="exam">
+                                    <div class="ps-mode-icon">
+                                        <i class="bi bi-mortarboard"></i>
+                                    </div>
+                                    <div class="ps-mode-info">
+                                        <h4>Imtihon rejimi</h4>
+                                        <span>DTM formati, qattiq vaqt</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="ps-summary">
+                                <div class="ps-summary-item">
+                                    <span class="ps-summary-label">Mavzu</span>
+                                    <span class="ps-summary-value" id="summaryTopic">Barcha mavzular</span>
+                                </div>
+                                <div class="ps-summary-item">
+                                    <span class="ps-summary-label">Savollar</span>
+                                    <span class="ps-summary-value" id="summaryCount">10 ta</span>
+                                </div>
+                                <div class="ps-summary-item">
+                                    <span class="ps-summary-label">Taxminiy vaqt</span>
+                                    <span class="ps-summary-value" id="summaryTime">~20 daqiqa</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="ps-start-btn">
+                                <i class="bi bi-play-fill"></i>
+                                Mashqni boshlash
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Topic selection
+    document.querySelectorAll('.ps-topic-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.ps-topic-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+
+            const topicId = this.dataset.topic;
+            document.getElementById('topicInput').value = topicId;
+
+            // Update summary
+            const topicName = topicId ? this.querySelector('.ps-topic-name').textContent : 'Barcha mavzular';
+            document.getElementById('summaryTopic').textContent = topicName;
+        });
+    });
+
+    // Options selection (count, difficulty)
+    document.querySelectorAll('.ps-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const name = this.dataset.name;
+            const value = this.dataset.value;
+
+            // Update UI
+            document.querySelectorAll(`.ps-option[data-name="${name}"]`).forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+
+            // Update hidden input
+            if (name === 'count') {
+                document.getElementById('countInput').value = value;
+                document.getElementById('summaryCount').textContent = value + ' ta';
+
+                // Update time estimate
+                const mode = document.getElementById('modeInput').value;
+                updateTimeEstimate(parseInt(value), mode);
+            } else if (name === 'difficulty') {
+                document.getElementById('difficultyInput').value = value;
+            }
+        });
+    });
+
+    // Mode selection
+    document.querySelectorAll('.ps-mode-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.ps-mode-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+
+            const mode = this.dataset.mode;
+            document.getElementById('modeInput').value = mode;
+
+            // Update time estimate
+            const count = parseInt(document.getElementById('countInput').value);
+            updateTimeEstimate(count, mode);
+        });
+    });
+
+    function updateTimeEstimate(count, mode) {
+        let minutes;
+        if (mode === 'practice') {
+            minutes = count * 2; // 2 min per question estimate
+        } else if (mode === 'timed') {
+            minutes = count * 2; // 2 min per question
+        } else {
+            minutes = count * 1; // 1 min per question (exam mode)
+        }
+
+        document.getElementById('summaryTime').textContent = `~${minutes} daqiqa`;
+    }
+</script>
 {% endblock %}
