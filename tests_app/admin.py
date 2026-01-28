@@ -47,7 +47,11 @@ class QuestionResource(resources.ModelResource):
 
     class Meta:
         model = Question
-        fields = ('text', 'subject', 'topic', 'difficulty', 'points')
+        # YANGI HOLAT (Variantlarni ham qo'shing):
+        fields = (
+            'text', 'subject', 'topic', 'difficulty', 'points',
+            'option_a', 'option_b', 'option_c', 'option_d', 'correct_option'
+        )
         import_id_fields = ('text',)
 
     def after_save_instance(self, instance, using_transactions, dry_run):

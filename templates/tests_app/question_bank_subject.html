@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ subject.name }} | Question Bank{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'tests_app:question_bank' %}" class="text-decoration-none text-muted">Question Bank</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ subject.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px; z-index: 1;">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle p-4 mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi {{ subject.icon|default:'bi-book' }} fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">{{ subject.name }}</h4>
+                        <p class="text-muted small">{{ total_questions }} ta savol</p>
+                    </div>
+
+                    {% if user_stats %}
+                    <div class="border-top pt-3">
+                        <h6 class="fw-bold mb-3">Mening Natijam</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Yechilgan:</span>
+                            <span class="fw-bold">{{ user_stats.total_solved }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Aniqlik:</span>
+                            <span class="fw-bold text-success">{{ user_stats.accuracy }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Vaqt:</span>
+                            <span>{{ user_stats.time_spent }} daq</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{% url 'tests_app:practice_subject' subject.slug %}" class="btn btn-success">
+                            <i class="bi bi-play-fill"></i> Test Ishlash
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="d-flex gap-2 overflow-auto pb-2 mb-4">
+                <a href="?solved=" class="btn btn-sm {% if not current_solved %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
+                    Barchasi
+                </a>
+                <a href="?solved=unsolved" class="btn btn-sm {% if current_solved == 'unsolved' %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
+                    Yechilmagan
+                </a>
+                <a href="?solved=solved" class="btn btn-sm {% if current_solved == 'solved' %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
+                    Yechilgan
+                </a>
+                <a href="?bookmarked=true" class="btn btn-sm {% if current_bookmarked %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
+                    <i class="bi bi-bookmark-fill me-1"></i> Saqlangan
+                </a>
+            </div>
+
+            <div class="accordion" id="topicsAccordion">
+                {% for topic in topics %}
+                <div class="accordion-item border-0 shadow-sm mb-3 rounded overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#topic{{ topic.id }}">
+                            <div class="d-flex align-items-center w-100 me-3">
+                                <span class="fw-bold text-dark">{{ topic.name }}</span>
+                                <span class="badge bg-light text-muted ms-3 border">{{ topic.questions_count }}</span>
+
+                                {% with stats=topic_performances|get_item:topic.id %}
+                                {% if stats %}
+                                <div class="ms-auto d-flex align-items-center gap-3">
+                                    <div class="progress" style="width: 60px; height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: {{ stats.score }}%"></div>
+                                    </div>
+                                    <span class="small fw-bold text-success">{{ stats.score }}%</span>
+                                </div>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="topic{{ topic.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#topicsAccordion">
+                        <div class="accordion-body bg-light">
+                            <div class="list-group list-group-flush rounded bg-white">
+                                <a href="{% url 'tests_app:practice_topic' subject.slug topic.slug %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
+                                    <div>
+                                        <i class="bi bi-collection-play me-2 text-primary"></i>
+                                        <span class="fw-medium">Umumiy test ({{ topic.name }})</span>
+                                    </div>
+                                    <i class="bi bi-chevron-right text-muted small"></i>
+                                </a>
+                                {% for sub in topic.subtopics.all %}
+                                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
+                                    <div>
+                                        <i class="bi bi-dot me-2 text-muted"></i>
+                                        {{ sub.name }}
+                                    </div>
+                                    <span class="badge bg-light text-muted">{{ sub.questions_count }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5">
+                    <p class="text-muted">Mavzular topilmadi.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

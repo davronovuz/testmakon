@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Start Practice | TestMakon{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold mb-2">Practice Mode</h1>
+        <p class="text-muted">O'zingizga mos test yarating va bilimingizni sinang</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="row g-4">
+                {% for subject in subjects %}
+                <div class="col-md-6 col-lg-4">
+                    <a href="{% url 'tests_app:practice_subject' subject.slug %}" class="card h-100 text-decoration-none border-0 shadow-sm hover-scale text-center p-4">
+                        <div class="card-body">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="bi {{ subject.icon|default:'bi-book' }} fs-2"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1">{{ subject.name }}</h5>
+                            <p class="text-muted small mb-0">{{ subject.questions_count }} savollar</p>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-scale {
+    transition: transform 0.2s;
+}
+.hover-scale:hover {
+    transform: scale(1.03);
+    border: 1px solid var(--bs-primary) !important;
+}
+</style>
+{% endblock %}

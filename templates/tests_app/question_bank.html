@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Question Bank | TestMakon{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h3 fw-bold text-dark mb-1">Question Bank</h1>
+            <p class="text-muted mb-0">Bilimingizni oshirish uchun fan tanlang</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'tests_app:practice_select' %}" class="btn btn-outline-success px-4">
+                <i class="bi bi-lightning-fill me-1"></i> Practice
+            </a>
+            <a href="{% url 'tests_app:dtm_simulation' %}" class="btn btn-dark px-4">
+                <i class="bi bi-grid-fill me-1"></i> DTM Blok
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
+        <div class="card-body p-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-0 shadow-none" placeholder="Fan yoki mavzuni qidirish...">
+                    </div>
+                </div>
+                <div class="col-md-3 d-none d-md-block border-start">
+                    <select class="form-select border-0 shadow-none text-muted cursor-pointer">
+                        <option value="">Barcha darajalar</option>
+                        <option value="easy">Oson</option>
+                        <option value="medium">O'rta</option>
+                        <option value="hard">Qiyin</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button class="btn btn-light text-muted">
+                        <i class="bi bi-filter me-1"></i> Filterlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for item in subjects_data %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-lift transition-all">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                            <i class="bi {{ item.subject.icon|default:'bi-book' }} fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">
+                                <a href="{% url 'tests_app:question_bank_subject' item.subject.slug %}" class="text-decoration-none text-dark stretched-link">
+                                    {{ item.subject.name }}
+                                </a>
+                            </h5>
+                            <span class="badge bg-light text-muted border fw-normal">{{ item.questions_count }} savol</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        {% if item.user_progress %}
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted fw-medium">O'zlashtirish</span>
+                            <span class="fw-bold text-success">{{ item.user_progress.accuracy }}%</span>
+                        </div>
+                        <div class="progress rounded-pill bg-light" style="height: 6px;">
+                            <div class="progress-bar bg-success rounded-pill" role="progressbar" style="width: {{ item.user_progress.accuracy }}%"></div>
+                        </div>
+                        {% else %}
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-circle me-2"></i> Boshlanmagan
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="text-muted opacity-50 mb-3">
+                <i class="bi bi-folder-x fs-1"></i>
+            </div>
+            <h5>Hozircha fanlar mavjud emas</h5>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+}
+.transition-all {
+    transition: all .3s ease;
+}
+.icon-box {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

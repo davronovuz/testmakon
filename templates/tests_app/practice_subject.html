@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sozlamalar | {{ subject.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-bottom p-4">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'tests_app:practice_select' %}" class="btn btn-light rounded-circle border me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h5 class="mb-0 fw-bold">{{ subject.name }}</h5>
+                            <small class="text-muted">Test parametrlarini sozlash</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-md-5 bg-light bg-opacity-25">
+                    <form action="{% url 'tests_app:practice_start' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="subject_id" value="{{ subject.id }}">
+
+                        <div class="mb-4 bg-white p-4 rounded-3 border shadow-sm">
+                            <label class="form-label fw-bold mb-3 d-flex align-items-center">
+                                <i class="bi bi-list-ul me-2 text-success"></i> Mavzuni tanlang
+                            </label>
+                            <select name="topic_id" class="form-select form-select-lg border-light bg-light">
+                                <option value="">Barcha mavzular (Umumiy)</option>
+                                {% for topic in topics %}
+                                <option value="{{ topic.id }}">{{ topic.name }} ({{ topic.questions_count }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="bg-white p-4 rounded-3 border shadow-sm h-100">
+                                    <label class="form-label fw-bold mb-3 d-flex align-items-center">
+                                        <i class="bi bi-123 me-2 text-primary"></i> Savollar soni
+                                    </label>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="question_count" id="q10" value="10" checked>
+                                        <label class="btn btn-outline-primary" for="q10">10</label>
+
+                                        <input type="radio" class="btn-check" name="question_count" id="q20" value="20">
+                                        <label class="btn btn-outline-primary" for="q20">20</label>
+
+                                        <input type="radio" class="btn-check" name="question_count" id="q30" value="30">
+                                        <label class="btn btn-outline-primary" for="q30">30</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-white p-4 rounded-3 border shadow-sm h-100">
+                                    <label class="form-label fw-bold mb-3 d-flex align-items-center">
+                                        <i class="bi bi-speedometer2 me-2 text-warning"></i> Qiyinlik
+                                    </label>
+                                    <select name="difficulty" class="form-select border-light bg-light">
+                                        <option value="all" selected>Aralash</option>
+                                        <option value="easy">Oson</option>
+                                        <option value="medium">O'rta</option>
+                                        <option value="hard">Qiyin</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label fw-bold mb-3">Test Rejimi</label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="form-check custom-card-check h-100">
+                                        <input class="form-check-input" type="radio" name="mode" id="mode1" value="practice" checked>
+                                        <label class="form-check-label card h-100 p-3 border shadow-sm" for="mode1">
+                                            <i class="bi bi-lightning-charge-fill text-warning fs-3 mb-2"></i>
+                                            <div class="fw-bold text-dark">Practice</div>
+                                            <div class="small text-muted mt-1" style="font-size: 0.8rem;">Vaqt chegarasiz</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check custom-card-check h-100">
+                                        <input class="form-check-input" type="radio" name="mode" id="mode2" value="timed">
+                                        <label class="form-check-label card h-100 p-3 border shadow-sm" for="mode2">
+                                            <i class="bi bi-stopwatch-fill text-danger fs-3 mb-2"></i>
+                                            <div class="fw-bold text-dark">Timed</div>
+                                            <div class="small text-muted mt-1" style="font-size: 0.8rem;">2 daq / savol</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check custom-card-check h-100">
+                                        <input class="form-check-input" type="radio" name="mode" id="mode3" value="exam">
+                                        <label class="form-check-label card h-100 p-3 border shadow-sm" for="mode3">
+                                            <i class="bi bi-mortarboard-fill text-primary fs-3 mb-2"></i>
+                                            <div class="fw-bold text-dark">Real Exam</div>
+                                            <div class="small text-muted mt-1" style="font-size: 0.8rem;">Qattiq nazorat</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-3 rounded-3 shadow hover-lift">
+                            <span class="fw-bold fs-5">Testni Boshlash</span>
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.custom-card-check .form-check-input {
+    display: none;
+}
+.custom-card-check .form-check-label {
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent !important;
+}
+.custom-card-check .form-check-input:checked + .form-check-label {
+    border-color: var(--bs-success) !important;
+    background-color: #f0fff4;
+    transform: translateY(-2px);
+}
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}

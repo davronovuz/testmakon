@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}DTM Simulyatsiya | TestMakon{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <span class="badge bg-dark mb-2 px-3 py-2 rounded-pill">Imtihon Rejimi</span>
+        <h1 class="fw-bold display-6 mb-2">DTM Simulyatsiya</h1>
+        <p class="text-muted lead">Haqiqiy kirish imtihoni muhiti. 3 ta fan, majburiy fanlar bloki.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        {% for block in preset_blocks %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-lift rounded-4">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2">
+                            <i class="bi bi-grid-3x3-gap-fill fs-4"></i>
+                        </div>
+                        <span class="badge bg-light text-muted border">Popular</span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">{{ block.name }}</h4>
+                    <p class="text-muted small mb-4">{{ block.description }}</p>
+
+                    <div class="mt-auto">
+                        <div class="bg-light rounded-3 p-3 mb-4">
+                            <ul class="list-unstyled mb-0 small">
+                                {% for subj in block.subjects %}
+                                <li class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    {{ subj|title }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <button disabled class="btn btn-outline-dark w-100 rounded-3">
+                            <i class="bi bi-lock-fill me-1"></i> Tez orada...
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-2 border-dashed border-secondary bg-light bg-opacity-50 rounded-4">
+                <div class="card-body p-4 d-flex flex-column justify-content-center text-center">
+                    <div class="mb-3 text-muted opacity-50">
+                        <i class="bi bi-hammer fs-1"></i>
+                    </div>
+                    <h4 class="fw-bold">O'z blokingizni tuzing</h4>
+                    <p class="text-muted small">Istalgan fanlarni tanlab test topshiring</p>
+                    <button class="btn btn-dark mt-3 rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#customBlockModal">
+                        <i class="bi bi-plus-lg me-1"></i> Blok yaratish
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="customBlockModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form action="{% url 'tests_app:dtm_simulation_start' %}" method="POST" class="modal-content rounded-4 border-0 shadow-lg">
+            {% csrf_token %}
+            <div class="modal-header border-bottom-0 p-4">
+                <div>
+                    <h5 class="modal-title fw-bold">Blok Konstruktor</h5>
+                    <p class="text-muted small mb-0">Imtihon uchun fanlarni tanlang</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div class="alert alert-light border d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                    <div class="small">Kamida 2 ta, ko'pi bilan 4 ta fan tanlashingiz mumkin.</div>
+                </div>
+
+                <div class="row g-3">
+                    {% for subject in subjects %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check custom-card-check h-100">
+                            <input class="form-check-input" type="checkbox" name="subjects" value="{{ subject.id }}" id="sub{{ subject.id }}">
+                            <label class="form-check-label card p-3 h-100 border shadow-sm" for="sub{{ subject.id }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 me-2">
+                                        <i class="bi {{ subject.icon|default:'bi-book' }} text-dark"></i>
+                                    </div>
+                                    <span class="fw-medium">{{ subject.name }}</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-4 pt-4 border-top">
+                    <label class="form-label fw-bold">Har bir fan uchun savollar soni</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="questions_per_subject" id="qps10" value="10">
+                        <label class="btn btn-outline-dark" for="qps10">10 ta</label>
+
+                        <input type="radio" class="btn-check" name="questions_per_subject" id="qps20" value="20">
+                        <label class="btn btn-outline-dark" for="qps20">20 ta</label>
+
+                        <input type="radio" class="btn-check" name="questions_per_subject" id="qps30" value="30" checked>
+                        <label class="btn btn-outline-dark" for="qps30">30 ta (Standart)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 p-4">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold">Boshlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

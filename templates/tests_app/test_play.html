@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Test Mode | {{ test.title }}{% endblock %}
+
+{% block content %}
+<style>
+    header, footer { display: none !important; }
+    body { background-color: #f8f9fa; overflow: hidden; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+    .question-card { height: calc(100vh - 140px); overflow-y: auto; }
+    .tools-panel { height: calc(100vh - 140px); background: #fff; border-right: 1px solid #dee2e6; }
+    .option-card { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .option-card:hover { background-color: #f8f9fa; border-color: #dee2e6; }
+    .option-card.selected { border-color: var(--bs-primary); background-color: rgba(13, 110, 253, 0.05); }
+    .option-card.strike { opacity: 0.5; text-decoration: line-through; }
+
+    .nav-grid-btn { width: 35px; height: 35px; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; }
+    .nav-grid-btn.active { border-color: var(--bs-primary); border-width: 2px; }
+    .nav-grid-btn.answered { background-color: #e6f4ea; color: #198754; border-color: #198754; }
+    .nav-grid-btn.flagged { background-color: #fff3cd; color: #ffc107; border-color: #ffc107; }
+</style>
+
+<div id="test-app" class="d-flex flex-column vh-100">
+
+    <div class="bg-white border-bottom px-4 py-2 d-flex justify-content-between align-items-center" style="height: 60px;">
+        <div class="d-flex align-items-center">
+            <h5 class="fw-bold mb-0 me-3">{{ test.subject.name }}</h5>
+            <span class="badge bg-light text-dark border">
+                Savol <span id="current-q-num">1</span> / {{ test.question_count }}
+            </span>
+        </div>
+
+        <div class="d-flex align-items-center bg-light rounded-pill px-3 py-1 border">
+            <i class="bi bi-clock me-2 text-muted"></i>
+            <span id="timer" class="fw-bold font-monospace fs-5">00:00</span>
+            <button class="btn btn-sm btn-link text-muted p-0 ms-2" onclick="toggleTimerVisibility()">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-dark btn-sm d-flex align-items-center" onclick="toggleFullscreen()">
+                <i class="bi bi-arrows-fullscreen me-1"></i> Fullscreen
+            </button>
+            <a href="{% url 'tests_app:test_play_finish' attempt.uuid %}" class="btn btn-primary btn-sm px-3" onclick="return confirm('Testni haqiqatdan yakunlamoqchimisiz?')">
+                Yakunlash
+            </a>
+        </div>
+    </div>
+
+    <div class="flex-grow-1 d-flex">
+
+        <div class="d-none d-lg-block col-lg-4 col-xl-5 tools-panel d-flex flex-column">
+            <ul class="nav nav-tabs nav-justified bg-light px-2 pt-2 border-bottom-0">
+                {% for tool in subject_tools %}
+                <li class="nav-item">
+                    <button class="nav-link small py-2 {% if forloop.first %}active{% endif %}"
+                            data-bs-toggle="tab" data-bs-target="#tool-{{ tool.id }}">
+                        <i class="bi {{ tool.icon }}"></i> {{ tool.name }}
+                    </button>
+                </li>
+                {% empty %}
+                <li class="nav-item">
+                    <button class="nav-link small py-2 active" disabled>
+                        Tools
+                    </button>
+                </li>
+                {% endfor %}
+                <li class="nav-item">
+                    <button class="nav-link small py-2" data-bs-toggle="tab" data-bs-target="#nav-grid">
+                        <i class="bi bi-grid-3x3"></i> Navigator
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content flex-grow-1 bg-white position-relative">
+                {% include "tests_app/components/tools_panel.html" %}
+
+                <div class="tab-pane fade h-100 p-3 overflow-auto" id="nav-grid">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3">Savollar xaritasi</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for q in questions_data %}
+                        <button class="nav-grid-btn rounded {{ q.status }} {% if q.is_bookmarked %}flagged{% endif %}"
+                                onclick="jumpToQuestion({{ q.index }})"
+                                id="nav-btn-{{ q.index }}">
+                            {{ forloop.counter }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 small text-muted">
+                        <div class="d-flex align-items-center mb-2"><span class="nav-grid-btn rounded answered me-2" style="width:20px;height:20px;"></span> Javob berilgan</div>
+                        <div class="d-flex align-items-center mb-2"><span class="nav-grid-btn rounded flagged me-2" style="width:20px;height:20px;"></span> Belgilangan</div>
+                        <div class="d-flex align-items-center"><span class="nav-grid-btn rounded me-2" style="width:20px;height:20px;"></span> Joriy savol</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8 col-xl-7 bg-light d-flex flex-column position-relative">
+            <div class="question-card p-4 p-md-5">
+                {% for q in questions_data %}
+                <div id="question-{{ q.index }}" class="question-block {% if q.index != current_index %}d-none{% endif %}" data-qid="{{ q.question.id }}">
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="toggleBookmark({{ q.question.id }}, this)">
+                            <i class="bi {% if q.is_bookmarked %}bi-bookmark-fill text-warning{% else %}bi-bookmark{% endif %}"></i>
+                            <span>{% if q.is_bookmarked %}Saved{% else %}Mark for Review{% endif %}</span>
+                        </button>
+                        <button class="btn btn-light btn-sm text-muted" onclick="strikethroughMode()">
+                            <i class="bi bi-slash-circle"></i> O'chirish
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="lh-base text-dark">{{ q.question.text|linebreaksbr }}</h5>
+                        {% if q.question.image %}
+                        <img src="{{ q.question.image.url }}" class="img-fluid rounded border mt-3 mb-3" style="max-height: 300px;">
+                        {% endif %}
+                    </div>
+
+                    <div class="options-list d-grid gap-3">
+                        {% for ans in q.answers %}
+                        <div class="card option-card shadow-sm rounded-3 {% if q.user_answer.selected_answer.id == ans.id %}selected{% endif %}"
+                             onclick="selectAnswer({{ q.index }}, {{ q.question.id }}, {{ ans.id }}, this)">
+                            <div class="card-body py-3 px-4 d-flex align-items-center">
+                                <span class="fw-bold border rounded-circle d-flex align-items-center justify-content-center me-3"
+                                      style="width: 32px; height: 32px; font-size: 14px; background: #fff;">
+                                    {{ forloop.counter|add:"64"|stringformat:"c" }}
+                                </span>
+                                <div>{{ ans.text }}</div>
+                                {% if ans.image %}
+                                <img src="{{ ans.image.url }}" class="ms-auto" style="height: 40px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-auto bg-white border-top p-3 d-flex justify-content-between align-items-center" style="height: 80px;">
+                <button class="btn btn-outline-dark px-4 rounded-pill fw-bold" id="prev-btn" onclick="prevQuestion()">
+                    <i class="bi bi-arrow-left me-1"></i> Oldingi
+                </button>
+
+                <button class="btn btn-light d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav">
+                    <i class="bi bi-grid-3x3"></i>
+                </button>
+
+                <button class="btn btn-success px-4 rounded-pill fw-bold" id="next-btn" onclick="nextQuestion()">
+                    Keyingi <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom h-50" tabindex="-1" id="mobileNav">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Savollar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            {% for q in questions_data %}
+            <button class="nav-grid-btn rounded {{ q.status }} {% if q.is_bookmarked %}flagged{% endif %}"
+                    onclick="jumpToQuestion({{ q.index }}); bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav')).hide();">
+                {{ forloop.counter }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentIndex = {{ current_index }};
+    const totalQuestions = {{ test.question_count }};
+    const uuid = "{{ attempt.uuid }}";
+    let remainingTime = {{ remaining_time|default:"null" }};
+
+    // Timer Logic
+    function startTimer() {
+        if (remainingTime === null) {
+            document.getElementById('timer').innerText = "--:--";
+            return;
+        }
+
+        const timerInterval = setInterval(() => {
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                alert("Vaqt tugadi!");
+                window.location.href = "{% url 'tests_app:test_play_finish' attempt.uuid %}";
+                return;
+            }
+
+            remainingTime--;
+            const mins = Math.floor(remainingTime / 60);
+            const secs = remainingTime % 60;
+            document.getElementById('timer').innerText =
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            // Har 1 daqiqada server bilan sinxronlash
+            if (remainingTime % 60 === 0) syncTime();
+
+        }, 1000);
+    }
+
+    // Navigation Logic
+    function showQuestion(index) {
+        // Hide all
+        document.querySelectorAll('.question-block').forEach(el => el.classList.add('d-none'));
+        document.querySelectorAll('.nav-grid-btn').forEach(el => el.classList.remove('active'));
+
+        // Show current
+        const qBlock = document.getElementById(`question-${index}`);
+        if(qBlock) {
+            qBlock.classList.remove('d-none');
+            currentIndex = index;
+            document.getElementById('current-q-num').innerText = index + 1;
+
+            // Buttons state
+            document.getElementById('prev-btn').disabled = (index === 0);
+            document.getElementById('next-btn').innerHTML = (index === totalQuestions - 1)
+                ? 'Yakunlash <i class="bi bi-check-circle ms-1"></i>'
+                : 'Keyingi <i class="bi bi-arrow-right ms-1"></i>';
+
+            // Update Nav Grid
+            const navBtn = document.getElementById(`nav-btn-${index}`);
+            if(navBtn) navBtn.classList.add('active');
+
+            // Serverga current indexni aytib qo'yish (history uchun)
+            fetch(`{% url 'tests_app:api_navigate' attempt.uuid %}?index=${index}`);
+        }
+    }
+
+    function nextQuestion() {
+        if (currentIndex < totalQuestions - 1) {
+            showQuestion(currentIndex + 1);
+        } else {
+            if(confirm("Testni yakunlaysizmi?")) {
+                window.location.href = "{% url 'tests_app:test_play_finish' attempt.uuid %}";
+            }
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            showQuestion(currentIndex - 1);
+        }
+    }
+
+    function jumpToQuestion(index) {
+        showQuestion(index);
+    }
+
+    // Submit Answer Logic (AJAX)
+    function selectAnswer(index, qId, ansId, element) {
+        // Remove active class from siblings
+        const parent = element.parentElement;
+        parent.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+
+        // Add active to clicked
+        element.classList.add('selected');
+
+        // Update nav grid color
+        const navBtn = document.getElementById(`nav-btn-${index}`);
+        if(navBtn) navBtn.classList.add('answered');
+
+        // Send to server
+        fetch(`{% url 'tests_app:api_submit_answer' attempt.uuid %}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                question_id: qId,
+                answer_id: ansId,
+                current_index: index,
+                time_spent: 0 // Hozircha oddiy
+            })
+        });
+    }
+
+    // Bookmark Logic
+    function toggleBookmark(qId, btn) {
+        fetch(`/test/api/play/${uuid}/bookmark/${qId}/`, { // URLni tekshiring
+             method: 'POST',
+             headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(res => res.json())
+        .then(data => {
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
+            const navBtn = document.getElementById(`nav-btn-${currentIndex}`);
+
+            if (data.is_bookmarked) {
+                icon.className = 'bi bi-bookmark-fill text-warning';
+                text.innerText = 'Saved';
+                navBtn.classList.add('flagged');
+            } else {
+                icon.className = 'bi bi-bookmark';
+                text.innerText = 'Mark for Review';
+                navBtn.classList.remove('flagged');
+            }
+        });
+    }
+
+    // Helper functions
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    function toggleTimerVisibility() {
+        const timer = document.getElementById('timer');
+        timer.style.opacity = timer.style.opacity === '0' ? '1' : '0';
+    }
+
+    function syncTime() {
+         fetch(`{% url 'tests_app:api_time_sync' attempt.uuid %}`);
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        startTimer();
+        showQuestion(currentIndex);
+    });
+</script>
+{% endblock %}

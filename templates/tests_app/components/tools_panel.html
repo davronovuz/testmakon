@@ -1,0 +1,65 @@
+{% for tool in subject_tools %}
+<div class="tab-pane fade {% if forloop.first %}show active{% endif %} h-100" id="tool-{{ tool.id }}">
+
+    {% if tool.type == 'desmos' %}
+        <iframe src="https://www.desmos.com/scientific" width="100%" height="100%" frameborder="0" style="border:0"></iframe>
+
+    {% elif tool.type == 'scientific' %}
+        <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+             <iframe src="https://web2.0calc.com/widgets/horizontal/" width="100%" height="100%" frameborder="0"></iframe>
+        </div>
+
+    {% elif tool.type == 'periodic' %}
+        <div class="p-2 h-100 overflow-auto">
+            <img src="https://sciencenotes.org/wp-content/uploads/2023/01/PeriodicTableMuted.png" class="img-fluid" alt="Periodic Table">
+            <p class="text-center text-muted small mt-2">Kattalashtirish uchun bosing</p>
+        </div>
+
+    {% elif tool.type == 'sheet' %}
+        <div class="p-3 h-100 overflow-auto">
+            <h5 class="fw-bold mb-3">Asosiy Formulalar</h5>
+            <div class="accordion" id="formulas">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#f1">
+                            Algebra
+                        </button>
+                    </h2>
+                    <div id="f1" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+                            <p><strong>Kvadrat tenglama:</strong><br> ax² + bx + c = 0</p>
+                            <p><strong>Diskriminant:</strong><br> D = b² - 4ac</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+
+    {% elif tool.type == 'dictionary' %}
+         <div class="p-3 h-100">
+             <label class="form-label fw-bold">So'z qidirish</label>
+             <input type="text" class="form-control mb-3" placeholder="Enter word...">
+             <div class="alert alert-light border">
+                 Natija shu yerda chiqadi...
+             </div>
+         </div>
+
+    {% else %}
+        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+            <div class="text-center">
+                <i class="bi bi-tools fs-1 opacity-25"></i>
+                <p>Ushbu tool tez orada ishga tushadi</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endfor %}
+
+{% if not subject_tools %}
+<div class="d-flex align-items-center justify-content-center h-100 text-muted">
+    <div class="text-center">
+        <i class="bi bi-info-circle fs-1 opacity-25"></i>
+        <p>Bu fan uchun qo'shimcha asboblar yo'q</p>
+    </div>
+</div>
+{% endif %}
