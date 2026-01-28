@@ -30,7 +30,7 @@ def pretty_json(data):
 
 
 # =========================================================
-# IMPORT-EXPORT RESURSLARI (MUKAMMAL VERSIYA)
+# IMPORT-EXPORT RESURSLARI (TUZATILGAN)
 # =========================================================
 
 class QuestionResource(resources.ModelResource):
@@ -59,46 +59,37 @@ class QuestionResource(resources.ModelResource):
 
     class Meta:
         model = Question
-        # MUHIM: Xatolik chiqmasligi uchun barcha ishlatiladigan maydonlar shu yerda bo'lishi SHART
         fields = (
             'id', 'text', 'subject', 'topic', 'difficulty', 'points',
             'option_a', 'option_b', 'option_c', 'option_d', 'correct_option'
         )
-        # Import paytida savollarni matni bo'yicha tekshirish (dublikat bo'lmasligi uchun)
         import_id_fields = ('text',)
 
-    # --- 1. AVTOMATIK YARATISH LOGIKASI (DoesNotExist xatosi uchun) ---
+    # --- 1. AVTOMATIK YARATISH LOGIKASI ---
     def before_import_row(self, row, **kwargs):
         """
         Import qilishdan oldin Fan va Mavzuni tekshiradi.
         Agar ular yo'q bo'lsa, avtomatik yaratadi.
         """
-        self.current_row = row
-
         # 1. FANNI TEKSHIRISH
         subject_name = row.get('Fan')
         subject_obj = None
 
         if subject_name:
-            subject_name = str(subject_name).strip()  # Bo'sh joylarni tozalash
-
-            # Slug yaratish
+            subject_name = str(subject_name).strip()
             slug = slugify(subject_name)
-            if not slug: slug = str(uuid.uuid4())[:8]  # Agar slugify bo'sh qaytarsa (masalan kirillcha)
+            if not slug: slug = str(uuid.uuid4())[:8]
 
-            # Bazadan olish yoki yaratish
             subject_obj, created = Subject.objects.get_or_create(
                 name=subject_name,
                 defaults={'slug': slug, 'is_active': True}
             )
-            # Row'ni yangilash (ForeignKeyWidget topa olishi uchun)
             row['Fan'] = subject_obj.name
 
         # 2. MAVZUNI TEKSHIRISH
         topic_name = row.get('Mavzu')
         if topic_name and subject_obj:
             topic_name = str(topic_name).strip()
-
             slug = slugify(topic_name)
             if not slug: slug = str(uuid.uuid4())[:8]
 
@@ -109,12 +100,12 @@ class QuestionResource(resources.ModelResource):
             )
             row['Mavzu'] = topic_obj.name
 
-    # --- 2. JAVOBLARNI SAQLASH (TypeError xatosi uchun) ---
-    # **kwargs qo'shildi - bu 'file_name' xatosini yo'qotadi
-    def after_save_instance(self, instance, using_transactions, dry_run, **kwargs):
-        if dry_run: return
-
-        row = self.current_row
+    # --- 2. JAVOBLARNI SAQLASH (TUZATILGAN QISM) ---
+    # Argumentlar o'zgartirildi: (instance, row, **kwargs)
+    def after_save_instance(self, instance, row, **kwargs):
+        # Dry run (sinov) rejimini tekshirish
+        if kwargs.get('dry_run', False):
+            return
 
         # Variantlarni ro'yxatga yig'ish
         options = [
@@ -128,7 +119,7 @@ class QuestionResource(resources.ModelResource):
         correct_val = row.get("To'g'ri javob")
         correct_key = str(correct_val).strip().upper() if correct_val else ''
 
-        # Eski javoblarni o'chirish (savol yangilanganda dublikat bo'lmasligi uchun)
+        # Eski javoblarni o'chirish
         instance.answers.all().delete()
 
         # Yangi javoblarni yaratish
@@ -143,7 +134,7 @@ class QuestionResource(resources.ModelResource):
 
 
 # =========================================================
-# INLINES (Ichma-ich jadvallar)
+# INLINES
 # =========================================================
 
 class AnswerInline(admin.TabularInline):
@@ -162,12 +153,11 @@ class TopicInline(admin.TabularInline):
 class TestQuestionInline(admin.TabularInline):
     model = TestQuestion
     extra = 1
-    autocomplete_fields = ['question']  # Savollarni qidirib topish uchun
+    autocomplete_fields = ['question']
     fields = ('question', 'order')
 
 
 class AttemptAnswerInline(admin.TabularInline):
-    """Urinish ichida javoblarni ko'rish (faqat o'qish uchun)"""
     model = AttemptAnswer
     extra = 0
     can_delete = False
@@ -273,7 +263,6 @@ class TestAdmin(admin.ModelAdmin):
 
 @admin.register(TestAttempt)
 class TestAttemptAdmin(ExportActionModelAdmin):
-    """Test urinishlarini boshqarish (asosan o'qish uchun)"""
     list_display = ('user', 'test', 'score_display', 'status', 'started_at', 'time_spent_formatted')
     list_filter = ('status', 'test__subject', 'started_at')
     search_fields = ('user__username', 'user__first_name', 'test__title')
