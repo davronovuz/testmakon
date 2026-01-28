@@ -1,124 +1,789 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ subject.name }} | Question Bank{% endblock %}
+{% block title %}{{ subject.name }} - Savol Banki | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .qbs-header {
+        padding: 2.5rem 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .qbs-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.5;
+    }
+
+    /* Subject specific gradients */
+    .qbs-header.matematika { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+    .qbs-header.fizika { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
+    .qbs-header.kimyo { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
+    .qbs-header.biologiya { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+    .qbs-header.ingliz-tili { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
+    .qbs-header.tarix { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); }
+    .qbs-header.geografiya { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
+    .qbs-header.ona-tili { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
+    .qbs-header.adabiyot { background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%); }
+    .qbs-header.default { background: linear-gradient(135deg, #64748B 0%, #475569 100%); }
+
+    .qbs-header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .qbs-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .qbs-breadcrumb a {
+        color: white;
+        opacity: 0.8;
+    }
+
+    .qbs-breadcrumb a:hover {
+        opacity: 1;
+    }
+
+    .qbs-header h1 {
+        font-size: 2.25rem;
+        color: white;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .qbs-header h1 .icon {
+        font-size: 2.5rem;
+    }
+
+    .qbs-header-desc {
+        font-size: 1.05rem;
+        opacity: 0.9;
+        margin: 0;
+        color: white;
+    }
+
+    /* Stats in header */
+    .qbs-header-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .qbs-header-stat {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius);
+        padding: 0.75rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .qbs-header-stat i {
+        font-size: 1.25rem;
+    }
+
+    .qbs-header-stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .qbs-header-stat-label {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    /* ========== MAIN LAYOUT ========== */
+    .qbs-content {
+        padding: 2rem 0;
+    }
+
+    .qbs-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .qbs-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== SIDEBAR ========== */
+    .qbs-sidebar {
+        position: sticky;
+        top: 100px;
+        align-self: start;
+    }
+
+    .qbs-filter-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 1rem;
+    }
+
+    .qbs-filter-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-400);
+        margin-bottom: 1rem;
+    }
+
+    .qbs-filter-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius);
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .qbs-filter-item:hover {
+        background: var(--gray-100);
+    }
+
+    .qbs-filter-item.active {
+        background: var(--primary-glow);
+        border-color: var(--primary-light);
+    }
+
+    .qbs-filter-item label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dark-600);
+        margin: 0;
+    }
+
+    .qbs-filter-item input[type="checkbox"],
+    .qbs-filter-item input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+    }
+
+    .qbs-filter-count {
+        font-size: 0.8rem;
+        color: var(--gray-400);
+        font-weight: 500;
+    }
+
+    /* Start Practice Button */
+    .qbs-start-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+
+    /* ========== MAIN AREA ========== */
+    .qbs-main {
+        min-width: 0;
+    }
+
+    /* Search & Sort Bar */
+    .qbs-toolbar {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .qbs-search {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .qbs-search input {
+        width: 100%;
+        padding: 0.65rem 1rem 0.65rem 2.75rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        background: var(--gray-50);
+        transition: all 0.2s;
+    }
+
+    .qbs-search input:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: var(--white);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .qbs-search i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+    }
+
+    .qbs-sort select {
+        padding: 0.65rem 2rem 0.65rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-weight: 500;
+        background: var(--gray-50);
+        cursor: pointer;
+    }
+
+    /* ========== TOPICS LIST ========== */
+    .qbs-topics-section {
+        margin-bottom: 2rem;
+    }
+
+    .qbs-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .qbs-section-count {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+
+    .qbs-topic-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .qbs-topic-card:hover {
+        box-shadow: var(--shadow);
+        border-color: var(--gray-300);
+    }
+
+    .qbs-topic-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+    }
+
+    .qbs-topic-header:hover {
+        background: var(--gray-50);
+    }
+
+    .qbs-topic-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .qbs-topic-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .qbs-topic-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .qbs-topic-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        color: var(--gray-500);
+    }
+
+    .qbs-topic-stat i {
+        font-size: 0.9rem;
+    }
+
+    .qbs-topic-badges {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .qbs-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+    }
+
+    .qbs-badge.weak {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .qbs-badge.strong {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .qbs-badge.new {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .qbs-topic-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .qbs-topic-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: var(--radius);
+        transition: all 0.2s;
+    }
+
+    .qbs-topic-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+    }
+
+    .qbs-topic-btn.primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-primary);
+    }
+
+    .qbs-topic-btn.outline {
+        background: transparent;
+        color: var(--dark-600);
+        border: 1px solid var(--gray-300);
+    }
+
+    .qbs-topic-btn.outline:hover {
+        background: var(--gray-100);
+    }
+
+    /* Topic Expand Content */
+    .qbs-topic-expand {
+        display: none;
+        padding: 0 1.25rem 1.25rem;
+        border-top: 1px solid var(--gray-100);
+    }
+
+    .qbs-topic-card.expanded .qbs-topic-expand {
+        display: block;
+    }
+
+    .qbs-subtopics {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0 0;
+    }
+
+    .qbs-subtopic-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .qbs-subtopic-item:hover {
+        background: var(--gray-100);
+    }
+
+    .qbs-subtopic-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark-600);
+    }
+
+    .qbs-subtopic-count {
+        font-size: 0.8rem;
+        color: var(--gray-400);
+    }
+
+    /* ========== PROGRESS CARD ========== */
+    .qbs-progress-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+    }
+
+    .qbs-progress-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+
+    .qbs-progress-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .qbs-progress-stat {
+        text-align: center;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .qbs-progress-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .qbs-progress-stat-value.green { color: var(--primary-dark); }
+    .qbs-progress-stat-value.red { color: #DC2626; }
+
+    .qbs-progress-stat-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    /* ========== EMPTY STATE ========== */
+    .qbs-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-200);
+    }
+
+    .qbs-empty-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gray-100);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: var(--gray-400);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'tests_app:question_bank' %}" class="text-decoration-none text-muted">Question Bank</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ subject.name }}</li>
-        </ol>
-    </nav>
-
-    <div class="row g-4">
-        <div class="col-lg-3">
-            <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 20px; z-index: 1;">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle p-4 mb-3" style="width: 80px; height: 80px;">
-                            <i class="bi {{ subject.icon|default:'bi-book' }} fs-2"></i>
-                        </div>
-                        <h4 class="fw-bold">{{ subject.name }}</h4>
-                        <p class="text-muted small">{{ total_questions }} ta savol</p>
-                    </div>
-
-                    {% if user_stats %}
-                    <div class="border-top pt-3">
-                        <h6 class="fw-bold mb-3">Mening Natijam</h6>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Yechilgan:</span>
-                            <span class="fw-bold">{{ user_stats.total_solved }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Aniqlik:</span>
-                            <span class="fw-bold text-success">{{ user_stats.accuracy }}%</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Vaqt:</span>
-                            <span>{{ user_stats.time_spent }} daq</span>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <div class="d-grid gap-2 mt-4">
-                        <a href="{% url 'tests_app:practice_subject' subject.slug %}" class="btn btn-success">
-                            <i class="bi bi-play-fill"></i> Test Ishlash
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-9">
-            <div class="d-flex gap-2 overflow-auto pb-2 mb-4">
-                <a href="?solved=" class="btn btn-sm {% if not current_solved %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
-                    Barchasi
-                </a>
-                <a href="?solved=unsolved" class="btn btn-sm {% if current_solved == 'unsolved' %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
-                    Yechilmagan
-                </a>
-                <a href="?solved=solved" class="btn btn-sm {% if current_solved == 'solved' %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
-                    Yechilgan
-                </a>
-                <a href="?bookmarked=true" class="btn btn-sm {% if current_bookmarked %}btn-dark{% else %}btn-outline-dark border-0 bg-light{% endif %} rounded-pill px-3">
-                    <i class="bi bi-bookmark-fill me-1"></i> Saqlangan
-                </a>
+<!-- Page Header -->
+<div class="qbs-header {{ subject.slug|default:'default' }}">
+    <div class="container">
+        <div class="qbs-header-content">
+            <div class="qbs-breadcrumb">
+                <a href="{% url 'tests_app:question_bank' %}">Savol Banki</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>{{ subject.name }}</span>
             </div>
 
-            <div class="accordion" id="topicsAccordion">
-                {% for topic in topics %}
-                <div class="accordion-item border-0 shadow-sm mb-3 rounded overflow-hidden">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-white shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#topic{{ topic.id }}">
-                            <div class="d-flex align-items-center w-100 me-3">
-                                <span class="fw-bold text-dark">{{ topic.name }}</span>
-                                <span class="badge bg-light text-muted ms-3 border">{{ topic.questions_count }}</span>
+            <h1>
+                <span class="icon">{{ subject.icon }}</span>
+                {{ subject.name }}
+            </h1>
+            <p class="qbs-header-desc">{{ subject.description|default:"Bu fan bo'yicha savollar va mavzular" }}</p>
 
-                                {% with stats=topic_performances|get_item:topic.id %}
-                                {% if stats %}
-                                <div class="ms-auto d-flex align-items-center gap-3">
-                                    <div class="progress" style="width: 60px; height: 6px;">
-                                        <div class="progress-bar bg-success" style="width: {{ stats.score }}%"></div>
-                                    </div>
-                                    <span class="small fw-bold text-success">{{ stats.score }}%</span>
-                                </div>
-                                {% endif %}
-                                {% endwith %}
-                            </div>
-                        </button>
-                    </h2>
-                    <div id="topic{{ topic.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#topicsAccordion">
-                        <div class="accordion-body bg-light">
-                            <div class="list-group list-group-flush rounded bg-white">
-                                <a href="{% url 'tests_app:practice_topic' subject.slug topic.slug %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
-                                    <div>
-                                        <i class="bi bi-collection-play me-2 text-primary"></i>
-                                        <span class="fw-medium">Umumiy test ({{ topic.name }})</span>
-                                    </div>
-                                    <i class="bi bi-chevron-right text-muted small"></i>
-                                </a>
-                                {% for sub in topic.subtopics.all %}
-                                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
-                                    <div>
-                                        <i class="bi bi-dot me-2 text-muted"></i>
-                                        {{ sub.name }}
-                                    </div>
-                                    <span class="badge bg-light text-muted">{{ sub.questions_count }}</span>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
+            <div class="qbs-header-stats">
+                <div class="qbs-header-stat">
+                    <i class="bi bi-journal-text"></i>
+                    <div>
+                        <div class="qbs-header-stat-value">{{ total_questions }}</div>
+                        <div class="qbs-header-stat-label">Jami savollar</div>
                     </div>
                 </div>
-                {% empty %}
-                <div class="text-center py-5">
-                    <p class="text-muted">Mavzular topilmadi.</p>
+                <div class="qbs-header-stat">
+                    <i class="bi bi-folder"></i>
+                    <div>
+                        <div class="qbs-header-stat-value">{{ topics.count }}</div>
+                        <div class="qbs-header-stat-label">Mavzular</div>
+                    </div>
                 </div>
-                {% endfor %}
+                {% if user_stats %}
+                <div class="qbs-header-stat">
+                    <i class="bi bi-check-circle"></i>
+                    <div>
+                        <div class="qbs-header-stat-value">{{ user_stats.accuracy }}%</div>
+                        <div class="qbs-header-stat-label">Aniqlik</div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<div class="qbs-content">
+    <div class="container">
+        <div class="qbs-layout">
+            <!-- Sidebar -->
+            <aside class="qbs-sidebar">
+                <!-- Filters -->
+                <div class="qbs-filter-card">
+                    <div class="qbs-filter-title">Qiyinlik</div>
+                    <div class="qbs-filter-item {% if current_difficulty == '' %}active{% endif %}">
+                        <label>
+                            <input type="radio" name="difficulty" value="" {% if current_difficulty =='' %}checked{% endif %}>
+                            Barchasi
+                        </label>
+                    </div>
+                    <div class="qbs-filter-item {% if current_difficulty == 'easy' %}active{% endif %}">
+                        <label>
+                            <input type="radio" name="difficulty" value="easy" {% if current_difficulty == "easy" %}checked{% endif %}>
+                            🟢 Oson
+                        </label>
+                    </div>
+                    <div class="qbs-filter-item {% if current_difficulty == 'medium' %}active{% endif %}">
+                        <label>
+                            <input type="radio" name="difficulty" value="medium" {% if current_difficulty == "medium" %}checked{% endif %}>
+                            🟡 O'rta
+                        </label>
+                    </div>
+                    <div class="qbs-filter-item {% if current_difficulty == 'hard' %}active{% endif %}">
+                        <label>
+                            <input type="radio" name="difficulty" value="hard" {% if current_difficulty == "hard" %}checked{% endif %}>
+                            🔴 Qiyin
+                        </label>
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                <div class="qbs-filter-card">
+                    <div class="qbs-filter-title">Holat</div>
+                    <div class="qbs-filter-item">
+                        <label>
+                            <input type="checkbox" name="bookmarked">
+                            <i class="bi bi-bookmark-fill text-primary"></i> Saqlangan
+                        </label>
+                        <span class="qbs-filter-count">{{ bookmarked_count }}</span>
+                    </div>
+                    <div class="qbs-filter-item">
+                        <label>
+                            <input type="checkbox" name="weak">
+                            <i class="bi bi-exclamation-circle text-danger"></i> Kuchsiz
+                        </label>
+                    </div>
+                    <div class="qbs-filter-item">
+                        <label>
+                            <input type="checkbox" name="unsolved">
+                            <i class="bi bi-circle text-muted"></i> Yechilmagan
+                        </label>
+                    </div>
+                </div>
+
+                <!-- User Progress -->
+                {% if user_stats %}
+                <div class="qbs-progress-card">
+                    <div class="qbs-progress-title">Sizning progressingiz</div>
+                    <div class="qbs-progress-stats">
+                        <div class="qbs-progress-stat">
+                            <div class="qbs-progress-stat-value green">{{ user_stats.correct }}</div>
+                            <div class="qbs-progress-stat-label">To'g'ri</div>
+                        </div>
+                        <div class="qbs-progress-stat">
+                            <div class="qbs-progress-stat-value">{{ user_stats.total_solved }}</div>
+                            <div class="qbs-progress-stat-label">Yechilgan</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <!-- Start Practice -->
+                <form action="{% url 'tests_app:practice_start' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="subject_id" value="{{ subject.id }}">
+                    <input type="hidden" name="question_count" value="10">
+                    <input type="hidden" name="mode" value="practice">
+                    <button type="submit" class="btn btn-primary qbs-start-btn">
+                        <i class="bi bi-play-fill me-2"></i>Mashq boshlash
+                    </button>
+                </form>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="qbs-main">
+                <!-- Toolbar -->
+                <div class="qbs-toolbar">
+                    <div class="qbs-search">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Mavzu qidirish..." id="topicSearch">
+                    </div>
+                    <div class="qbs-sort">
+                        <select id="topicSort">
+                            <option value="order">Tartib bo'yicha</option>
+                            <option value="name">Nom bo'yicha</option>
+                            <option value="questions">Savollar soni</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Topics List -->
+                <div class="qbs-topics-section">
+                    <div class="qbs-section-title">
+                        <span>Mavzular</span>
+                        <span class="qbs-section-count">{{ topics.count }} ta mavzu</span>
+                    </div>
+
+                    {% if topics %}
+                        {% for topic in topics %}
+                        <div class="qbs-topic-card" data-topic="{{ topic.name|lower }}">
+                            <div class="qbs-topic-header" onclick="toggleTopic(this)">
+                                <div class="qbs-topic-info">
+                                    <h4 class="qbs-topic-name">{{ topic.name }}</h4>
+                                    <div class="qbs-topic-badges">
+                                        {% if topic.id in topic_performances %}
+                                            {% with perf=topic_performances|get_item:topic.id %}
+                                                {% if perf.is_weak %}
+                                                <span class="qbs-badge weak">Kuchsiz</span>
+                                                {% elif perf.is_strong %}
+                                                <span class="qbs-badge strong">Kuchli</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="qbs-topic-meta">
+                                    <div class="qbs-topic-stat">
+                                        <i class="bi bi-journal-text"></i>
+                                        {{ topic.questions_count }} savol
+                                    </div>
+                                    {% if topic.subtopics.count > 0 %}
+                                    <div class="qbs-topic-stat">
+                                        <i class="bi bi-diagram-3"></i>
+                                        {{ topic.subtopics.count }} bo'lim
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="qbs-topic-actions">
+                                    <a href="{% url 'tests_app:practice_topic' subject_slug=subject.slug topic_slug=topic.slug %}"
+                                       class="qbs-topic-btn primary"
+                                       onclick="event.stopPropagation()">
+                                        Boshlash
+                                    </a>
+                                    <button class="qbs-topic-btn outline" onclick="event.stopPropagation()">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {% if topic.subtopics.all %}
+                            <div class="qbs-topic-expand">
+                                <ul class="qbs-subtopics">
+                                    {% for subtopic in topic.subtopics.all %}
+                                    <li class="qbs-subtopic-item">
+                                        <span class="qbs-subtopic-name">{{ subtopic.name }}</span>
+                                        <span class="qbs-subtopic-count">{{ subtopic.questions.count }} savol</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="qbs-empty">
+                        <div class="qbs-empty-icon">
+                            <i class="bi bi-folder-x"></i>
+                        </div>
+                        <h3>Mavzular topilmadi</h3>
+                        <p class="text-muted">Bu fan uchun mavzular hali qo'shilmagan.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle topic expand
+    function toggleTopic(header) {
+        const card = header.closest('.qbs-topic-card');
+        card.classList.toggle('expanded');
+        const icon = header.querySelector('.qbs-topic-btn.outline i');
+        if (icon) {
+            icon.classList.toggle('bi-chevron-down');
+            icon.classList.toggle('bi-chevron-up');
+        }
+    }
+
+    // Search topics
+    document.getElementById('topicSearch').addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.qbs-topic-card').forEach(card => {
+            const name = card.dataset.topic;
+            card.style.display = name.includes(query) ? 'block' : 'none';
+        });
+    });
+
+    // Filter by difficulty
+    document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const url = new URL(window.location);
+            if (this.value) {
+                url.searchParams.set('difficulty', this.value);
+            } else {
+                url.searchParams.delete('difficulty');
+            }
+            window.location = url;
+        });
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,843 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Natija | {{ attempt.test.title }} | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .result-header {
+        padding: 3rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .result-header.excellent {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    }
+
+    .result-header.good {
+        background: linear-gradient(135deg, #8BC540 0%, #6BA832 100%);
+    }
+
+    .result-header.average {
+        background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+    }
+
+    .result-header.poor {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    }
+
+    .result-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .result-header-content {
+        position: relative;
+        z-index: 1;
+        color: white;
+    }
+
+    .result-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+    }
+
+    .result-header h1 {
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+
+    /* Score Circle */
+    .result-score-circle {
+        width: 160px;
+        height: 160px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 4px solid rgba(255,255,255,0.3);
+    }
+
+    .result-score-value {
+        font-size: 3rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .result-score-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-top: 0.25rem;
+    }
+
+    /* Stats Row */
+    .result-stats-row {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .result-stat {
+        text-align: center;
+    }
+
+    .result-stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+    }
+
+    .result-stat-label {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    /* ========== CONTENT ========== */
+    .result-content {
+        padding: 2rem 0 4rem;
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .result-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== CARDS ========== */
+    .result-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .result-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .result-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .result-card-title i {
+        color: var(--primary);
+    }
+
+    .result-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========== TOPIC ANALYSIS ========== */
+    .topic-analysis-item {
+        margin-bottom: 1.25rem;
+    }
+
+    .topic-analysis-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .topic-analysis-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .topic-analysis-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .topic-analysis-name .badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .topic-analysis-score {
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .topic-analysis-score.good {
+        color: #10B981;
+    }
+
+    .topic-analysis-score.average {
+        color: #F59E0B;
+    }
+
+    .topic-analysis-score.poor {
+        color: #EF4444;
+    }
+
+    .topic-analysis-bar {
+        height: 8px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .topic-analysis-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .topic-analysis-fill.good {
+        background: linear-gradient(90deg, #10B981, #059669);
+    }
+
+    .topic-analysis-fill.average {
+        background: linear-gradient(90deg, #FBBF24, #F59E0B);
+    }
+
+    .topic-analysis-fill.poor {
+        background: linear-gradient(90deg, #EF4444, #DC2626);
+    }
+
+    .topic-analysis-meta {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.35rem;
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    /* ========== ANSWERS LIST ========== */
+    .answers-filter {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .answers-filter-btn {
+        padding: 0.5rem 1rem;
+        background: var(--gray-100);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .answers-filter-btn:hover {
+        background: var(--gray-200);
+    }
+
+    .answers-filter-btn.active {
+        background: var(--dark);
+        border-color: var(--dark);
+        color: var(--white);
+    }
+
+    .answer-item {
+        padding: 1.25rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        margin-bottom: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .answer-item:hover {
+        box-shadow: var(--shadow-sm);
+    }
+
+    .answer-item.correct {
+        border-color: #10B981;
+        background: #F0FDF4;
+    }
+
+    .answer-item.incorrect {
+        border-color: #EF4444;
+        background: #FEF2F2;
+    }
+
+    .answer-item.skipped {
+        border-color: var(--gray-300);
+        background: var(--gray-50);
+    }
+
+    .answer-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .answer-item-number {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .answer-item-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .answer-item.correct .answer-item-badge {
+        background: #10B981;
+        color: white;
+    }
+
+    .answer-item.incorrect .answer-item-badge {
+        background: #EF4444;
+        color: white;
+    }
+
+    .answer-item.skipped .answer-item-badge {
+        background: var(--gray-300);
+        color: var(--gray-600);
+    }
+
+    .answer-item-topic {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .answer-item-status {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .answer-item-status.correct {
+        color: #10B981;
+    }
+
+    .answer-item-status.incorrect {
+        color: #EF4444;
+    }
+
+    .answer-item-status.skipped {
+        color: var(--gray-500);
+    }
+
+    .answer-item-question {
+        font-size: 0.95rem;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        line-height: 1.6;
+    }
+
+    .answer-item-choices {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .answer-choice {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--white);
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .answer-choice.user-selected {
+        background: #FEE2E2;
+        border: 1px solid #FECACA;
+    }
+
+    .answer-choice.correct-answer {
+        background: #D1FAE5;
+        border: 1px solid #A7F3D0;
+    }
+
+    .answer-choice-letter {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: var(--gray-200);
+        color: var(--dark-600);
+        flex-shrink: 0;
+    }
+
+    .answer-choice.correct-answer .answer-choice-letter {
+        background: #10B981;
+        color: white;
+    }
+
+    .answer-choice.user-selected .answer-choice-letter {
+        background: #EF4444;
+        color: white;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .result-sidebar {
+        position: sticky;
+        top: 100px;
+        align-self: start;
+    }
+
+    /* XP Card */
+    .xp-card {
+        background: var(--gradient-primary);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .xp-card-icon {
+        width: 56px;
+        height: 56px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+
+    .xp-card-value {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .xp-card-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* Actions Card */
+    .actions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+        background: var(--gray-100);
+        border-color: var(--gray-300);
+        transform: translateX(4px);
+    }
+
+    .action-btn i {
+        font-size: 1.1rem;
+        color: var(--primary);
+    }
+
+    .action-btn.primary {
+        background: var(--gradient-primary);
+        border-color: transparent;
+        color: white;
+    }
+
+    .action-btn.primary i {
+        color: white;
+    }
+
+    .action-btn.primary:hover {
+        box-shadow: var(--shadow-primary);
+    }
+
+    /* ========== RECOMMENDATIONS ========== */
+    .recommendation-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        margin-bottom: 0.75rem;
+    }
+
+    .recommendation-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .recommendation-icon.warning {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .recommendation-icon.success {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .recommendation-icon.info {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .recommendation-content h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.25rem;
+    }
+
+    .recommendation-content p {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="result-header {% if attempt.percentage >= 90 %}excellent{% elif attempt.percentage >= 70 %}good{% elif attempt.percentage >= 50 %}average{% else %}poor{% endif %}">
+    <div class="container">
+        <div class="result-header-content">
+            <div class="result-icon">
+                {% if attempt.percentage >= 90 %}
+                <i class="bi bi-trophy-fill"></i>
+                {% elif attempt.percentage >= 70 %}
+                <i class="bi bi-emoji-smile-fill"></i>
+                {% elif attempt.percentage >= 50 %}
+                <i class="bi bi-emoji-neutral-fill"></i>
+                {% else %}
+                <i class="bi bi-emoji-frown-fill"></i>
+                {% endif %}
+            </div>
+
+            <h1>
+                {% if attempt.percentage >= 90 %}Zo'r natija!
+                {% elif attempt.percentage >= 70 %}Yaxshi natija!
+                {% elif attempt.percentage >= 50 %}O'rtacha natija
+                {% else %}Mashq qiling!
+                {% endif %}
+            </h1>
+            <p class="result-subtitle">{{ attempt.test.title }}</p>
+
+            <div class="result-score-circle">
+                <span class="result-score-value">{{ attempt.percentage|floatformat:0 }}%</span>
+                <span class="result-score-label">Natija</span>
+            </div>
+
+            <div class="result-stats-row">
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.correct_answers }}</div>
+                    <div class="result-stat-label">To'g'ri</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.wrong_answers }}</div>
+                    <div class="result-stat-label">Noto'g'ri</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.skipped_questions }}</div>
+                    <div class="result-stat-label">O'tkazilgan</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.time_spent|floatformat:0 }}s</div>
+                    <div class="result-stat-label">Vaqt</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="result-content">
+    <div class="container">
+        <div class="result-grid">
+            <!-- Main Column -->
+            <div class="result-main">
+                <!-- Topic Analysis -->
+                {% if topic_stats %}
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            Mavzular bo'yicha tahlil
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        {% for topic_name, stats in topic_stats.items %}
+                        <div class="topic-analysis-item">
+                            <div class="topic-analysis-header">
+                                <span class="topic-analysis-name">
+                                    {{ topic_name }}
+                                    {% if stats.is_weak %}
+                                    <span class="badge bg-danger">Kuchsiz</span>
+                                    {% endif %}
+                                </span>
+                                <span class="topic-analysis-score {% if stats.percentage >= 70 %}good{% elif stats.percentage >= 50 %}average{% else %}poor{% endif %}">
+                                    {{ stats.percentage }}%
+                                </span>
+                            </div>
+                            <div class="topic-analysis-bar">
+                                <div class="topic-analysis-fill {% if stats.percentage >= 70 %}good{% elif stats.percentage >= 50 %}average{% else %}poor{% endif %}"
+                                     style="width: {{ stats.percentage }}%"></div>
+                            </div>
+                            <div class="topic-analysis-meta">
+                                <span>{{ stats.correct }}/{{ stats.total }} to'g'ri</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Answers Review -->
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-list-check"></i>
+                            Javoblar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        <div class="answers-filter">
+                            <button class="answers-filter-btn active" data-filter="all">
+                                Barchasi ({{ answers_data|length }})
+                            </button>
+                            <button class="answers-filter-btn" data-filter="correct">
+                                To'g'ri ({{ attempt.correct_answers }})
+                            </button>
+                            <button class="answers-filter-btn" data-filter="incorrect">
+                                Noto'g'ri ({{ attempt.wrong_answers }})
+                            </button>
+                        </div>
+
+                        <div class="answers-list" id="answersList">
+                            {% for item in answers_data %}
+                            <div class="answer-item {% if item.answer.is_correct %}correct{% elif item.answer.selected_answer %}incorrect{% else %}skipped{% endif %}"
+                                 data-type="{% if item.answer.is_correct %}correct{% elif item.answer.selected_answer %}incorrect{% else %}skipped{% endif %}">
+                                <div class="answer-item-header">
+                                    <div class="answer-item-number">
+                                        <div class="answer-item-badge">{{ forloop.counter }}</div>
+                                        {% if item.answer.question.topic %}
+                                        <span class="answer-item-topic">{{ item.answer.question.topic.name }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="answer-item-status {% if item.answer.is_correct %}correct{% elif item.answer.selected_answer %}incorrect{% else %}skipped{% endif %}">
+                                        {% if item.answer.is_correct %}
+                                        <i class="bi bi-check-circle-fill"></i> To'g'ri
+                                        {% elif item.answer.selected_answer %}
+                                        <i class="bi bi-x-circle-fill"></i> Noto'g'ri
+                                        {% else %}
+                                        <i class="bi bi-dash-circle"></i> O'tkazilgan
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="answer-item-question">
+                                    {{ item.answer.question.text|truncatewords:30 }}
+                                </div>
+
+                                {% if not item.answer.is_correct %}
+                                <div class="answer-item-choices">
+                                    {% if item.answer.selected_answer %}
+                                    <div class="answer-choice user-selected">
+                                        <span class="answer-choice-letter">✗</span>
+                                        <span>Sizning javobingiz: {{ item.answer.selected_answer.text|truncatewords:15 }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if item.correct_answer %}
+                                    <div class="answer-choice correct-answer">
+                                        <span class="answer-choice-letter">✓</span>
+                                        <span>To'g'ri javob: {{ item.correct_answer.text|truncatewords:15 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="result-sidebar">
+                <!-- XP Card -->
+                <div class="xp-card">
+                    <div class="xp-card-icon">
+                        <i class="bi bi-lightning-fill"></i>
+                    </div>
+                    <div class="xp-card-value">+{{ attempt.xp_earned }} XP</div>
+                    <div class="xp-card-label">Tajriba nuqtalari</div>
+                </div>
+
+                <!-- Actions -->
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-arrow-repeat"></i>
+                            Keyingi qadamlar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        <div class="actions-list">
+                            {% if attempt.wrong_answers > 0 %}
+                            <a href="{% url 'tests_app:wrong_answers_practice' %}" class="action-btn primary">
+                                <i class="bi bi-arrow-clockwise"></i>
+                                Xatolar ustida ishlash
+                            </a>
+                            {% endif %}
+
+                            <a href="{% url 'tests_app:practice_select' %}" class="action-btn">
+                                <i class="bi bi-play-fill"></i>
+                                Yangi test boshlash
+                            </a>
+
+                            <a href="{% url 'tests_app:question_bank' %}" class="action-btn">
+                                <i class="bi bi-journal-text"></i>
+                                Savol bankiga qaytish
+                            </a>
+
+                            <a href="{% url 'tests_app:my_results' %}" class="action-btn">
+                                <i class="bi bi-clock-history"></i>
+                                Barcha natijalar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                {% if topic_stats %}
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-lightbulb-fill"></i>
+                            Tavsiyalar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        {% for topic_name, stats in topic_stats.items %}
+                            {% if stats.is_weak %}
+                            <div class="recommendation-item">
+                                <div class="recommendation-icon warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="recommendation-content">
+                                    <h4>{{ topic_name }}</h4>
+                                    <p>Bu mavzuni ko'proq mashq qiling. {{ stats.correct }}/{{ stats.total }} to'g'ri.</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if attempt.percentage >= 70 %}
+                        <div class="recommendation-item">
+                            <div class="recommendation-icon success">
+                                <i class="bi bi-trophy"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Zo'r natija!</h4>
+                                <p>Davom eting va olimpiadalarda qatnashing.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter answers
+    document.querySelectorAll('.answers-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+
+            // Update active button
+            document.querySelectorAll('.answers-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Filter items
+            document.querySelectorAll('.answer-item').forEach(item => {
+                if (filter === 'all' || item.dataset.type === filter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
