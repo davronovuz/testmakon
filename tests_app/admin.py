@@ -26,20 +26,13 @@ def pretty_json(data):
 
 
 # =========================================================
-# IMPORT RESURSI (MUKAMMAL VERSIYA)
+# IMPORT RESURSI (XATOSIZ VERSIYA)
 # =========================================================
 
 class QuestionResource(resources.ModelResource):
-    """
-    Excel/CSV dan savollarni yuklash.
-    Sizning CSV formatingizga moslashtirildi:
-    Savol, A, B, C, D, Togri_javob
-    """
-
     # CSV ustun nomlarini modelga bog'lash
     text = fields.Field(attribute='text', column_name='Savol')
-    difficulty = fields.Field(attribute='difficulty',
-                              column_name='Qiyinlik')  # Agar faylda yo'q bo'lsa, default ishlaydi
+    difficulty = fields.Field(attribute='difficulty', column_name='Qiyinlik')
 
     # Variantlar
     option_a = fields.Field(column_name='A')
@@ -57,10 +50,7 @@ class QuestionResource(resources.ModelResource):
         import_id_fields = []  # ID tekshiruvi shart emas
 
     def before_import_row(self, row, **kwargs):
-        """
-        Fan va Mavzuni aniqlash.
-        Agar CSV da Fan/Mavzu ustuni bo'lmasa, 'Umumiy' deb yaratadi.
-        """
+        """Fan va Mavzuni aniqlash"""
         # 1. FANNI ANIQLASH
         sub_name = row.get('Fan')
         if not sub_name:
@@ -88,21 +78,20 @@ class QuestionResource(resources.ModelResource):
             defaults={'slug': top_slug, 'is_active': True}
         )
 
-    # --- TUZATILGAN JOY ---
-    # **kwargs qo'shildi: endi file_name kabi argumentlar xato bermaydi
-    def before_save_instance(self, instance, using_transactions, dry_run, **kwargs):
+    # --- TUZATILGAN JOY (TypeError yechimi) ---
+    # Argumentlarni *args va **kwargs ga o'tkazdik.
+    # Bu versiyalar o'rtasidagi mojarolarni butunlay yo'q qiladi.
+    def before_save_instance(self, instance, row, *args, **kwargs):
         if hasattr(self, 'temp_subject'):
             instance.subject = self.temp_subject
         if hasattr(self, 'temp_topic'):
             instance.topic = self.temp_topic
 
     # --- TUZATILGAN JOY ---
-    # **kwargs qo'shildi
-    def after_save_instance(self, instance, row, **kwargs):
+    def after_save_instance(self, instance, row, *args, **kwargs):
         if kwargs.get('dry_run', False):
             return
 
-        # Variantlarni olish (CSV headerlariga moslab)
         options = [
             {'text': row.get('A'), 'key': 'A'},
             {'text': row.get('B'), 'key': 'B'},
@@ -110,7 +99,6 @@ class QuestionResource(resources.ModelResource):
             {'text': row.get('D'), 'key': 'D'},
         ]
 
-        # To'g'ri javobni olish
         correct_val = row.get('Togri_javob')
         correct_key = str(correct_val).strip().upper() if correct_val else ''
 
