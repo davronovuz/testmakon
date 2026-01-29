@@ -1,0 +1,926 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Haftalik Liga | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== HEADER ========== */
+    .wl-header {
+        background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #3B82F6 100%);
+        padding: 3rem 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .wl-header::before {
+        content: '🏆';
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        font-size: 12rem;
+        opacity: 0.1;
+    }
+
+    .wl-header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .wl-header-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .wl-header-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+    }
+
+    .wl-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .wl-header h1 {
+        font-size: 2.25rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .wl-header-desc {
+        font-size: 1.05rem;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 1.5rem;
+        max-width: 500px;
+    }
+
+    @media (max-width: 768px) {
+        .wl-header-desc {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    .wl-header-stats {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .wl-header-stats {
+            justify-content: center;
+        }
+    }
+
+    .wl-header-stat {
+        text-align: center;
+    }
+
+    .wl-header-stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+    }
+
+    .wl-header-stat-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    /* Tier Card */
+    .wl-tier-card {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        text-align: center;
+        min-width: 260px;
+    }
+
+    .wl-tier-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .wl-tier-name {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+    }
+
+    .wl-tier-desc {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+
+    .wl-tier-progress {
+        width: 100%;
+        height: 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .wl-tier-progress-fill {
+        height: 100%;
+        background: white;
+        border-radius: 4px;
+        transition: width 0.5s;
+    }
+
+    .wl-tier-progress-text {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    /* ========== CONTENT ========== */
+    .wl-content {
+        padding: 2.5rem 0;
+        background: var(--gray-100);
+    }
+
+    .wl-layout {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .wl-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== CARD ========== */
+    .wl-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .wl-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .wl-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .wl-card-title i {
+        color: var(--primary);
+    }
+
+    .wl-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========== TIERS INFO ========== */
+    .wl-tiers-row {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .wl-tier-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .wl-tier-badge.bronze { background: #FED7AA; color: #9A3412; }
+    .wl-tier-badge.silver { background: #E5E7EB; color: #374151; }
+    .wl-tier-badge.gold { background: #FDE68A; color: #92400E; }
+    .wl-tier-badge.platinum { background: #DBEAFE; color: #1E40AF; }
+    .wl-tier-badge.diamond { background: #CFFAFE; color: #0E7490; }
+    .wl-tier-badge.master { background: #FEE2E2; color: #991B1B; }
+    .wl-tier-badge.grandmaster { background: #EDE9FE; color: #5B21B6; }
+
+    .wl-tier-badge.active {
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    /* ========== LEADERBOARD ========== */
+    .wl-leaderboard {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wl-leader-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: var(--radius);
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .wl-leader-item:hover {
+        background: var(--gray-50);
+    }
+
+    .wl-leader-item.promotion-zone {
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+        border-left: 3px solid #10B981;
+    }
+
+    .wl-leader-item.demotion-zone {
+        background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
+        border-left: 3px solid #EF4444;
+    }
+
+    .wl-leader-item.you {
+        background: var(--primary-glow);
+        border: 2px solid var(--primary);
+    }
+
+    .wl-leader-rank {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        background: var(--gray-200);
+        color: var(--gray-600);
+    }
+
+    .wl-leader-item.promotion-zone .wl-leader-rank {
+        background: #10B981;
+        color: white;
+    }
+
+    .wl-leader-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--dark-600);
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .wl-leader-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .wl-leader-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .wl-leader-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .wl-leader-status {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+
+    .wl-leader-status.up {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .wl-leader-status.down {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .wl-leader-stats {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .wl-leader-xp {
+        text-align: right;
+    }
+
+    .wl-leader-xp-value {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .wl-leader-xp-label {
+        font-size: 0.7rem;
+        color: var(--gray-500);
+    }
+
+    /* ========== ZONE LABELS ========== */
+    .wl-zone-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border-radius: var(--radius);
+        margin: 0.5rem 0;
+    }
+
+    .wl-zone-label.promotion {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .wl-zone-label.demotion {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    /* ========== YOUR STATUS ========== */
+    .wl-your-status {
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .wl-your-status.promotion {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+    }
+
+    .wl-your-status.safe {
+        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        color: white;
+    }
+
+    .wl-your-status.demotion {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+    }
+
+    .wl-your-status-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .wl-your-status-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .wl-your-status-desc {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* ========== REWARDS ========== */
+    .wl-rewards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .wl-reward-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .wl-reward-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .wl-reward-icon.gold {
+        background: #FEF3C7;
+    }
+
+    .wl-reward-icon.silver {
+        background: #F3F4F6;
+    }
+
+    .wl-reward-icon.bronze {
+        background: #FED7AA;
+    }
+
+    .wl-reward-info h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.15rem;
+    }
+
+    .wl-reward-info p {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin: 0;
+    }
+
+    .wl-reward-value {
+        margin-left: auto;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    /* ========== COUNTDOWN ========== */
+    .wl-countdown {
+        text-align: center;
+        padding: 1.5rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+    }
+
+    .wl-countdown-label {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+    }
+
+    .wl-countdown-timer {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .wl-countdown-item {
+        text-align: center;
+    }
+
+    .wl-countdown-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        background: var(--white);
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        min-width: 50px;
+    }
+
+    .wl-countdown-unit {
+        font-size: 0.7rem;
+        color: var(--gray-500);
+        margin-top: 0.35rem;
+    }
+
+    /* ========== PAST LEAGUES ========== */
+    .wl-past-leagues {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .wl-past-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .wl-past-tier {
+        font-size: 1.5rem;
+    }
+
+    .wl-past-info {
+        flex: 1;
+    }
+
+    .wl-past-week {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .wl-past-result {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .wl-past-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+    }
+
+    .wl-past-badge.up {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .wl-past-badge.down {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .wl-past-badge.stay {
+        background: var(--gray-200);
+        color: var(--gray-600);
+    }
+
+    /* ========== NO LEAGUE ========== */
+    .wl-no-league {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .wl-no-league-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .wl-no-league h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .wl-no-league p {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if current_league %}
+<!-- Header -->
+<div class="wl-header">
+    <div class="container">
+        <div class="wl-header-content">
+            <div class="wl-header-grid">
+                <div>
+                    <div class="wl-badge">
+                        <i class="bi bi-calendar-week"></i>
+                        {{ current_league.week_start|date:"d.m" }} - {{ current_league.week_end|date:"d.m.Y" }}
+                    </div>
+
+                    <h1>🏆 Haftalik Liga</h1>
+
+                    <p class="wl-header-desc">
+                        Har hafta XP yig'ing, reytingda ko'tariling va qimmatbaho mukofotlar yutib oling!
+                    </p>
+
+                    <div class="wl-header-stats">
+                        <div class="wl-header-stat">
+                            <div class="wl-header-stat-value">{{ leaderboard.count }}</div>
+                            <div class="wl-header-stat-label">Qatnashchilar</div>
+                        </div>
+                        <div class="wl-header-stat">
+                            <div class="wl-header-stat-value">+{{ current_league.xp_reward_first }}</div>
+                            <div class="wl-header-stat-label">XP (1-o'rin)</div>
+                        </div>
+                        <div class="wl-header-stat">
+                            <div class="wl-header-stat-value">{{ current_league.promotion_count }}</div>
+                            <div class="wl-header-stat-label">Ko'tariladi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Tier -->
+                <div class="wl-tier-card">
+                    <div class="wl-tier-icon">
+                        {% if current_league.tier == 'bronze' %}🥉
+                        {% elif current_league.tier == 'silver' %}🥈
+                        {% elif current_league.tier == 'gold' %}🥇
+                        {% elif current_league.tier == 'platinum' %}💎
+                        {% elif current_league.tier == 'diamond' %}💠
+                        {% elif current_league.tier == 'master' %}🔥
+                        {% elif current_league.tier == 'grandmaster' %}👑
+                        {% else %}🏅{% endif %}
+                    </div>
+                    <div class="wl-tier-name">{{ current_league.get_tier_display }}</div>
+                    <div class="wl-tier-desc">Joriy daraja</div>
+
+                    {% if user_participation %}
+                    <div class="wl-tier-progress">
+                        <div class="wl-tier-progress-fill" style="width: {% widthratio user_participation.rank leaderboard.count 100 %}%"></div>
+                    </div>
+                    <div class="wl-tier-progress-text">
+                        #{{ user_participation.rank|default:"—" }} o'rin
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="wl-content">
+    <div class="container">
+        <!-- Tiers Row -->
+        <div class="wl-tiers-row">
+            <span class="wl-tier-badge bronze {% if current_league.tier == 'bronze' %}active{% endif %}">🥉 Bronza</span>
+            <span class="wl-tier-badge silver {% if current_league.tier == 'silver' %}active{% endif %}">🥈 Kumush</span>
+            <span class="wl-tier-badge gold {% if current_league.tier == 'gold' %}active{% endif %}">🥇 Oltin</span>
+            <span class="wl-tier-badge platinum {% if current_league.tier == 'platinum' %}active{% endif %}">💎 Platina</span>
+            <span class="wl-tier-badge diamond {% if current_league.tier == 'diamond' %}active{% endif %}">💠 Olmos</span>
+            <span class="wl-tier-badge master {% if current_league.tier == 'master' %}active{% endif %}">🔥 Master</span>
+            <span class="wl-tier-badge grandmaster {% if current_league.tier == 'grandmaster' %}active{% endif %}">👑 Grandmaster</span>
+        </div>
+
+        <div class="wl-layout">
+            <!-- Main -->
+            <div class="wl-main">
+                <!-- Leaderboard -->
+                <div class="wl-card">
+                    <div class="wl-card-header">
+                        <h3 class="wl-card-title">
+                            <i class="bi bi-bar-chart"></i>
+                            Haftalik reyting
+                        </h3>
+                        <span style="font-size:0.85rem; color:var(--gray-500);">{{ current_league.get_tier_display }} Liga</span>
+                    </div>
+                    <div class="wl-card-body" style="padding:0.5rem;">
+                        {% if leaderboard %}
+                        <div class="wl-leaderboard">
+                            <!-- Promotion zone label -->
+                            <div class="wl-zone-label promotion">
+                                <i class="bi bi-arrow-up-circle-fill"></i>
+                                Ko'tarilish zonasi (Top {{ current_league.promotion_count }})
+                            </div>
+
+                            {% for p in leaderboard %}
+                            <div class="wl-leader-item {% if forloop.counter <= current_league.promotion_count %}promotion-zone{% elif forloop.counter > leaderboard.count|add:current_league.demotion_count|add:"-"|add:leaderboard.count %}demotion-zone{% endif %} {% if p.user == request.user %}you{% endif %}">
+                                <div class="wl-leader-rank">
+                                    {% if forloop.counter == 1 %}🥇
+                                    {% elif forloop.counter == 2 %}🥈
+                                    {% elif forloop.counter == 3 %}🥉
+                                    {% else %}{{ forloop.counter }}{% endif %}
+                                </div>
+                                <div class="wl-leader-avatar">
+                                    {% if p.user.avatar %}
+                                    <img src="{{ p.user.avatar.url }}" alt="">
+                                    {% else %}
+                                    {{ p.user.first_name|slice:":1" }}
+                                    {% endif %}
+                                </div>
+                                <div class="wl-leader-info">
+                                    <div class="wl-leader-name">
+                                        {% if p.user == request.user %}Siz{% else %}{{ p.user.first_name }} {{ p.user.last_name|slice:":1" }}.{% endif %}
+                                        {% if forloop.counter <= current_league.promotion_count %}
+                                        <span class="wl-leader-status up">⬆️</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="wl-leader-stats">
+                                        {{ p.tests_completed }} test • {{ p.correct_answers|default:0 }} to'g'ri
+                                    </div>
+                                </div>
+                                <div class="wl-leader-xp">
+                                    <div class="wl-leader-xp-value">{{ p.xp_earned }}</div>
+                                    <div class="wl-leader-xp-label">XP</div>
+                                </div>
+                            </div>
+
+                            {% if forloop.counter == current_league.promotion_count and not forloop.last %}
+                            <!-- Safe zone -->
+                            <div class="wl-zone-label" style="background:var(--gray-100); color:var(--gray-500);">
+                                <i class="bi bi-shield-check"></i>
+                                Xavfsiz zona
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if current_league.demotion_count > 0 %}
+                            <!-- Demotion zone label -->
+                            <div class="wl-zone-label demotion">
+                                <i class="bi bi-arrow-down-circle-fill"></i>
+                                Tushish zonasi (Oxirgi {{ current_league.demotion_count }})
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div style="text-align:center; padding:3rem; color:var(--gray-500);">
+                            <div style="font-size:3rem; margin-bottom:1rem;">🏆</div>
+                            <p>Hali qatnashchilar yo'q</p>
+                            <p style="font-size:0.85rem;">Test yechib XP to'plang va ligaga qo'shiling!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="wl-sidebar">
+                <!-- Your Status -->
+                {% if user_participation %}
+                <div class="wl-your-status {% if user_participation.rank <= current_league.promotion_count %}promotion{% elif user_participation.rank > leaderboard.count|add:'-'|add:current_league.demotion_count|add:'' %}demotion{% else %}safe{% endif %}">
+                    <div class="wl-your-status-icon">
+                        {% if user_participation.rank <= current_league.promotion_count %}⬆️
+                        {% elif user_participation.rank > leaderboard.count|add:'-'|add:current_league.demotion_count|add:'' %}⬇️
+                        {% else %}🛡️{% endif %}
+                    </div>
+                    <div class="wl-your-status-title">
+                        {% if user_participation.rank <= current_league.promotion_count %}Ko'tarilasiz!
+                        {% elif user_participation.rank > leaderboard.count|add:'-'|add:current_league.demotion_count|add:'' %}Tushish xavfi!
+                        {% else %}Xavfsiz zonada{% endif %}
+                    </div>
+                    <div class="wl-your-status-desc">
+                        #{{ user_participation.rank }} o'rin • {{ user_participation.xp_earned }} XP
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Rewards -->
+                <div class="wl-card">
+                    <div class="wl-card-header">
+                        <h3 class="wl-card-title">
+                            <i class="bi bi-gift"></i>
+                            Mukofotlar
+                        </h3>
+                    </div>
+                    <div class="wl-card-body">
+                        <div class="wl-rewards">
+                            <div class="wl-reward-item">
+                                <div class="wl-reward-icon gold">🥇</div>
+                                <div class="wl-reward-info">
+                                    <h4>1-o'rin</h4>
+                                    <p>Hafta g'olibi</p>
+                                </div>
+                                <div class="wl-reward-value">+{{ current_league.xp_reward_first }} XP</div>
+                            </div>
+                            <div class="wl-reward-item">
+                                <div class="wl-reward-icon silver">🥈🥉</div>
+                                <div class="wl-reward-info">
+                                    <h4>2-3 o'rin</h4>
+                                    <p>Top 3</p>
+                                </div>
+                                <div class="wl-reward-value">+{{ current_league.xp_reward_top3 }} XP</div>
+                            </div>
+                            <div class="wl-reward-item">
+                                <div class="wl-reward-icon bronze">🏅</div>
+                                <div class="wl-reward-info">
+                                    <h4>Top 10</h4>
+                                    <p>Yaxshi natija</p>
+                                </div>
+                                <div class="wl-reward-value">+{{ current_league.xp_reward_top10 }} XP</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Countdown -->
+                <div class="wl-countdown">
+                    <div class="wl-countdown-label">Liga tugashiga:</div>
+                    <div class="wl-countdown-timer" id="leagueCountdown">
+                        <div class="wl-countdown-item">
+                            <div class="wl-countdown-value" id="days">0</div>
+                            <div class="wl-countdown-unit">kun</div>
+                        </div>
+                        <div class="wl-countdown-item">
+                            <div class="wl-countdown-value" id="hours">0</div>
+                            <div class="wl-countdown-unit">soat</div>
+                        </div>
+                        <div class="wl-countdown-item">
+                            <div class="wl-countdown-value" id="minutes">0</div>
+                            <div class="wl-countdown-unit">daqiqa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Past Leagues -->
+                {% if past_leagues %}
+                <div class="wl-card">
+                    <div class="wl-card-header">
+                        <h3 class="wl-card-title">
+                            <i class="bi bi-clock-history"></i>
+                            O'tgan haftalar
+                        </h3>
+                    </div>
+                    <div class="wl-card-body">
+                        <div class="wl-past-leagues">
+                            {% for league in past_leagues %}
+                            <div class="wl-past-item">
+                                <div class="wl-past-tier">
+                                    {% if league.tier == 'bronze' %}🥉
+                                    {% elif league.tier == 'silver' %}🥈
+                                    {% elif league.tier == 'gold' %}🥇
+                                    {% else %}💎{% endif %}
+                                </div>
+                                <div class="wl-past-info">
+                                    <div class="wl-past-week">{{ league.week_start|date:"d.m" }} - {{ league.week_end|date:"d.m" }}</div>
+                                    <div class="wl-past-result">{{ league.get_tier_display }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- No Active League -->
+<div class="wl-content" style="padding-top:4rem;">
+    <div class="container">
+        <div class="wl-card">
+            <div class="wl-card-body wl-no-league">
+                <div class="wl-no-league-icon">🏆</div>
+                <h3>Hozircha faol liga yo'q</h3>
+                <p>Yangi haftalik liga tez orada boshlanadi!</p>
+                <a href="{% url 'competitions:competitions_list' %}" class="btn btn-primary">
+                    <i class="bi bi-trophy me-2"></i>Boshqa musobaqalar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if current_league %}
+<script>
+// Countdown to league end
+function updateCountdown() {
+    const endDate = new Date('{{ current_league.week_end|date:"Y-m-d" }}T23:59:59');
+    const now = new Date();
+    const diff = endDate - now;
+
+    if (diff <= 0) {
+        document.getElementById('days').textContent = '0';
+        document.getElementById('hours').textContent = '0';
+        document.getElementById('minutes').textContent = '0';
+        return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    document.getElementById('days').textContent = days;
+    document.getElementById('hours').textContent = hours;
+    document.getElementById('minutes').textContent = minutes;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 60000); // Update every minute
+</script>
+{% endif %}
+{% endblock %}
