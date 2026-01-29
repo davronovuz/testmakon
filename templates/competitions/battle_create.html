@@ -1,236 +1,1035 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Jang yaratish - TestMakon{% endblock %}
-
-{% block content %}
-<!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'competitions:battles_list' %}">Janglar</a></li>
-                <li class="breadcrumb-item active">Jang yaratish</li>
-            </ol>
-        </nav>
-
-        <div class="d-flex align-items-center gap-3">
-            <span style="font-size: 3rem;">⚔️</span>
-            <div>
-                <h1 class="mb-2">Yangi <span class="text-gradient">jang</span> yaratish</h1>
-                <p class="mb-0" style="color: var(--gray-500);">Do'stingizni tanlang va bellashing!</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section-sm">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <form method="POST" action="{% url 'competitions:battle_create' %}">
-                    {% csrf_token %}
-
-                    <!-- Step 1: Choose Opponent -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-4">
-                                <span class="badge badge-dark me-2">1</span> Raqibni tanlang
-                            </h5>
-
-                            {% if friends %}
-                            <div class="row g-3" id="friends-list">
-                                {% for friend in friends %}
-                                <div class="col-md-6">
-                                    <label class="w-100">
-                                        <input type="radio" name="opponent_id" value="{{ friend.id }}" class="d-none opponent-radio" required>
-                                        <div class="card p-3 h-100 opponent-card" style="cursor: pointer; transition: all 0.3s ease;">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div style="width: 50px; height: 50px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                                    {% if friend.avatar %}
-                                                    <img src="{{ friend.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% else %}
-                                                    <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
-                                                    {% endif %}
-                                                </div>
-                                                <div>
-                                                    <div class="fw-bold" style="color: var(--dark);">{{ friend.full_name|default:friend.phone_number }}</div>
-                                                    <small style="color: var(--gray-500);">Level {{ friend.level }}</small>
-                                                </div>
-                                                <div class="ms-auto">
-                                                    <i class="bi bi-circle check-icon" style="font-size: 1.25rem; color: var(--gray-300);"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="text-center py-4">
-                                <i class="bi bi-people" style="font-size: 3rem; color: var(--gray-300);"></i>
-                                <h5 class="mt-3">Do'stlar topilmadi</h5>
-                                <p style="color: var(--gray-500);">Jang yaratish uchun avval do'st qo'shing</p>
-                                <a href="#" class="btn btn-primary">Do'st qo'shish</a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    {% if friends %}
-                    <!-- Step 2: Choose Subject -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-4">
-                                <span class="badge badge-dark me-2">2</span> Fan tanlang
-                            </h5>
-
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="w-100">
-                                        <input type="radio" name="subject_id" value="" class="d-none subject-radio" checked>
-                                        <div class="card p-3 h-100 subject-card selected-subject" style="cursor: pointer;">
-                                            <div class="text-center">
-                                                <span style="font-size: 2rem;">🎲</span>
-                                                <div class="fw-bold mt-2">Aralash</div>
-                                                <small style="color: var(--gray-500);">Turli fanlardan</small>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                                {% for subject in subjects %}
-                                <div class="col-md-4">
-                                    <label class="w-100">
-                                        <input type="radio" name="subject_id" value="{{ subject.id }}" class="d-none subject-radio">
-                                        <div class="card p-3 h-100 subject-card" style="cursor: pointer;">
-                                            <div class="text-center">
-                                                <span style="font-size: 2rem;">{{ subject.icon|default:"📚" }}</span>
-                                                <div class="fw-bold mt-2">{{ subject.name }}</div>
-                                                <small style="color: var(--gray-500);">{{ subject.questions_count|default:0 }} savol</small>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Settings -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-4">
-                                <span class="badge badge-dark me-2">3</span> Sozlamalar
-                            </h5>
-
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="form-label">Savollar soni</label>
-                                    <select name="question_count" class="form-control">
-                                        <option value="5">5 ta savol</option>
-                                        <option value="10" selected>10 ta savol</option>
-                                        <option value="15">15 ta savol</option>
-                                        <option value="20">20 ta savol</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Har bir savol uchun vaqt</label>
-                                    <select name="time_per_question" class="form-control">
-                                        <option value="20">20 soniya</option>
-                                        <option value="30" selected>30 soniya</option>
-                                        <option value="45">45 soniya</option>
-                                        <option value="60">60 soniya</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Summary & Submit -->
-                    <div class="card" style="background: var(--gradient-dark); border: none;">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <h5 class="text-white mb-2">Jang so'rovini yuborish</h5>
-                                    <p class="text-white mb-0" style="opacity: 0.8;">
-                                        Raqib 24 soat ichida qabul qilishi kerak
-                                    </p>
-                                </div>
-                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="bi bi-send me-2"></i> Yuborish
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
+{% block title %}Yangi jang | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    .opponent-card.selected {
-        border: 2px solid var(--primary) !important;
-        background: var(--primary-glow);
-    }
-    .opponent-card.selected .check-icon {
-        color: var(--primary) !important;
-    }
-    .opponent-card.selected .check-icon::before {
-        content: "\F26B"; /* bi-check-circle-fill */
+    /* ========== HEADER ========== */
+    .bc-header {
+        background: var(--gradient-dark);
+        padding: 2.5rem 0;
+        color: white;
     }
 
-    .subject-card {
+    .bc-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .bc-back {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.2s;
+    }
+
+    .bc-back:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    .bc-header h1 {
+        font-size: 1.75rem;
+        color: white;
+        margin: 0;
+    }
+
+    /* ========== CONTENT ========== */
+    .bc-content {
+        padding: 2.5rem 0;
+    }
+
+    .bc-layout {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* ========== STEPS ========== */
+    .bc-steps {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .bc-step {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .bc-step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 700;
+        background: var(--gray-200);
+        color: var(--gray-500);
+        transition: all 0.3s;
+    }
+
+    .bc-step.active .bc-step-number {
+        background: var(--primary);
+        color: white;
+    }
+
+    .bc-step.completed .bc-step-number {
+        background: #10B981;
+        color: white;
+    }
+
+    .bc-step-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gray-500);
+    }
+
+    .bc-step.active .bc-step-label {
+        color: var(--dark);
+    }
+
+    .bc-step-line {
+        width: 60px;
+        height: 2px;
+        background: var(--gray-200);
+        margin: 0 1rem;
+    }
+
+    .bc-step-line.completed {
+        background: #10B981;
+    }
+
+    @media (max-width: 600px) {
+        .bc-step-label {
+            display: none;
+        }
+        .bc-step-line {
+            width: 30px;
+        }
+    }
+
+    /* ========== CARD ========== */
+    .bc-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+    }
+
+    .bc-card-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--gray-200);
+        text-align: center;
+    }
+
+    .bc-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .bc-card-desc {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin: 0;
+    }
+
+    .bc-card-body {
+        padding: 2rem;
+    }
+
+    /* ========== OPPONENT TYPE ========== */
+    .bc-opponent-types {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 600px) {
+        .bc-opponent-types {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .bc-opponent-type {
+        padding: 1.5rem;
+        background: var(--gray-50);
         border: 2px solid var(--gray-200);
-        transition: all 0.3s ease;
+        border-radius: var(--radius-lg);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
     }
-    .subject-card:hover {
-        border-color: var(--primary-light);
+
+    .bc-opponent-type:hover {
+        border-color: var(--primary);
+        background: var(--white);
     }
-    .subject-card.selected-subject {
-        border: 2px solid var(--primary) !important;
+
+    .bc-opponent-type.selected {
+        border-color: var(--primary);
         background: var(--primary-glow);
+    }
+
+    .bc-opponent-type input {
+        display: none;
+    }
+
+    .bc-opponent-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.75rem;
+    }
+
+    .bc-opponent-type.friend .bc-opponent-icon {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .bc-opponent-type.random .bc-opponent-icon {
+        background: #EDE9FE;
+        color: #7C3AED;
+    }
+
+    .bc-opponent-type.bot .bc-opponent-icon {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .bc-opponent-type h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .bc-opponent-type p {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin: 0;
+    }
+
+    /* ========== SECTION ========== */
+    .bc-section {
+        margin-bottom: 2rem;
+        display: none;
+    }
+
+    .bc-section.active {
+        display: block;
+    }
+
+    .bc-section-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bc-section-title i {
+        color: var(--primary);
+    }
+
+    /* ========== FRIENDS LIST ========== */
+    .bc-friends-search {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .bc-friends-search input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+    }
+
+    .bc-friends-search input:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .bc-friends-search i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+    }
+
+    .bc-friends-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    @media (max-width: 600px) {
+        .bc-friends-list {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .bc-friend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-friend-item:hover {
+        border-color: var(--gray-300);
+    }
+
+    .bc-friend-item.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .bc-friend-item input {
+        display: none;
+    }
+
+    .bc-friend-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--dark-600);
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .bc-friend-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .bc-friend-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .bc-friend-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .bc-friend-status {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .bc-friend-status.online {
+        color: #10B981;
+    }
+
+    .bc-friend-check {
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .bc-friend-item.selected .bc-friend-check {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    /* ========== BOT DIFFICULTY ========== */
+    .bc-bot-levels {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 600px) {
+        .bc-bot-levels {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .bc-bot-level {
+        padding: 1rem;
+        text-align: center;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-bot-level:hover {
+        border-color: var(--gray-300);
+    }
+
+    .bc-bot-level.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .bc-bot-level input {
+        display: none;
+    }
+
+    .bc-bot-level-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bc-bot-level h5 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .bc-bot-level span {
+        font-size: 0.7rem;
+        color: var(--gray-500);
+    }
+
+    /* ========== SUBJECT SELECTION ========== */
+    .bc-subjects {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .bc-subjects {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .bc-subject {
+        padding: 1rem;
+        text-align: center;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-subject:hover {
+        border-color: var(--gray-300);
+    }
+
+    .bc-subject.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .bc-subject input {
+        display: none;
+    }
+
+    .bc-subject-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bc-subject h5 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    /* ========== QUESTION COUNT ========== */
+    .bc-question-counts {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .bc-question-count {
+        padding: 0.75rem 1.5rem;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+        color: var(--dark-600);
+    }
+
+    .bc-question-count:hover {
+        border-color: var(--gray-300);
+    }
+
+    .bc-question-count.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+        color: var(--primary-dark);
+    }
+
+    .bc-question-count input {
+        display: none;
+    }
+
+    /* ========== SUMMARY ========== */
+    .bc-summary {
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .bc-summary-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+
+    .bc-summary-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .bc-summary-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bc-summary-label {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+    }
+
+    .bc-summary-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    /* ========== FOOTER ========== */
+    .bc-card-footer {
+        padding: 1.5rem 2rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .bc-btn {
+        padding: 0.875rem 2rem;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .bc-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        flex: 1;
+    }
+
+    .bc-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-primary);
+    }
+
+    .bc-btn.primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .bc-btn.outline {
+        background: transparent;
+        color: var(--dark-600);
+        border: 2px solid var(--gray-300);
+    }
+
+    .bc-btn.outline:hover {
+        border-color: var(--gray-400);
+    }
+
+    /* ========== NO FRIENDS ========== */
+    .bc-no-friends {
+        text-align: center;
+        padding: 2rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .bc-no-friends-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.5;
+    }
+
+    .bc-no-friends h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .bc-no-friends p {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin: 0;
     }
 </style>
 {% endblock %}
 
+{% block content %}
+<!-- Header -->
+<div class="bc-header">
+    <div class="container">
+        <div class="bc-header-content">
+            <a href="{% url 'competitions:battles_list' %}" class="bc-back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1>⚔️ Yangi jang yaratish</h1>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="bc-content">
+    <div class="container">
+        <div class="bc-layout">
+            <!-- Steps -->
+            <div class="bc-steps">
+                <div class="bc-step active" data-step="1">
+                    <div class="bc-step-number">1</div>
+                    <span class="bc-step-label">Raqib</span>
+                </div>
+                <div class="bc-step-line"></div>
+                <div class="bc-step" data-step="2">
+                    <div class="bc-step-number">2</div>
+                    <span class="bc-step-label">Sozlamalar</span>
+                </div>
+                <div class="bc-step-line"></div>
+                <div class="bc-step" data-step="3">
+                    <div class="bc-step-number">3</div>
+                    <span class="bc-step-label">Tasdiqlash</span>
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="bc-card">
+                <form method="post" action="{% url 'competitions:battle_create' %}" id="battleForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="opponent_type" id="opponentType" value="friend">
+                    <input type="hidden" name="opponent_id" id="opponentId" value="">
+                    <input type="hidden" name="bot_difficulty" id="botDifficulty" value="medium">
+                    <input type="hidden" name="subject_id" id="subjectId" value="">
+                    <input type="hidden" name="question_count" id="questionCount" value="10">
+
+                    <div class="bc-card-header">
+                        <h2 class="bc-card-title">Raqibni tanlang</h2>
+                        <p class="bc-card-desc">Kim bilan jang qilmoqchisiz?</p>
+                    </div>
+
+                    <div class="bc-card-body">
+                        <!-- Opponent Type Selection -->
+                        <div class="bc-opponent-types">
+                            <label class="bc-opponent-type friend selected" data-type="friend">
+                                <input type="radio" name="opponent_type_select" value="friend" checked>
+                                <div class="bc-opponent-icon">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <h4>Do'st bilan</h4>
+                                <p>Do'stingizni tanlang</p>
+                            </label>
+
+                            <label class="bc-opponent-type random" data-type="random">
+                                <input type="radio" name="opponent_type_select" value="random">
+                                <div class="bc-opponent-icon">
+                                    <i class="bi bi-shuffle"></i>
+                                </div>
+                                <h4>Random</h4>
+                                <p>Tasodifiy raqib</p>
+                            </label>
+
+                            <label class="bc-opponent-type bot" data-type="bot">
+                                <input type="radio" name="opponent_type_select" value="bot">
+                                <div class="bc-opponent-icon">
+                                    <i class="bi bi-robot"></i>
+                                </div>
+                                <h4>Bot bilan</h4>
+                                <p>AI raqib</p>
+                            </label>
+                        </div>
+
+                        <!-- Friend Selection -->
+                        <div class="bc-section active" id="friendSection">
+                            <div class="bc-section-title">
+                                <i class="bi bi-person-check"></i>
+                                Do'stni tanlang
+                            </div>
+
+                            {% if friends %}
+                            <div class="bc-friends-search">
+                                <i class="bi bi-search"></i>
+                                <input type="text" placeholder="Do'st qidirish..." id="friendSearch">
+                            </div>
+
+                            <div class="bc-friends-list">
+                                {% for friend in friends %}
+                                <label class="bc-friend-item" data-name="{{ friend.first_name|lower }} {{ friend.last_name|lower }}">
+                                    <input type="radio" name="friend_select" value="{{ friend.id }}">
+                                    <div class="bc-friend-avatar">
+                                        {% if friend.avatar %}
+                                        <img src="{{ friend.avatar.url }}" alt="">
+                                        {% else %}
+                                        {{ friend.first_name|slice:":1" }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="bc-friend-info">
+                                        <div class="bc-friend-name">{{ friend.first_name }} {{ friend.last_name }}</div>
+                                        <div class="bc-friend-status">O'yinchi</div>
+                                    </div>
+                                    <div class="bc-friend-check">
+                                        <i class="bi bi-check"></i>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="bc-no-friends">
+                                <div class="bc-no-friends-icon">👥</div>
+                                <h4>Do'stlar yo'q</h4>
+                                <p>Avval do'st qo'shing yoki bot bilan o'ynang</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Bot Difficulty -->
+                        <div class="bc-section" id="botSection">
+                            <div class="bc-section-title">
+                                <i class="bi bi-speedometer2"></i>
+                                Bot qiyinligini tanlang
+                            </div>
+
+                            <div class="bc-bot-levels">
+                                <label class="bc-bot-level" data-difficulty="easy">
+                                    <input type="radio" name="bot_level" value="easy">
+                                    <div class="bc-bot-level-icon">🟢</div>
+                                    <h5>Oson</h5>
+                                    <span>40-60%</span>
+                                </label>
+
+                                <label class="bc-bot-level selected" data-difficulty="medium">
+                                    <input type="radio" name="bot_level" value="medium" checked>
+                                    <div class="bc-bot-level-icon">🟡</div>
+                                    <h5>O'rta</h5>
+                                    <span>60-80%</span>
+                                </label>
+
+                                <label class="bc-bot-level" data-difficulty="hard">
+                                    <input type="radio" name="bot_level" value="hard">
+                                    <div class="bc-bot-level-icon">🔴</div>
+                                    <h5>Qiyin</h5>
+                                    <span>80-90%</span>
+                                </label>
+
+                                <label class="bc-bot-level" data-difficulty="expert">
+                                    <input type="radio" name="bot_level" value="expert">
+                                    <div class="bc-bot-level-icon">💎</div>
+                                    <h5>Ekspert</h5>
+                                    <span>90-98%</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Random Info -->
+                        <div class="bc-section" id="randomSection">
+                            <div style="text-align:center; padding:2rem; background:var(--gray-50); border-radius:var(--radius-lg);">
+                                <div style="font-size:3rem; margin-bottom:1rem;">🔍</div>
+                                <h4>Random raqib</h4>
+                                <p style="color:var(--gray-500); margin:0;">Sizga mos reyting va darajadagi raqib topiladi</p>
+                            </div>
+                        </div>
+
+                        <!-- Subject Selection -->
+                        <div class="bc-section active" id="subjectSection">
+                            <div class="bc-section-title">
+                                <i class="bi bi-book"></i>
+                                Fan tanlang (ixtiyoriy)
+                            </div>
+
+                            <div class="bc-subjects">
+                                <label class="bc-subject selected" data-id="">
+                                    <input type="radio" name="subject_select" value="" checked>
+                                    <div class="bc-subject-icon">🎲</div>
+                                    <h5>Aralash</h5>
+                                </label>
+                                {% for subject in subjects %}
+                                <label class="bc-subject" data-id="{{ subject.id }}">
+                                    <input type="radio" name="subject_select" value="{{ subject.id }}">
+                                    <div class="bc-subject-icon">{{ subject.icon }}</div>
+                                    <h5>{{ subject.name }}</h5>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Question Count -->
+                        <div class="bc-section active" id="countSection">
+                            <div class="bc-section-title">
+                                <i class="bi bi-journal-text"></i>
+                                Savollar soni
+                            </div>
+
+                            <div class="bc-question-counts">
+                                <label class="bc-question-count" data-count="5">
+                                    <input type="radio" name="count_select" value="5">
+                                    5 ta
+                                </label>
+                                <label class="bc-question-count selected" data-count="10">
+                                    <input type="radio" name="count_select" value="10" checked>
+                                    10 ta
+                                </label>
+                                <label class="bc-question-count" data-count="15">
+                                    <input type="radio" name="count_select" value="15">
+                                    15 ta
+                                </label>
+                                <label class="bc-question-count" data-count="20">
+                                    <input type="radio" name="count_select" value="20">
+                                    20 ta
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="bc-summary">
+                            <div class="bc-summary-title">Jang ma'lumotlari</div>
+                            <div class="bc-summary-items">
+                                <div class="bc-summary-item">
+                                    <span class="bc-summary-label">Raqib:</span>
+                                    <span class="bc-summary-value" id="summaryOpponent">Tanlanmagan</span>
+                                </div>
+                                <div class="bc-summary-item">
+                                    <span class="bc-summary-label">Fan:</span>
+                                    <span class="bc-summary-value" id="summarySubject">Aralash</span>
+                                </div>
+                                <div class="bc-summary-item">
+                                    <span class="bc-summary-label">Savollar:</span>
+                                    <span class="bc-summary-value" id="summaryCount">10 ta</span>
+                                </div>
+                                <div class="bc-summary-item">
+                                    <span class="bc-summary-label">Vaqt:</span>
+                                    <span class="bc-summary-value" id="summaryTime">5 daqiqa</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bc-card-footer">
+                        <a href="{% url 'competitions:battles_list' %}" class="bc-btn outline">
+                            Bekor qilish
+                        </a>
+                        <button type="submit" class="bc-btn primary" id="submitBtn">
+                            <i class="bi bi-lightning-fill"></i>
+                            Jang boshlash
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block extra_js %}
 <script>
-// Opponent selection
-document.querySelectorAll('.opponent-radio').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.querySelectorAll('.opponent-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        this.closest('label').querySelector('.opponent-card').classList.add('selected');
-    });
-});
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('battleForm');
+    const opponentTypeInput = document.getElementById('opponentType');
+    const opponentIdInput = document.getElementById('opponentId');
+    const botDifficultyInput = document.getElementById('botDifficulty');
+    const subjectIdInput = document.getElementById('subjectId');
+    const questionCountInput = document.getElementById('questionCount');
 
-// Subject selection
-document.querySelectorAll('.subject-radio').forEach(radio => {
-    radio.addEventListener('change', function() {
-        document.querySelectorAll('.subject-card').forEach(card => {
-            card.classList.remove('selected-subject');
-        });
-        this.closest('label').querySelector('.subject-card').classList.add('selected-subject');
-    });
-});
+    // Opponent type selection
+    document.querySelectorAll('.bc-opponent-type').forEach(type => {
+        type.addEventListener('click', function() {
+            document.querySelectorAll('.bc-opponent-type').forEach(t => t.classList.remove('selected'));
+            this.classList.add('selected');
 
-// Pre-select opponent from URL
-const urlParams = new URLSearchParams(window.location.search);
-const opponentId = urlParams.get('opponent');
-if (opponentId) {
-    const radio = document.querySelector(`input[name="opponent_id"][value="${opponentId}"]`);
-    if (radio) {
-        radio.checked = true;
-        radio.dispatchEvent(new Event('change'));
+            const opponentType = this.dataset.type;
+            opponentTypeInput.value = opponentType;
+
+            // Show/hide sections
+            document.getElementById('friendSection').classList.toggle('active', opponentType === 'friend');
+            document.getElementById('botSection').classList.toggle('active', opponentType === 'bot');
+            document.getElementById('randomSection').classList.toggle('active', opponentType === 'random');
+
+            // Update summary
+            updateSummary();
+        });
+    });
+
+    // Friend selection
+    document.querySelectorAll('.bc-friend-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.bc-friend-item').forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            opponentIdInput.value = this.querySelector('input').value;
+            updateSummary();
+        });
+    });
+
+    // Friend search
+    const friendSearch = document.getElementById('friendSearch');
+    if (friendSearch) {
+        friendSearch.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll('.bc-friend-item').forEach(item => {
+                const name = item.dataset.name;
+                item.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        });
     }
-}
+
+    // Bot difficulty
+    document.querySelectorAll('.bc-bot-level').forEach(level => {
+        level.addEventListener('click', function() {
+            document.querySelectorAll('.bc-bot-level').forEach(l => l.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            botDifficultyInput.value = this.dataset.difficulty;
+            updateSummary();
+        });
+    });
+
+    // Subject selection
+    document.querySelectorAll('.bc-subject').forEach(subject => {
+        subject.addEventListener('click', function() {
+            document.querySelectorAll('.bc-subject').forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            subjectIdInput.value = this.dataset.id;
+            updateSummary();
+        });
+    });
+
+    // Question count
+    document.querySelectorAll('.bc-question-count').forEach(count => {
+        count.addEventListener('click', function() {
+            document.querySelectorAll('.bc-question-count').forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            questionCountInput.value = this.dataset.count;
+            updateSummary();
+        });
+    });
+
+    // Update summary
+    function updateSummary() {
+        const opponentType = opponentTypeInput.value;
+        let opponentText = 'Tanlanmagan';
+
+        if (opponentType === 'friend') {
+            const selectedFriend = document.querySelector('.bc-friend-item.selected .bc-friend-name');
+            opponentText = selectedFriend ? selectedFriend.textContent : 'Tanlanmagan';
+        } else if (opponentType === 'bot') {
+            const difficulty = botDifficultyInput.value;
+            const levels = {easy: 'Oson', medium: 'O\'rta', hard: 'Qiyin', expert: 'Ekspert'};
+            opponentText = 'Bot (' + levels[difficulty] + ')';
+        } else if (opponentType === 'random') {
+            opponentText = 'Random raqib';
+        }
+
+        document.getElementById('summaryOpponent').textContent = opponentText;
+
+        // Subject
+        const selectedSubject = document.querySelector('.bc-subject.selected h5');
+        document.getElementById('summarySubject').textContent = selectedSubject ? selectedSubject.textContent : 'Aralash';
+
+        // Count
+        const count = questionCountInput.value;
+        document.getElementById('summaryCount').textContent = count + ' ta';
+
+        // Time (30 sec per question)
+        const time = Math.ceil(count * 30 / 60);
+        document.getElementById('summaryTime').textContent = time + ' daqiqa';
+    }
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        const opponentType = opponentTypeInput.value;
+
+        if (opponentType === 'friend' && !opponentIdInput.value) {
+            e.preventDefault();
+            alert('Iltimos, do\'st tanlang!');
+            return false;
+        }
+    });
+
+    // Initial summary update
+    updateSummary();
+
+    // URL params handling
+    const urlParams = new URLSearchParams(window.location.search);
+    const typeParam = urlParams.get('type');
+    if (typeParam) {
+        const typeBtn = document.querySelector(`.bc-opponent-type[data-type="${typeParam}"]`);
+        if (typeBtn) {
+            typeBtn.click();
+        }
+    }
+});
 </script>
 {% endblock %}

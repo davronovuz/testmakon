@@ -1,0 +1,1156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ competition.title }} | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== FULLSCREEN MODE ========== */
+    body.exam-mode {
+        overflow: hidden;
+    }
+
+    /* ========== HEADER ========== */
+    .cp-header {
+        background: var(--gradient-dark);
+        padding: 0.75rem 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .cp-header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .cp-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cp-back-btn {
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.2s;
+    }
+
+    .cp-back-btn:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    .cp-title {
+        color: white;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .cp-title-sub {
+        font-size: 0.8rem;
+        color: var(--gray-400);
+    }
+
+    .cp-header-center {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    /* Timer */
+    .cp-timer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: var(--radius);
+        color: white;
+    }
+
+    .cp-timer i {
+        color: var(--primary);
+    }
+
+    .cp-timer-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        font-family: monospace;
+    }
+
+    .cp-timer.warning {
+        background: rgba(245, 158, 11, 0.2);
+    }
+
+    .cp-timer.warning .cp-timer-value {
+        color: #F59E0B;
+    }
+
+    .cp-timer.danger {
+        background: rgba(239, 68, 68, 0.2);
+        animation: timerPulse 1s infinite;
+    }
+
+    .cp-timer.danger .cp-timer-value {
+        color: #EF4444;
+    }
+
+    @keyframes timerPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* Progress */
+    .cp-progress {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+        font-size: 0.85rem;
+    }
+
+    .cp-progress-bar {
+        width: 120px;
+        height: 6px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .cp-progress-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 3px;
+        transition: width 0.3s;
+    }
+
+    .cp-header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .cp-violations {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        background: rgba(239, 68, 68, 0.2);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #FCA5A5;
+    }
+
+    .cp-finish-btn {
+        padding: 0.5rem 1rem;
+        background: #EF4444;
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cp-finish-btn:hover {
+        background: #DC2626;
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .cp-content {
+        padding-top: 70px;
+        min-height: 100vh;
+        background: var(--gray-100);
+    }
+
+    .cp-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem;
+    }
+
+    /* ========== QUESTION NAVIGATOR ========== */
+    .cp-navigator {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+    }
+
+    .cp-nav-dot {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+
+    .cp-nav-dot.unanswered {
+        background: var(--gray-200);
+        color: var(--gray-500);
+    }
+
+    .cp-nav-dot.answered {
+        background: var(--primary);
+        color: white;
+    }
+
+    .cp-nav-dot.bookmarked {
+        background: #FEF3C7;
+        color: #D97706;
+        border-color: #F59E0B;
+    }
+
+    .cp-nav-dot.current {
+        border-color: var(--dark);
+        transform: scale(1.15);
+    }
+
+    .cp-nav-dot:hover {
+        transform: scale(1.1);
+    }
+
+    /* ========== QUESTION CARD ========== */
+    .cp-question-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .cp-question-header {
+        padding: 1rem 1.5rem;
+        background: var(--gray-50);
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .cp-question-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cp-question-number {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cp-question-badge {
+        width: 36px;
+        height: 36px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .cp-question-difficulty {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+    }
+
+    .cp-question-difficulty.easy {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .cp-question-difficulty.medium {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .cp-question-difficulty.hard {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .cp-question-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cp-bookmark-btn {
+        width: 36px;
+        height: 36px;
+        background: var(--gray-100);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-500);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cp-bookmark-btn:hover {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .cp-bookmark-btn.active {
+        background: #FEF3C7;
+        color: #F59E0B;
+    }
+
+    .cp-question-body {
+        padding: 2rem;
+    }
+
+    .cp-question-text {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--dark);
+        line-height: 1.8;
+        margin-bottom: 0.5rem;
+    }
+
+    .cp-question-image {
+        margin-top: 1.5rem;
+        border-radius: var(--radius);
+        overflow: hidden;
+        max-width: 100%;
+    }
+
+    .cp-question-image img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* ========== ANSWERS ========== */
+    .cp-answers {
+        padding: 0 2rem 2rem;
+    }
+
+    .cp-answer {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cp-answer:hover {
+        border-color: var(--gray-300);
+        background: var(--gray-100);
+    }
+
+    .cp-answer.selected {
+        border-color: var(--primary);
+        background: var(--primary-glow);
+    }
+
+    .cp-answer input {
+        display: none;
+    }
+
+    .cp-answer-letter {
+        width: 40px;
+        height: 40px;
+        background: var(--gray-200);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark-600);
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .cp-answer.selected .cp-answer-letter {
+        background: var(--primary);
+        color: white;
+    }
+
+    .cp-answer-text {
+        flex: 1;
+        font-size: 1rem;
+        color: var(--dark-600);
+        line-height: 1.7;
+        padding-top: 0.5rem;
+    }
+
+    .cp-answer.selected .cp-answer-text {
+        color: var(--dark);
+        font-weight: 500;
+    }
+
+    /* ========== NAVIGATION ========== */
+    .cp-navigation {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .cp-nav-btn {
+        padding: 1rem 2rem;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .cp-nav-btn.prev {
+        background: var(--white);
+        color: var(--dark-600);
+        border: 2px solid var(--gray-300);
+    }
+
+    .cp-nav-btn.prev:hover {
+        border-color: var(--gray-400);
+    }
+
+    .cp-nav-btn.prev:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .cp-nav-btn.next {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .cp-nav-btn.next:hover {
+        box-shadow: var(--shadow-primary);
+    }
+
+    .cp-nav-btn.finish {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    }
+
+    /* ========== FINISH MODAL ========== */
+    .cp-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+    }
+
+    .cp-modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .cp-modal {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 450px;
+        padding: 2rem;
+        text-align: center;
+        transform: scale(0.9);
+        transition: all 0.3s;
+    }
+
+    .cp-modal-overlay.active .cp-modal {
+        transform: scale(1);
+    }
+
+    .cp-modal-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .cp-modal h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .cp-modal p {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .cp-modal-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .cp-modal-stat {
+        text-align: center;
+    }
+
+    .cp-modal-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .cp-modal-stat-value.green { color: #10B981; }
+    .cp-modal-stat-value.yellow { color: #F59E0B; }
+    .cp-modal-stat-value.gray { color: var(--gray-400); }
+
+    .cp-modal-stat-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .cp-modal-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .cp-modal-btn {
+        flex: 1;
+        padding: 0.875rem;
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cp-modal-btn.cancel {
+        background: var(--gray-100);
+        color: var(--dark-600);
+        border: none;
+    }
+
+    .cp-modal-btn.confirm {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        border: none;
+    }
+
+    /* ========== WARNING MODAL ========== */
+    .cp-warning-modal {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 400px;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .cp-warning-icon {
+        font-size: 3rem;
+        color: #EF4444;
+        margin-bottom: 1rem;
+    }
+
+    .cp-warning-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #DC2626;
+        margin-bottom: 0.5rem;
+    }
+
+    .cp-warning-text {
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .cp-warning-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #FEE2E2;
+        color: #DC2626;
+        border-radius: 20px;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .cp-warning-btn {
+        padding: 0.875rem 2rem;
+        background: var(--dark);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    /* ========== ANTI-CHEAT ========== */
+    .cp-content.exam-mode {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    @media (max-width: 768px) {
+        .cp-header-center {
+            display: none;
+        }
+
+        .cp-progress {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: 0.75rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            justify-content: center;
+        }
+
+        .cp-content {
+            padding-bottom: 60px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="cp-header">
+    <div class="container">
+        <div class="cp-header-content">
+            <div class="cp-header-left">
+                <div>
+                    <div class="cp-title">{{ competition.title }}</div>
+                    <div class="cp-title-sub">{{ competition.get_competition_type_display }}</div>
+                </div>
+            </div>
+
+            <div class="cp-header-center">
+                <div class="cp-timer" id="mainTimer">
+                    <i class="bi bi-clock"></i>
+                    <span class="cp-timer-value" id="timerDisplay">{{ remaining_time|default:3600 }}</span>
+                </div>
+
+                <div class="cp-progress">
+                    <span id="answeredCount">0</span>/{{ total_questions }}
+                    <div class="cp-progress-bar">
+                        <div class="cp-progress-fill" id="progressFill" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cp-header-right">
+                {% if anti_cheat %}
+                <div class="cp-violations" id="violationsDisplay" style="display:none;">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span id="violationsCount">0</span>/3
+                </div>
+                {% endif %}
+
+                <button class="cp-finish-btn" id="finishBtn">
+                    <i class="bi bi-check-lg"></i>
+                    Yakunlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="cp-content {% if anti_cheat %}exam-mode{% endif %}">
+    <div class="cp-container">
+        <!-- Question Navigator -->
+        <div class="cp-navigator" id="questionNavigator">
+            {% for i in questions_data %}
+            <div class="cp-nav-dot unanswered {% if forloop.first %}current{% endif %}" data-index="{{ forloop.counter0 }}">
+                {{ forloop.counter }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Question Card -->
+        <div class="cp-question-card">
+            <div class="cp-question-header">
+                <div class="cp-question-left">
+                    <div class="cp-question-number">
+                        <div class="cp-question-badge" id="questionBadge">1</div>
+                        <span style="font-weight:600; color:var(--dark);">Savol</span>
+                    </div>
+                    <span class="cp-question-difficulty medium" id="questionDifficulty">O'rta</span>
+                </div>
+                <div class="cp-question-right">
+                    <button class="cp-bookmark-btn" id="bookmarkBtn" title="Belgilash">
+                        <i class="bi bi-bookmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="cp-question-body">
+                <div class="cp-question-text" id="questionText"></div>
+                <div class="cp-question-image" id="questionImage" style="display:none;">
+                    <img src="" alt="" id="questionImg">
+                </div>
+            </div>
+
+            <div class="cp-answers" id="answersContainer">
+                <!-- Answers will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="cp-navigation">
+            <button class="cp-nav-btn prev" id="prevBtn" disabled>
+                <i class="bi bi-arrow-left"></i>
+                Oldingi
+            </button>
+            <button class="cp-nav-btn next" id="nextBtn">
+                Keyingi
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Finish Modal -->
+<div class="cp-modal-overlay" id="finishModal">
+    <div class="cp-modal">
+        <div class="cp-modal-icon">🏁</div>
+        <h3>Musobaqani yakunlaysizmi?</h3>
+        <p>Barcha javoblaringiz saqlanadi va natija hisoblanadi</p>
+
+        <div class="cp-modal-stats">
+            <div class="cp-modal-stat">
+                <div class="cp-modal-stat-value green" id="modalAnswered">0</div>
+                <div class="cp-modal-stat-label">Javob berilgan</div>
+            </div>
+            <div class="cp-modal-stat">
+                <div class="cp-modal-stat-value yellow" id="modalBookmarked">0</div>
+                <div class="cp-modal-stat-label">Belgilangan</div>
+            </div>
+            <div class="cp-modal-stat">
+                <div class="cp-modal-stat-value gray" id="modalUnanswered">0</div>
+                <div class="cp-modal-stat-label">Javobsiz</div>
+            </div>
+        </div>
+
+        <div class="cp-modal-actions">
+            <button class="cp-modal-btn cancel" id="modalCancel">Davom etish</button>
+            <button class="cp-modal-btn confirm" id="modalConfirm">Yakunlash</button>
+        </div>
+    </div>
+</div>
+
+<!-- Warning Modal (Anti-cheat) -->
+<div class="cp-modal-overlay" id="warningModal">
+    <div class="cp-warning-modal">
+        <div class="cp-warning-icon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="cp-warning-title">Ogohlantirish!</div>
+        <p class="cp-warning-text" id="warningText">Sahifadan chiqish aniqlandi</p>
+        <div class="cp-warning-count">
+            <i class="bi bi-exclamation-circle"></i>
+            <span id="warningCount">1</span>/3 ogohlantirish
+        </div>
+        <button class="cp-warning-btn" id="warningClose">Tushundim</button>
+    </div>
+</div>
+
+<!-- Hidden Form -->
+<form id="submitForm" method="post" action="{% url 'competitions:competition_submit' slug=competition.slug %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="answers" id="answersInput">
+    <input type="hidden" name="time_spent" id="timeSpentInput">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Data
+    const questions = {{ questions_data|safe }};
+    const totalTime = {{ remaining_time|default:3600 }};
+    const totalQuestions = questions.length;
+    const antiCheat = {{ anti_cheat|yesno:"true,false" }};
+    const competitionId = {{ competition.id }};
+
+    // State
+    let currentIndex = 0;
+    let answers = {};
+    let bookmarked = new Set();
+    let timeRemaining = totalTime;
+    let violations = 0;
+    let startTime = Date.now();
+    let timerInterval;
+
+    // Elements
+    const timerDisplay = document.getElementById('timerDisplay');
+    const mainTimer = document.getElementById('mainTimer');
+    const questionText = document.getElementById('questionText');
+    const questionImage = document.getElementById('questionImage');
+    const questionImg = document.getElementById('questionImg');
+    const questionBadge = document.getElementById('questionBadge');
+    const questionDifficulty = document.getElementById('questionDifficulty');
+    const answersContainer = document.getElementById('answersContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
+    const answeredCount = document.getElementById('answeredCount');
+    const progressFill = document.getElementById('progressFill');
+    const finishModal = document.getElementById('finishModal');
+    const warningModal = document.getElementById('warningModal');
+    const violationsDisplay = document.getElementById('violationsDisplay');
+    const violationsCount = document.getElementById('violationsCount');
+
+    // Initialize
+    loadQuestion(0);
+    startTimer();
+
+    if (antiCheat) {
+        initAntiCheat();
+    }
+
+    // Timer
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                submitCompetition();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const hours = Math.floor(timeRemaining / 3600);
+        const minutes = Math.floor((timeRemaining % 3600) / 60);
+        const seconds = timeRemaining % 60;
+
+        if (hours > 0) {
+            timerDisplay.textContent = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        mainTimer.classList.remove('warning', 'danger');
+        if (timeRemaining <= 60) {
+            mainTimer.classList.add('danger');
+        } else if (timeRemaining <= 300) {
+            mainTimer.classList.add('warning');
+        }
+    }
+
+    // Load question
+    function loadQuestion(index) {
+        const q = questions[index];
+        currentIndex = index;
+
+        // Update header
+        questionBadge.textContent = index + 1;
+
+        // Difficulty
+        const diffMap = {easy: ['Oson', 'easy'], medium: ['O\'rta', 'medium'], hard: ['Qiyin', 'hard']};
+        const diff = diffMap[q.difficulty] || ['O\'rta', 'medium'];
+        questionDifficulty.textContent = diff[0];
+        questionDifficulty.className = 'cp-question-difficulty ' + diff[1];
+
+        // Question text
+        questionText.textContent = q.text;
+
+        // Question image
+        if (q.image) {
+            questionImage.style.display = 'block';
+            questionImg.src = q.image;
+        } else {
+            questionImage.style.display = 'none';
+        }
+
+        // Bookmark
+        bookmarkBtn.classList.toggle('active', bookmarked.has(q.id));
+        bookmarkBtn.innerHTML = bookmarked.has(q.id) ?
+            '<i class="bi bi-bookmark-fill"></i>' :
+            '<i class="bi bi-bookmark"></i>';
+
+        // Answers
+        const letters = ['A', 'B', 'C', 'D'];
+        answersContainer.innerHTML = q.answers.map((ans, i) => `
+            <label class="cp-answer ${answers[q.id] === ans.id ? 'selected' : ''}" data-id="${ans.id}">
+                <input type="radio" name="answer" value="${ans.id}" ${answers[q.id] === ans.id ? 'checked' : ''}>
+                <div class="cp-answer-letter">${letters[i]}</div>
+                <div class="cp-answer-text">${ans.text}</div>
+            </label>
+        `).join('');
+
+        // Attach answer handlers
+        document.querySelectorAll('.cp-answer').forEach(answer => {
+            answer.addEventListener('click', function() {
+                selectAnswer(q.id, parseInt(this.dataset.id));
+            });
+        });
+
+        // Navigation buttons
+        prevBtn.disabled = index === 0;
+
+        if (index === totalQuestions - 1) {
+            nextBtn.innerHTML = '<i class="bi bi-check-lg"></i> Yakunlash';
+            nextBtn.classList.add('finish');
+        } else {
+            nextBtn.innerHTML = 'Keyingi <i class="bi bi-arrow-right"></i>';
+            nextBtn.classList.remove('finish');
+        }
+
+        updateNavigator();
+        updateProgress();
+    }
+
+    // Select answer
+    function selectAnswer(questionId, answerId) {
+        answers[questionId] = answerId;
+
+        document.querySelectorAll('.cp-answer').forEach(a => a.classList.remove('selected'));
+        document.querySelector(`.cp-answer[data-id="${answerId}"]`).classList.add('selected');
+
+        updateNavigator();
+        updateProgress();
+    }
+
+    // Bookmark
+    bookmarkBtn.addEventListener('click', () => {
+        const qId = questions[currentIndex].id;
+        if (bookmarked.has(qId)) {
+            bookmarked.delete(qId);
+            bookmarkBtn.classList.remove('active');
+            bookmarkBtn.innerHTML = '<i class="bi bi-bookmark"></i>';
+        } else {
+            bookmarked.add(qId);
+            bookmarkBtn.classList.add('active');
+            bookmarkBtn.innerHTML = '<i class="bi bi-bookmark-fill"></i>';
+        }
+        updateNavigator();
+    });
+
+    // Update navigator
+    function updateNavigator() {
+        document.querySelectorAll('.cp-nav-dot').forEach((dot, i) => {
+            dot.classList.remove('current', 'answered', 'unanswered', 'bookmarked');
+
+            if (i === currentIndex) dot.classList.add('current');
+
+            const qId = questions[i].id;
+            if (bookmarked.has(qId)) {
+                dot.classList.add('bookmarked');
+            } else if (answers[qId]) {
+                dot.classList.add('answered');
+            } else {
+                dot.classList.add('unanswered');
+            }
+        });
+    }
+
+    // Update progress
+    function updateProgress() {
+        const answered = Object.keys(answers).length;
+        answeredCount.textContent = answered;
+        progressFill.style.width = `${(answered / totalQuestions) * 100}%`;
+    }
+
+    // Navigation
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) loadQuestion(currentIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < totalQuestions - 1) {
+            loadQuestion(currentIndex + 1);
+        } else {
+            showFinishModal();
+        }
+    });
+
+    // Navigator dot click
+    document.querySelectorAll('.cp-nav-dot').forEach(dot => {
+        dot.addEventListener('click', function() {
+            loadQuestion(parseInt(this.dataset.index));
+        });
+    });
+
+    // Finish modal
+    document.getElementById('finishBtn').addEventListener('click', showFinishModal);
+
+    function showFinishModal() {
+        const answered = Object.keys(answers).length;
+        document.getElementById('modalAnswered').textContent = answered;
+        document.getElementById('modalBookmarked').textContent = bookmarked.size;
+        document.getElementById('modalUnanswered').textContent = totalQuestions - answered;
+        finishModal.classList.add('active');
+    }
+
+    document.getElementById('modalCancel').addEventListener('click', () => {
+        finishModal.classList.remove('active');
+    });
+
+    document.getElementById('modalConfirm').addEventListener('click', submitCompetition);
+
+    // Submit
+    function submitCompetition() {
+        clearInterval(timerInterval);
+
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        const answersArray = Object.entries(answers).map(([qId, aId]) => ({
+            question_id: parseInt(qId),
+            answer_id: aId
+        }));
+
+        document.getElementById('answersInput').value = JSON.stringify(answersArray);
+        document.getElementById('timeSpentInput').value = timeSpent;
+        document.getElementById('submitForm').submit();
+    }
+
+    // Anti-cheat
+    function initAntiCheat() {
+        // Tab visibility
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                logViolation('tab_switch', 'Boshqa tabga o\'tildi');
+            }
+        });
+
+        // Window blur
+        window.addEventListener('blur', () => {
+            logViolation('window_blur', 'Oyna fokusdan chiqdi');
+        });
+
+        // Right click
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+
+        // Copy/paste
+        document.addEventListener('copy', (e) => e.preventDefault());
+        document.addEventListener('paste', (e) => e.preventDefault());
+        document.addEventListener('cut', (e) => e.preventDefault());
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 'p')) {
+                e.preventDefault();
+                return false;
+            }
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+                logViolation('devtools', 'DevTools ochishga urinish');
+                return false;
+            }
+        });
+    }
+
+    function logViolation(type, message) {
+        violations++;
+        violationsCount.textContent = violations;
+        violationsDisplay.style.display = 'flex';
+
+        // Show warning
+        document.getElementById('warningText').textContent = message;
+        document.getElementById('warningCount').textContent = violations;
+        warningModal.classList.add('active');
+
+        // Log to server
+        fetch('{% url "competitions:api_log_violation" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                competition_id: competitionId,
+                type: type,
+                details: message
+            })
+        });
+
+        // Disqualify after 3 violations
+        if (violations >= 3) {
+            alert('Siz diskvalifikatsiya qilindingiz!');
+            submitCompetition();
+        }
+    }
+
+    document.getElementById('warningClose').addEventListener('click', () => {
+        warningModal.classList.remove('active');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (finishModal.classList.contains('active') || warningModal.classList.contains('active')) return;
+
+        const q = questions[currentIndex];
+
+        switch(e.key) {
+            case '1': case '2': case '3': case '4':
+                const ansIndex = parseInt(e.key) - 1;
+                if (q.answers[ansIndex]) selectAnswer(q.id, q.answers[ansIndex].id);
+                break;
+            case 'ArrowLeft':
+                if (currentIndex > 0) loadQuestion(currentIndex - 1);
+                break;
+            case 'ArrowRight':
+            case 'Enter':
+                if (currentIndex < totalQuestions - 1) loadQuestion(currentIndex + 1);
+                else showFinishModal();
+                break;
+            case 'b':
+            case 'B':
+                bookmarkBtn.click();
+                break;
+        }
+    });
+});
+</script>
+{% endblock %}
