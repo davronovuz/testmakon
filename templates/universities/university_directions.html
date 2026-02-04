@@ -1,83 +1,639 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %}
 
-{% block title %}Yo'nalishlar | {{ university.short_name }}{% endblock %}
+{% block title %}Yo'nalishlar | {{ university.name }} | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .udir-header {
+        background: var(--gradient-dark);
+        padding: 2.5rem 0;
+        color: white;
+    }
+
+    .udir-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .udir-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    .udir-back {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .udir-back:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    .udir-uni-logo {
+        width: 64px;
+        height: 64px;
+        background: white;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .udir-uni-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 0.5rem;
+    }
+
+    .udir-uni-logo-text {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .udir-header-info h1 {
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+
+    .udir-header-info p {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.8);
+        margin: 0;
+    }
+
+    /* ========== CONTENT ========== */
+    .udir-content {
+        padding: 2rem 0 4rem;
+        background: var(--gray-50);
+        min-height: 70vh;
+    }
+
+    /* ========== FILTERS BAR ========== */
+    .udir-filters {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .udir-search {
+        flex: 1;
+        min-width: 200px;
+        position: relative;
+    }
+
+    .udir-search input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .udir-search input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .udir-search i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+    }
+
+    .udir-filter-select {
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 1rem center;
+        appearance: none;
+        cursor: pointer;
+        min-width: 160px;
+    }
+
+    .udir-filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    /* ========== STATS BAR ========== */
+    .udir-stats {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .udir-stat-card {
+        flex: 1;
+        min-width: 150px;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .udir-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .udir-stat-icon.blue { background: #DBEAFE; color: #2563EB; }
+    .udir-stat-icon.green { background: #D1FAE5; color: #059669; }
+    .udir-stat-icon.orange { background: #FED7AA; color: #EA580C; }
+    .udir-stat-icon.purple { background: #EDE9FE; color: #7C3AED; }
+
+    .udir-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .udir-stat-label {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    /* ========== DIRECTIONS LIST ========== */
+    .udir-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* ========== DIRECTION CARD ========== */
+    .udir-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .udir-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .udir-card-main {
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .udir-card-main {
+            flex-direction: column;
+        }
+    }
+
+    .udir-card-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--primary-glow);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--primary-dark);
+        flex-shrink: 0;
+    }
+
+    .udir-card-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .udir-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .udir-card-header {
+            flex-direction: column;
+        }
+    }
+
+    .udir-card-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .udir-card-code {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .udir-card-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .udir-badge {
+        padding: 0.3rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .udir-badge.grant {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .udir-badge.contract {
+        background: #DBEAFE;
+        color: #1D4ED8;
+    }
+
+    .udir-badge.popular {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .udir-badge.new {
+        background: #EDE9FE;
+        color: #7C3AED;
+    }
+
+    .udir-card-desc {
+        font-size: 0.9rem;
+        color: var(--gray-600);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    /* Stats Grid */
+    .udir-card-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-100);
+    }
+
+    @media (max-width: 768px) {
+        .udir-card-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .udir-card-stat {
+        text-align: center;
+    }
+
+    .udir-card-stat-value {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .udir-card-stat-value.green { color: #059669; }
+    .udir-card-stat-value.blue { color: #2563EB; }
+    .udir-card-stat-value.orange { color: #EA580C; }
+
+    .udir-card-stat-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    /* ========== EMPTY STATE ========== */
+    .udir-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+    }
+
+    .udir-empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.4;
+    }
+
+    .udir-empty h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .udir-empty p {
+        color: var(--gray-500);
+        margin: 0;
+    }
+
+    /* ========== PAGINATION ========== */
+    .udir-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .udir-page-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: var(--white);
+        color: var(--dark-600);
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s;
+    }
+
+    .udir-page-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .udir-page-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="section-sm bg-light min-vh-100">
+<!-- Header -->
+<div class="udir-header">
     <div class="container">
+        <div class="udir-header-content">
+            <a href="{% url 'universities:detail' slug=university.slug %}" class="udir-back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
 
-        <div class="d-flex align-items-center gap-3 mb-4">
-            <a href="{% url 'universities:university_detail' slug=university.slug %}" class="btn btn-light rounded-circle shadow-sm"><i class="bi bi-arrow-left"></i></a>
-            <div>
-                <h2 class="fw-bold mb-0">Ta'lim Yo'nalishlari</h2>
-                <p class="text-muted mb-0 small">{{ university.name }}</p>
+            <div class="udir-uni-logo">
+                {% if university.logo %}
+                <img src="{{ university.logo.url }}" alt="">
+                {% else %}
+                <span class="udir-uni-logo-text">{{ university.name|slice:":2"|upper }}</span>
+                {% endif %}
+            </div>
+
+            <div class="udir-header-info">
+                <h1>Yo'nalishlar</h1>
+                <p>{{ university.name }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="udir-content">
+    <div class="container">
+        <!-- Filters -->
+        <div class="udir-filters">
+            <div class="udir-search">
+                <i class="bi bi-search"></i>
+                <input type="text" placeholder="Yo'nalish qidirish..." id="searchInput">
+            </div>
+
+            <select class="udir-filter-select" id="degreeFilter">
+                <option value="">Barcha darajalar</option>
+                <option value="bachelor">Bakalavr</option>
+                <option value="master">Magistratura</option>
+                <option value="phd">Doktorantura</option>
+            </select>
+
+            <select class="udir-filter-select" id="formFilter">
+                <option value="">Barcha shakllar</option>
+                <option value="daytime">Kunduzgi</option>
+                <option value="evening">Kechki</option>
+                <option value="distance">Sirtqi</option>
+            </select>
+
+            <select class="udir-filter-select" id="sortFilter">
+                <option value="name">Nomi bo'yicha</option>
+                <option value="score">Ball bo'yicha</option>
+                <option value="price">Narx bo'yicha</option>
+            </select>
+        </div>
+
+        <!-- Stats -->
+        <div class="udir-stats">
+            <div class="udir-stat-card">
+                <div class="udir-stat-icon blue">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div>
+                    <div class="udir-stat-value">{{ directions.count|default:"45" }}</div>
+                    <div class="udir-stat-label">Jami yo'nalishlar</div>
+                </div>
+            </div>
+            <div class="udir-stat-card">
+                <div class="udir-stat-icon green">
+                    <i class="bi bi-trophy"></i>
+                </div>
+                <div>
+                    <div class="udir-stat-value">{{ grant_places|default:"1200" }}</div>
+                    <div class="udir-stat-label">Grant o'rinlari</div>
+                </div>
+            </div>
+            <div class="udir-stat-card">
+                <div class="udir-stat-icon orange">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div>
+                    <div class="udir-stat-value">{{ avg_score|default:"168" }}</div>
+                    <div class="udir-stat-label">O'rtacha ball</div>
+                </div>
+            </div>
+            <div class="udir-stat-card">
+                <div class="udir-stat-icon purple">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div>
+                    <div class="udir-stat-value">{{ min_price|default:"14" }}M</div>
+                    <div class="udir-stat-label">Min kontrakt</div>
+                </div>
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-3">
-                <form method="get" class="d-flex flex-wrap gap-3">
-                    <select name="faculty" class="form-select bg-light border-0 w-auto" onchange="this.form.submit()">
-                        <option value="">Barcha Fakultetlar</option>
-                        {% for f in faculties %}
-                            <option value="{{ f.id }}" {% if request.GET.faculty == f.id|stringformat:"s" %}selected{% endif %}>{{ f.name }}</option>
-                        {% endfor %}
-                    </select>
+        <!-- Directions List -->
+        <div class="udir-list" id="directionsList">
+            {% for direction in directions %}
+            <div class="udir-card" data-name="{{ direction.name|lower }}" data-degree="{{ direction.degree }}" data-form="{{ direction.study_form }}">
+                <div class="udir-card-main">
+                    <div class="udir-card-icon">
+                        {% if direction.icon %}{{ direction.icon }}{% else %}🎓{% endif %}
+                    </div>
 
-                    <select name="form" class="form-select bg-light border-0 w-auto" onchange="this.form.submit()">
-                        <option value="">Barcha Shakllar</option>
-                        <option value="full_time" {% if request.GET.form == 'full_time' %}selected{% endif %}>Kunduzgi</option>
-                        <option value="evening" {% if request.GET.form == 'evening' %}selected{% endif %}>Kechki</option>
-                        <option value="distance" {% if request.GET.form == 'distance' %}selected{% endif %}>Sirtqi</option>
-                    </select>
-                </form>
-            </div>
-        </div>
-
-        <div class="row g-3">
-            {% for dir in directions %}
-            <div class="col-12">
-                <div class="card border-0 shadow-sm rounded-4 hover-lift">
-                    <div class="card-body p-4">
-                        <div class="row align-items-center g-3">
-                            <div class="col-md-6">
-                                <div class="badge bg-light text-muted border mb-2">{{ dir.code }}</div>
-                                <h5 class="fw-bold mb-1">
-                                    <a href="{% url 'universities:direction_detail' uuid=dir.uuid %}" class="text-dark text-decoration-none stretched-link">
-                                        {{ dir.name }}
-                                    </a>
-                                </h5>
-                                <p class="text-muted small mb-0">{{ dir.faculty.name }}</p>
+                    <div class="udir-card-info">
+                        <div class="udir-card-header">
+                            <div>
+                                <div class="udir-card-name">{{ direction.name }}</div>
+                                <div class="udir-card-code">{{ direction.code|default:"60110100" }} • {{ direction.get_degree_display|default:"Bakalavr" }}</div>
                             </div>
 
-                            <div class="col-md-2 text-md-center">
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Ta'lim shakli</small>
-                                <span class="fw-bold text-primary">{{ dir.get_education_form_display }}</span>
-                            </div>
-
-                            <div class="col-md-2 text-md-center">
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Kvota</small>
-                                <div class="fw-bold">{{ dir.total_quota }} ta</div>
-                                <small class="text-success">{{ dir.grant_quota }} grant</small>
-                            </div>
-
-                            <div class="col-md-2 text-md-end">
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Kontrakt</small>
-                                <div class="fw-bold text-dark">{{ dir.contract_price|intcomma }} so'm</div>
+                            <div class="udir-card-badges">
+                                {% if direction.has_grant %}
+                                <span class="udir-badge grant">
+                                    <i class="bi bi-trophy-fill me-1"></i>Grant
+                                </span>
+                                {% endif %}
+                                {% if direction.is_popular %}
+                                <span class="udir-badge popular">
+                                    <i class="bi bi-fire me-1"></i>Ommabop
+                                </span>
+                                {% endif %}
+                                {% if direction.is_new %}
+                                <span class="udir-badge new">
+                                    <i class="bi bi-sparkles me-1"></i>Yangi
+                                </span>
+                                {% endif %}
                             </div>
                         </div>
+
+                        {% if direction.description %}
+                        <p class="udir-card-desc">{{ direction.description|truncatewords:25 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="udir-card-stats">
+                    <div class="udir-card-stat">
+                        <div class="udir-card-stat-value green">{{ direction.grant_score|default:"185" }}</div>
+                        <div class="udir-card-stat-label">Grant ball</div>
+                    </div>
+                    <div class="udir-card-stat">
+                        <div class="udir-card-stat-value blue">{{ direction.grant_places|default:"25" }}</div>
+                        <div class="udir-card-stat-label">Grant o'rin</div>
+                    </div>
+                    <div class="udir-card-stat">
+                        <div class="udir-card-stat-value">{{ direction.contract_places|default:"50" }}</div>
+                        <div class="udir-card-stat-label">Kontrakt o'rin</div>
+                    </div>
+                    <div class="udir-card-stat">
+                        <div class="udir-card-stat-value orange">{{ direction.contract_price|default:"16 000 000" }}</div>
+                        <div class="udir-card-stat-label">Kontrakt (UZS)</div>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="text-center py-5">
-                <i class="bi bi-folder-x display-4 text-muted mb-3 d-block"></i>
-                <h5>Yo'nalishlar topilmadi</h5>
+            <div class="udir-empty">
+                <div class="udir-empty-icon">🎓</div>
+                <h4>Yo'nalishlar topilmadi</h4>
+                <p>Ushbu universitet uchun yo'nalishlar hali qo'shilmagan</p>
             </div>
             {% endfor %}
         </div>
+
+        <!-- Pagination -->
+        {% if directions.has_other_pages %}
+        <div class="udir-pagination">
+            {% if directions.has_previous %}
+            <a href="?page={{ directions.previous_page_number }}" class="udir-page-btn">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            {% endif %}
+
+            {% for num in directions.paginator.page_range %}
+            {% if num == directions.number %}
+            <span class="udir-page-btn active">{{ num }}</span>
+            {% elif num > directions.number|add:'-3' and num < directions.number|add:'3' %}
+            <a href="?page={{ num }}" class="udir-page-btn">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if directions.has_next %}
+            <a href="?page={{ directions.next_page_number }}" class="udir-page-btn">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const degreeFilter = document.getElementById('degreeFilter');
+    const formFilter = document.getElementById('formFilter');
+    const directionsList = document.getElementById('directionsList');
+
+    function filterDirections() {
+        const searchQuery = searchInput.value.toLowerCase();
+        const degreeValue = degreeFilter.value;
+        const formValue = formFilter.value;
+
+        document.querySelectorAll('.udir-card').forEach(card => {
+            const name = card.dataset.name || '';
+            const degree = card.dataset.degree || '';
+            const form = card.dataset.form || '';
+
+            const matchSearch = !searchQuery || name.includes(searchQuery);
+            const matchDegree = !degreeValue || degree === degreeValue;
+            const matchForm = !formValue || form === formValue;
+
+            if (matchSearch && matchDegree && matchForm) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterDirections);
+    degreeFilter.addEventListener('change', filterDirections);
+    formFilter.addEventListener('change', filterDirections);
+});
+</script>
 {% endblock %}

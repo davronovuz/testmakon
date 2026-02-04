@@ -5,604 +5,1005 @@
 
 {% block extra_css %}
 <style>
-    /* Hero Section */
-    .uni-hero {
+    /* ========== HERO SECTION ========== */
+    .ud-hero {
         position: relative;
-        background: var(--gradient-dark);
-        padding-top: 0;
+        height: 320px;
         overflow: hidden;
     }
 
-    .uni-hero-bg {
+    .ud-hero-bg {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        opacity: 0.3;
     }
 
-    .uni-hero-overlay {
+    .ud-hero-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.95) 100%);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.9) 100%);
     }
 
-    .uni-hero-content {
-        position: relative;
-        z-index: 2;
-        padding: 4rem 0 5rem;
-    }
-
-    /* University Card */
-    .uni-main-card {
-        margin-top: -3rem;
+    /* ========== MAIN CARD ========== */
+    .ud-main-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        margin-top: -100px;
         position: relative;
         z-index: 10;
+        overflow: hidden;
     }
 
-    .uni-logo {
+    .ud-card-header {
+        padding: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    @media (max-width: 768px) {
+        .ud-card-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    }
+
+    .ud-logo {
         width: 100px;
         height: 100px;
         border-radius: var(--radius-lg);
         background: var(--white);
-        padding: 0.5rem;
         box-shadow: var(--shadow-md);
-        object-fit: contain;
-        border: 2px solid var(--gray-200);
-    }
-
-    .uni-logo-placeholder {
-        width: 100px;
-        height: 100px;
-        border-radius: var(--radius-lg);
-        background: var(--gradient-primary);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--white);
-        box-shadow: var(--shadow-primary);
+        flex-shrink: 0;
+        border: 2px solid var(--gray-200);
+        overflow: hidden;
     }
 
-    /* Stats */
-    .uni-stat {
+    .ud-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 0.5rem;
+    }
+
+    .ud-logo-text {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .ud-header-info {
+        flex: 1;
+    }
+
+    .ud-badges {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .ud-badges {
+            justify-content: center;
+        }
+    }
+
+    .ud-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .ud-badge.state {
+        background: #DBEAFE;
+        color: #1D4ED8;
+    }
+
+    .ud-badge.private {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .ud-badge.recommended {
+        background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        color: white;
+    }
+
+    .ud-badge.region {
+        background: var(--gray-100);
+        color: var(--gray-600);
+    }
+
+    .ud-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .ud-subtitle {
+        font-size: 0.95rem;
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+    }
+
+    .ud-quick-stats {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+        .ud-quick-stats {
+            justify-content: center;
+        }
+    }
+
+    .ud-quick-stat {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: var(--gray-500);
         font-size: 0.9rem;
+        color: var(--gray-600);
     }
 
-    .uni-stat i {
-        font-size: 1rem;
+    .ud-quick-stat i {
+        color: var(--primary);
     }
 
-    /* Tabs */
-    .uni-tabs {
-        border-bottom: 2px solid var(--gray-100);
+    .ud-quick-stat strong {
+        color: var(--dark);
+    }
+
+    /* Header Actions */
+    .ud-header-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        .ud-header-actions {
+            width: 100%;
+            flex-direction: row;
+        }
+
+        .ud-header-actions .ud-action-btn {
+            flex: 1;
+        }
+    }
+
+    .ud-action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         gap: 0.5rem;
+        transition: all 0.2s;
+        white-space: nowrap;
     }
 
-    .uni-tab {
+    .ud-action-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+    }
+
+    .ud-action-btn.primary:hover {
+        box-shadow: var(--shadow-primary);
+        color: white;
+    }
+
+    .ud-action-btn.outline {
+        background: transparent;
+        color: var(--dark-600);
+        border: 2px solid var(--gray-300);
+    }
+
+    .ud-action-btn.outline:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    /* ========== TABS ========== */
+    .ud-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 2px solid var(--gray-100);
+        overflow-x: auto;
+    }
+
+    .ud-tab {
         padding: 1rem 1.5rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: var(--gray-500);
+        background: none;
         border: none;
-        background: transparent;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s ease;
         cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+        transition: all 0.2s;
     }
 
-    .uni-tab:hover {
+    .ud-tab:hover {
         color: var(--primary);
     }
 
-    .uni-tab.active {
+    .ud-tab.active {
         color: var(--primary);
-        border-bottom-color: var(--primary);
     }
 
-    /* Info Cards */
-    .info-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
+    .ud-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--primary);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .ud-tab-badge {
+        background: var(--gray-200);
+        color: var(--gray-600);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        margin-left: 0.35rem;
+    }
+
+    .ud-tab.active .ud-tab-badge {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* ========== TAB CONTENT ========== */
+    .ud-tab-content {
+        display: none;
+        padding: 2rem;
+    }
+
+    .ud-tab-content.active {
+        display: block;
+    }
+
+    /* ========== CONTENT LAYOUT ========== */
+    .ud-content {
+        padding: 2rem 0;
+    }
+
+    .ud-layout {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .ud-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== INFO CARDS ========== */
+    .ud-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .ud-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .ud-info-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: var(--gray-50);
         border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        transition: all 0.3s ease;
+        transition: all 0.2s;
     }
 
-    .info-card:hover {
-        border-color: var(--primary-light);
-        box-shadow: var(--shadow-md);
+    .ud-info-card:hover {
+        background: var(--white);
+        box-shadow: var(--shadow);
     }
 
-    .info-card-icon {
-        width: 44px;
-        height: 44px;
+    .ud-info-icon {
+        width: 48px;
+        height: 48px;
         border-radius: var(--radius);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
+        font-size: 1.25rem;
+        flex-shrink: 0;
     }
 
-    /* Faculty Card */
-    .faculty-card {
+    .ud-info-icon.blue { background: #DBEAFE; color: #2563EB; }
+    .ud-info-icon.green { background: #D1FAE5; color: #059669; }
+    .ud-info-icon.orange { background: #FED7AA; color: #EA580C; }
+    .ud-info-icon.red { background: #FEE2E2; color: #DC2626; }
+    .ud-info-icon.purple { background: #EDE9FE; color: #7C3AED; }
+
+    .ud-info-label {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin-bottom: 0.15rem;
+    }
+
+    .ud-info-value {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    /* ========== DIRECTIONS ========== */
+    .ud-directions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .ud-directions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .ud-direction-card {
         background: var(--white);
         border: 1px solid var(--gray-200);
         border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        height: 100%;
-        transition: all 0.3s ease;
+        padding: 1.25rem;
+        transition: all 0.3s;
     }
 
-    .faculty-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--primary-light);
+    .ud-direction-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow);
+        transform: translateY(-2px);
     }
 
-    .faculty-icon {
-        width: 52px;
-        height: 52px;
-        background: var(--primary-glow);
-        border-radius: var(--radius-lg);
+    .ud-direction-header {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-dark);
-        font-size: 1.3rem;
+        align-items: flex-start;
+        gap: 1rem;
         margin-bottom: 1rem;
     }
 
-    /* Review Card */
-    .review-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .review-card:hover {
-        border-color: var(--gray-300);
-        box-shadow: var(--shadow);
-    }
-
-    .review-avatar {
+    .ud-direction-icon {
         width: 44px;
         height: 44px;
-        background: var(--gradient-primary);
-        border-radius: 50%;
+        background: var(--primary-glow);
+        border-radius: var(--radius);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--white);
-        font-weight: 700;
-        font-size: 1rem;
-    }
-
-    .review-stars {
-        color: var(--accent);
-        font-size: 0.85rem;
-    }
-
-    /* Sidebar CTA */
-    .cta-card {
-        background: var(--gradient-primary);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        color: var(--white);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .cta-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .cta-card h5 {
-        color: var(--white);
-    }
-
-    .btn-white {
-        background: var(--white);
         color: var(--primary-dark);
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .ud-direction-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        line-height: 1.4;
+    }
+
+    .ud-direction-code {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .ud-direction-stats {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-100);
+    }
+
+    .ud-direction-stat {
+        flex: 1;
+    }
+
+    .ud-direction-stat-label {
+        font-size: 0.7rem;
+        color: var(--gray-500);
+    }
+
+    .ud-direction-stat-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .ud-direction-stat-value.green { color: #059669; }
+
+    /* ========== REVIEWS ========== */
+    .ud-review-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+
+    .ud-review-card:hover {
+        border-color: var(--gray-300);
+    }
+
+    .ud-review-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .ud-review-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .ud-review-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
         font-weight: 700;
     }
 
-    .btn-white:hover {
+    .ud-review-name {
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .ud-review-date {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .ud-review-stars {
+        color: #F59E0B;
+    }
+
+    .ud-review-content {
+        color: var(--dark-600);
+        line-height: 1.7;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .ud-sidebar-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .ud-sidebar-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ud-sidebar-header i {
+        color: var(--primary);
+    }
+
+    .ud-sidebar-body {
+        padding: 1.25rem;
+    }
+
+    /* Contract Card */
+    .ud-contract-card {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ud-contract-title {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .ud-contract-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+    }
+
+    .ud-contract-note {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    /* Admission Card */
+    .ud-admission-card {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        color: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .ud-admission-title {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .ud-admission-dates {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    /* Social Links */
+    .ud-social-links {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .ud-social-link {
+        flex: 1;
+        padding: 0.75rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        transition: all 0.2s;
+    }
+
+    .ud-social-link:hover {
         background: var(--gray-100);
+    }
+
+    .ud-social-link.telegram i { color: #0088cc; }
+    .ud-social-link.instagram i { color: #E1306C; }
+    .ud-social-link.website i { color: var(--primary); }
+
+    /* ========== CTA CARD ========== */
+    .ud-cta-card {
+        background: var(--gradient-primary);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .ud-cta-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .ud-cta-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .ud-cta-desc {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+
+    .ud-cta-btn {
+        display: block;
+        padding: 0.75rem;
+        background: white;
+        color: var(--primary-dark);
+        border-radius: var(--radius);
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .ud-cta-btn:hover {
         color: var(--primary-dark);
         transform: translateY(-2px);
     }
 
-    /* Direction Card */
-    .direction-mini {
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        padding: 1rem 1.25rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: all 0.2s ease;
-    }
-
-    .direction-mini:hover {
-        background: var(--primary-glow);
-    }
-
-    /* Empty State */
-    .empty-state {
+    /* ========== EMPTY STATE ========== */
+    .ud-empty {
         text-align: center;
         padding: 3rem 2rem;
         background: var(--gray-50);
         border-radius: var(--radius-lg);
     }
 
-    .empty-state i {
+    .ud-empty-icon {
         font-size: 3rem;
-        color: var(--gray-300);
         margin-bottom: 1rem;
+        opacity: 0.4;
+    }
+
+    .ud-empty h4 {
+        color: var(--gray-600);
+        margin-bottom: 0.25rem;
+    }
+
+    .ud-empty p {
+        color: var(--gray-500);
+        font-size: 0.9rem;
+        margin: 0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="uni-hero">
-    {% if university.cover_image %}
-        <img src="{{ university.cover_image.url }}" class="uni-hero-bg" alt="">
+<!-- Hero -->
+<div class="ud-hero">
+    {% if university.banner_image %}
+    <img src="{{ university.banner_image.url }}" alt="" class="ud-hero-bg">
+    {% else %}
+    <img src="{% static 'images/university-banner.jpg' %}" alt="" class="ud-hero-bg">
     {% endif %}
-    <div class="uni-hero-overlay"></div>
+    <div class="ud-hero-overlay"></div>
+</div>
 
-    <div class="uni-hero-content">
-        <div class="container">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mb-4">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'core:home' %}" class="text-white-50 text-decoration-none">
-                            <i class="bi bi-house me-1"></i>Bosh sahifa
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'universities:universities_list' %}" class="text-white-50 text-decoration-none">Universitetlar</a>
-                    </li>
-                    <li class="breadcrumb-item text-white active">{{ university.name|truncatechars:30 }}</li>
-                </ol>
-            </nav>
-
-            <!-- Badges -->
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                <span class="badge bg-white bg-opacity-20 text-white px-3 py-2">
-                    {{ university.get_university_type_display }}
-                </span>
-                <span class="badge bg-white bg-opacity-10 text-white px-3 py-2">
-                    <i class="bi bi-geo-alt-fill me-1"></i>{{ university.region }}
-                </span>
-            </div>
-
-            <!-- Title -->
-            <h1 class="text-white fw-bold mb-0" style="font-size: 2.5rem;">{{ university.name }}</h1>
-        </div>
-    </div>
-</section>
-
-<!-- Main Content -->
-<section class="section-sm bg-light">
+<!-- Content -->
+<div class="ud-content">
     <div class="container">
-
-        <!-- Main Card -->
-        <div class="card border-0 shadow-lg uni-main-card mb-4">
-            <div class="card-body p-4">
-                <div class="row align-items-center g-4">
-                    <!-- Logo -->
-                    <div class="col-auto">
-                        {% if university.logo %}
-                            <img src="{{ university.logo.url }}" class="uni-logo" alt="{{ university.name }}">
-                        {% else %}
-                            <div class="uni-logo-placeholder">
-                                {{ university.name|first }}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Info -->
-                    <div class="col">
-                        <h2 class="fw-bold mb-2">{{ university.name }}</h2>
-                        <div class="d-flex flex-wrap gap-4">
-                            <div class="uni-stat">
-                                <i class="bi bi-star-fill text-warning"></i>
-                                <strong class="text-dark">{{ university.rating|default:"4.5" }}</strong>
-                                <span>({{ university.reviews_count|default:"0" }} sharh)</span>
-                            </div>
-                            <div class="uni-stat">
-                                <i class="bi bi-people-fill text-primary"></i>
-                                <span>{{ university.student_count|default:"3000+" }} talaba</span>
-                            </div>
-                            <div class="uni-stat">
-                                <i class="bi bi-building text-secondary"></i>
-                                <span>{{ university.faculties.count|default:"0" }} fakultet</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CTA Button -->
-                    <div class="col-md-auto">
-                        <a href="{% url 'universities:university_directions' slug=university.slug %}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-mortarboard me-2"></i>Yo'nalishlar
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabs -->
-            <div class="card-footer bg-white border-top-0 p-0">
-                <div class="d-flex uni-tabs px-4" id="uniTabs">
-                    <button class="uni-tab active" data-tab="about">
-                        <i class="bi bi-info-circle me-2"></i>Ma'lumot
-                    </button>
-                    <button class="uni-tab" data-tab="faculties">
-                        <i class="bi bi-grid me-2"></i>Fakultetlar
-                    </button>
-                    <button class="uni-tab" data-tab="reviews">
-                        <i class="bi bi-chat-quote me-2"></i>Sharhlar
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <!-- Main Column -->
-            <div class="col-lg-8">
-
-                <!-- About Tab -->
-                <div class="tab-content" id="about-content">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-3">
-                                <i class="bi bi-building text-primary me-2"></i>Universitet haqida
-                            </h5>
-                            <div class="text-muted lh-lg">
-                                {{ university.description|linebreaks|default:"Ma'lumot kiritilmagan." }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contact Info -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold mb-4">
-                                <i class="bi bi-telephone text-primary me-2"></i>Bog'lanish
-                            </h5>
-                            <div class="row g-3">
-                                {% if university.website %}
-                                <div class="col-md-6">
-                                    <div class="info-card">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="info-card-icon bg-primary bg-opacity-10 text-primary">
-                                                <i class="bi bi-globe"></i>
-                                            </div>
-                                            <div>
-                                                <small class="text-muted d-block">Vebsayt</small>
-                                                <a href="{{ university.website }}" target="_blank" class="fw-semibold text-decoration-none">
-                                                    {{ university.website|truncatechars:25 }}
-                                                    <i class="bi bi-box-arrow-up-right ms-1 small"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if university.phone %}
-                                <div class="col-md-6">
-                                    <div class="info-card">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="info-card-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
-                                                <i class="bi bi-telephone"></i>
-                                            </div>
-                                            <div>
-                                                <small class="text-muted d-block">Telefon</small>
-                                                <span class="fw-semibold text-dark">{{ university.phone }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if university.email %}
-                                <div class="col-md-6">
-                                    <div class="info-card">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="info-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
-                                                <i class="bi bi-envelope"></i>
-                                            </div>
-                                            <div>
-                                                <small class="text-muted d-block">Email</small>
-                                                <span class="fw-semibold text-dark">{{ university.email }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if university.address %}
-                                <div class="col-12">
-                                    <div class="info-card">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="info-card-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
-                                                <i class="bi bi-geo-alt"></i>
-                                            </div>
-                                            <div>
-                                                <small class="text-muted d-block">Manzil</small>
-                                                <span class="fw-semibold text-dark">{{ university.address }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Faculties Tab -->
-                <div class="tab-content d-none" id="faculties-content">
-                    <div class="row g-3">
-                        {% for faculty in faculties %}
-                        <div class="col-md-6">
-                            <div class="faculty-card">
-                                <div class="faculty-icon">
-                                    <i class="bi bi-mortarboard"></i>
-                                </div>
-                                <h6 class="fw-bold mb-2">{{ faculty.name }}</h6>
-                                <p class="text-muted small mb-0">{{ faculty.description|truncatechars:100|default:"" }}</p>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="col-12">
-                            <div class="empty-state">
-                                <i class="bi bi-mortarboard d-block"></i>
-                                <h6 class="fw-bold text-muted">Fakultetlar ma'lumoti yo'q</h6>
-                                <p class="text-muted small mb-0">Tez orada qo'shiladi</p>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Reviews Tab -->
-                <div class="tab-content d-none" id="reviews-content">
-                    <!-- Add Review Button -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold mb-0">Talabalar fikri</h5>
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'universities:add_review' slug=university.slug %}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-pencil-square me-1"></i>Fikr qoldirish
-                        </a>
-                        {% endif %}
-                    </div>
-
-                    <!-- Reviews List -->
-                    <div class="d-flex flex-column gap-3">
-                        {% for review in reviews %}
-                        <div class="review-card">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="review-avatar">
-                                        {{ review.user.first_name|first|default:"U" }}
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-0">{{ review.user.get_full_name|default:review.user.username }}</h6>
-                                        <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
-                                    </div>
-                                </div>
-                                <div class="review-stars">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= review.rating %}
-                                            <i class="bi bi-star-fill"></i>
-                                        {% else %}
-                                            <i class="bi bi-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% if review.title %}
-                            <h6 class="fw-semibold mb-2">{{ review.title }}</h6>
+        <div class="ud-layout">
+            <!-- Main Content -->
+            <div class="ud-main">
+                <!-- Main Card -->
+                <div class="ud-main-card">
+                    <!-- Header -->
+                    <div class="ud-card-header">
+                        <div class="ud-logo">
+                            {% if university.logo %}
+                            <img src="{{ university.logo.url }}" alt="{{ university.name }}">
+                            {% else %}
+                            <span class="ud-logo-text">{{ university.name|slice:":2"|upper }}</span>
                             {% endif %}
-                            <p class="text-muted mb-0">{{ review.content }}</p>
                         </div>
-                        {% empty %}
-                        <div class="empty-state">
-                            <i class="bi bi-chat-square-quote d-block"></i>
-                            <h6 class="fw-bold text-muted">Hozircha sharhlar yo'q</h6>
-                            <p class="text-muted small mb-3">Birinchi bo'lib fikr qoldiring!</p>
-                            {% if user.is_authenticated %}
-                            <a href="{% url 'universities:add_review' slug=university.slug %}" class="btn btn-primary btn-sm">
-                                <i class="bi bi-pencil-square me-1"></i>Sharh yozish
+
+                        <div class="ud-header-info">
+                            <div class="ud-badges">
+                                <span class="ud-badge {% if university.university_type == 'state' %}state{% else %}private{% endif %}">
+                                    {% if university.university_type == 'state' %}
+                                    <i class="bi bi-bank"></i> Davlat
+                                    {% else %}
+                                    <i class="bi bi-buildings"></i> Xususiy
+                                    {% endif %}
+                                </span>
+                                {% if university.is_recommended %}
+                                <span class="ud-badge recommended">
+                                    <i class="bi bi-star-fill"></i> Tavsiya etiladi
+                                </span>
+                                {% endif %}
+                                {% if university.region %}
+                                <span class="ud-badge region">
+                                    <i class="bi bi-geo-alt"></i> {{ university.region }}
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <h1 class="ud-title">{{ university.name }}</h1>
+
+                            {% if university.short_name %}
+                            <p class="ud-subtitle">{{ university.short_name }}</p>
+                            {% endif %}
+
+                            <div class="ud-quick-stats">
+                                <div class="ud-quick-stat">
+                                    <i class="bi bi-mortarboard"></i>
+                                    <span>Yo'nalishlar: <strong>{{ university.directions.count|default:"0" }}</strong></span>
+                                </div>
+                                <div class="ud-quick-stat">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span>Reyting: <strong>{{ university.rating|default:"4.5" }}</strong></span>
+                                </div>
+                                <div class="ud-quick-stat">
+                                    <i class="bi bi-people"></i>
+                                    <span>Talabalar: <strong>{{ university.students_count|default:"5000" }}+</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ud-header-actions">
+                            <a href="{% url 'ai_core:ai_mentor' %}" class="ud-action-btn primary">
+                                <i class="bi bi-calculator"></i>
+                                Ball hisoblash
+                            </a>
+                            {% if university.website %}
+                            <a href="{{ university.website }}" target="_blank" class="ud-action-btn outline">
+                                <i class="bi bi-globe"></i>
+                                Sayt
                             </a>
                             {% endif %}
                         </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="ud-tabs">
+                        <button class="ud-tab active" data-tab="about">
+                            <i class="bi bi-info-circle me-1"></i>Ma'lumot
+                        </button>
+                        <button class="ud-tab" data-tab="directions">
+                            <i class="bi bi-mortarboard me-1"></i>Yo'nalishlar
+                            <span class="ud-tab-badge">{{ directions.count|default:"0" }}</span>
+                        </button>
+                        <button class="ud-tab" data-tab="reviews">
+                            <i class="bi bi-chat-square-quote me-1"></i>Sharhlar
+                            <span class="ud-tab-badge">{{ reviews.count|default:"0" }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Tab Content: About -->
+                    <div class="ud-tab-content active" id="tab-about">
+                        {% if university.description %}
+                        <div class="ud-section" style="margin-bottom:2rem;">
+                            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Universitet haqida</h3>
+                            <p style="color:var(--dark-600); line-height:1.8;">{{ university.description }}</p>
+                        </div>
+                        {% endif %}
+
+                        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">Aloqa ma'lumotlari</h3>
+                        <div class="ud-info-grid">
+                            {% if university.phone %}
+                            <div class="ud-info-card">
+                                <div class="ud-info-icon green">
+                                    <i class="bi bi-telephone"></i>
+                                </div>
+                                <div>
+                                    <div class="ud-info-label">Telefon</div>
+                                    <div class="ud-info-value">{{ university.phone }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if university.email %}
+                            <div class="ud-info-card">
+                                <div class="ud-info-icon blue">
+                                    <i class="bi bi-envelope"></i>
+                                </div>
+                                <div>
+                                    <div class="ud-info-label">Email</div>
+                                    <div class="ud-info-value">{{ university.email }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if university.address %}
+                            <div class="ud-info-card" style="grid-column: 1 / -1;">
+                                <div class="ud-info-icon red">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+                                <div>
+                                    <div class="ud-info-label">Manzil</div>
+                                    <div class="ud-info-value">{{ university.address }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if university.founded_year %}
+                            <div class="ud-info-card">
+                                <div class="ud-info-icon purple">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div>
+                                    <div class="ud-info-label">Tashkil etilgan</div>
+                                    <div class="ud-info-value">{{ university.founded_year }}-yil</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if university.rector %}
+                            <div class="ud-info-card">
+                                <div class="ud-info-icon orange">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div>
+                                    <div class="ud-info-label">Rektor</div>
+                                    <div class="ud-info-value">{{ university.rector }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Directions -->
+                    <div class="ud-tab-content" id="tab-directions">
+                        {% if directions %}
+                        <div class="ud-directions-grid">
+                            {% for direction in directions %}
+                            <div class="ud-direction-card">
+                                <div class="ud-direction-header">
+                                    <div class="ud-direction-icon">
+                                        <i class="bi bi-mortarboard"></i>
+                                    </div>
+                                    <div>
+                                        <div class="ud-direction-name">{{ direction.name }}</div>
+                                        {% if direction.code %}
+                                        <div class="ud-direction-code">{{ direction.code }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="ud-direction-stats">
+                                    <div class="ud-direction-stat">
+                                        <div class="ud-direction-stat-label">Grant ball</div>
+                                        <div class="ud-direction-stat-value">{{ direction.grant_score|default:"180" }}</div>
+                                    </div>
+                                    <div class="ud-direction-stat">
+                                        <div class="ud-direction-stat-label">Kontrakt</div>
+                                        <div class="ud-direction-stat-value green">{{ direction.contract_price|default:"14 mln" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="ud-empty">
+                            <div class="ud-empty-icon">🎓</div>
+                            <h4>Yo'nalishlar ma'lumoti yo'q</h4>
+                            <p>Tez orada qo'shiladi</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tab Content: Reviews -->
+                    <div class="ud-tab-content" id="tab-reviews">
+                        {% if user.is_authenticated %}
+                        <div style="margin-bottom:1.5rem; display:flex; justify-content:flex-end;">
+                            <a href="{% url 'universities:add_review' slug=university.slug %}" class="ud-action-btn primary">
+                                <i class="bi bi-pencil-square"></i>
+                                Sharh yozish
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="ud-review-card">
+                            <div class="ud-review-header">
+                                <div class="ud-review-user">
+                                    <div class="ud-review-avatar">
+                                        {{ review.user.first_name|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="ud-review-name">{{ review.user.get_full_name|default:review.user.username }}</div>
+                                        <div class="ud-review-date">{{ review.created_at|date:"d.m.Y" }}</div>
+                                    </div>
+                                </div>
+                                <div class="ud-review-stars">
+                                    {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}
+                                    <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                    <i class="bi bi-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="ud-review-content">{{ review.content }}</p>
+                        </div>
                         {% endfor %}
+                        {% else %}
+                        <div class="ud-empty">
+                            <div class="ud-empty-icon">💬</div>
+                            <h4>Sharhlar yo'q</h4>
+                            <p>Birinchi bo'lib sharh qoldiring!</p>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-
             </div>
 
             <!-- Sidebar -->
-            <div class="col-lg-4">
+            <div class="ud-sidebar">
+                <!-- Contract Price -->
+                <div class="ud-contract-card">
+                    <div class="ud-contract-title">Kontrakt to'lovi</div>
+                    <div class="ud-contract-price">
+                        {{ university.min_contract_price|default:"14 000 000" }} - {{ university.max_contract_price|default:"28 000 000" }} UZS
+                    </div>
+                    <div class="ud-contract-note">Yillik to'lov</div>
+                </div>
 
-                <!-- AI Calculator CTA -->
-                <div class="cta-card mb-4">
-                    <div class="position-relative z-1">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <i class="bi bi-trophy-fill" style="font-size: 1.5rem;"></i>
-                            <h5 class="fw-bold mb-0">Qabul 2026</h5>
-                        </div>
-                        <p class="mb-4 opacity-75 small">
-                            Ushbu universitetga kirish ballarini bilmoqchimisiz? AI kalkulyatordan foydalaning.
-                        </p>
-                        <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-white w-100">
-                            <i class="bi bi-calculator me-2"></i>Ballarni hisoblash
-                        </a>
+                <!-- Admission Dates -->
+                <div class="ud-admission-card">
+                    <div class="ud-admission-title">Qabul muddati</div>
+                    <div class="ud-admission-dates">
+                        {{ university.admission_start|date:"d.m.Y"|default:"01.05.2025" }} - {{ university.admission_end|date:"d.m.Y"|default:"30.09.2025" }}
                     </div>
                 </div>
 
                 <!-- Quick Stats -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body p-4">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-graph-up text-primary me-2"></i>Tez ma'lumot
-                        </h6>
-                        <div class="d-flex flex-column gap-3">
-                            <div class="direction-mini">
-                                <span class="text-muted small">O'rtacha ball</span>
-                                <span class="fw-bold text-primary">{{ university.avg_passing_score|default:"180" }}</span>
+                <div class="ud-sidebar-card">
+                    <div class="ud-sidebar-header">
+                        <i class="bi bi-graph-up"></i>
+                        Tez ma'lumot
+                    </div>
+                    <div class="ud-sidebar-body">
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:var(--gray-500); font-size:0.9rem;">O'rtacha ball</span>
+                                <span style="font-weight:700; color:var(--primary);">{{ university.avg_passing_score|default:"180" }}</span>
                             </div>
-                            <div class="direction-mini">
-                                <span class="text-muted small">Yo'nalishlar soni</span>
-                                <span class="fw-bold">{{ university.directions.count|default:"0" }}</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:var(--gray-500); font-size:0.9rem;">Yo'nalishlar</span>
+                                <span style="font-weight:700;">{{ university.directions.count|default:"25" }}</span>
                             </div>
-                            <div class="direction-mini">
-                                <span class="text-muted small">Grant o'rinlari</span>
-                                <span class="fw-bold text-success">{{ university.grant_places|default:"500+" }}</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:var(--gray-500); font-size:0.9rem;">Grant o'rinlari</span>
+                                <span style="font-weight:700; color:#059669;">{{ university.grant_places|default:"500+" }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Social Links -->
-                {% if university.telegram or university.instagram %}
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-share text-primary me-2"></i>Ijtimoiy tarmoqlar
-                        </h6>
-                        <div class="d-flex gap-2">
+                {% if university.telegram or university.instagram or university.website %}
+                <div class="ud-sidebar-card">
+                    <div class="ud-sidebar-header">
+                        <i class="bi bi-share"></i>
+                        Ijtimoiy tarmoqlar
+                    </div>
+                    <div class="ud-sidebar-body">
+                        <div class="ud-social-links">
                             {% if university.telegram %}
-                            <a href="{{ university.telegram }}" target="_blank" class="btn btn-light flex-fill">
-                                <i class="bi bi-telegram text-primary me-1"></i>Telegram
+                            <a href="{{ university.telegram }}" target="_blank" class="ud-social-link telegram">
+                                <i class="bi bi-telegram"></i>
                             </a>
                             {% endif %}
                             {% if university.instagram %}
-                            <a href="{{ university.instagram }}" target="_blank" class="btn btn-light flex-fill">
-                                <i class="bi bi-instagram text-danger me-1"></i>Instagram
+                            <a href="{{ university.instagram }}" target="_blank" class="ud-social-link instagram">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            {% endif %}
+                            {% if university.website %}
+                            <a href="{{ university.website }}" target="_blank" class="ud-social-link website">
+                                <i class="bi bi-globe"></i>
                             </a>
                             {% endif %}
                         </div>
@@ -610,28 +1011,36 @@
                 </div>
                 {% endif %}
 
+                <!-- CTA Card -->
+                <div class="ud-cta-card">
+                    <div class="ud-cta-icon">🎯</div>
+                    <div class="ud-cta-title">Ball hisoblang</div>
+                    <div class="ud-cta-desc">AI yordamida kirish imkoniyatingizni bilib oling</div>
+                    <a href="{% url 'ai_core:ai_mentor' %}" class="ud-cta-btn">
+                        <i class="bi bi-calculator me-1"></i>Hisoblash
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     // Tab switching
-    document.querySelectorAll('.uni-tab').forEach(tab => {
+    document.querySelectorAll('.ud-tab').forEach(tab => {
         tab.addEventListener('click', function() {
-            // Remove active from all tabs
-            document.querySelectorAll('.uni-tab').forEach(t => t.classList.remove('active'));
-            // Add active to clicked tab
+            // Update tabs
+            document.querySelectorAll('.ud-tab').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
 
-            // Hide all content
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('d-none'));
-            // Show target content
-            const targetId = this.dataset.tab + '-content';
-            document.getElementById(targetId).classList.remove('d-none');
+            // Update content
+            document.querySelectorAll('.ud-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + this.dataset.tab).classList.add('active');
         });
     });
+});
 </script>
 {% endblock %}
