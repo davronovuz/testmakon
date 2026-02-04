@@ -611,7 +611,7 @@
                             <a class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}" href="{% url 'leaderboard:global_leaderboard' %}">Reyting</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'universities' in request.path %}active{% endif %}" href="{% url 'universities:list' %}">Universitetlar</a>
+                            <a class="nav-link {% if 'universities' in request.path %}active{% endif %}" href="{% url 'universities:universities_list' %}">Universitetlar</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if 'news' in request.path %}active{% endif %}" href="{% url 'news:news_list' %}">Yangiliklar</a>

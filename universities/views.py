@@ -1,13 +1,20 @@
 """
 TestMakon.uz - Universities Views
 Complete views for all university templates
+
+MODEL FIELDS (University):
+- address, city, cover_image, created_at, description, directions,
+- directions_count, email, established_year, faculties, faculty_count,
+- history, id, is_active, is_featured, is_partner, logo, name, phone,
+- rating, region, reviews, reviews_count, short_name, slug, student_count,
+- studyplan, target_users, university_type, updated_at, uuid, website
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Avg, Count, Min, Max
+from django.db.models import Q, Avg, Count, Min, Max, Sum
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET, require_POST
 
@@ -23,9 +30,9 @@ def universities_list(request):
     Universitetlar ro'yxati - Akam.uz uslubida
     Template: universities/universities_list.html
     """
-    universities = University.objects.filter(is_active=True).annotate(
-        directions_count=Count('directions', filter=Q(directions__is_active=True))
-    ).order_by('-is_featured', '-is_recommended', 'name')
+    universities = University.objects.filter(is_active=True).order_by(
+        '-is_featured', '-is_partner', 'name'
+    )
 
     # Filters
     university_type = request.GET.get('type')
@@ -82,23 +89,15 @@ def university_detail(request, slug):
     Universitet tafsilotlari
     Template: universities/university_detail.html
     """
-    university = get_object_or_404(
-        University.objects.annotate(
-            directions_count=Count('directions', filter=Q(directions__is_active=True))
-        ),
-        slug=slug,
-        is_active=True
-    )
+    university = get_object_or_404(University, slug=slug, is_active=True)
 
     # Faculties
-    faculties = university.faculties.filter(is_active=True).annotate(
-        directions_count=Count('directions', filter=Q(directions__is_active=True))
-    )
+    faculties = university.faculties.filter(is_active=True)
 
     # Directions (top 10)
     directions = university.directions.filter(is_active=True).select_related(
         'faculty'
-    ).order_by('-is_popular', 'name')[:10]
+    ).order_by('name')[:10]
 
     # Reviews
     reviews = university.reviews.filter(is_approved=True).select_related(
@@ -118,8 +117,8 @@ def university_detail(request, slug):
         'faculties': faculties,
         'directions': directions,
         'reviews': reviews,
-        'avg_rating': round(avg_rating, 1) if avg_rating else 0,
-        'reviews_count': reviews.count(),
+        'avg_rating': round(avg_rating, 1) if avg_rating else university.rating or 0,
+        'reviews_count': university.reviews_count or reviews.count(),
         'related_universities': related,
     }
 
@@ -139,7 +138,7 @@ def university_directions(request, slug):
 
     directions = university.directions.filter(is_active=True).select_related(
         'faculty'
-    ).order_by('faculty__name', 'name')
+    ).order_by('name')
 
     # Filters
     faculty_id = request.GET.get('faculty')
@@ -161,13 +160,8 @@ def university_directions(request, slug):
             Q(name__icontains=search) | Q(code__icontains=search)
         )
 
-    # Statistics
-    stats = directions.aggregate(
-        total=Count('id'),
-        grant_places=Sum('grant_places'),
-        avg_score=Avg('grant_score'),
-        min_price=Min('contract_price')
-    )
+    # Statistics (safe aggregation)
+    total_count = directions.count()
 
     # Pagination
     paginator = Paginator(directions, 20)
@@ -178,10 +172,7 @@ def university_directions(request, slug):
         'university': university,
         'directions': directions,
         'faculties': university.faculties.filter(is_active=True),
-        'grant_places': stats['grant_places'] or 0,
-        'avg_score': round(stats['avg_score'] or 0),
-        'min_price': stats['min_price'] or 0,
-        'total_directions': stats['total'] or 0,
+        'total_directions': total_count,
         'current_faculty': faculty_id,
         'current_degree': degree,
         'current_form': study_form,
@@ -206,7 +197,9 @@ def direction_detail(request, uuid):
     )
 
     # Passing scores history
-    passing_scores = direction.passing_scores.all().order_by('-year')[:5]
+    passing_scores = PassingScore.objects.filter(
+        direction=direction
+    ).order_by('-year')[:5]
 
     # Similar directions (same field, different universities)
     similar = Direction.objects.filter(
@@ -240,16 +233,10 @@ def university_compare(request):
     uni2 = None
 
     if uni1_slug:
-        uni1 = University.objects.filter(slug=uni1_slug, is_active=True).annotate(
-            directions_count=Count('directions', filter=Q(directions__is_active=True)),
-            avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True))
-        ).first()
+        uni1 = University.objects.filter(slug=uni1_slug, is_active=True).first()
 
     if uni2_slug:
-        uni2 = University.objects.filter(slug=uni2_slug, is_active=True).annotate(
-            directions_count=Count('directions', filter=Q(directions__is_active=True)),
-            avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True))
-        ).first()
+        uni2 = University.objects.filter(slug=uni2_slug, is_active=True).first()
 
     # All universities for selection modal
     universities = University.objects.filter(is_active=True).order_by('name')
@@ -277,10 +264,8 @@ def university_admission(request, slug):
     # All directions for calculator
     directions = university.directions.filter(is_active=True).order_by('name')
 
-    # Popular directions
-    popular_directions = directions.filter(is_popular=True)[:5]
-    if not popular_directions.exists():
-        popular_directions = directions.order_by('-grant_score')[:5]
+    # Popular directions (first 5)
+    popular_directions = directions[:5]
 
     context = {
         'university': university,
@@ -332,9 +317,6 @@ def add_review(request, slug):
             rating=rating,
             title=title,
             content=content,
-            education_rating=int(request.POST.get('education_rating', rating)),
-            facility_rating=int(request.POST.get('facility_rating', rating)),
-            staff_rating=int(request.POST.get('staff_rating', rating)),
             is_approved=False,  # Needs moderation
         )
 
@@ -349,244 +331,6 @@ def add_review(request, slug):
 
 
 # ============================================================
-# API ENDPOINTS
-# ============================================================
-
-@require_GET
-def api_search(request):
-    """
-    Universal qidiruv API
-    GET /universities/api/search/?q=query
-    """
-    query = request.GET.get('q', '').strip()
-
-    if len(query) < 2:
-        return JsonResponse({'results': [], 'universities': [], 'directions': []})
-
-    # Search universities
-    universities = University.objects.filter(
-        Q(name__icontains=query) | Q(short_name__icontains=query),
-        is_active=True
-    )[:10]
-
-    # Search directions
-    directions = Direction.objects.filter(
-        Q(name__icontains=query) | Q(code__icontains=query),
-        is_active=True
-    ).select_related('university')[:10]
-
-    return JsonResponse({
-        'universities': [
-            {
-                'id': u.id,
-                'name': u.name,
-                'short_name': u.short_name,
-                'slug': u.slug,
-                'logo': u.logo.url if u.logo else None,
-                'region': u.region,
-                'type': u.university_type,
-            }
-            for u in universities
-        ],
-        'directions': [
-            {
-                'id': str(d.uuid),
-                'name': d.name,
-                'code': d.code,
-                'university': d.university.short_name or d.university.name,
-                'university_slug': d.university.slug,
-                'grant_score': d.grant_score,
-            }
-            for d in directions
-        ]
-    })
-
-
-@require_GET
-def api_universities(request):
-    """
-    Universitetlar ro'yxati API (solishtirish uchun)
-    GET /universities/api/list/
-    """
-    universities = University.objects.filter(is_active=True).order_by('name')
-
-    return JsonResponse({
-        'universities': [
-            {
-                'id': u.id,
-                'name': u.name,
-                'slug': u.slug,
-                'logo': u.logo.url if u.logo else None,
-                'region': u.region,
-                'type': u.university_type,
-            }
-            for u in universities
-        ]
-    })
-
-
-@require_GET
-def api_directions(request, slug):
-    """
-    Universitet yo'nalishlari API (kalkulyator uchun)
-    GET /universities/api/<slug>/directions/
-    """
-    university = get_object_or_404(University, slug=slug, is_active=True)
-
-    directions = university.directions.filter(is_active=True).order_by('name')
-
-    return JsonResponse({
-        'directions': [
-            {
-                'id': d.id,
-                'uuid': str(d.uuid),
-                'name': d.name,
-                'code': d.code,
-                'grant_score': d.grant_score or 180,
-                'contract_score': d.contract_score or 140,
-                'grant_places': d.grant_places or 0,
-                'contract_price': d.contract_price or 0,
-            }
-            for d in directions
-        ]
-    })
-
-
-@require_GET
-def api_passing_scores(request, direction_id):
-    """
-    Yo'nalish o'tish ballari tarixi
-    GET /universities/api/direction/<id>/scores/
-    """
-    scores = PassingScore.objects.filter(
-        direction_id=direction_id
-    ).order_by('-year').values(
-        'year', 'grant_score', 'contract_score', 'competition_ratio', 'grant_places'
-    )[:5]
-
-    return JsonResponse({'scores': list(scores)})
-
-
-@require_GET
-def api_compare(request):
-    """
-    Universitetlarni solishtirish API
-    GET /universities/api/compare/?uni1=slug1&uni2=slug2
-    """
-    uni1_slug = request.GET.get('uni1')
-    uni2_slug = request.GET.get('uni2')
-
-    if not uni1_slug or not uni2_slug:
-        return JsonResponse({'error': 'Both universities required'}, status=400)
-
-    uni1 = University.objects.filter(slug=uni1_slug, is_active=True).annotate(
-        directions_count=Count('directions', filter=Q(directions__is_active=True)),
-        avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True))
-    ).first()
-
-    uni2 = University.objects.filter(slug=uni2_slug, is_active=True).annotate(
-        directions_count=Count('directions', filter=Q(directions__is_active=True)),
-        avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True))
-    ).first()
-
-    if not uni1 or not uni2:
-        return JsonResponse({'error': 'University not found'}, status=404)
-
-    def uni_to_dict(u):
-        return {
-            'id': u.id,
-            'name': u.name,
-            'slug': u.slug,
-            'type': u.university_type,
-            'region': u.region,
-            'directions_count': u.directions_count,
-            'grant_places': u.grant_places or 0,
-            'avg_passing_score': u.avg_passing_score or 0,
-            'min_contract_price': u.min_contract_price or 0,
-            'max_contract_price': u.max_contract_price or 0,
-            'rating': round(u.avg_rating or 0, 1),
-            'students_count': u.students_count or 0,
-            'founded_year': u.founded_year,
-        }
-
-    return JsonResponse({
-        'uni1': uni_to_dict(uni1),
-        'uni2': uni_to_dict(uni2),
-    })
-
-
-@require_POST
-@login_required
-def api_calculate_admission(request):
-    """
-    Qabul kalkulyatori API
-    POST /universities/api/calculate/
-    """
-    import json
-
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
-    direction_id = data.get('direction_id')
-    subject1 = float(data.get('subject1', 0))
-    subject2 = float(data.get('subject2', 0))
-    subject3 = float(data.get('subject3', 0))
-    attestat = float(data.get('attestat', 4.0))
-    additional = int(data.get('additional', 0))
-
-    # Validate
-    if not direction_id:
-        return JsonResponse({'error': 'Direction required'}, status=400)
-
-    # Get direction
-    direction = Direction.objects.filter(id=direction_id, is_active=True).first()
-    if not direction:
-        return JsonResponse({'error': 'Direction not found'}, status=404)
-
-    # Calculate score (DTM formula)
-    # Test score: each subject max 30.1, coefficient 3.4
-    test_score = (subject1 + subject2 + subject3) * 3.4
-
-    # Attestat score: max 5, coefficient 3.7 = max 18.5
-    attestat_score = attestat * 3.7
-
-    # Total
-    total_score = round(test_score + attestat_score + additional, 1)
-
-    # Required scores
-    grant_required = direction.grant_score or 180
-    contract_required = direction.contract_score or 140
-
-    # Determine result
-    if total_score >= grant_required:
-        status = 'grant'
-        message = "Tabriklaymiz! Grantga o'tishingiz mumkin."
-    elif total_score >= contract_required:
-        status = 'contract'
-        message = f"Kontraktga o'tishingiz mumkin. Grantga {grant_required - total_score:.1f} ball yetmayapti."
-    else:
-        status = 'fail'
-        message = f"Kontraktga ham {contract_required - total_score:.1f} ball yetmayapti. Ko'proq tayyorlaning!"
-
-    return JsonResponse({
-        'total_score': total_score,
-        'test_score': round(test_score, 1),
-        'attestat_score': round(attestat_score, 1),
-        'additional_score': additional,
-        'grant_required': grant_required,
-        'contract_required': contract_required,
-        'status': status,
-        'message': message,
-        'direction': {
-            'name': direction.name,
-            'university': direction.university.name,
-        }
-    })
-
-
-# ============================================================
 # HELPER VIEWS
 # ============================================================
 
@@ -597,9 +341,7 @@ def faculties_list(request, slug):
     """
     university = get_object_or_404(University, slug=slug, is_active=True)
 
-    faculties = university.faculties.filter(is_active=True).annotate(
-        directions_count=Count('directions', filter=Q(directions__is_active=True))
-    ).order_by('name')
+    faculties = university.faculties.filter(is_active=True).order_by('name')
 
     context = {
         'university': university,
@@ -651,3 +393,228 @@ def all_directions(request):
     }
 
     return render(request, 'universities/all_directions.html', context)
+
+
+# ============================================================
+# API ENDPOINTS
+# ============================================================
+
+@require_GET
+def api_search(request):
+    """
+    Universal qidiruv API
+    GET /universities/api/search/?q=query
+    """
+    query = request.GET.get('q', '').strip()
+
+    if len(query) < 2:
+        return JsonResponse({'results': [], 'universities': [], 'directions': []})
+
+    # Search universities
+    universities = University.objects.filter(
+        Q(name__icontains=query) | Q(short_name__icontains=query),
+        is_active=True
+    )[:10]
+
+    # Search directions
+    directions = Direction.objects.filter(
+        Q(name__icontains=query) | Q(code__icontains=query),
+        is_active=True
+    ).select_related('university')[:10]
+
+    return JsonResponse({
+        'universities': [
+            {
+                'id': u.id,
+                'name': u.name,
+                'short_name': u.short_name,
+                'slug': u.slug,
+                'logo': u.logo.url if u.logo else None,
+                'region': u.region,
+                'type': u.university_type,
+            }
+            for u in universities
+        ],
+        'directions': [
+            {
+                'id': str(d.uuid),
+                'name': d.name,
+                'code': getattr(d, 'code', ''),
+                'university': d.university.short_name or d.university.name,
+                'university_slug': d.university.slug,
+            }
+            for d in directions
+        ]
+    })
+
+
+@require_GET
+def api_universities(request):
+    """
+    Universitetlar ro'yxati API (solishtirish uchun)
+    GET /universities/api/list/
+    """
+    universities = University.objects.filter(is_active=True).order_by('name')
+
+    return JsonResponse({
+        'universities': [
+            {
+                'id': u.id,
+                'name': u.name,
+                'slug': u.slug,
+                'logo': u.logo.url if u.logo else None,
+                'region': u.region,
+                'type': u.university_type,
+            }
+            for u in universities
+        ]
+    })
+
+
+@require_GET
+def api_directions(request, slug):
+    """
+    Universitet yo'nalishlari API (kalkulyator uchun)
+    GET /universities/api/<slug>/directions/
+    """
+    university = get_object_or_404(University, slug=slug, is_active=True)
+
+    directions = university.directions.filter(is_active=True).order_by('name')
+
+    return JsonResponse({
+        'directions': [
+            {
+                'id': d.id,
+                'uuid': str(d.uuid),
+                'name': d.name,
+                'code': getattr(d, 'code', ''),
+                'grant_score': getattr(d, 'grant_score', 180) or 180,
+                'contract_score': getattr(d, 'contract_score', 140) or 140,
+            }
+            for d in directions
+        ]
+    })
+
+
+@require_GET
+def api_passing_scores(request, direction_id):
+    """
+    Yo'nalish o'tish ballari tarixi
+    GET /universities/api/direction/<id>/scores/
+    """
+    scores = PassingScore.objects.filter(
+        direction_id=direction_id
+    ).order_by('-year').values(
+        'year', 'grant_score', 'contract_score'
+    )[:5]
+
+    return JsonResponse({'scores': list(scores)})
+
+
+@require_GET
+def api_compare(request):
+    """
+    Universitetlarni solishtirish API
+    GET /universities/api/compare/?uni1=slug1&uni2=slug2
+    """
+    uni1_slug = request.GET.get('uni1')
+    uni2_slug = request.GET.get('uni2')
+
+    if not uni1_slug or not uni2_slug:
+        return JsonResponse({'error': 'Both universities required'}, status=400)
+
+    uni1 = University.objects.filter(slug=uni1_slug, is_active=True).first()
+    uni2 = University.objects.filter(slug=uni2_slug, is_active=True).first()
+
+    if not uni1 or not uni2:
+        return JsonResponse({'error': 'University not found'}, status=404)
+
+    def uni_to_dict(u):
+        return {
+            'id': u.id,
+            'name': u.name,
+            'slug': u.slug,
+            'type': u.university_type,
+            'region': u.region,
+            'directions_count': u.directions_count or 0,
+            'student_count': u.student_count or 0,
+            'faculty_count': u.faculty_count or 0,
+            'rating': u.rating or 0,
+            'established_year': u.established_year,
+        }
+
+    return JsonResponse({
+        'uni1': uni_to_dict(uni1),
+        'uni2': uni_to_dict(uni2),
+    })
+
+
+@require_POST
+@login_required
+def api_calculate_admission(request):
+    """
+    Qabul kalkulyatori API
+    POST /universities/api/calculate/
+    """
+    import json
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    direction_id = data.get('direction_id')
+    subject1 = float(data.get('subject1', 0))
+    subject2 = float(data.get('subject2', 0))
+    subject3 = float(data.get('subject3', 0))
+    attestat = float(data.get('attestat', 4.0))
+    additional = int(data.get('additional', 0))
+
+    # Validate
+    if not direction_id:
+        return JsonResponse({'error': 'Direction required'}, status=400)
+
+    # Get direction
+    direction = Direction.objects.filter(id=direction_id, is_active=True).first()
+    if not direction:
+        return JsonResponse({'error': 'Direction not found'}, status=404)
+
+    # Calculate score (DTM formula)
+    # Test score: each subject max 30.1, coefficient 3.4
+    test_score = (subject1 + subject2 + subject3) * 3.4
+
+    # Attestat score: max 5, coefficient 3.7 = max 18.5
+    attestat_score = attestat * 3.7
+
+    # Total
+    total_score = round(test_score + attestat_score + additional, 1)
+
+    # Required scores
+    grant_required = getattr(direction, 'grant_score', 180) or 180
+    contract_required = getattr(direction, 'contract_score', 140) or 140
+
+    # Determine result
+    if total_score >= grant_required:
+        status = 'grant'
+        message = "Tabriklaymiz! Grantga o'tishingiz mumkin."
+    elif total_score >= contract_required:
+        status = 'contract'
+        message = f"Kontraktga o'tishingiz mumkin. Grantga {grant_required - total_score:.1f} ball yetmayapti."
+    else:
+        status = 'fail'
+        message = f"Kontraktga ham {contract_required - total_score:.1f} ball yetmayapti. Ko'proq tayyorlaning!"
+
+    return JsonResponse({
+        'total_score': total_score,
+        'test_score': round(test_score, 1),
+        'attestat_score': round(attestat_score, 1),
+        'additional_score': additional,
+        'grant_required': grant_required,
+        'contract_required': contract_required,
+        'status': status,
+        'message': message,
+        'direction': {
+            'name': direction.name,
+            'university': direction.university.name,
+        }
+    })
