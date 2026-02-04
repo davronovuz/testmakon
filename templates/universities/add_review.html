@@ -1,102 +1,727 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Sharh qoldirish | {{ university.short_name }}{% endblock %}
+{% block title %}Sharh yozish | {{ university.name }} | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Star Rating CSS */
-    .rating {
+    /* ========== PAGE HEADER ========== */
+    .ar-header {
+        background: var(--gradient-dark);
+        padding: 2rem 0;
+        color: white;
+    }
+
+    .ar-header-content {
         display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .ar-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    .ar-back {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .ar-back:hover {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    .ar-uni-logo {
+        width: 56px;
+        height: 56px;
+        background: white;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .ar-uni-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 0.35rem;
+    }
+
+    .ar-uni-logo-text {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .ar-header-info h1 {
+        font-size: 1.35rem;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+
+    .ar-header-info p {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.8);
+        margin: 0;
+    }
+
+    /* ========== CONTENT ========== */
+    .ar-content {
+        padding: 2rem 0 4rem;
+        background: var(--gray-50);
+        min-height: 70vh;
+    }
+
+    .ar-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 992px) {
+        .ar-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== FORM CARD ========== */
+    .ar-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .ar-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .ar-card-header i {
+        color: var(--primary);
+    }
+
+    .ar-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========== FORM ========== */
+    .ar-form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .ar-form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .ar-form-label span {
+        color: var(--gray-500);
+        font-weight: 400;
+    }
+
+    .ar-form-label .required {
+        color: #DC2626;
+    }
+
+    .ar-form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .ar-form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .ar-form-textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        min-height: 150px;
+        resize: vertical;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+
+    .ar-form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .ar-form-hint {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin-top: 0.35rem;
+    }
+
+    /* ========== STAR RATING ========== */
+    .ar-rating-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .ar-rating-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .ar-stars {
+        display: flex;
+        gap: 0.5rem;
         flex-direction: row-reverse;
         justify-content: flex-end;
+    }
+
+    .ar-stars input {
+        display: none;
+    }
+
+    .ar-stars label {
+        font-size: 2rem;
+        color: var(--gray-300);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ar-stars label:hover,
+    .ar-stars label:hover ~ label,
+    .ar-stars input:checked ~ label {
+        color: #F59E0B;
+    }
+
+    .ar-stars label:hover {
+        transform: scale(1.1);
+    }
+
+    /* Rating value display */
+    .ar-rating-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .ar-rating-value strong {
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    /* ========== DETAILED RATINGS ========== */
+    .ar-detailed-ratings {
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ar-detailed-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+
+    .ar-rating-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .ar-rating-row:last-child {
+        border-bottom: none;
+    }
+
+    .ar-rating-row-label {
+        font-size: 0.9rem;
+        color: var(--dark-600);
+        display: flex;
+        align-items: center;
         gap: 0.5rem;
     }
-    .rating input { display: none; }
-    .rating label {
-        cursor: pointer;
-        color: #ddd;
-        font-size: 1.5rem;
-        transition: color 0.2s;
+
+    .ar-rating-row-label i {
+        color: var(--primary);
+        width: 20px;
     }
-    .rating label:hover,
-    .rating label:hover ~ label,
-    .rating input:checked ~ label {
-        color: #ffc107;
+
+    .ar-mini-stars {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .ar-mini-stars input {
+        display: none;
+    }
+
+    .ar-mini-stars label {
+        font-size: 1.25rem;
+        color: var(--gray-300);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .ar-mini-stars label:hover,
+    .ar-mini-stars input:checked ~ label {
+        color: #F59E0B;
+    }
+
+    /* ========== SUBMIT BUTTON ========== */
+    .ar-submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .ar-submit-btn:hover {
+        box-shadow: var(--shadow-primary);
+        transform: translateY(-2px);
+    }
+
+    .ar-submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .ar-sidebar-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .ar-sidebar-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ar-sidebar-header i {
+        color: var(--primary);
+    }
+
+    .ar-sidebar-body {
+        padding: 1.25rem;
+    }
+
+    /* Tips */
+    .ar-tips {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .ar-tip {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+
+    .ar-tip-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .ar-tip-icon.green {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    .ar-tip-icon.blue {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .ar-tip-icon.orange {
+        background: #FED7AA;
+        color: #EA580C;
+    }
+
+    .ar-tip-text {
+        font-size: 0.85rem;
+        color: var(--gray-600);
+        line-height: 1.5;
+    }
+
+    /* Guidelines */
+    .ar-guidelines {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        border: 1px solid #F59E0B;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+    }
+
+    .ar-guidelines-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #92400E;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ar-guidelines-list {
+        font-size: 0.85rem;
+        color: #92400E;
+        line-height: 1.7;
+    }
+
+    .ar-guidelines-list li {
+        margin-bottom: 0.35rem;
+    }
+
+    /* ========== CHARACTER COUNT ========== */
+    .ar-char-count {
+        display: flex;
+        justify-content: flex-end;
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        margin-top: 0.35rem;
+    }
+
+    .ar-char-count.warning {
+        color: #D97706;
+    }
+
+    .ar-char-count.danger {
+        color: #DC2626;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="section-sm bg-light min-vh-100 d-flex align-items-center">
+<!-- Header -->
+<div class="ar-header">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card border-0 shadow-lg rounded-4">
-                    <div class="card-header bg-white py-4 border-bottom text-center">
-                        <h4 class="fw-bold mb-1">Fikringiz muhim!</h4>
-                        <p class="text-muted mb-0 small">{{ university.name }}</p>
+        <div class="ar-header-content">
+            <a href="{% url 'universities:detail' slug=university.slug %}" class="ar-back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+
+            <div class="ar-uni-logo">
+                {% if university.logo %}
+                <img src="{{ university.logo.url }}" alt="">
+                {% else %}
+                <span class="ar-uni-logo-text">{{ university.name|slice:":2"|upper }}</span>
+                {% endif %}
+            </div>
+
+            <div class="ar-header-info">
+                <h1>Sharh yozish</h1>
+                <p>{{ university.name }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="ar-content">
+    <div class="container">
+        <div class="ar-layout">
+            <!-- Main Form -->
+            <div class="ar-main">
+                <div class="ar-card">
+                    <div class="ar-card-header">
+                        <i class="bi bi-chat-square-quote"></i>
+                        Fikringizni bildiring
                     </div>
-                    <div class="card-body p-4 p-md-5">
-                        <form method="post">
+
+                    <div class="ar-card-body">
+                        <form method="post" action="{% url 'universities:add_review' slug=university.slug %}" id="reviewForm">
                             {% csrf_token %}
 
-                            <div class="mb-4 text-center">
-                                <label class="fw-bold d-block mb-2">Umumiy baho</label>
-                                <div class="rating justify-content-center">
-                                    {% for i in "54321"|make_list %}
-                                    <input type="radio" name="rating" value="{{ i }}" id="r{{ i }}" required>
-                                    <label for="r{{ i }}"><i class="bi bi-star-fill"></i></label>
-                                    {% endfor %}
+                            <!-- Overall Rating -->
+                            <div class="ar-rating-group">
+                                <label class="ar-rating-label">Umumiy baho <span class="required">*</span></label>
+                                <div class="ar-stars">
+                                    <input type="radio" name="rating" value="5" id="star5">
+                                    <label for="star5"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" name="rating" value="4" id="star4">
+                                    <label for="star4"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" name="rating" value="3" id="star3" checked>
+                                    <label for="star3"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" name="rating" value="2" id="star2">
+                                    <label for="star2"><i class="bi bi-star-fill"></i></label>
+                                    <input type="radio" name="rating" value="1" id="star1">
+                                    <label for="star1"><i class="bi bi-star-fill"></i></label>
+                                </div>
+                                <div class="ar-rating-value">
+                                    <span>Tanlangan:</span>
+                                    <strong id="ratingDisplay">3</strong>
+                                    <span>/ 5</span>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-muted">Sarlavha (Qisqacha)</label>
-                                <input type="text" name="title" class="form-control bg-light border-0" placeholder="Masalan: Ajoyib universitet..." required>
+                            <!-- Title -->
+                            <div class="ar-form-group">
+                                <label class="ar-form-label">
+                                    Sarlavha <span>(ixtiyoriy)</span>
+                                </label>
+                                <input type="text" name="title" class="ar-form-input" placeholder="Masalan: Ajoyib universitet!" maxlength="100">
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label fw-bold small text-muted">Batafsil fikringiz</label>
-                                <textarea name="content" class="form-control bg-light border-0" rows="5" placeholder="Ta'lim sifati, sharoitlar va o'qituvchilar haqida..." required></textarea>
+                            <!-- Content -->
+                            <div class="ar-form-group">
+                                <label class="ar-form-label">
+                                    Sharhingiz <span class="required">*</span>
+                                </label>
+                                <textarea name="content" class="ar-form-textarea" placeholder="Bu universitet haqida fikringizni yozing. O'qish sifati, o'qituvchilar, binolar va boshqalar haqida..." required minlength="20" maxlength="2000" id="contentTextarea"></textarea>
+                                <div class="ar-char-count" id="charCount">0 / 2000</div>
+                                <div class="ar-form-hint">Kamida 20 ta belgi</div>
                             </div>
 
-                            <div class="row g-3 mb-4 bg-light p-3 rounded-3">
-                                <div class="col-4 text-center">
-                                    <small class="d-block mb-1">Ta'lim</small>
-                                    <select name="education_rating" class="form-select form-select-sm border-0">
-                                        <option value="5">5</option>
-                                        <option value="4">4</option>
-                                        <option value="3">3</option>
-                                    </select>
+                            <!-- Detailed Ratings -->
+                            <div class="ar-detailed-ratings">
+                                <div class="ar-detailed-title">Batafsil baholash (ixtiyoriy)</div>
+
+                                <!-- Education Rating -->
+                                <div class="ar-rating-row">
+                                    <span class="ar-rating-row-label">
+                                        <i class="bi bi-book"></i>
+                                        Ta'lim sifati
+                                    </span>
+                                    <div class="ar-mini-stars">
+                                        {% for i in "54321" %}
+                                        <input type="radio" name="education_rating" value="{{ i }}" id="edu{{ i }}" {% if i == "3" %}checked{% endif %}>
+                                        <label for="edu{{ i }}"><i class="bi bi-star-fill"></i></label>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                                <div class="col-4 text-center">
-                                    <small class="d-block mb-1">Sharoit</small>
-                                    <select name="facility_rating" class="form-select form-select-sm border-0">
-                                        <option value="5">5</option>
-                                        <option value="4">4</option>
-                                        <option value="3">3</option>
-                                    </select>
+
+                                <!-- Facility Rating -->
+                                <div class="ar-rating-row">
+                                    <span class="ar-rating-row-label">
+                                        <i class="bi bi-building"></i>
+                                        Infratuzilma
+                                    </span>
+                                    <div class="ar-mini-stars">
+                                        {% for i in "54321" %}
+                                        <input type="radio" name="facility_rating" value="{{ i }}" id="fac{{ i }}" {% if i == "3" %}checked{% endif %}>
+                                        <label for="fac{{ i }}"><i class="bi bi-star-fill"></i></label>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                                <div class="col-4 text-center">
-                                    <small class="d-block mb-1">Xodimlar</small>
-                                    <select name="staff_rating" class="form-select form-select-sm border-0">
-                                        <option value="5">5</option>
-                                        <option value="4">4</option>
-                                        <option value="3">3</option>
-                                    </select>
+
+                                <!-- Staff Rating -->
+                                <div class="ar-rating-row">
+                                    <span class="ar-rating-row-label">
+                                        <i class="bi bi-people"></i>
+                                        Xodimlar
+                                    </span>
+                                    <div class="ar-mini-stars">
+                                        {% for i in "54321" %}
+                                        <input type="radio" name="staff_rating" value="{{ i }}" id="stf{{ i }}" {% if i == "3" %}checked{% endif %}>
+                                        <label for="stf{{ i }}"><i class="bi bi-star-fill"></i></label>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="d-flex gap-3">
-                                <a href="{% url 'universities:university_detail' slug=university.slug %}" class="btn btn-light w-100 fw-bold">Bekor qilish</a>
-                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-primary">Yuborish</button>
-                            </div>
+                            <button type="submit" class="ar-submit-btn" id="submitBtn">
+                                <i class="bi bi-send"></i>
+                                Sharhni yuborish
+                            </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="ar-sidebar">
+                <!-- Tips -->
+                <div class="ar-sidebar-card">
+                    <div class="ar-sidebar-header">
+                        <i class="bi bi-lightbulb"></i>
+                        Maslahatlar
+                    </div>
+                    <div class="ar-sidebar-body">
+                        <div class="ar-tips">
+                            <div class="ar-tip">
+                                <div class="ar-tip-icon green">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="ar-tip-text">
+                                    Aniq va foydali ma'lumotlar yozing
+                                </div>
+                            </div>
+                            <div class="ar-tip">
+                                <div class="ar-tip-icon blue">
+                                    <i class="bi bi-chat-dots"></i>
+                                </div>
+                                <div class="ar-tip-text">
+                                    Shaxsiy tajribangizni baham ko'ring
+                                </div>
+                            </div>
+                            <div class="ar-tip">
+                                <div class="ar-tip-icon orange">
+                                    <i class="bi bi-emoji-smile"></i>
+                                </div>
+                                <div class="ar-tip-text">
+                                    Hurmatli va konstruktiv bo'ling
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidelines -->
+                <div class="ar-guidelines">
+                    <div class="ar-guidelines-title">
+                        <i class="bi bi-exclamation-circle"></i>
+                        Qoidalar
+                    </div>
+                    <ul class="ar-guidelines-list">
+                        <li>Haqoratli so'zlar ishlatmang</li>
+                        <li>Shaxsiy ma'lumotlar bermang</li>
+                        <li>Reklama qilmang</li>
+                        <li>To'g'ri ma'lumot yozing</li>
+                        <li>Har bir universitetga 1 ta sharh</li>
+                    </ul>
+                </div>
+
+                <!-- Moderation Notice -->
+                <div class="ar-sidebar-card">
+                    <div class="ar-sidebar-body" style="text-align:center;">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+                        <p style="font-size:0.85rem; color:var(--gray-600); margin:0;">
+                            Sharhingiz moderatsiyadan o'tgandan keyin ko'rinadi. Bu odatda 24 soat ichida amalga oshiriladi.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('reviewForm');
+    const contentTextarea = document.getElementById('contentTextarea');
+    const charCount = document.getElementById('charCount');
+    const ratingDisplay = document.getElementById('ratingDisplay');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Character count
+    contentTextarea.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count + ' / 2000';
+
+        charCount.classList.remove('warning', 'danger');
+        if (count > 1800) {
+            charCount.classList.add('danger');
+        } else if (count > 1500) {
+            charCount.classList.add('warning');
+        }
+    });
+
+    // Rating display
+    document.querySelectorAll('input[name="rating"]').forEach(input => {
+        input.addEventListener('change', function() {
+            ratingDisplay.textContent = this.value;
+        });
+    });
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        const content = contentTextarea.value.trim();
+
+        if (content.length < 20) {
+            e.preventDefault();
+            alert('Sharh kamida 20 ta belgidan iborat bo\'lishi kerak!');
+            contentTextarea.focus();
+            return false;
+        }
+
+        // Disable button to prevent double submit
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Yuborilmoqda...';
+    });
+
+    // Mini stars - reverse order fix
+    document.querySelectorAll('.ar-mini-stars').forEach(container => {
+        const labels = container.querySelectorAll('label');
+        labels.forEach((label, index) => {
+            label.addEventListener('mouseenter', function() {
+                for (let i = 0; i <= index; i++) {
+                    labels[i].style.color = '#F59E0B';
+                }
+            });
+
+            label.addEventListener('mouseleave', function() {
+                labels.forEach(l => l.style.color = '');
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

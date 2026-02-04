@@ -1,0 +1,756 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Qabul kalkulyatori | {{ university.name }} | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .ua-header {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        padding: 2.5rem 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ua-header::before {
+        content: '🎓';
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        font-size: 10rem;
+        opacity: 0.1;
+    }
+
+    .ua-header-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .ua-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    .ua-back {
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .ua-back:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+    }
+
+    .ua-uni-logo {
+        width: 64px;
+        height: 64px;
+        background: white;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .ua-uni-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 0.5rem;
+    }
+
+    .ua-uni-logo-text {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .ua-header-info h1 {
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 0.25rem;
+    }
+
+    .ua-header-info p {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.9);
+        margin: 0;
+    }
+
+    /* ========== CONTENT ========== */
+    .ua-content {
+        padding: 2rem 0 4rem;
+        background: var(--gray-50);
+        min-height: 70vh;
+    }
+
+    .ua-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+        .ua-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ========== CARD ========== */
+    .ua-card {
+        background: var(--white);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .ua-card-header i {
+        color: var(--primary);
+    }
+
+    .ua-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ========== CALCULATOR FORM ========== */
+    .ua-form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .ua-form-label span {
+        color: var(--gray-500);
+        font-weight: 400;
+    }
+
+    .ua-form-select {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 1rem center;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ua-form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .ua-form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .ua-form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    /* Score Inputs Grid */
+    .ua-scores-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .ua-scores-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .ua-score-input {
+        text-align: center;
+    }
+
+    .ua-score-label {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 0.5rem;
+    }
+
+    .ua-score-field {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        color: var(--dark);
+        transition: all 0.2s;
+    }
+
+    .ua-score-field:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .ua-score-max {
+        font-size: 0.75rem;
+        color: var(--gray-400);
+        margin-top: 0.25rem;
+    }
+
+    /* Calculate Button */
+    .ua-calculate-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .ua-calculate-btn:hover {
+        box-shadow: var(--shadow-primary);
+        transform: translateY(-2px);
+    }
+
+    /* ========== RESULT CARD ========== */
+    .ua-result {
+        display: none;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .ua-result.show {
+        display: block;
+    }
+
+    .ua-result-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .ua-result-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .ua-result-title.success { color: #059669; }
+    .ua-result-title.warning { color: #D97706; }
+    .ua-result-title.danger { color: #DC2626; }
+
+    .ua-result-desc {
+        font-size: 0.95rem;
+        color: var(--gray-600);
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-result-score {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 2.5rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-result-score-value {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .ua-result-score-label {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+    }
+
+    /* Result Stats */
+    .ua-result-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-result-stat {
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .ua-result-stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 0.15rem;
+    }
+
+    .ua-result-stat-value.green { color: #059669; }
+    .ua-result-stat-value.orange { color: #D97706; }
+
+    .ua-result-stat-label {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    /* Progress Bar */
+    .ua-progress-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .ua-progress-bar {
+        height: 12px;
+        background: var(--gray-200);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .ua-progress-fill {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 0.5s ease;
+    }
+
+    .ua-progress-fill.success { background: linear-gradient(90deg, #10B981, #059669); }
+    .ua-progress-fill.warning { background: linear-gradient(90deg, #F59E0B, #D97706); }
+    .ua-progress-fill.danger { background: linear-gradient(90deg, #EF4444, #DC2626); }
+
+    /* ========== SIDEBAR ========== */
+    .ua-sidebar-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .ua-sidebar-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ua-sidebar-header i {
+        color: var(--primary);
+    }
+
+    .ua-sidebar-body {
+        padding: 1.25rem;
+    }
+
+    /* Direction Mini Cards */
+    .ua-direction-mini {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .ua-direction-mini:last-child {
+        border-bottom: none;
+    }
+
+    .ua-direction-mini-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .ua-direction-mini-score {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    /* Tip Card */
+    .ua-tip-card {
+        background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        border: 1px solid #93C5FD;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+    }
+
+    .ua-tip-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .ua-tip-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1E40AF;
+        margin-bottom: 0.25rem;
+    }
+
+    .ua-tip-text {
+        font-size: 0.85rem;
+        color: #1E3A8A;
+        line-height: 1.6;
+    }
+
+    /* ========== ADMISSION INFO ========== */
+    .ua-admission-banner {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .ua-admission-banner-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .ua-admission-banner-dates {
+        font-size: 1.25rem;
+        font-weight: 800;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="ua-header">
+    <div class="container">
+        <div class="ua-header-content">
+            <a href="{% url 'universities:detail' slug=university.slug %}" class="ua-back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+
+            <div class="ua-uni-logo">
+                {% if university.logo %}
+                <img src="{{ university.logo.url }}" alt="">
+                {% else %}
+                <span class="ua-uni-logo-text">{{ university.name|slice:":2"|upper }}</span>
+                {% endif %}
+            </div>
+
+            <div class="ua-header-info">
+                <h1>🎯 Qabul kalkulyatori</h1>
+                <p>{{ university.name }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="ua-content">
+    <div class="container">
+        <div class="ua-layout">
+            <!-- Main -->
+            <div class="ua-main">
+                <!-- Calculator Card -->
+                <div class="ua-card">
+                    <div class="ua-card-header">
+                        <i class="bi bi-calculator"></i>
+                        Ballaringizni kiriting
+                    </div>
+
+                    <div class="ua-card-body">
+                        <form id="calculatorForm">
+                            <!-- Direction Select -->
+                            <div class="ua-form-group">
+                                <label class="ua-form-label">Yo'nalish tanlang</label>
+                                <select class="ua-form-select" id="directionSelect" required>
+                                    <option value="">— Yo'nalishni tanlang —</option>
+                                    {% for direction in directions %}
+                                    <option value="{{ direction.id }}" data-grant="{{ direction.grant_score|default:180 }}" data-contract="{{ direction.contract_score|default:140 }}">
+                                        {{ direction.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Subject Scores -->
+                            <div class="ua-form-group">
+                                <label class="ua-form-label">Fan ballarini kiriting <span>(maksimum har biri 30.1)</span></label>
+                                <div class="ua-scores-grid">
+                                    <div class="ua-score-input">
+                                        <div class="ua-score-label">Majburiy fan 1</div>
+                                        <input type="number" class="ua-score-field" id="subject1" min="0" max="30.1" step="0.1" value="0" required>
+                                        <div class="ua-score-max">max: 30.1</div>
+                                    </div>
+                                    <div class="ua-score-input">
+                                        <div class="ua-score-label">Majburiy fan 2</div>
+                                        <input type="number" class="ua-score-field" id="subject2" min="0" max="30.1" step="0.1" value="0" required>
+                                        <div class="ua-score-max">max: 30.1</div>
+                                    </div>
+                                    <div class="ua-score-input">
+                                        <div class="ua-score-label">Ixtiyoriy fan</div>
+                                        <input type="number" class="ua-score-field" id="subject3" min="0" max="30.1" step="0.1" value="0" required>
+                                        <div class="ua-score-max">max: 30.1</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attestat -->
+                            <div class="ua-form-group">
+                                <label class="ua-form-label">Attestat o'rtacha bali <span>(maksimum 5.0)</span></label>
+                                <input type="number" class="ua-form-input" id="attestat" min="3" max="5" step="0.01" value="4.0" required>
+                            </div>
+
+                            <!-- Additional Points -->
+                            <div class="ua-form-group">
+                                <label class="ua-form-label">Qo'shimcha ballar <span>(olimpiada, imtiyozlar)</span></label>
+                                <select class="ua-form-select" id="additionalPoints">
+                                    <option value="0">Yo'q</option>
+                                    <option value="5">Viloyat olimpiadasi g'olibi (+5)</option>
+                                    <option value="10">Respublika olimpiadasi g'olibi (+10)</option>
+                                    <option value="15">Xalqaro olimpiada g'olibi (+15)</option>
+                                    <option value="3">Yetim bola (+3)</option>
+                                    <option value="5">Harbiy xizmat o'tagan (+5)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="ua-calculate-btn">
+                                <i class="bi bi-calculator"></i>
+                                Hisoblash
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Result Card -->
+                <div class="ua-card">
+                    <div class="ua-result" id="resultCard">
+                        <div class="ua-result-icon" id="resultIcon">🎯</div>
+                        <h3 class="ua-result-title" id="resultTitle">Natijangiz</h3>
+                        <p class="ua-result-desc" id="resultDesc">Ballaringizni kiritib hisoblash tugmasini bosing</p>
+
+                        <div class="ua-result-score">
+                            <div class="ua-result-score-value" id="totalScore">0</div>
+                            <div class="ua-result-score-label">Umumiy ball</div>
+                        </div>
+
+                        <div class="ua-progress-wrapper">
+                            <div class="ua-progress-header">
+                                <span>Sizning ballingiz</span>
+                                <span id="progressLabel">0 / 189</span>
+                            </div>
+                            <div class="ua-progress-bar">
+                                <div class="ua-progress-fill success" id="progressFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="ua-result-stats">
+                            <div class="ua-result-stat">
+                                <div class="ua-result-stat-value green" id="grantScore">180</div>
+                                <div class="ua-result-stat-label">Grant uchun kerak</div>
+                            </div>
+                            <div class="ua-result-stat">
+                                <div class="ua-result-stat-value orange" id="contractScore">140</div>
+                                <div class="ua-result-stat-label">Kontrakt uchun kerak</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="ua-sidebar">
+                <!-- Admission Dates -->
+                <div class="ua-admission-banner">
+                    <div class="ua-admission-banner-title">📅 Qabul muddati</div>
+                    <div class="ua-admission-banner-dates">
+                        {{ university.admission_start|date:"d.m" }} - {{ university.admission_end|date:"d.m.Y"|default:"30.09.2025" }}
+                    </div>
+                </div>
+
+                <!-- Popular Directions -->
+                <div class="ua-sidebar-card">
+                    <div class="ua-sidebar-header">
+                        <i class="bi bi-fire"></i>
+                        Ommabop yo'nalishlar
+                    </div>
+                    <div class="ua-sidebar-body">
+                        {% for direction in popular_directions|slice:":5" %}
+                        <div class="ua-direction-mini">
+                            <span class="ua-direction-mini-name">{{ direction.name|truncatechars:25 }}</span>
+                            <span class="ua-direction-mini-score">{{ direction.grant_score|default:"185" }}</span>
+                        </div>
+                        {% empty %}
+                        <div class="ua-direction-mini">
+                            <span class="ua-direction-mini-name">Informatika</span>
+                            <span class="ua-direction-mini-score">189</span>
+                        </div>
+                        <div class="ua-direction-mini">
+                            <span class="ua-direction-mini-name">Tibbiyot</span>
+                            <span class="ua-direction-mini-score">187</span>
+                        </div>
+                        <div class="ua-direction-mini">
+                            <span class="ua-direction-mini-name">Iqtisodiyot</span>
+                            <span class="ua-direction-mini-score">175</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="ua-tip-card">
+                    <div class="ua-tip-icon">💡</div>
+                    <div class="ua-tip-title">Maslahat</div>
+                    <div class="ua-tip-text">
+                        Grant olish uchun har bir fandan kamida 56% (16.8 ball) to'plash kerak.
+                        Attestat bali ham muhim - u 18.5 gacha qo'shimcha ball beradi.
+                    </div>
+                </div>
+
+                <!-- AI Mentor CTA -->
+                <div class="ua-sidebar-card">
+                    <div class="ua-sidebar-body" style="text-align:center;">
+                        <div style="font-size:2.5rem; margin-bottom:0.75rem;">🤖</div>
+                        <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.5rem;">AI Mentor</h4>
+                        <p style="font-size:0.85rem; color:var(--gray-500); margin-bottom:1rem;">
+                            Batafsil tahlil va tavsiyalar uchun AI Mentorga murojaat qiling
+                        </p>
+                        <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-chat-dots me-1"></i>Bepul maslahat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('calculatorForm');
+    const resultCard = document.getElementById('resultCard');
+    const directionSelect = document.getElementById('directionSelect');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        calculateScore();
+    });
+
+    function calculateScore() {
+        // Get values
+        const subject1 = parseFloat(document.getElementById('subject1').value) || 0;
+        const subject2 = parseFloat(document.getElementById('subject2').value) || 0;
+        const subject3 = parseFloat(document.getElementById('subject3').value) || 0;
+        const attestat = parseFloat(document.getElementById('attestat').value) || 4;
+        const additional = parseInt(document.getElementById('additionalPoints').value) || 0;
+
+        // Calculate test score (each subject max 30.1, coefficient 3.4)
+        const testScore = (subject1 + subject2 + subject3) * 3.4;
+
+        // Calculate attestat score (max 5, coefficient 3.7 = max 18.5)
+        const attestatScore = attestat * 3.7;
+
+        // Total score
+        const totalScore = Math.round((testScore + attestatScore + additional) * 10) / 10;
+
+        // Get required scores from selected direction
+        const selectedOption = directionSelect.options[directionSelect.selectedIndex];
+        const grantRequired = parseInt(selectedOption.dataset.grant) || 180;
+        const contractRequired = parseInt(selectedOption.dataset.contract) || 140;
+
+        // Update result card
+        document.getElementById('totalScore').textContent = totalScore.toFixed(1);
+        document.getElementById('grantScore').textContent = grantRequired;
+        document.getElementById('contractScore').textContent = contractRequired;
+        document.getElementById('progressLabel').textContent = `${totalScore.toFixed(1)} / ${grantRequired}`;
+
+        // Calculate progress percentage
+        const progressPercent = Math.min((totalScore / grantRequired) * 100, 100);
+        const progressFill = document.getElementById('progressFill');
+        progressFill.style.width = `${progressPercent}%`;
+
+        // Determine result
+        const resultIcon = document.getElementById('resultIcon');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultDesc = document.getElementById('resultDesc');
+
+        if (totalScore >= grantRequired) {
+            resultIcon.textContent = '🎉';
+            resultTitle.textContent = 'Grantga o\'tasiz!';
+            resultTitle.className = 'ua-result-title success';
+            resultDesc.textContent = `Tabriklaymiz! Sizning ballingiz grant ball chegarasidan yuqori. ${directionSelect.options[directionSelect.selectedIndex]?.text || 'Tanlangan yo\'nalish'}ga grant asosida o'qish imkoniyatingiz bor.`;
+            progressFill.className = 'ua-progress-fill success';
+        } else if (totalScore >= contractRequired) {
+            resultIcon.textContent = '📝';
+            resultTitle.textContent = 'Kontraktga o\'tasiz!';
+            resultTitle.className = 'ua-result-title warning';
+            resultDesc.textContent = `Yaxshi natija! Grantga ${(grantRequired - totalScore).toFixed(1)} ball yetmayapti, lekin kontrakt asosida o'qishingiz mumkin.`;
+            progressFill.className = 'ua-progress-fill warning';
+        } else {
+            resultIcon.textContent = '📚';
+            resultTitle.textContent = 'Ko\'proq tayyorlanish kerak';
+            resultTitle.className = 'ua-result-title danger';
+            resultDesc.textContent = `Hozircha kontraktga ham ${(contractRequired - totalScore).toFixed(1)} ball yetmayapti. Lekin vaqt bor - ko'proq mashq qiling!`;
+            progressFill.className = 'ua-progress-fill danger';
+        }
+
+        // Show result
+        resultCard.classList.add('show');
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+</script>
+{% endblock %}
