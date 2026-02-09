@@ -1,65 +1,387 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}TestMakon - AI quvvatli ta'lim platformasi{% endblock %}
+{% block title %}TestMakon — Universitetga kirish imtihoniga AI bilan tayyorlaning{% endblock %}
 
 {% block extra_css %}
+<!-- AOS.js CSS -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
 <style>
-    /* Hero Section Styles */
-    .hero-section {
-        background: linear-gradient(135deg, #F8FAFC 0%, #E8F5E9 50%, #F1F5F9 100%);
-        padding: 6rem 0;
+    /* ==========================================
+       HERO SECTION
+    ========================================== */
+    .hero {
+        background: linear-gradient(160deg, #F8FAFC 0%, #E8F5E9 40%, #F1F5F9 100%);
+        padding: 5rem 0 6rem;
         position: relative;
         overflow: hidden;
     }
 
-    .hero-section::before {
+    .hero::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 800px;
-        height: 800px;
-        background: radial-gradient(circle, rgba(139, 197, 64, 0.1) 0%, transparent 70%);
+        top: -200px;
+        right: -150px;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(139, 197, 64, 0.12) 0%, transparent 70%);
         border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -300px;
+        left: -100px;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(139, 197, 64, 0.06) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
     }
 
     .hero-badge {
-        background: linear-gradient(135deg, rgba(139, 197, 64, 0.15) 0%, rgba(139, 197, 64, 0.05) 100%);
+        background: rgba(139, 197, 64, 0.12);
         color: var(--primary-dark);
-        padding: 0.6rem 1.2rem;
+        padding: 0.5rem 1.25rem;
         border-radius: 50px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        border: 1px solid rgba(139, 197, 64, 0.3);
+        border: 1px solid rgba(139, 197, 64, 0.25);
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-badge .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+        border-radius: 50%;
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.4); }
     }
 
     .hero-title {
-        font-size: 3.8rem;
+        font-size: 3.5rem;
         font-weight: 900;
-        line-height: 1.1;
+        line-height: 1.08;
         letter-spacing: -0.03em;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-title .highlight {
+        position: relative;
+        display: inline;
+    }
+
+    .hero-title .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 0;
+        right: 0;
+        height: 14px;
+        background: rgba(139, 197, 64, 0.25);
+        border-radius: 4px;
+        z-index: -1;
     }
 
     .hero-subtitle {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         color: var(--gray-500);
         line-height: 1.8;
+        margin-bottom: 2rem;
+        max-width: 520px;
     }
 
-    /* Feature Cards - Premium Design */
+    .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .hero-stat-number {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .hero-stat-label {
+        font-size: 0.82rem;
+        color: var(--gray-500);
+        font-weight: 500;
+        margin-top: 0.25rem;
+    }
+
+    /* Hero Right - AI Chat Preview */
+    .hero-chat {
+        background: var(--white);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--gray-200);
+        position: relative;
+    }
+
+    .hero-chat::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 25px;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.3), transparent 50%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+
+    .chat-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .chat-avatar {
+        width: 44px;
+        height: 44px;
+        background: var(--gradient-primary);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: 0 8px 20px -6px rgba(139, 197, 64, 0.5);
+    }
+
+    .chat-online {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .chat-online-dot {
+        width: 7px;
+        height: 7px;
+        background: #22C55E;
+        border-radius: 50%;
+    }
+
+    .chat-bubble {
+        border-radius: 16px;
+        padding: 0.9rem 1.15rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.92rem;
+        line-height: 1.6;
+    }
+
+    .bubble-user {
+        background: var(--gray-100);
+        color: var(--dark);
+        margin-left: 2rem;
+    }
+
+    .bubble-ai {
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.04) 100%);
+        border-left: 3px solid var(--primary);
+        color: var(--dark-600);
+        margin-right: 1rem;
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 0.75rem 1rem;
+    }
+
+    .typing-indicator span {
+        width: 7px;
+        height: 7px;
+        background: var(--primary);
+        border-radius: 50%;
+        animation: typing 1.4s ease-in-out infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Floating Elements */
+    .float-badge {
+        position: absolute;
+        background: var(--white);
+        border-radius: 14px;
+        padding: 0.7rem 1rem;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: var(--dark);
+        z-index: 2;
+    }
+
+    .float-badge-top {
+        top: -20px;
+        right: -15px;
+        animation: float-slow 4s ease-in-out infinite;
+    }
+
+    .float-badge-bottom {
+        bottom: -15px;
+        left: -15px;
+        animation: float-slow 4s ease-in-out infinite 1.5s;
+    }
+
+    @keyframes float-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* ==========================================
+       3D ICON SYSTEM
+    ========================================== */
+    .icon-3d {
+        width: 68px;
+        height: 68px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.85rem;
+        position: relative;
+        margin-bottom: 1.25rem;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+        perspective: 600px;
+    }
+
+    .icon-3d::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 10%;
+        right: 10%;
+        height: 12px;
+        border-radius: 50%;
+        filter: blur(8px);
+        opacity: 0.4;
+        z-index: -1;
+    }
+
+    .icon-3d:hover {
+        transform: translateY(-4px) rotateX(8deg) rotateY(-8deg);
+    }
+
+    .icon-3d-green {
+        background: linear-gradient(145deg, #9DD553 0%, #6BA832 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(139, 197, 64, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-green::after { background: rgba(139, 197, 64, 0.4); }
+
+    .icon-3d-blue {
+        background: linear-gradient(145deg, #60A5FA 0%, #1D4ED8 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-blue::after { background: rgba(59, 130, 246, 0.4); }
+
+    .icon-3d-purple {
+        background: linear-gradient(145deg, #A78BFA 0%, #6D28D9 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-purple::after { background: rgba(139, 92, 246, 0.4); }
+
+    .icon-3d-amber {
+        background: linear-gradient(145deg, #FCD34D 0%, #D97706 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-amber::after { background: rgba(245, 158, 11, 0.4); }
+
+    .icon-3d-red {
+        background: linear-gradient(145deg, #FCA5A5 0%, #DC2626 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(239, 68, 68, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-red::after { background: rgba(239, 68, 68, 0.4); }
+
+    .icon-3d-teal {
+        background: linear-gradient(145deg, #5EEAD4 0%, #0D9488 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(20, 184, 166, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-teal::after { background: rgba(20, 184, 166, 0.4); }
+
+    /* ==========================================
+       FEATURES SECTION
+    ========================================== */
+    .features-section {
+        padding: 6rem 0;
+        background: var(--white);
+    }
+
+    .section-label {
+        background: rgba(139, 197, 64, 0.1);
+        color: var(--primary-dark);
+        padding: 0.45rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .section-heading {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+        color: var(--gray-500);
+        font-size: 1.05rem;
+        max-width: 580px;
+        margin: 0 auto 3rem;
+    }
+
     .feature-card {
         background: var(--white);
         border: 1px solid var(--gray-200);
         border-radius: 20px;
         padding: 2rem;
+        height: 100%;
         position: relative;
         overflow: hidden;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        height: 100%;
     }
 
     .feature-card::before {
@@ -68,15 +390,16 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
+        height: 3px;
         background: var(--gradient-primary);
         transform: scaleX(0);
+        transform-origin: left;
         transition: transform 0.4s ease;
     }
 
     .feature-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 25px 50px -12px rgba(139, 197, 64, 0.25);
+        transform: translateY(-6px);
+        box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.12);
         border-color: var(--primary-light);
     }
 
@@ -84,104 +407,55 @@
         transform: scaleX(1);
     }
 
-    .feature-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        margin-bottom: 1.5rem;
-        position: relative;
-        transition: all 0.4s ease;
-    }
-
-    .feature-card:hover .feature-icon {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    .feature-icon.ai-mentor {
-        background: linear-gradient(135deg, #8BC540 0%, #6BA832 100%);
-        color: white;
-        box-shadow: 0 10px 30px -10px rgba(139, 197, 64, 0.5);
-    }
-
-    .feature-icon.ai-tahlil {
-        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-        color: white;
-        box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
-    }
-
-    .feature-icon.universitet {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        color: white;
-        box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.5);
-    }
-
-    .feature-icon.musobaqa {
-        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-        color: white;
-        box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.5);
-    }
-
-    .feature-icon.blok-test {
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-        color: white;
-        box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.5);
-    }
-
-    .feature-icon.reyting {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-        box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.5);
-    }
-
-    .feature-title {
-        font-size: 1.25rem;
+    .feature-card .f-title {
+        font-size: 1.15rem;
         font-weight: 800;
         color: var(--dark);
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.6rem;
     }
 
-    .feature-desc {
+    .feature-card .f-desc {
         color: var(--gray-500);
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         line-height: 1.7;
-        margin: 0;
+        margin-bottom: 1.25rem;
     }
 
-    .feature-link {
+    .feature-card .f-link {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         color: var(--primary-dark);
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-top: 1.25rem;
+        font-weight: 700;
+        font-size: 0.85rem;
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateX(-8px);
         transition: all 0.3s ease;
     }
 
-    .feature-card:hover .feature-link {
+    .feature-card:hover .f-link {
         opacity: 1;
         transform: translateX(0);
     }
 
-    .feature-link:hover {
-        gap: 0.75rem;
+    .feature-card .f-link:hover { gap: 0.65rem; }
+
+    /* ==========================================
+       SUBJECTS SECTION
+    ========================================== */
+    .subjects-section {
+        padding: 6rem 0;
+        background: var(--gray-100);
     }
 
-    /* Subject Cards */
     .subject-card {
         background: var(--white);
         border: 1px solid var(--gray-200);
         border-radius: 16px;
-        padding: 1.75rem;
+        padding: 1.75rem 1.25rem;
         text-align: center;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.35s ease;
         position: relative;
         overflow: hidden;
     }
@@ -200,40 +474,39 @@
 
     .subject-card:hover {
         transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
         border-color: var(--primary-light);
     }
 
-    .subject-card:hover::after {
-        transform: scaleX(1);
-    }
+    .subject-card:hover::after { transform: scaleX(1); }
 
     .subject-emoji {
-        font-size: 3.5rem;
-        margin-bottom: 1rem;
+        font-size: 3rem;
         display: block;
+        margin-bottom: 0.75rem;
         transition: transform 0.3s ease;
     }
 
-    .subject-card:hover .subject-emoji {
-        transform: scale(1.15);
-    }
+    .subject-card:hover .subject-emoji { transform: scale(1.15); }
 
     .subject-name {
         font-weight: 800;
+        font-size: 0.95rem;
         color: var(--dark);
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.2rem;
     }
 
     .subject-count {
         color: var(--gray-500);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
-    /* Stats Section */
+    /* ==========================================
+       STATS SECTION
+    ========================================== */
     .stats-section {
         background: linear-gradient(135deg, var(--dark) 0%, #0F172A 100%);
-        padding: 4rem 0;
+        padding: 4.5rem 0;
         position: relative;
         overflow: hidden;
     }
@@ -241,28 +514,18 @@
     .stats-section::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238BC540' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%238BC540' fill-opacity='0.04'%3E%3Cpath d='M20 20h20v20H20zM0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
     }
 
-    .stat-item {
-        text-align: center;
-        position: relative;
-        z-index: 1;
-    }
+    .stat-item { text-align: center; position: relative; z-index: 1; }
 
     .stat-number {
-        font-size: 3rem;
+        font-size: 2.75rem;
         font-weight: 900;
-        color: var(--white);
         line-height: 1;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-number span {
+        margin-bottom: 0.4rem;
         background: var(--gradient-primary);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -272,52 +535,228 @@
     .stat-label {
         color: var(--gray-400);
         font-weight: 500;
+        font-size: 0.95rem;
     }
 
-    /* Steps Section */
-    .step-circle {
-        width: 90px;
-        height: 90px;
+    /* ==========================================
+       HOW IT WORKS
+    ========================================== */
+    .steps-section {
+        padding: 6rem 0;
+        background: var(--white);
+    }
+
+    .step-card {
+        text-align: center;
+        position: relative;
+    }
+
+    .step-number {
+        width: 80px;
+        height: 80px;
         background: var(--gradient-primary);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 900;
         color: white;
         margin: 0 auto 1.5rem;
-        box-shadow: 0 15px 40px -10px rgba(139, 197, 64, 0.5);
+        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
         position: relative;
     }
 
-    .step-circle::after {
+    .step-number::after {
         content: '';
         position: absolute;
-        width: 110px;
-        height: 110px;
-        border: 2px dashed var(--primary-light);
+        inset: -6px;
+        border: 2px dashed rgba(139, 197, 64, 0.3);
         border-radius: 50%;
-        animation: spin 20s linear infinite;
+        animation: spin 25s linear infinite;
     }
 
-    @keyframes spin {
-        100% { transform: rotate(360deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .step-connector {
+        display: none;
+    }
+
+    @media (min-width: 768px) {
+        .step-connector {
+            display: block;
+            position: absolute;
+            top: 40px;
+            left: calc(50% + 55px);
+            width: calc(100% - 110px);
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--primary-light) 0px,
+                var(--primary-light) 8px,
+                transparent 8px,
+                transparent 16px
+            );
+        }
     }
 
     .step-title {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 800;
         color: var(--dark);
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.6rem;
     }
 
     .step-desc {
         color: var(--gray-500);
+        font-size: 0.92rem;
         line-height: 1.7;
+        max-width: 280px;
+        margin: 0 auto;
     }
 
-    /* CTA Section */
+    /* ==========================================
+       PRICING SECTION
+    ========================================== */
+    .pricing-section {
+        padding: 6rem 0;
+        background: var(--gray-100);
+    }
+
+    .pricing-card {
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        height: 100%;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.1);
+    }
+
+    .pricing-card.popular {
+        border-color: var(--primary);
+        box-shadow: 0 20px 50px -15px rgba(139, 197, 64, 0.25);
+    }
+
+    .pricing-card.popular:hover {
+        box-shadow: 0 25px 60px -15px rgba(139, 197, 64, 0.35);
+    }
+
+    .popular-badge {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gradient-primary);
+        color: white;
+        font-weight: 800;
+        font-size: 0.75rem;
+        padding: 0.4rem 1.25rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 6px 20px -4px rgba(139, 197, 64, 0.5);
+        white-space: nowrap;
+    }
+
+    .pricing-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .pricing-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .pricing-desc {
+        color: var(--gray-500);
+        font-size: 0.88rem;
+        margin-bottom: 1.5rem;
+        min-height: 40px;
+    }
+
+    .pricing-amount {
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .pricing-currency {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .pricing-value {
+        font-size: 2.75rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .pricing-period {
+        font-size: 0.88rem;
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+
+    .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .pricing-features li {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        font-size: 0.9rem;
+        color: var(--dark-600);
+    }
+
+    .pricing-features li .check {
+        width: 20px;
+        height: 20px;
+        background: rgba(139, 197, 64, 0.15);
+        color: var(--primary-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        flex-shrink: 0;
+    }
+
+    .pricing-features li.disabled {
+        color: var(--gray-400);
+    }
+
+    .pricing-features li.disabled .check {
+        background: var(--gray-100);
+        color: var(--gray-400);
+    }
+
+    /* ==========================================
+       CTA SECTION
+    ========================================== */
     .cta-section {
         background: linear-gradient(135deg, #8BC540 0%, #6BA832 50%, #5A9428 100%);
         padding: 5rem 0;
@@ -328,347 +767,301 @@
     .cta-section::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 600px;
-        height: 600px;
+        top: -40%;
+        right: -15%;
+        width: 500px;
+        height: 500px;
         background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
         border-radius: 50%;
+        pointer-events: none;
     }
 
     .cta-section::after {
         content: '';
         position: absolute;
-        bottom: -50%;
-        left: -20%;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        bottom: -40%;
+        left: -15%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
         border-radius: 50%;
+        pointer-events: none;
     }
 
-    .cta-btn {
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: white;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-desc {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-btn-white {
         background: white;
         color: var(--primary-dark);
         font-weight: 800;
-        padding: 1.1rem 2.5rem;
-        border-radius: 12px;
+        padding: 1rem 2.25rem;
+        border-radius: 14px;
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.6rem;
         transition: all 0.3s ease;
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
+        border: none;
     }
 
-    .cta-btn:hover {
+    .cta-btn-white:hover {
         transform: translateY(-3px);
         box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.3);
         color: var(--primary-dark);
     }
 
-    /* Floating Cards Animation */
-    .float-card {
-        background: var(--white);
-        border-radius: 20px;
-        padding: 1.25rem 1.5rem;
-        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
-        border: 1px solid var(--gray-200);
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-15px); }
-    }
-
-    .float-animation {
-        animation: float 4s ease-in-out infinite;
-    }
-
-    .float-animation-delay {
-        animation: float 4s ease-in-out infinite;
-        animation-delay: 1s;
-    }
-
-    /* AI Chat Preview */
-    .ai-chat-card {
-        background: var(--white);
-        border-radius: 24px;
-        padding: 1.75rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-        border: 2px solid var(--gray-200);
-    }
-
-    .chat-bubble-user {
-        background: var(--gray-100);
-        border-radius: 16px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1rem;
-    }
-
-    .chat-bubble-ai {
-        background: linear-gradient(135deg, rgba(139, 197, 64, 0.12) 0%, rgba(139, 197, 64, 0.05) 100%);
-        border-radius: 16px;
-        padding: 1rem 1.25rem;
-        border-left: 4px solid var(--primary);
-    }
-
-    .avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .avatar-user {
-        background: var(--dark);
+    .cta-btn-outline {
+        background: transparent;
         color: white;
-    }
-
-    .avatar-ai {
-        background: var(--gradient-primary);
-        color: white;
-    }
-
-    /* Section Styles */
-    .section-badge {
-        background: linear-gradient(135deg, rgba(139, 197, 64, 0.15) 0%, rgba(139, 197, 64, 0.05) 100%);
-        color: var(--primary-dark);
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
         font-weight: 700;
-        font-size: 0.8rem;
-        display: inline-block;
-        margin-bottom: 1rem;
-    }
-
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--dark);
-        margin-bottom: 1rem;
-    }
-
-    .section-subtitle {
-        color: var(--gray-500);
-        font-size: 1.1rem;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    /* Check Items */
-    .check-item {
-        display: flex;
+        padding: 1rem 2.25rem;
+        border-radius: 14px;
+        display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.6rem;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
     }
 
-    .check-icon {
-        width: 26px;
-        height: 26px;
-        background: var(--gradient-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .cta-btn-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.7);
         color: white;
-        font-size: 0.75rem;
+        transform: translateY(-3px);
     }
 
-    .check-text {
-        color: var(--dark-600);
-        font-weight: 600;
+    /* ==========================================
+       RESPONSIVE
+    ========================================== */
+    @media (max-width: 991px) {
+        .hero { padding: 3.5rem 0 4rem; }
+        .hero-title { font-size: 2.75rem; }
+        .hero-stats { gap: 1.5rem; }
+        .hero-stat-number { font-size: 1.4rem; }
+        .section-heading { font-size: 2rem; }
+        .cta-title { font-size: 2rem; }
+        .float-badge { display: none; }
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .hero-title {
-            font-size: 2.5rem;
-        }
-        .hero-subtitle {
-            font-size: 1.1rem;
-        }
-        .stat-number {
-            font-size: 2.25rem;
-        }
-        .section-title {
-            font-size: 2rem;
-        }
+    @media (max-width: 767px) {
+        .hero { padding: 2.5rem 0 3rem; }
+        .hero-title { font-size: 2.15rem; }
+        .hero-subtitle { font-size: 1rem; }
+        .hero-stats { gap: 1.25rem; flex-wrap: wrap; }
+        .hero-stat-number { font-size: 1.25rem; }
+        .hero-chat { margin-top: 2rem; }
+        .section-heading { font-size: 1.7rem; }
+        .stat-number { font-size: 2rem; }
+        .pricing-card { padding: 2rem 1.5rem; }
+        .pricing-value { font-size: 2.25rem; }
+        .cta-title { font-size: 1.7rem; }
+        .step-number { width: 65px; height: 65px; font-size: 1.5rem; }
+        .step-number::after { inset: -5px; }
+    }
+
+    @media (max-width: 575px) {
+        .hero-title { font-size: 1.85rem; }
+        .hero-stats { gap: 1rem; }
+        .pricing-amount { justify-content: center; }
+        .features-section, .subjects-section, .steps-section, .pricing-section { padding: 4rem 0; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
+
+<!-- ========== HERO ========== -->
+<section class="hero">
     <div class="container">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <h1 class="hero-title mt-4 mb-4">
-                    Universitetga kirish endi oson
-                    <span class="text-gradient">AI bilan tayyorlaning</span>
+            <div class="col-lg-6" data-aos="fade-right" data-aos-duration="800">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    2026-yil abituriyentlari uchun tayyor
+                </div>
+
+                <h1 class="hero-title">
+                    Imtihonda <span class="highlight">189+ ball</span> olish siri — <span class="text-gradient">AI bilan mashq</span>
                 </h1>
-                <p class="hero-subtitle mb-4">
-                    AI mentor, minglab testlar va real imtihon simulyatori — barchasi bitta platformada."
+
+                <p class="hero-subtitle">
+                    10 000+ test savoli, shaxsiy AI mentor va real DTM simulyatori. Har bir xatoyingizni tahlil qilamiz, zaif tomonlaringizni kuchli qilamiz.
                 </p>
-                <div class="d-flex flex-wrap gap-3 mb-4">
+
+                <div class="d-flex flex-wrap gap-3">
                     <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
-                        Boshlash <i class="bi bi-arrow-right ms-2"></i>
+                        Bepul boshlash <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                     <a href="{% url 'tests_app:tests_list' %}" class="btn btn-outline btn-lg">
-                        <i class="bi bi-play-circle me-2"></i> Testlarni ko'rish
+                        <i class="bi bi-play-circle me-1"></i> Demo test
                     </a>
                 </div>
-                <div class="d-flex flex-wrap gap-4 pt-3">
-                    <div class="check-item">
-                        <div class="check-icon"><i class="bi bi-check"></i></div>
-                        <span class="check-text">To'liq bepul</span>
+
+                <div class="hero-stats">
+                    <div>
+                        <div class="hero-stat-number">10,000+</div>
+                        <div class="hero-stat-label">Test savollari</div>
                     </div>
-                    <div class="check-item">
-                        <div class="check-icon"><i class="bi bi-check"></i></div>
-                        <span class="check-text">AI yordam</span>
+                    <div>
+                        <div class="hero-stat-number">5,200+</div>
+                        <div class="hero-stat-label">Abituriyentlar</div>
                     </div>
-                    <div class="check-item">
-                        <div class="check-icon"><i class="bi bi-check"></i></div>
-                        <span class="check-text">10,000+ test savollari</span>
+                    <div>
+                        <div class="hero-stat-number">92%</div>
+                        <div class="hero-stat-label">Natija oshgan</div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
+
+            <div class="col-lg-6" data-aos="fade-left" data-aos-duration="800" data-aos-delay="200">
                 <div class="position-relative">
-                    <!-- AI Chat Card -->
-                    <div class="ai-chat-card">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="icon-box-gradient icon-box-lg">
+                    <!-- Floating badges -->
+                    <div class="float-badge float-badge-top">
+                        <span style="font-size: 1.2rem;">🎯</span> 189 ball oldi!
+                    </div>
+                    <div class="float-badge float-badge-bottom">
+                        <span style="font-size: 1.2rem;">🔥</span> 14 kunlik streak
+                    </div>
+
+                    <!-- AI Chat Preview -->
+                    <div class="hero-chat">
+                        <div class="chat-header">
+                            <div class="chat-avatar">
                                 <i class="bi bi-robot"></i>
                             </div>
                             <div>
-                                <h5 class="mb-0 fw-bold">AI Mentor</h5>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span style="width: 8px; height: 8px; background: #22C55E; border-radius: 50%;"></span>
-                                    <small style="color: var(--gray-500);">Online</small>
+                                <div style="font-weight: 800; color: var(--dark); font-size: 0.95rem;">AI Mentor</div>
+                                <div class="chat-online">
+                                    <span class="chat-online-dot"></span>
+                                    <small style="color: var(--gray-500); font-size: 0.78rem;">Doimo online</small>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="chat-bubble-user">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="avatar avatar-user">
-                                    <i class="bi bi-person-fill"></i>
-                                </div>
-                                <p class="mb-0" style="color: var(--dark);">Kvadrat tenglamani diskriminant orqali qanday yechaman?</p>
-                            </div>
+                        <div class="chat-bubble bubble-user">
+                            Matematikadan 68% oldim. Qaysi mavzularni qayta o'qishim kerak?
                         </div>
 
-                        <div class="chat-bubble-ai">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="avatar avatar-ai">
-                                    <i class="bi bi-robot"></i>
-                                </div>
-                                <div>
-                                    <p class="mb-0" style="color: var(--dark-600);">
-                                        Ajoyib savol! 🎯 Kvadrat tenglama <strong>ax² + bx + c = 0</strong> ko'rinishida bo'ladi.
-                                        <br><br>
-                                        <strong>1-qadam:</strong> D = b² - 4ac (diskriminant)
-                                        <br>
-                                        <strong>2-qadam:</strong> x = (-b ± √D) / 2a
-                                    </p>
-                                </div>
-                            </div>
+                        <div class="chat-bubble bubble-ai">
+                            <strong>Tahlil:</strong> Sizda geometriya (42%) va trigonometriya (55%) zaif. Quyidagi reja bo'yicha 2 haftada 85%+ ga chiqasiz:<br><br>
+                            📌 <strong>1-hafta:</strong> Geometriya asoslari + 50 ta mashq<br>
+                            📌 <strong>2-hafta:</strong> Trigonometriya formulalari + amaliyot
+                        </div>
+
+                        <div class="typing-indicator">
+                            <span></span><span></span><span></span>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="section">
+<!-- ========== FEATURES ========== -->
+<section class="features-section">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="section-title">Nima uchun aynan <span class="text-gradient">TestMakon</span>?</h2>
-            <p class="section-subtitle">Boshqa platformalarda yo'q imkoniyatlar — faqat bizda. Sun'iy intellekt doimiy sizni kuzatadi tahlil qiladi.</p>
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Imkoniyatlar</span>
+            <h2 class="section-heading">Boshqa platformalarda <span class="text-gradient">yo'q</span> narsalar</h2>
+            <p class="section-desc">TestMakon oddiy test sayti emas. AI sizning har bir xatoyingizni tahlil qilib, shaxsiy reja tuzadi.</p>
         </div>
 
         <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
                 <div class="feature-card">
-                    <div class="feature-icon ai-mentor">
+                    <div class="icon-3d icon-3d-green">
                         <i class="bi bi-robot"></i>
                     </div>
-                    <h4 class="feature-title">AI Mentor</h4>
-                    <p class="feature-desc">Shaxsiy sun'iy intellekt o'qituvchingiz. Xatolaringizni tahlil qiladi  mavzulashtiradi  — aniq va tushunarli tushuntiradi. 24/7 yoningizda.</p>
-                    <a href="{% url 'ai_core:ai_mentor' %}" class="feature-link">
-                        Sinab ko'rish <i class="bi bi-arrow-right"></i>
+                    <h4 class="f-title">AI Mentor — 24/7 o'qituvchi</h4>
+                    <p class="f-desc">Tushunmagan mavzuni yozing — AI darhol tushuntiradi. Formulalar, misollar, qadam-baqadam yechimlar. Hech qachon charchamaydi.</p>
+                    <a href="{% url 'ai_core:ai_mentor' %}" class="f-link">
+                        Sinab ko'ring <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
                 <div class="feature-card">
-                    <div class="feature-icon ai-tahlil">
+                    <div class="icon-3d icon-3d-blue">
                         <i class="bi bi-graph-up-arrow"></i>
                     </div>
-                    <h4 class="feature-title">AI Tahlil</h4>
-                    <p class="feature-desc">Bilimingizni chuqur tahlil qiladi. Qaysi mavzuda kuchli, qayerda ishlash kerak — aniq ko'rsatadi va reja tuzadi.</p>
-                    <a href="#" class="feature-link">
+                    <h4 class="f-title">Xatolarni AI tahlil qiladi</h4>
+                    <p class="f-desc">Har bir testdan keyin AI zaif mavzularingizni topadi. Qayerda ko'p xato qilasiz, nimani takrorlashingiz kerak — aniq ko'rsatadi.</p>
+                    <a href="#" class="f-link">
                         Batafsil <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
                 <div class="feature-card">
-                    <div class="feature-icon universitet">
+                    <div class="icon-3d icon-3d-purple">
                         <i class="bi bi-mortarboard"></i>
                     </div>
-                    <h4 class="feature-title">Universitet Kalkulyator</h4>
-                    <p class="feature-desc">Balingizni kiriting — qaysi universitetlarga o'tish imkoniyatingiz borligini ko'ring. O'tgan yillar statistikasi asosida.</p>
-                    <a href="#" class="feature-link">
+                    <h4 class="f-title">Qaysi universitetga o'taman?</h4>
+                    <p class="f-desc">Balingizni kiriting — o'tgan yil statistikasi asosida qaysi yo'nalishlarga o'tish imkoniyatingiz borligini ko'ring.</p>
+                    <a href="{% url 'ai_core:ai_advisor' %}" class="f-link">
                         Hisoblash <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
                 <div class="feature-card">
-                    <div class="feature-icon musobaqa">
+                    <div class="icon-3d icon-3d-amber">
                         <i class="bi bi-trophy"></i>
                     </div>
-                    <h4 class="feature-title">Musobaqalar</h4>
-                    <p class="feature-desc">Do'stlaringiz bilan 1v1 bellashing, haftalik turnirda qatnashing va g'olib bo'ling. Motivatsiya va sovrinlar!</p>
-                    <a href="{% url 'competitions:competitions_list' %}" class="feature-link">
-                        Qatnashish <i class="bi bi-arrow-right"></i>
+                    <h4 class="f-title">Do'stlar bilan bellashing</h4>
+                    <p class="f-desc">1v1 duel, haftalik turnirlar va umumiy reyting. Raqobat motivatsiya beradi — g'oliblarga maxsus sovrinlar.</p>
+                    <a href="{% url 'competitions:competitions_list' %}" class="f-link">
+                        Musobaqaga kirish <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
                 <div class="feature-card">
-                    <div class="feature-icon blok-test">
+                    <div class="icon-3d icon-3d-red">
                         <i class="bi bi-lightning-charge"></i>
                     </div>
-                    <h4 class="feature-title">Blok Testlar</h4>
-                    <p class="feature-desc">Real DTM imtihoni formatida. Vaqt chegarasi, real savollar — haqiqiy imtihonga to'liq tayyorlaning.</p>
-                    <a href="{% url 'tests_app:tests_list' %}" class="feature-link">
-                        Boshlash <i class="bi bi-arrow-right"></i>
+                    <h4 class="f-title">Real DTM formati</h4>
+                    <p class="f-desc">3.5 soat, 5 fan, 30 ta savol — haqiqiy imtihon sharoitida mashq qiling. Vaqt tugashi, stress va haqiqiy natija.</p>
+                    <a href="{% url 'tests_app:tests_list' %}" class="f-link">
+                        Test boshlash <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
                 <div class="feature-card">
-                    <div class="feature-icon reyting">
+                    <div class="icon-3d icon-3d-teal">
                         <i class="bi bi-bar-chart"></i>
                     </div>
-                    <h4 class="feature-title">Reyting Tizimi</h4>
-                    <p class="feature-desc">O'zbekiston bo'ylab reyting. Eng yaxshilar qatoriga kiring, o'z maktabingizda birinchi bo'ling!</p>
-                    <a href="{% url 'leaderboard:global_leaderboard' %}" class="feature-link">
+                    <h4 class="f-title">O'zbekiston bo'ylab reyting</h4>
+                    <p class="f-desc">Butun mamlakat bo'ylab nechanchi o'rindaligingizni bilib oling. Maktab, tuman va viloyat reytingida ko'rining.</p>
+                    <a href="{% url 'leaderboard:global_leaderboard' %}" class="f-link">
                         Reytingni ko'rish <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
@@ -677,65 +1070,66 @@
     </div>
 </section>
 
-<!-- Subjects Section -->
-<section class="section" style="background: var(--gray-100);">
+<!-- ========== SUBJECTS ========== -->
+<section class="subjects-section">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="section-title">Barcha DTM fanlari bir joyda</h2>
-            <p class="section-subtitle">Qaysi fandan tayyorlanasiz? Tanlang va hoziroq boshlang!</p>
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Fanlar</span>
+            <h2 class="section-heading">Barcha DTM fanlari <span class="text-gradient">bir joyda</span></h2>
+            <p class="section-desc">Qaysi fandan tayyorlanasiz? Har bir fanda minglab savollar va batafsil yechimlar mavjud.</p>
         </div>
 
         <div class="row g-3">
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="0">
                 <div class="subject-card">
                     <span class="subject-emoji">📐</span>
                     <h6 class="subject-name">Matematika</h6>
                     <span class="subject-count">2,500+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="50">
                 <div class="subject-card">
                     <span class="subject-emoji">⚡</span>
                     <h6 class="subject-name">Fizika</h6>
                     <span class="subject-count">2,100+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="100">
                 <div class="subject-card">
                     <span class="subject-emoji">🧪</span>
                     <h6 class="subject-name">Kimyo</h6>
                     <span class="subject-count">1,800+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="150">
                 <div class="subject-card">
                     <span class="subject-emoji">🧬</span>
                     <h6 class="subject-name">Biologiya</h6>
                     <span class="subject-count">1,900+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="200">
                 <div class="subject-card">
                     <span class="subject-emoji">🇬🇧</span>
                     <h6 class="subject-name">Ingliz tili</h6>
                     <span class="subject-count">2,000+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="250">
                 <div class="subject-card">
                     <span class="subject-emoji">📖</span>
                     <h6 class="subject-name">Ona tili</h6>
                     <span class="subject-count">1,500+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="300">
                 <div class="subject-card">
                     <span class="subject-emoji">🌍</span>
                     <h6 class="subject-name">Tarix</h6>
                     <span class="subject-count">1,700+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="350">
                 <div class="subject-card">
                     <span class="subject-emoji">🇷🇺</span>
                     <h6 class="subject-name">Rus tili</h6>
@@ -746,38 +1140,210 @@
     </div>
 </section>
 
-<!-- How it Works Section -->
-<section class="section">
+<!-- ========== STATS ========== -->
+<section class="stats-section">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="section-title">3 oddiy qadamda boshlang</h2>
-            <p class="section-subtitle">Ro'yxatdan o'ting va 1 daqiqada testlarni yechishni boshlang</p>
-        </div>
-
-        <div class="row g-5">
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="step-circle">1</div>
-                    <h4 class="step-title">Ro'yxatdan o'ting</h4>
-                    <p class="step-desc">Telegram orqali bir bosishda yoki telefon raqamingiz bilan. 30 soniyada tayyor.</p>
+        <div class="row g-4">
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-duration="500" data-aos-delay="0">
+                <div class="stat-item">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Test savollari</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="step-circle">2</div>
-                    <h4 class="step-title">Fanlarni tanlang</h4>
-                    <p class="step-desc">Imtihon topshiradigan fanlaringizni belgilang. Shaxsiy reja tuziladi.</p>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-duration="500" data-aos-delay="100">
+                <div class="stat-item">
+                    <div class="stat-number">5,200+</div>
+                    <div class="stat-label">Faol abituriyent</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="step-circle">3</div>
-                    <h4 class="step-title">Natijaga erishing</h4>
-                    <p class="step-desc">Har kuni test yeching, AI tavsiyalariga amal qiling va orzuingizdagi universitetga kiring!</p>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-duration="500" data-aos-delay="200">
+                <div class="stat-item">
+                    <div class="stat-number">92%</div>
+                    <div class="stat-label">Natija oshgan</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-duration="500" data-aos-delay="300">
+                <div class="stat-item">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Universitet yo'nalishi</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+<!-- ========== HOW IT WORKS ========== -->
+<section class="steps-section">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Qanday ishlaydi?</span>
+            <h2 class="section-heading">3 qadamda <span class="text-gradient">natijaga</span> erishing</h2>
+            <p class="section-desc">Ro'yxatdan o'ting va 1 daqiqada birinchi testingizni yeching</p>
+        </div>
+
+        <div class="row g-5 mt-2">
+            <div class="col-md-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-connector"></div>
+                    <h4 class="step-title">Ro'yxatdan o'ting</h4>
+                    <p class="step-desc">Telefon raqamingiz bilan 30 soniyada. Hech qanday to'lov, hech qanday karta.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="150">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-connector"></div>
+                    <h4 class="step-title">Fanlaringizni tanlang</h4>
+                    <p class="step-desc">Imtihon topshiradigan fanlarni belgilang. AI sizga shaxsiy reja tuzib beradi.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="300">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4 class="step-title">Har kuni mashq qiling</h4>
+                    <p class="step-desc">Testlar yeching, AI tahlillarini o'qing, zaif tomonlarni kuchaytiring. Natija 2 haftada ko'rinadi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== PRICING ========== -->
+<section class="pricing-section">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Narxlar</span>
+            <h2 class="section-heading">O'zingizga mos <span class="text-gradient">tarifni</span> tanlang</h2>
+            <p class="section-desc">Bepul rejada ham ko'p narsa bor. Premium esa imtihonga 100% tayyor qiladi.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Free -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+                <div class="pricing-card">
+                    <div class="pricing-icon" style="background: var(--gray-100); color: var(--dark-600);">
+                        <i class="bi bi-gift"></i>
+                    </div>
+                    <h3 class="pricing-name">Bepul</h3>
+                    <p class="pricing-desc">Platformani sinab ko'rish uchun</p>
+
+                    <div class="pricing-amount">
+                        <span class="pricing-value">0</span>
+                        <span class="pricing-currency">so'm</span>
+                        <span class="pricing-period">/ oyiga</span>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Kuniga 10 ta test savoli</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> 3 ta fan tanlash</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Umumiy reyting</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Asosiy statistika</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> AI Mentor</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Blok test simulyator</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Batafsil AI tahlil</li>
+                    </ul>
+
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline w-100">
+                        Boshlash
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pro -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+                <div class="pricing-card popular">
+                    <div class="popular-badge">Eng mashhur</div>
+                    <div class="pricing-icon icon-3d-green" style="width: 56px; height: 56px; border-radius: 16px; font-size: 1.5rem;">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <h3 class="pricing-name">Pro</h3>
+                    <p class="pricing-desc">Jiddiy tayyorgarlik uchun</p>
+
+                    <div class="pricing-amount">
+                        <span class="pricing-value">49,000</span>
+                        <span class="pricing-currency">so'm</span>
+                        <span class="pricing-period">/ oyiga</span>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Cheksiz test savollari</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Barcha fanlar ochiq</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> AI Mentor — kuniga 20 savol</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Blok test simulyator</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> AI xato tahlili</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Shaxsiy o'quv reja</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> 1-on-1 mentor</li>
+                    </ul>
+
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100">
+                        Pro ga o'tish <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Premium -->
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
+                <div class="pricing-card">
+                    <div class="pricing-icon" style="background: linear-gradient(145deg, #FCD34D 0%, #D97706 100%); color: white; box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.4);">
+                        <i class="bi bi-diamond-fill"></i>
+                    </div>
+                    <h3 class="pricing-name">Premium</h3>
+                    <p class="pricing-desc">189+ ball olish kafolati</p>
+
+                    <div class="pricing-amount">
+                        <span class="pricing-value">99,000</span>
+                        <span class="pricing-currency">so'm</span>
+                        <span class="pricing-period">/ oyiga</span>
+                    </div>
+
+                    <ul class="pricing-features">
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Pro dagi hamma narsa</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> AI Mentor — cheksiz</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Batafsil video yechimlar</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Universitet maslahatchisi</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Maxsus turnirlar</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Telegram bot — shaxsiy</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> 1-on-1 AI mentor sessiya</li>
+                    </ul>
+
+                    <a href="{% url 'accounts:register' %}" class="btn btn-dark w-100">
+                        Premium tanlash
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== CTA ========== -->
+<section class="cta-section">
+    <div class="container">
+        <div class="text-center" data-aos="zoom-in" data-aos-duration="600">
+            <h2 class="cta-title">Imtihon kuni hech narsaga afsuslanmang</h2>
+            <p class="cta-desc">Hozir boshlang — 2 haftada farqni ko'rasiz. 5 200+ abituriyent allaqachon natija olmoqda.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="{% url 'accounts:register' %}" class="cta-btn-white">
+                    Bepul ro'yxatdan o'tish <i class="bi bi-arrow-right"></i>
+                </a>
+                <a href="{% url 'ai_core:ai_mentor' %}" class="cta-btn-outline">
+                    <i class="bi bi-robot"></i> AI Mentorni sinash
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- AOS.js -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init({
+        once: true,
+        offset: 80,
+        easing: 'ease-out-cubic'
+    });
+</script>
 {% endblock %}
