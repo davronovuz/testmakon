@@ -10,7 +10,7 @@
         padding: 0;
     }
 
-    /* Hide default navbar and footer in test mode */
+    /* Hide default navbar and footer in test fullscreen mode */
     .test-fullscreen .navbar,
     .test-fullscreen .footer {
         display: none;
@@ -200,19 +200,314 @@
         overflow: hidden;
     }
 
-    /* ========== TOOLS PANEL (Left) ========== */
+    /* ========== LEFT SIDEBAR — Question Navigator ========== */
+    .test-sidebar {
+        width: 280px;
+        min-width: 280px;
+        background: var(--white);
+        border-right: 1px solid var(--gray-200);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        z-index: 50;
+    }
+
+    .test-sidebar.collapsed {
+        width: 0;
+        min-width: 0;
+        overflow: hidden;
+        border-right: none;
+    }
+
+    .sidebar-header {
+        padding: 1.25rem 1.25rem 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .sidebar-test-title {
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.4rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .sidebar-test-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .sidebar-subject-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: rgba(139, 197, 64, 0.1);
+        color: var(--primary-dark);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.65rem;
+        border-radius: 50px;
+    }
+
+    .sidebar-subject-badge .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        border-radius: 50%;
+    }
+
+    .sidebar-difficulty {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-500);
+    }
+
+    /* Sidebar Timer */
+    .sidebar-timer {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-200);
+        background: var(--gray-50);
+    }
+
+    .sidebar-timer-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.15rem;
+    }
+
+    .sidebar-timer-block {
+        background: var(--dark);
+        color: var(--white);
+        font-size: 1.3rem;
+        font-weight: 900;
+        padding: 0.45rem 0.6rem;
+        border-radius: 10px;
+        min-width: 46px;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar-timer-sep {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: var(--dark);
+        padding: 0 0.1rem;
+        animation: timer-blink 1s ease-in-out infinite;
+    }
+
+    @keyframes timer-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    .sidebar-timer-label {
+        text-align: center;
+        font-size: 0.72rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        margin-top: 0.4rem;
+    }
+
+    .sidebar-timer.timer-warning .sidebar-timer-block {
+        background: #D97706;
+    }
+
+    .sidebar-timer.timer-danger .sidebar-timer-block {
+        background: #DC2626;
+        animation: timer-pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes timer-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.3); }
+        50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+    }
+
+    /* Sidebar Question Grid */
+    .sidebar-questions {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.25rem;
+    }
+
+    .sidebar-questions::-webkit-scrollbar { width: 4px; }
+    .sidebar-questions::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-questions::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 4px;
+    }
+
+    .sidebar-questions-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+    }
+
+    .sidebar-question-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+
+    .sidebar-q-btn {
+        width: 100%;
+        aspect-ratio: 1;
+        border: 2px solid var(--gray-200);
+        border-radius: 10px;
+        background: var(--white);
+        color: var(--dark-600);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .sidebar-q-btn:hover {
+        border-color: var(--primary);
+        background: rgba(139, 197, 64, 0.05);
+        transform: scale(1.05);
+    }
+
+    .sidebar-q-btn.current {
+        background: var(--dark);
+        color: var(--white);
+        border-color: var(--dark);
+        box-shadow: 0 4px 12px -3px rgba(15, 23, 42, 0.35);
+    }
+
+    .sidebar-q-btn.answered {
+        background: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
+    }
+
+    .sidebar-q-btn.bookmarked {
+        background: #FEF3C7;
+        color: #92400E;
+        border-color: #FBBF24;
+    }
+
+    .sidebar-q-btn.bookmarked::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 6px;
+        height: 6px;
+        background: #FBBF24;
+        border-radius: 50%;
+    }
+
+    /* answered + bookmarked both */
+    .sidebar-q-btn.answered.bookmarked {
+        background: var(--primary);
+        color: var(--white);
+        border-color: var(--primary);
+    }
+
+    .sidebar-q-btn.answered.bookmarked::after {
+        background: #FBBF24;
+    }
+
+    .sidebar-q-btn.unanswered {
+        background: var(--gray-100);
+        border-color: var(--gray-200);
+    }
+
+    /* Legend */
+    .sidebar-legend {
+        padding: 0.85rem 1.25rem;
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+
+    .sidebar-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--gray-500);
+    }
+
+    .sidebar-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex-shrink: 0;
+    }
+
+    .sidebar-legend-dot.current { background: var(--dark); }
+    .sidebar-legend-dot.answered { background: var(--primary); }
+    .sidebar-legend-dot.bookmarked { background: #FBBF24; }
+    .sidebar-legend-dot.unanswered {
+        background: var(--white);
+        border: 2px solid var(--gray-300);
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .sidebar-finish-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        color: white;
+        font-weight: 800;
+        font-size: 0.88rem;
+        padding: 0.7rem;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 6px 20px -6px rgba(239, 68, 68, 0.4);
+    }
+
+    .sidebar-finish-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -6px rgba(239, 68, 68, 0.5);
+    }
+
+    /* ========== TOOLS PANEL (Overlay on left) ========== */
     .test-tools-panel {
         width: 400px;
         background: var(--white);
         border-right: 1px solid var(--gray-200);
         display: flex;
         flex-direction: column;
-        transition: width 0.3s ease;
+        transition: all 0.3s ease;
+        z-index: 60;
     }
 
     .test-tools-panel.collapsed {
         width: 0;
+        min-width: 0;
         overflow: hidden;
+        border-right: none;
     }
 
     .test-tools-header {
@@ -260,6 +555,11 @@
         border-radius: var(--radius);
         color: var(--dark-600);
         cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .test-tools-close:hover {
+        background: var(--gray-200);
     }
 
     .test-tools-content {
@@ -319,7 +619,7 @@
         color: var(--primary-dark);
     }
 
-    /* Periodic Table Placeholder */
+    /* Periodic Table */
     .test-periodic-table {
         text-align: center;
         padding: 2rem;
@@ -336,12 +636,20 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        min-width: 0;
     }
 
     .test-question-content {
         flex: 1;
         overflow-y: auto;
-        padding: 2rem;
+        padding: 2rem 2.5rem;
+    }
+
+    .test-question-content::-webkit-scrollbar { width: 6px; }
+    .test-question-content::-webkit-scrollbar-track { background: transparent; }
+    .test-question-content::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 6px;
     }
 
     .test-question-header {
@@ -358,22 +666,49 @@
     }
 
     .test-question-badge {
-        width: 40px;
-        height: 40px;
-        background: var(--dark);
+        width: 44px;
+        height: 44px;
+        background: var(--gradient-primary);
         color: var(--white);
-        border-radius: var(--radius);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: 1.1rem;
+        font-weight: 800;
+        box-shadow: 0 6px 16px -4px rgba(139, 197, 64, 0.4);
+    }
+
+    .test-question-meta {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .test-question-meta-label {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        font-weight: 600;
     }
 
     .test-question-label {
-        font-size: 0.9rem;
-        color: var(--gray-500);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
     }
+
+    .test-question-label .diff-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .diff-dot.easy { background: #22C55E; }
+    .diff-dot.medium { background: #F59E0B; }
+    .diff-dot.hard { background: #EF4444; }
+    .diff-dot.expert { background: #8B5CF6; }
 
     .test-question-actions {
         display: flex;
@@ -460,22 +795,25 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1rem 1.25rem;
+        padding: 1.1rem 1.25rem;
         background: var(--white);
         border: 2px solid var(--gray-200);
-        border-radius: var(--radius-lg);
+        border-radius: 14px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .test-answer-option:hover {
-        border-color: var(--gray-300);
-        background: var(--gray-50);
+        border-color: var(--primary-light);
+        background: rgba(139, 197, 64, 0.03);
+        transform: translateX(4px);
     }
 
     .test-answer-option.selected {
         border-color: var(--primary);
-        background: var(--primary-glow);
+        background: rgba(139, 197, 64, 0.06);
+        box-shadow: 0 4px 16px -4px rgba(139, 197, 64, 0.25);
     }
 
     .test-answer-option.correct {
@@ -489,25 +827,26 @@
     }
 
     .test-answer-letter {
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: var(--gray-100);
         border: 2px solid var(--gray-300);
-        border-radius: 50%;
+        border-radius: 10px;
         font-size: 0.9rem;
-        font-weight: 700;
+        font-weight: 800;
         color: var(--dark-600);
         flex-shrink: 0;
-        transition: all 0.2s;
+        transition: all 0.25s;
     }
 
     .test-answer-option.selected .test-answer-letter {
-        background: var(--primary);
+        background: var(--gradient-primary);
         border-color: var(--primary);
         color: var(--white);
+        box-shadow: 0 4px 12px -3px rgba(139, 197, 64, 0.4);
     }
 
     .test-answer-option.correct .test-answer-letter {
@@ -549,184 +888,49 @@
         color: #EF4444;
     }
 
+    /* Keyboard hint on answer hover */
+    .test-answer-shortcut {
+        position: absolute;
+        top: 50%;
+        right: 16px;
+        transform: translateY(-50%);
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--gray-400);
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .test-answer-option:hover .test-answer-shortcut { opacity: 1; }
+    .test-answer-option.selected .test-answer-shortcut { opacity: 0; }
+
     /* ========== BOTTOM BAR ========== */
     .test-bottombar {
         background: var(--white);
         border-top: 1px solid var(--gray-200);
-        padding: 1rem 2rem;
+        padding: 0.85rem 2rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-shrink: 0;
     }
 
-    .test-nav-info {
+    .test-bottom-left {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-    }
-
-    .test-nav-dropdown {
-        position: relative;
-    }
-
-    .test-nav-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1rem;
-        background: var(--gray-100);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .test-nav-btn:hover {
-        background: var(--gray-200);
-    }
-
-    /* Question Navigator Dropdown */
-    .test-navigator {
-        position: absolute;
-        bottom: 100%;
-        left: 0;
-        margin-bottom: 0.5rem;
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        padding: 1.25rem;
-        width: 320px;
-        display: none;
-        z-index: 200;
-    }
-
-    .test-navigator.show {
-        display: block;
-    }
-
-    .test-navigator-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-    .test-navigator-title {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .test-navigator-close {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--gray-100);
-        border: none;
-        border-radius: 6px;
-        color: var(--dark-600);
-        cursor: pointer;
-    }
-
-    .test-navigator-legend {
-        display: flex;
-        flex-wrap: wrap;
         gap: 0.75rem;
-        margin-bottom: 1rem;
-        font-size: 0.75rem;
     }
 
-    .test-navigator-legend-item {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
+    .test-bottom-info {
+        font-size: 0.88rem;
+        font-weight: 600;
         color: var(--gray-500);
     }
 
-    .test-navigator-legend-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 3px;
-    }
-
-    .test-navigator-legend-dot.answered {
-        background: var(--primary);
-    }
-
-    .test-navigator-legend-dot.bookmarked {
-        background: #FBBF24;
-    }
-
-    .test-navigator-legend-dot.current {
-        background: var(--dark);
-    }
-
-    .test-navigator-legend-dot.unanswered {
-        background: var(--gray-200);
-    }
-
-    .test-navigator-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 0.5rem;
-    }
-
-    .test-navigator-item {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--gray-100);
-        border: 2px solid transparent;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        cursor: pointer;
-        transition: all 0.15s;
-    }
-
-    .test-navigator-item:hover {
-        background: var(--gray-200);
-    }
-
-    .test-navigator-item.current {
-        background: var(--dark);
-        color: var(--white);
-        border-color: var(--dark);
-    }
-
-    .test-navigator-item.answered {
-        background: var(--primary);
-        color: var(--white);
-    }
-
-    .test-navigator-item.bookmarked {
-        background: #FBBF24;
+    .test-bottom-info strong {
         color: var(--dark);
     }
 
-    .test-navigator-item.bookmarked::after {
-        content: '';
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        width: 6px;
-        height: 6px;
-        background: #FBBF24;
-        border-radius: 50%;
-    }
-
-    /* Bottom Actions */
     .test-bottom-actions {
         display: flex;
         align-items: center;
@@ -737,12 +941,13 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: var(--radius);
+        padding: 0.7rem 1.5rem;
+        border-radius: 12px;
         font-size: 0.9rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
+        border: none;
     }
 
     .test-action-btn.secondary {
@@ -755,20 +960,23 @@
         background: var(--gray-200);
     }
 
+    .test-action-btn.secondary:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
     .test-action-btn.primary {
-        background: var(--gradient-primary);
-        border: none;
+        background: var(--dark);
         color: var(--white);
     }
 
     .test-action-btn.primary:hover {
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-primary);
+        background: var(--dark-800);
+        transform: translateX(3px);
     }
 
     .test-action-btn.ai {
         background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        border: none;
         color: var(--white);
     }
 
@@ -777,20 +985,85 @@
         box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.4);
     }
 
-    /* ========== RESPONSIVE ========== */
-    @media (max-width: 1200px) {
-        .test-tools-panel {
-            width: 350px;
-        }
+    /* ========== MOBILE SIDEBAR TOGGLE ========== */
+    .sidebar-mobile-toggle {
+        display: none;
+        position: fixed;
+        bottom: 1.25rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 140;
+        background: var(--dark);
+        color: var(--white);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.5);
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
     }
 
-    @media (max-width: 992px) {
+    .sidebar-mobile-toggle:hover {
+        transform: translateX(-50%) translateY(-2px);
+    }
+
+    .sidebar-mobile-toggle .mob-count {
+        background: var(--primary);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 0.15rem 0.5rem;
+        border-radius: 50px;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        z-index: 140;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    .sidebar-overlay.show { display: block; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1200px) {
+        .test-tools-panel { width: 350px; }
+    }
+
+    @media (max-width: 991px) {
+        .test-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 150;
+            transform: translateX(-100%);
+            box-shadow: 20px 0 50px -10px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-sidebar.mobile-show {
+            transform: translateX(0);
+        }
+
+        .test-sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-mobile-toggle { display: flex; }
+
         .test-tools-panel {
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            z-index: 300;
+            z-index: 160;
             box-shadow: var(--shadow-lg);
         }
 
@@ -798,39 +1071,45 @@
             transform: translateX(-100%);
         }
 
-        .test-topbar-center {
-            gap: 1rem;
-        }
-
-        .test-progress-bar {
-            display: none;
-        }
+        .test-topbar-center { gap: 1rem; }
+        .test-progress-bar { display: none; }
+        .test-question-content { padding: 1.5rem; }
+        .test-bottombar { padding: 0.75rem 1rem; }
     }
 
     @media (max-width: 768px) {
-        .test-topbar {
-            padding: 0.5rem 1rem;
+        .test-topbar { padding: 0.5rem 1rem; }
+        .test-title { display: none; }
+        .test-subject-badge { display: none; }
+        .test-question-content { padding: 1.25rem; }
+
+        .test-question-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
         }
 
-        .test-title {
-            display: none;
-        }
-
-        .test-question-content {
-            padding: 1rem;
-        }
+        .test-question-actions { width: 100%; }
+        .test-bookmark-btn, .test-report-btn { flex: 1; justify-content: center; }
 
         .test-bottombar {
-            padding: 0.75rem 1rem;
             flex-wrap: wrap;
             gap: 0.75rem;
         }
 
-        .test-navigator {
-            width: 100%;
-            left: 0;
-            right: 0;
-        }
+        .test-bottom-left { width: 100%; }
+        .test-bottom-actions { width: 100%; justify-content: space-between; }
+
+        .test-sidebar { width: 260px; min-width: 260px; }
+
+        .test-answer-option { padding: 0.9rem 1rem; }
+        .test-answer-letter { width: 36px; height: 36px; font-size: 0.82rem; }
+    }
+
+    @media (max-width: 575px) {
+        .test-topbar-right .test-topbar-btn:not(#toggleFullscreen) { display: none; }
+        .test-action-btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
+        .test-action-btn.ai span { display: none; }
     }
 
     /* ========== ANTI-CHEAT STYLES ========== */
@@ -848,7 +1127,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(15, 23, 42, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -856,6 +1135,8 @@
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
     }
 
     .test-modal-overlay.show {
@@ -865,99 +1146,111 @@
 
     .test-modal {
         background: var(--white);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        max-width: 400px;
+        border-radius: 24px;
+        padding: 2.5rem;
+        max-width: 420px;
         width: 90%;
         text-align: center;
-        transform: scale(0.9);
-        transition: transform 0.3s;
+        transform: scale(0.9) translateY(10px);
+        transition: all 0.3s;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
     }
 
     .test-modal-overlay.show .test-modal {
-        transform: scale(1);
+        transform: scale(1) translateY(0);
     }
 
     .test-modal-icon {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 1.5rem;
-        background: var(--primary-glow);
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1.25rem;
+        background: #FEF3C7;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.75rem;
-        color: var(--primary-dark);
+        font-size: 2rem;
     }
 
     .test-modal h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.75rem;
+        font-size: 1.35rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
     }
 
     .test-modal p {
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
+        font-size: 0.92rem;
+        margin-bottom: 1.75rem;
     }
 
     .test-modal-stats {
         display: flex;
         justify-content: center;
         gap: 2rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
+        margin-bottom: 1.75rem;
+        padding: 1.25rem;
         background: var(--gray-50);
-        border-radius: var(--radius);
+        border-radius: 16px;
     }
 
-    .test-modal-stat {
-        text-align: center;
-    }
+    .test-modal-stat { text-align: center; }
 
     .test-modal-stat-value {
         font-size: 1.5rem;
-        font-weight: 800;
+        font-weight: 900;
         color: var(--dark);
     }
 
     .test-modal-stat-label {
         font-size: 0.75rem;
         color: var(--gray-500);
+        font-weight: 600;
     }
 
     .test-modal-actions {
         display: flex;
         gap: 0.75rem;
-        justify-content: center;
     }
 
-    .test-modal-btn {
-        padding: 0.75rem 1.5rem;
-        border-radius: var(--radius);
+    .test-modal-actions button,
+    .test-modal-actions a {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 12px;
         font-size: 0.9rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
+        text-align: center;
+        text-decoration: none;
     }
 
-    .test-modal-btn.secondary {
+    .test-modal-btn-cancel {
         background: var(--gray-100);
         border: 1px solid var(--gray-200);
         color: var(--dark-600);
     }
 
-    .test-modal-btn.primary {
-        background: var(--gradient-primary);
+    .test-modal-btn-cancel:hover { background: var(--gray-200); }
+
+    .test-modal-btn-confirm {
+        background: linear-gradient(135deg, #EF4444, #DC2626);
         border: none;
-        color: var(--white);
+        color: white;
+        box-shadow: 0 6px 20px -6px rgba(239, 68, 68, 0.4);
+    }
+
+    .test-modal-btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px -6px rgba(239, 68, 68, 0.5);
+        color: white;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="test-container" id="testContainer">
-    <!-- Top Bar -->
+    <!-- ========== TOP BAR ========== -->
     <div class="test-topbar">
         <div class="test-topbar-left">
             <a href="{% url 'tests_app:question_bank' %}" class="test-back-btn" onclick="return confirmExit()">
@@ -974,7 +1267,7 @@
             {% if remaining_time %}
             <div class="test-timer" id="testTimer">
                 <i class="bi bi-clock"></i>
-                <span id="timerDisplay">{{ remaining_time|floatformat:0 }}</span>
+                <span id="timerDisplayTop">{{ remaining_time|floatformat:0 }}</span>
             </div>
             {% endif %}
 
@@ -994,6 +1287,9 @@
                 <i class="bi bi-calculator"></i>
             </button>
             {% endif %}
+            <button class="test-topbar-btn" id="toggleSidebarBtn" title="Savollar paneli">
+                <i class="bi bi-layout-sidebar"></i>
+            </button>
             <button class="test-topbar-btn" id="toggleFullscreen" title="To'liq ekran">
                 <i class="bi bi-fullscreen"></i>
             </button>
@@ -1003,9 +1299,82 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- ========== MAIN CONTENT ========== -->
     <div class="test-main">
-        <!-- Tools Panel -->
+
+        <!-- LEFT SIDEBAR — Question Navigator -->
+        <aside class="test-sidebar" id="testSidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-test-title">{{ test.title }}</div>
+                <div class="sidebar-test-meta">
+                    {% if test.subject %}
+                    <span class="sidebar-subject-badge">
+                        <span class="dot"></span>
+                        {{ test.subject.name }}
+                    </span>
+                    {% endif %}
+                    <span class="sidebar-difficulty">
+                        <i class="bi bi-speedometer2"></i>
+                        {{ test.get_difficulty_display|default:"Aralash" }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Timer in sidebar -->
+            {% if remaining_time %}
+            <div class="sidebar-timer" id="sidebarTimer">
+                <div class="sidebar-timer-display">
+                    <div class="sidebar-timer-block" id="sidebarTimerH">00</div>
+                    <span class="sidebar-timer-sep">:</span>
+                    <div class="sidebar-timer-block" id="sidebarTimerM">00</div>
+                    <span class="sidebar-timer-sep">:</span>
+                    <div class="sidebar-timer-block" id="sidebarTimerS">00</div>
+                </div>
+                <div class="sidebar-timer-label">Qolgan vaqt</div>
+            </div>
+            {% endif %}
+
+            <!-- Question Grid -->
+            <div class="sidebar-questions">
+                <div class="sidebar-questions-label">Savollar ({{ questions_data|length }})</div>
+                <div class="sidebar-question-grid" id="sidebarGrid">
+                    {% for item in questions_data %}
+                    <button class="sidebar-q-btn {% if forloop.counter0 == current_index %}current{% endif %} {% if item.user_answer %}answered{% endif %} {% if item.is_bookmarked %}bookmarked{% endif %}"
+                            data-index="{{ forloop.counter0 }}"
+                            data-question-id="{{ item.question.id }}"
+                            onclick="goToQuestion({{ forloop.counter0 }})">
+                        {{ forloop.counter }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="sidebar-legend">
+                <div class="sidebar-legend-item">
+                    <span class="sidebar-legend-dot current"></span> Joriy
+                </div>
+                <div class="sidebar-legend-item">
+                    <span class="sidebar-legend-dot answered"></span> Javob berilgan
+                </div>
+                <div class="sidebar-legend-item">
+                    <span class="sidebar-legend-dot bookmarked"></span> Belgilangan
+                </div>
+                <div class="sidebar-legend-item">
+                    <span class="sidebar-legend-dot unanswered"></span> Javobsiz
+                </div>
+            </div>
+
+            <!-- Sidebar Finish -->
+            <div class="sidebar-footer">
+                <button class="sidebar-finish-btn" onclick="showFinishModal()">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Yakunlash
+                </button>
+            </div>
+        </aside>
+
+        <!-- TOOLS PANEL -->
         {% if subject_tools %}
         <div class="test-tools-panel collapsed" id="toolsPanel">
             <div class="test-tools-header">
@@ -1064,7 +1433,7 @@
         </div>
         {% endif %}
 
-        <!-- Question Panel -->
+        <!-- QUESTION PANEL -->
         <div class="test-question-panel">
             <div class="test-question-content">
                 {% for item in questions_data %}
@@ -1072,16 +1441,21 @@
                      data-index="{{ forloop.counter0 }}"
                      data-question-id="{{ item.question.id }}">
 
+                    <!-- Question Header -->
                     <div class="test-question-header">
                         <div class="test-question-number">
                             <div class="test-question-badge">{{ forloop.counter }}</div>
-                            <span class="test-question-label">
-                                {% if item.question.difficulty == 'easy' %}🟢 Oson
-                                {% elif item.question.difficulty == 'medium' %}🟡 O'rta
-                                {% elif item.question.difficulty == 'hard' %}🔴 Qiyin
-                                {% else %}⚪ Ekspert
-                                {% endif %}
-                            </span>
+                            <div class="test-question-meta">
+                                <span class="test-question-meta-label">{{ forloop.counter }} / {{ questions_data|length }} savol</span>
+                                <div class="test-question-label">
+                                    <span class="diff-dot {% if item.question.difficulty == 'easy' %}easy{% elif item.question.difficulty == 'medium' %}medium{% elif item.question.difficulty == 'hard' %}hard{% else %}expert{% endif %}"></span>
+                                    {% if item.question.difficulty == 'easy' %}Oson
+                                    {% elif item.question.difficulty == 'medium' %}O'rta
+                                    {% elif item.question.difficulty == 'hard' %}Qiyin
+                                    {% else %}Ekspert
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                         <div class="test-question-actions">
                             <button class="test-bookmark-btn {% if item.is_bookmarked %}active{% endif %}"
@@ -1089,13 +1463,14 @@
                                 <i class="bi bi-bookmark{% if item.is_bookmarked %}-fill{% endif %}"></i>
                                 Belgilash
                             </button>
-                            <button class="test-report-btn">
+                            <button class="test-report-btn" onclick="reportQuestion({{ item.question.id }})">
                                 <i class="bi bi-flag"></i>
                                 Xatolik
                             </button>
                         </div>
                     </div>
 
+                    <!-- Question Text -->
                     <div class="test-question-text">
                         {{ item.question.text|linebreaks }}
                         {% if item.question.image %}
@@ -1103,6 +1478,7 @@
                         {% endif %}
                     </div>
 
+                    <!-- Answer Options -->
                     <div class="test-answers">
                         {% for answer in item.answers %}
                         <div class="test-answer-option {% if item.user_answer and item.user_answer.selected_answer_id == answer.id %}selected{% endif %}"
@@ -1117,6 +1493,9 @@
                                 <img src="{{ answer.image.url }}" alt="Javob rasmi" style="max-width: 200px; margin-top: 0.5rem; border-radius: 4px;">
                                 {% endif %}
                             </div>
+                            <span class="test-answer-shortcut">
+                                {% if forloop.counter == 1 %}1{% elif forloop.counter == 2 %}2{% elif forloop.counter == 3 %}3{% elif forloop.counter == 4 %}4{% endif %}
+                            </span>
                         </div>
                         {% endfor %}
                     </div>
@@ -1126,58 +1505,19 @@
 
             <!-- Bottom Bar -->
             <div class="test-bottombar">
-                <div class="test-nav-info">
-                    <div class="test-nav-dropdown">
-                        <button class="test-nav-btn" onclick="toggleNavigator()">
-                            <span id="currentQuestionNum">1</span> / {{ questions_data|length }}
-                            <i class="bi bi-chevron-up"></i>
-                        </button>
-
-                        <!-- Question Navigator -->
-                        <div class="test-navigator" id="questionNavigator">
-                            <div class="test-navigator-header">
-                                <span class="test-navigator-title">Savollar</span>
-                                <button class="test-navigator-close" onclick="toggleNavigator()">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                            <div class="test-navigator-legend">
-                                <div class="test-navigator-legend-item">
-                                    <div class="test-navigator-legend-dot current"></div>
-                                    Joriy
-                                </div>
-                                <div class="test-navigator-legend-item">
-                                    <div class="test-navigator-legend-dot answered"></div>
-                                    Javob berilgan
-                                </div>
-                                <div class="test-navigator-legend-item">
-                                    <div class="test-navigator-legend-dot bookmarked"></div>
-                                    Belgilangan
-                                </div>
-                                <div class="test-navigator-legend-item">
-                                    <div class="test-navigator-legend-dot unanswered"></div>
-                                    Javobsiz
-                                </div>
-                            </div>
-                            <div class="test-navigator-grid" id="navigatorGrid">
-                                {% for item in questions_data %}
-                                <div class="test-navigator-item {% if forloop.counter0 == current_index %}current{% endif %} {% if item.user_answer %}answered{% endif %} {% if item.is_bookmarked %}bookmarked{% endif %}"
-                                     data-index="{{ forloop.counter0 }}"
-                                     onclick="goToQuestion({{ forloop.counter0 }})">
-                                    {{ forloop.counter }}
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
+                <div class="test-bottom-left">
+                    <span class="test-bottom-info">
+                        Savol <strong id="bottomCurrentNum">1</strong> / {{ questions_data|length }}
+                        &nbsp;·&nbsp; Klaviatura: <strong>1-4</strong> javob, <strong>←→</strong> navigatsiya, <strong>B</strong> belgilash
+                    </span>
                 </div>
 
                 <div class="test-bottom-actions">
                     <button class="test-action-btn ai" onclick="askAI()">
                         <i class="bi bi-stars"></i>
-                        AI Yordam
+                        <span>AI Yordam</span>
                     </button>
-                    <button class="test-action-btn secondary" id="prevBtn" onclick="prevQuestion()">
+                    <button class="test-action-btn secondary" id="prevBtn" onclick="prevQuestion()" disabled>
                         <i class="bi bi-chevron-left"></i>
                         Oldingi
                     </button>
@@ -1191,14 +1531,22 @@
     </div>
 </div>
 
-<!-- Finish Modal -->
+<!-- Mobile sidebar toggle -->
+<button class="sidebar-mobile-toggle" onclick="toggleMobileSidebar()">
+    <i class="bi bi-grid-3x3-gap-fill"></i>
+    Savollar
+    <span class="mob-count" id="mobileCount">0/{{ questions_data|length }}</span>
+</button>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+<!-- ========== FINISH MODAL ========== -->
 <div class="test-modal-overlay" id="finishModal">
     <div class="test-modal">
-        <div class="test-modal-icon">
-            <i class="bi bi-check-lg"></i>
-        </div>
+        <div class="test-modal-icon">⚠️</div>
         <h3>Testni yakunlaysizmi?</h3>
-        <p>Yakunlashdan so'ng javoblarni o'zgartira olmaysiz.</p>
+        <p>Yakunlagandan so'ng javoblarni o'zgartira olmaysiz.</p>
         <div class="test-modal-stats">
             <div class="test-modal-stat">
                 <div class="test-modal-stat-value" id="modalAnswered">0</div>
@@ -1208,13 +1556,17 @@
                 <div class="test-modal-stat-value" id="modalUnanswered">{{ questions_data|length }}</div>
                 <div class="test-modal-stat-label">Javobsiz</div>
             </div>
+            <div class="test-modal-stat">
+                <div class="test-modal-stat-value" id="modalBookmarked">0</div>
+                <div class="test-modal-stat-label">Belgilangan</div>
+            </div>
         </div>
         <div class="test-modal-actions">
-            <button class="test-modal-btn secondary" onclick="hideFinishModal()">
-                Bekor qilish
+            <button class="test-modal-btn-cancel" onclick="hideFinishModal()">
+                Davom etish
             </button>
-            <form action="{% url 'tests_app:test_play_finish' uuid=attempt.uuid %}" method="get" style="display:inline;">
-                <button type="submit" class="test-modal-btn primary">
+            <form action="{% url 'tests_app:test_play_finish' uuid=attempt.uuid %}" method="get" style="flex: 1;">
+                <button type="submit" class="test-modal-btn-confirm" style="width: 100%;">
                     Yakunlash
                 </button>
             </form>
@@ -1225,17 +1577,19 @@
 
 {% block extra_js %}
 <script>
+(function() {
     // ==========================================
     // GLOBAL VARIABLES
     // ==========================================
     const attemptUuid = '{{ attempt.uuid }}';
+    const csrfToken = '{{ csrf_token }}';
     const totalQuestions = {{ questions_data|length }};
     let currentIndex = {{ current_index }};
     let answeredQuestions = new Set();
     let bookmarkedQuestions = new Set();
     let questionStartTime = Date.now();
 
-    // Initialize answered questions
+    // Initialize answered & bookmarked sets from server data
     {% for item in questions_data %}
         {% if item.user_answer %}
         answeredQuestions.add({{ forloop.counter0 }});
@@ -1260,105 +1614,149 @@
 
         remainingSeconds--;
 
-        const minutes = Math.floor(remainingSeconds / 60);
+        const hours = Math.floor(remainingSeconds / 3600);
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
         const seconds = remainingSeconds % 60;
-        const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-        document.getElementById('timerDisplay').textContent = display;
+        // Top bar timer
+        const topDisplay = document.getElementById('timerDisplayTop');
+        if (topDisplay) {
+            if (hours > 0) {
+                topDisplay.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+                topDisplay.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
+            }
+        }
+
+        // Sidebar timer blocks
+        const sH = document.getElementById('sidebarTimerH');
+        const sM = document.getElementById('sidebarTimerM');
+        const sS = document.getElementById('sidebarTimerS');
+        if (sH) sH.textContent = String(hours).padStart(2, '0');
+        if (sM) sM.textContent = String(minutes).padStart(2, '0');
+        if (sS) sS.textContent = String(seconds).padStart(2, '0');
 
         // Warning states
-        const timerEl = document.getElementById('testTimer');
+        const timerTop = document.getElementById('testTimer');
+        const timerSidebar = document.getElementById('sidebarTimer');
+
         if (remainingSeconds <= 60) {
-            timerEl.classList.add('danger');
-            timerEl.classList.remove('warning');
+            if (timerTop) { timerTop.classList.add('danger'); timerTop.classList.remove('warning'); }
+            if (timerSidebar) { timerSidebar.classList.add('timer-danger'); timerSidebar.classList.remove('timer-warning'); }
         } else if (remainingSeconds <= 300) {
-            timerEl.classList.add('warning');
+            if (timerTop) timerTop.classList.add('warning');
+            if (timerSidebar) timerSidebar.classList.add('timer-warning');
         }
     }
 
-    // Format initial display
-    const initMinutes = Math.floor(remainingSeconds / 60);
-    const initSeconds = remainingSeconds % 60;
-    document.getElementById('timerDisplay').textContent = `${initMinutes}:${initSeconds.toString().padStart(2, '0')}`;
+    // Initial display
+    (function initTimer() {
+        const h = Math.floor(remainingSeconds / 3600);
+        const m = Math.floor((remainingSeconds % 3600) / 60);
+        const s = remainingSeconds % 60;
+
+        const topDisplay = document.getElementById('timerDisplayTop');
+        if (topDisplay) {
+            topDisplay.textContent = h > 0
+                ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                : `${m}:${String(s).padStart(2, '0')}`;
+        }
+
+        const sH = document.getElementById('sidebarTimerH');
+        const sM = document.getElementById('sidebarTimerM');
+        const sS = document.getElementById('sidebarTimerS');
+        if (sH) sH.textContent = String(h).padStart(2, '0');
+        if (sM) sM.textContent = String(m).padStart(2, '0');
+        if (sS) sS.textContent = String(s).padStart(2, '0');
+    })();
 
     setInterval(updateTimer, 1000);
     {% endif %}
 
     // ==========================================
-    // NAVIGATION
+    // QUESTION NAVIGATION (SPA)
     // ==========================================
     function showQuestion(index) {
-        // Hide all questions
-        document.querySelectorAll('.test-question-slide').forEach(slide => {
+        // Hide all question slides
+        document.querySelectorAll('.test-question-slide').forEach(function(slide) {
             slide.classList.add('d-none');
         });
 
-        // Show current question
-        const currentSlide = document.querySelector(`.test-question-slide[data-index="${index}"]`);
+        // Show target question
+        const currentSlide = document.querySelector('.test-question-slide[data-index="' + index + '"]');
         if (currentSlide) {
             currentSlide.classList.remove('d-none');
         }
 
-        // Update current index
+        // Update global index
         currentIndex = index;
-        document.getElementById('currentQuestionNum').textContent = index + 1;
 
-        // Update navigator
-        updateNavigator();
+        // Update bottom bar
+        document.getElementById('bottomCurrentNum').textContent = index + 1;
+
+        // Update sidebar grid
+        updateSidebarGrid();
 
         // Reset question timer
         questionStartTime = Date.now();
 
-        // Update buttons
-        document.getElementById('prevBtn').style.opacity = index === 0 ? '0.5' : '1';
-        document.getElementById('nextBtn').innerHTML = index === totalQuestions - 1
-            ? 'Yakunlash <i class="bi bi-check-lg"></i>'
-            : 'Keyingi <i class="bi bi-chevron-right"></i>';
+        // Update prev/next buttons
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        prevBtn.disabled = (index === 0);
+
+        if (index === totalQuestions - 1) {
+            nextBtn.innerHTML = 'Yakunlash <i class="bi bi-check-lg"></i>';
+        } else {
+            nextBtn.innerHTML = 'Keyingi <i class="bi bi-chevron-right"></i>';
+        }
+
+        // Scroll question content to top
+        var contentArea = document.querySelector('.test-question-content');
+        if (contentArea) contentArea.scrollTop = 0;
     }
 
-    function nextQuestion() {
+    window.nextQuestion = function() {
         if (currentIndex < totalQuestions - 1) {
             showQuestion(currentIndex + 1);
         } else {
             showFinishModal();
         }
-    }
+    };
 
-    function prevQuestion() {
+    window.prevQuestion = function() {
         if (currentIndex > 0) {
             showQuestion(currentIndex - 1);
         }
-    }
+    };
 
-    function goToQuestion(index) {
+    window.goToQuestion = function(index) {
         showQuestion(index);
-        toggleNavigator();
-    }
+        // Close mobile sidebar if open
+        closeMobileSidebar();
+    };
 
-    function updateNavigator() {
-        document.querySelectorAll('.test-navigator-item').forEach(item => {
-            const idx = parseInt(item.dataset.index);
-            item.classList.remove('current');
+    function updateSidebarGrid() {
+        document.querySelectorAll('.sidebar-q-btn').forEach(function(btn) {
+            var idx = parseInt(btn.dataset.index);
+            btn.classList.remove('current');
             if (idx === currentIndex) {
-                item.classList.add('current');
+                btn.classList.add('current');
             }
         });
-    }
-
-    function toggleNavigator() {
-        document.getElementById('questionNavigator').classList.toggle('show');
     }
 
     // ==========================================
     // ANSWER SELECTION
     // ==========================================
-    function selectAnswer(questionIndex, answerId, element) {
-        const slide = element.closest('.test-question-slide');
-        const questionId = slide.dataset.questionId;
-        const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+    window.selectAnswer = function(questionIndex, answerId, element) {
+        var slide = element.closest('.test-question-slide');
+        var questionId = slide.dataset.questionId;
+        var timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
 
-        // Update UI
-        slide.querySelectorAll('.test-answer-option').forEach(opt => {
+        // Update UI — deselect others
+        slide.querySelectorAll('.test-answer-option').forEach(function(opt) {
             opt.classList.remove('selected');
         });
         element.classList.add('selected');
@@ -1367,18 +1765,18 @@
         answeredQuestions.add(questionIndex);
         updateProgress();
 
-        // Update navigator item
-        const navItem = document.querySelector(`.test-navigator-item[data-index="${questionIndex}"]`);
-        if (navItem) {
-            navItem.classList.add('answered');
+        // Update sidebar grid
+        var sidebarBtn = document.querySelector('.sidebar-q-btn[data-index="' + questionIndex + '"]');
+        if (sidebarBtn) {
+            sidebarBtn.classList.add('answered');
         }
 
-        // Send to server
-        fetch(`/tests/play/${attemptUuid}/submit/`, {
+        // Send to server via AJAX
+        fetch('/tests/play/' + attemptUuid + '/submit/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({
                 question_id: questionId,
@@ -1386,27 +1784,34 @@
                 time_spent: timeSpent,
                 current_index: questionIndex
             })
-        }).then(response => response.json())
-        .then(data => {
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             console.log('Answer saved:', data);
-        }).catch(error => {
+        })
+        .catch(function(error) {
             console.error('Error saving answer:', error);
         });
-    }
+    };
 
     // ==========================================
-    // PROGRESS
+    // PROGRESS UPDATE
     // ==========================================
     function updateProgress() {
-        const answered = answeredQuestions.size;
-        const percentage = (answered / totalQuestions) * 100;
+        var answered = answeredQuestions.size;
+        var percentage = Math.round((answered / totalQuestions) * 100);
 
         document.getElementById('answeredCount').textContent = answered;
-        document.getElementById('progressFill').style.width = `${percentage}%`;
+        document.getElementById('progressFill').style.width = percentage + '%';
 
-        // Update modal stats
+        // Mobile counter
+        var mobileCount = document.getElementById('mobileCount');
+        if (mobileCount) mobileCount.textContent = answered + '/' + totalQuestions;
+
+        // Modal stats
         document.getElementById('modalAnswered').textContent = answered;
         document.getElementById('modalUnanswered').textContent = totalQuestions - answered;
+        document.getElementById('modalBookmarked').textContent = bookmarkedQuestions.size;
     }
 
     // Initialize progress
@@ -1415,14 +1820,15 @@
     // ==========================================
     // BOOKMARK
     // ==========================================
-    function toggleBookmark(questionId, button) {
-        fetch(`/tests/api/play/${attemptUuid}/bookmark/${questionId}/`, {
+    window.toggleBookmark = function(questionId, button) {
+        fetch('/tests/api/play/' + attemptUuid + '/bookmark/' + questionId + '/', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': csrfToken
             }
-        }).then(response => response.json())
-        .then(data => {
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             if (data.is_bookmarked) {
                 button.classList.add('active');
                 button.querySelector('i').classList.remove('bi-bookmark');
@@ -1435,44 +1841,92 @@
                 bookmarkedQuestions.delete(questionId);
             }
 
-            // Update navigator
-            const navItem = document.querySelector(`.test-navigator-item[data-index="${currentIndex}"]`);
-            if (navItem) {
-                navItem.classList.toggle('bookmarked', data.is_bookmarked);
+            // Update sidebar grid
+            var sidebarBtn = document.querySelector('.sidebar-q-btn[data-index="' + currentIndex + '"]');
+            if (sidebarBtn) {
+                if (data.is_bookmarked) {
+                    sidebarBtn.classList.add('bookmarked');
+                } else {
+                    sidebarBtn.classList.remove('bookmarked');
+                }
             }
+
+            // Update modal
+            document.getElementById('modalBookmarked').textContent = bookmarkedQuestions.size;
+        })
+        .catch(function(error) {
+            console.error('Bookmark error:', error);
         });
-    }
+    };
 
     // ==========================================
     // TOOLS PANEL
     // ==========================================
-    function toggleToolsPanel() {
-        const panel = document.getElementById('toolsPanel');
-        const btn = document.getElementById('toggleTools');
+    window.toggleToolsPanel = function() {
+        var panel = document.getElementById('toolsPanel');
+        var btn = document.getElementById('toggleTools');
 
-        panel.classList.toggle('collapsed');
-        btn.classList.toggle('active');
-    }
+        if (panel) {
+            panel.classList.toggle('collapsed');
+            if (btn) btn.classList.toggle('active');
+        }
+    };
 
-    // Tool tabs
-    document.querySelectorAll('.test-tools-tab').forEach(tab => {
+    // Tool tabs switching
+    document.querySelectorAll('.test-tools-tab').forEach(function(tab) {
         tab.addEventListener('click', function() {
-            const toolId = this.dataset.tool;
+            var toolId = this.dataset.tool;
 
             // Update tabs
-            document.querySelectorAll('.test-tools-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.test-tools-tab').forEach(function(t) {
+                t.classList.remove('active');
+            });
             this.classList.add('active');
 
             // Update content
-            document.querySelectorAll('.test-tool-view').forEach(v => v.classList.add('d-none'));
-            document.getElementById(`tool-${toolId}`).classList.remove('d-none');
+            document.querySelectorAll('.test-tool-view').forEach(function(v) {
+                v.classList.add('d-none');
+            });
+            var toolView = document.getElementById('tool-' + toolId);
+            if (toolView) toolView.classList.remove('d-none');
         });
     });
 
     // Toggle tools button
-    const toggleToolsBtn = document.getElementById('toggleTools');
+    var toggleToolsBtn = document.getElementById('toggleTools');
     if (toggleToolsBtn) {
         toggleToolsBtn.addEventListener('click', toggleToolsPanel);
+    }
+
+    // ==========================================
+    // SIDEBAR TOGGLE (Desktop)
+    // ==========================================
+    var toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', function() {
+            var sidebar = document.getElementById('testSidebar');
+            sidebar.classList.toggle('collapsed');
+            this.classList.toggle('active');
+        });
+    }
+
+    // ==========================================
+    // MOBILE SIDEBAR
+    // ==========================================
+    window.toggleMobileSidebar = function() {
+        var sidebar = document.getElementById('testSidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('mobile-show');
+        overlay.classList.toggle('show');
+        document.body.style.overflow = sidebar.classList.contains('mobile-show') ? 'hidden' : '';
+    };
+
+    function closeMobileSidebar() {
+        var sidebar = document.getElementById('testSidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.remove('mobile-show');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
     }
 
     // ==========================================
@@ -1480,7 +1934,7 @@
     // ==========================================
     document.getElementById('toggleFullscreen').addEventListener('click', function() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
+            document.documentElement.requestFullscreen().catch(function(err) {
                 console.log('Fullscreen error:', err);
             });
             this.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
@@ -1493,54 +1947,92 @@
     // ==========================================
     // FINISH MODAL
     // ==========================================
-    function showFinishModal() {
+    window.showFinishModal = function() {
+        updateProgress(); // ensure latest stats
         document.getElementById('finishModal').classList.add('show');
-    }
+    };
 
-    function hideFinishModal() {
+    window.hideFinishModal = function() {
         document.getElementById('finishModal').classList.remove('show');
-    }
+    };
 
-    function confirmExit() {
+    // Close modal on ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('finishModal').classList.contains('show')) {
+            hideFinishModal();
+        }
+    });
+
+    // ==========================================
+    // CONFIRM EXIT
+    // ==========================================
+    window.confirmExit = function() {
         return confirm('Testni tark etmoqchimisiz? Barcha javoblaringiz saqlanadi.');
-    }
+    };
 
     // ==========================================
     // AI HELP
     // ==========================================
-    function askAI() {
-        // Open AI mentor in new tab or modal
+    window.askAI = function() {
         window.open('{% url "ai_core:ai_mentor" %}', '_blank');
-    }
+    };
+
+    // ==========================================
+    // REPORT QUESTION
+    // ==========================================
+    window.reportQuestion = function(questionId) {
+        if (confirm("Bu savoldagi xatolikni xabar qilmoqchimisiz?")) {
+            alert("Rahmat! Xabar qabul qilindi. Tez orada tekshiramiz.");
+            // TODO: Send report to server
+        }
+    };
 
     // ==========================================
     // KEYBOARD SHORTCUTS
     // ==========================================
     document.addEventListener('keydown', function(e) {
+        // Don't handle if modal is open
+        if (document.getElementById('finishModal').classList.contains('show')) {
+            return;
+        }
+
         // Arrow keys for navigation
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
             nextQuestion();
         } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
             prevQuestion();
         }
 
-        // Number keys for answers (1-4)
+        // Number keys 1-4 for answers
         if (['1', '2', '3', '4'].includes(e.key)) {
-            const answerIndex = parseInt(e.key) - 1;
-            const currentSlide = document.querySelector(`.test-question-slide[data-index="${currentIndex}"]`);
-            const answers = currentSlide.querySelectorAll('.test-answer-option');
-            if (answers[answerIndex]) {
-                answers[answerIndex].click();
+            var answerIndex = parseInt(e.key) - 1;
+            var currentSlide = document.querySelector('.test-question-slide[data-index="' + currentIndex + '"]');
+            if (currentSlide) {
+                var answers = currentSlide.querySelectorAll('.test-answer-option');
+                if (answers[answerIndex]) {
+                    answers[answerIndex].click();
+                }
             }
         }
 
-        // B for bookmark
-        if (e.key === 'b' || e.key === 'B') {
-            const currentSlide = document.querySelector(`.test-question-slide[data-index="${currentIndex}"]`);
-            const bookmarkBtn = currentSlide.querySelector('.test-bookmark-btn');
-            if (bookmarkBtn) {
-                const questionId = currentSlide.dataset.questionId;
-                toggleBookmark(questionId, bookmarkBtn);
+        // A, B, C, D keys for answers
+        var letterMap = {'A': 0, 'B': 1, 'C': 2, 'D': 3};
+        var upperKey = e.key.toUpperCase();
+        if (upperKey in letterMap && upperKey !== 'B') { // B is reserved for bookmark below when standalone
+            // Only trigger if not combined with other intent
+        }
+
+        // B for bookmark (only lowercase b without shift)
+        if (e.key === 'b' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+            var currentSlide = document.querySelector('.test-question-slide[data-index="' + currentIndex + '"]');
+            if (currentSlide) {
+                var bookmarkBtn = currentSlide.querySelector('.test-bookmark-btn');
+                if (bookmarkBtn) {
+                    var questionId = parseInt(currentSlide.dataset.questionId);
+                    toggleBookmark(questionId, bookmarkBtn);
+                }
             }
         }
     });
@@ -1548,20 +2040,33 @@
     // ==========================================
     // ANTI-CHEAT (Basic)
     // ==========================================
-    // Disable right-click
-    document.addEventListener('contextmenu', e => e.preventDefault());
+    // Disable right-click on test area
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
 
     // Disable copy
-    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+    });
 
-    // Disable text selection on questions
-    document.querySelectorAll('.test-question-text, .test-answer-text').forEach(el => {
+    // Disable text selection on question/answer text (CSS handles this too)
+    document.querySelectorAll('.test-question-text, .test-answer-text').forEach(function(el) {
         el.style.userSelect = 'none';
+        el.style.webkitUserSelect = 'none';
+    });
+
+    // Warn before leaving
+    window.addEventListener('beforeunload', function(e) {
+        e.preventDefault();
+        e.returnValue = '';
     });
 
     // ==========================================
     // INITIALIZE
     // ==========================================
     showQuestion(currentIndex);
+
+})();
 </script>
 {% endblock %}
