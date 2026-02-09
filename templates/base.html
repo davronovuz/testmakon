@@ -97,18 +97,19 @@
 
         /* ========== NAVBAR ========== */
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--gray-200);
-            padding: 1rem 0;
+            padding: 0.75rem 0;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 1050;
         }
 
         .navbar-brand {
             font-weight: 900;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             color: var(--dark) !important;
             display: flex;
             align-items: center;
@@ -116,31 +117,32 @@
         }
 
         .navbar-brand .logo-icon {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             background: var(--gradient-primary);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             box-shadow: var(--shadow-primary);
         }
 
+        /* Nav Links */
         .nav-link {
             color: var(--dark-600) !important;
             font-weight: 600;
-            font-size: 0.95rem;
-            padding: 0.6rem 1.1rem !important;
+            font-size: 0.9rem;
+            padding: 0.55rem 1rem !important;
             border-radius: var(--radius);
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             position: relative;
         }
 
         .nav-link:hover {
             color: var(--primary) !important;
-            background: var(--primary-glow);
+            background: rgba(139, 197, 64, 0.08);
         }
 
         .nav-link.active {
@@ -157,6 +159,242 @@
             height: 3px;
             background: var(--primary);
             border-radius: 2px;
+        }
+
+        /* ========== CUSTOM DROPDOWN ========== */
+        .nav-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            cursor: pointer;
+        }
+
+        .nav-dropdown-toggle .chevron {
+            font-size: 0.65rem;
+            transition: transform 0.25s ease;
+            opacity: 0.5;
+        }
+
+        .nav-dropdown:hover .chevron,
+        .nav-dropdown.show .chevron {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+
+        .nav-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(6px);
+            min-width: 240px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 0.5rem;
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1060;
+        }
+
+        .nav-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 12px;
+            height: 12px;
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            border-left: 1px solid var(--gray-200);
+            border-radius: 3px 0 0 0;
+        }
+
+        /* Invisible hover bridge between toggle and menu */
+        .nav-dropdown::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            height: 12px;
+            opacity: 0;
+        }
+
+        .nav-dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown.show .nav-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 12px;
+            color: var(--dark-600);
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-dropdown-item:hover {
+            background: rgba(139, 197, 64, 0.08);
+            color: var(--primary-dark);
+            transform: translateX(3px);
+        }
+
+        .nav-dropdown-item.active {
+            background: rgba(139, 197, 64, 0.1);
+            color: var(--primary-dark);
+        }
+
+        .dropdown-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .dropdown-icon-green {
+            background: rgba(139, 197, 64, 0.12);
+            color: var(--primary-dark);
+        }
+
+        .dropdown-icon-blue {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563EB;
+        }
+
+        .dropdown-icon-amber {
+            background: rgba(245, 158, 11, 0.1);
+            color: #D97706;
+        }
+
+        .dropdown-icon-purple {
+            background: rgba(139, 92, 246, 0.1);
+            color: #7C3AED;
+        }
+
+        .dropdown-icon-teal {
+            background: rgba(20, 184, 166, 0.1);
+            color: #0D9488;
+        }
+
+        .dropdown-icon-red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #DC2626;
+        }
+
+        .dropdown-item-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dropdown-item-label {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+
+        .dropdown-item-desc {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 500;
+            line-height: 1.3;
+            margin-top: 1px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 0.35rem 0.5rem;
+        }
+
+        /* ========== MOBILE NAVBAR ========== */
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.3rem;
+            color: var(--dark);
+            background: none;
+        }
+
+        .navbar-toggler:focus { box-shadow: none; }
+
+        @media (max-width: 991px) {
+            .navbar { padding: 0.6rem 0; }
+
+            .navbar-collapse {
+                background: var(--white);
+                border-radius: 16px;
+                border: 1px solid var(--gray-200);
+                box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.12);
+                padding: 1rem;
+                margin-top: 0.75rem;
+            }
+
+            .nav-dropdown-menu {
+                position: static;
+                transform: none;
+                opacity: 1;
+                visibility: visible;
+                box-shadow: none;
+                border: none;
+                border-radius: 12px;
+                background: var(--gray-50);
+                padding: 0.35rem;
+                margin-top: 0.25rem;
+                display: none;
+                min-width: 100%;
+            }
+
+            .nav-dropdown-menu::before { display: none; }
+
+            .nav-dropdown.show .nav-dropdown-menu {
+                display: block;
+            }
+
+            /* On mobile, don't show on hover — only on click */
+            .nav-dropdown:hover .nav-dropdown-menu {
+                opacity: 0;
+                visibility: hidden;
+                display: none;
+            }
+
+            .nav-dropdown.show .nav-dropdown-menu {
+                opacity: 1;
+                visibility: visible;
+                display: block;
+            }
+
+            .nav-dropdown-item {
+                padding: 0.6rem 0.75rem;
+            }
+
+            .nav-dropdown::after { display: none; }
+
+            .navbar-nav { gap: 0.15rem; }
+
+            .nav-auth {
+                border-top: 1px solid var(--gray-200);
+                padding-top: 0.75rem;
+                margin-top: 0.5rem;
+            }
         }
 
         /* ========== BUTTONS ========== */
@@ -183,9 +421,7 @@
             color: var(--white);
         }
 
-        .btn-primary:active {
-            transform: translateY(0);
-        }
+        .btn-primary:active { transform: translateY(0); }
 
         .btn-dark {
             background: var(--gradient-dark);
@@ -339,7 +575,6 @@
             box-shadow: var(--shadow-primary);
         }
 
-
         /* ========== SYSTEM BANNER ========== */
         .system-banner {
             position: relative;
@@ -350,35 +585,13 @@
             white-space: nowrap;
         }
 
-        .system-banner-info {
-            background: var(--dark);
-            color: var(--gray-300);
-        }
+        .system-banner-info { background: var(--dark); color: var(--gray-300); }
+        .system-banner-warning { background: #FEF3C7; color: #92400E; }
+        .system-banner-success { background: var(--primary); color: var(--white); }
+        .system-banner-danger { background: #FEE2E2; color: #991B1B; }
+        .system-banner-promo { background: var(--gradient-primary); color: var(--white); }
 
-        .system-banner-warning {
-            background: #FEF3C7;
-            color: #92400E;
-        }
-
-        .system-banner-success {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .system-banner-danger {
-            background: #FEE2E2;
-            color: #991B1B;
-        }
-
-        .system-banner-promo {
-            background: var(--gradient-primary);
-            color: var(--white);
-        }
-
-        .banner-track {
-            overflow: hidden;
-            width: 100%;
-        }
+        .banner-track { overflow: hidden; width: 100%; }
 
         .banner-content {
             display: inline-flex;
@@ -392,9 +605,7 @@
             margin-left: 8px;
         }
 
-        .banner-scroll {
-            animation: bannerScroll 15s linear infinite;
-        }
+        .banner-scroll { animation: bannerScroll 15s linear infinite; }
 
         @keyframes bannerScroll {
             0% { transform: translateX(100vw); }
@@ -419,11 +630,7 @@
             transition: background 0.2s;
         }
 
-        .banner-close:hover {
-            background: rgba(255,255,255,0.25);
-        }
-
-
+        .banner-close:hover { background: rgba(255,255,255,0.25); }
 
         /* ========== FOOTER ========== */
         .footer {
@@ -506,26 +713,10 @@
             border-left: 4px solid;
         }
 
-        .alert-success {
-            background: #D1FAE5;
-            color: #065F46;
-            border-left-color: #10B981;
-        }
-        .alert-danger {
-            background: #FEE2E2;
-            color: #991B1B;
-            border-left-color: #EF4444;
-        }
-        .alert-warning {
-            background: #FEF3C7;
-            color: #92400E;
-            border-left-color: #F59E0B;
-        }
-        .alert-info {
-            background: #DBEAFE;
-            color: #1E40AF;
-            border-left-color: #3B82F6;
-        }
+        .alert-success { background: #D1FAE5; color: #065F46; border-left-color: #10B981; }
+        .alert-danger { background: #FEE2E2; color: #991B1B; border-left-color: #EF4444; }
+        .alert-warning { background: #FEF3C7; color: #92400E; border-left-color: #F59E0B; }
+        .alert-info { background: #DBEAFE; color: #1E40AF; border-left-color: #3B82F6; }
 
         /* ========== SECTIONS ========== */
         .section { padding: 6rem 0; }
@@ -543,9 +734,7 @@
         .bg-gradient-primary { background: var(--gradient-primary) !important; }
         .bg-dark { background: var(--dark) !important; }
 
-        .glow-primary {
-            box-shadow: var(--shadow-primary);
-        }
+        .glow-primary { box-shadow: var(--shadow-primary); }
 
         /* Page wrapper */
         .page-wrapper {
@@ -562,9 +751,7 @@
             50% { transform: translateY(-10px); }
         }
 
-        .float-animation {
-            animation: float 3s ease-in-out infinite;
-        }
+        .float-animation { animation: float 3s ease-in-out infinite; }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -589,50 +776,105 @@
                     TestMakon
                 </a>
 
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Navigatsiya">
                     <i class="bi bi-list fs-4"></i>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
+                        <!-- Bosh sahifa -->
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">Bosh sahifa</a>
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">
+                                Bosh sahifa
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'tests' in request.path %}active{% endif %}" href="{% url 'tests_app:tests_list' %}">Testlar</a>
+
+                        <!-- Tayyorgarlik dropdown -->
+                        <li class="nav-item nav-dropdown" id="dropdownPrep">
+                            <a class="nav-link nav-dropdown-toggle {% if 'tests' in request.path or 'ai-mentor' in request.path or 'competitions' in request.path %}active{% endif %}" href="javascript:void(0)">
+                                Tayyorgarlik <i class="bi bi-chevron-down chevron"></i>
+                            </a>
+                            <div class="nav-dropdown-menu">
+                                <a href="{% url 'tests_app:tests_list' %}" class="nav-dropdown-item {% if 'tests' in request.path %}active{% endif %}">
+                                    <div class="dropdown-icon dropdown-icon-green">
+                                        <i class="bi bi-lightning-charge-fill"></i>
+                                    </div>
+                                    <div class="dropdown-item-text">
+                                        <span class="dropdown-item-label">Testlar</span>
+                                        <span class="dropdown-item-desc">Fanlar bo'yicha test yeching</span>
+                                    </div>
+                                </a>
+                                <a href="{% url 'ai_core:ai_mentor' %}" class="nav-dropdown-item {% if 'ai-mentor' in request.path %}active{% endif %}">
+                                    <div class="dropdown-icon dropdown-icon-blue">
+                                        <i class="bi bi-robot"></i>
+                                    </div>
+                                    <div class="dropdown-item-text">
+                                        <span class="dropdown-item-label">AI Mentor</span>
+                                        <span class="dropdown-item-desc">24/7 shaxsiy o'qituvchi</span>
+                                    </div>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'competitions:competitions_list' %}" class="nav-dropdown-item {% if 'competitions' in request.path %}active{% endif %}">
+                                    <div class="dropdown-icon dropdown-icon-amber">
+                                        <i class="bi bi-trophy-fill"></i>
+                                    </div>
+                                    <div class="dropdown-item-text">
+                                        <span class="dropdown-item-label">Musobaqalar</span>
+                                        <span class="dropdown-item-desc">Do'stlar bilan bellashing</span>
+                                    </div>
+                                </a>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'ai-mentor' in request.path %}active{% endif %}" href="{% url 'ai_core:ai_mentor' %}">AI Mentor</a>
+
+                        <!-- Natijalar dropdown -->
+                        <li class="nav-item nav-dropdown" id="dropdownResults">
+                            <a class="nav-link nav-dropdown-toggle {% if 'leaderboard' in request.path or 'universities' in request.path %}active{% endif %}" href="javascript:void(0)">
+                                Natijalar <i class="bi bi-chevron-down chevron"></i>
+                            </a>
+                            <div class="nav-dropdown-menu">
+                                <a href="{% url 'leaderboard:global_leaderboard' %}" class="nav-dropdown-item {% if 'leaderboard' in request.path %}active{% endif %}">
+                                    <div class="dropdown-icon dropdown-icon-teal">
+                                        <i class="bi bi-bar-chart-fill"></i>
+                                    </div>
+                                    <div class="dropdown-item-text">
+                                        <span class="dropdown-item-label">Reyting</span>
+                                        <span class="dropdown-item-desc">O'zbekiston bo'ylab o'rningiz</span>
+                                    </div>
+                                </a>
+                                <a href="{% url 'universities:universities_list' %}" class="nav-dropdown-item {% if 'universities' in request.path %}active{% endif %}">
+                                    <div class="dropdown-icon dropdown-icon-purple">
+                                        <i class="bi bi-mortarboard-fill"></i>
+                                    </div>
+                                    <div class="dropdown-item-text">
+                                        <span class="dropdown-item-label">Universitetlar</span>
+                                        <span class="dropdown-item-desc">O'tish ballari va yo'nalishlar</span>
+                                    </div>
+                                </a>
+                            </div>
                         </li>
+
+                        <!-- Yangiliklar -->
                         <li class="nav-item">
-                            <a class="nav-link {% if 'competitions' in request.path %}active{% endif %}" href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'leaderboard' in request.path %}active{% endif %}" href="{% url 'leaderboard:global_leaderboard' %}">Reyting</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'universities' in request.path %}active{% endif %}" href="{% url 'universities:universities_list' %}">Universitetlar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'news' in request.path %}active{% endif %}" href="{% url 'news:news_list' %}">Yangiliklar</a>
+                            <a class="nav-link {% if 'news' in request.path %}active{% endif %}" href="{% url 'news:news_list' %}">
+                                Yangiliklar
+                            </a>
                         </li>
                     </ul>
 
-                    <div class="d-flex align-items-center gap-2">
+                    <!-- Auth buttons -->
+                    <div class="d-flex align-items-center gap-2 nav-auth">
                         {% if user.is_authenticated %}
                             <a href="{% url 'accounts:profile' %}" class="btn btn-light btn-sm">
                                 <i class="bi bi-person-circle me-1"></i>{{ user.first_name }}
                             </a>
                             <a href="{% url 'accounts:logout' %}" class="btn btn-dark btn-sm">Chiqish</a>
                         {% else %}
-                            <a href="{% url 'accounts:login' %}" class="btn btn-light">Kirish</a>
-                            <a href="{% url 'accounts:register' %}" class="btn btn-primary">Ro'yxatdan o'tish</a>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-sm">Kirish</a>
+                            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Ro'yxatdan o'tish</a>
                         {% endif %}
                     </div>
                 </div>
             </div>
-        </nav>
-
         </nav>
 
         <!-- System Banner -->
@@ -653,8 +895,6 @@
         </div>
         {% endfor %}
         {% endif %}
-
-<!-- Messages -->
 
         <!-- Messages -->
         {% if messages %}
@@ -734,7 +974,7 @@
 
                 <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
                     <p class="mb-0 small">© 2026 TestMakon. Barcha huquqlar himoyalangan.</p>
-                    <p class="mb-0 small">Made with <i class="bi bi-heart-fill text-danger"></i> in Uzbekistan </p>
+                    <p class="mb-0 small">Made with <i class="bi bi-heart-fill text-danger"></i> in Uzbekistan</p>
                 </div>
             </div>
         </footer>
@@ -742,7 +982,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
+
+    <script>
+    // Banner close
     function closeBanner(id) {
         document.getElementById('banner-' + id).style.display = 'none';
         localStorage.setItem('banner_' + id, 'closed');
@@ -750,6 +992,36 @@
     document.querySelectorAll('.system-banner').forEach(b => {
         const id = b.id.replace('banner-', '');
         if (localStorage.getItem('banner_' + id) === 'closed') b.style.display = 'none';
+    });
+
+    // Dropdown toggle for mobile
+    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            // Only handle click behavior on mobile
+            if (window.innerWidth < 992) {
+                e.preventDefault();
+                const parent = this.closest('.nav-dropdown');
+                // Close other dropdowns
+                document.querySelectorAll('.nav-dropdown').forEach(d => {
+                    if (d !== parent) d.classList.remove('show');
+                });
+                parent.classList.toggle('show');
+            }
+        });
+    });
+
+    // Close dropdowns when clicking outside (mobile)
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth < 992 && !e.target.closest('.nav-dropdown')) {
+            document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('show'));
+        }
+    });
+
+    // Reset on resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 992) {
+            document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('show'));
+        }
     });
     </script>
 
