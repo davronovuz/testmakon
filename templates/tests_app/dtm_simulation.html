@@ -5,15 +5,11 @@
 
 {% block extra_css %}
 <style>
-    /* ========== PAGE ========== */
-    .dtm-page {
-        padding-bottom: 4rem;
-    }
+    .dtm-page { padding-bottom: 4rem; }
 
-    /* ========== HERO ========== */
     .dtm-hero {
         background: var(--gradient-dark);
-        padding: 3rem 0;
+        padding: 2.5rem 0;
         color: white;
         position: relative;
         overflow: hidden;
@@ -36,472 +32,126 @@
         gap: 2rem;
     }
 
-    .dtm-hero-text h1 {
-        font-size: 2rem;
-        font-weight: 900;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
+    .dtm-hero-text h1 { font-size: 2rem; font-weight: 900; color: white; margin-bottom: 0.4rem; }
+    .dtm-hero-text p { font-size: 0.95rem; color: var(--gray-400); margin: 0; }
 
-    .dtm-hero-text p {
-        font-size: 1rem;
-        color: var(--gray-400);
-        margin: 0;
-        max-width: 500px;
-    }
+    .dtm-hero-nums { display: flex; gap: 1rem; flex-shrink: 0; }
 
-    .dtm-hero-badges {
-        display: flex;
-        gap: 1rem;
-        flex-shrink: 0;
-    }
-
-    .dtm-hero-badge {
+    .dtm-hero-num {
         text-align: center;
-        padding: 0.85rem 1.25rem;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        backdrop-filter: blur(8px);
+        padding: 0.75rem 1.15rem;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
     }
 
-    .dtm-hero-badge-num {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: white;
-        line-height: 1;
-    }
+    .dtm-hero-num strong { display: block; font-size: 1.4rem; font-weight: 900; color: white; line-height: 1; }
+    .dtm-hero-num span { font-size: 0.7rem; color: var(--gray-400); font-weight: 600; }
 
-    .dtm-hero-badge-label {
-        font-size: 0.72rem;
-        color: var(--gray-400);
-        font-weight: 600;
-        margin-top: 0.25rem;
-    }
-
-    /* ========== STEPS CONTAINER ========== */
-    .dtm-steps {
-        padding: 2.5rem 0;
-    }
-
-    /* ========== STEP LABEL ========== */
-    .step-label {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .step-num {
-        width: 32px;
-        height: 32px;
-        background: var(--dark);
-        color: white;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 800;
-        flex-shrink: 0;
-    }
-
-    .step-num.done {
-        background: var(--primary);
-    }
-
-    .step-text {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--dark);
-    }
-
-    .step-text span {
-        font-weight: 600;
-        color: var(--gray-500);
-        font-size: 0.88rem;
-    }
-
-    /* ========== MANDATORY SUBJECTS ========== */
-    .mandatory-card {
+    /* Card */
+    .dtm-card {
+        max-width: 600px;
+        margin: 2.5rem auto 0;
         background: var(--white);
         border: 1px solid var(--gray-200);
-        border-radius: 20px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px -15px rgba(0,0,0,0.08);
     }
 
-    .mandatory-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+    .dtm-card-body { padding: 2rem; }
+
+    .dtm-section { margin-bottom: 1.75rem; }
+    .dtm-section:last-child { margin-bottom: 0; }
+
+    .dtm-section-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.85rem;
     }
+
+    .mandatory-list { display: flex; flex-direction: column; gap: 0.6rem; }
 
     .mandatory-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
+        justify-content: space-between;
+        padding: 0.85rem 1rem;
         background: var(--gray-50);
-        border: 2px solid var(--gray-200);
-        border-radius: 14px;
-        position: relative;
+        border: 1px solid var(--gray-200);
+        border-radius: 12px;
     }
+
+    .mandatory-item-left { display: flex; align-items: center; gap: 0.75rem; }
 
     .mandatory-item-icon {
-        width: 46px;
-        height: 46px;
+        width: 38px; height: 38px;
         background: var(--white);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        flex-shrink: 0;
-        box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.15rem;
+        box-shadow: 0 2px 6px -2px rgba(0,0,0,0.06);
     }
 
-    .mandatory-item-info h4 {
-        font-size: 0.92rem;
-        font-weight: 800;
+    .mandatory-item-name { font-size: 0.92rem; font-weight: 700; color: var(--dark); }
+
+    .mandatory-item-right {
+        display: flex; align-items: center; gap: 0.5rem;
+        font-size: 0.78rem; color: var(--gray-400); font-weight: 600;
+    }
+
+    .dtm-divider { height: 1px; background: var(--gray-200); margin: 1.5rem 0; }
+
+    .dtm-select-group { margin-bottom: 1rem; }
+    .dtm-select-group:last-child { margin-bottom: 0; }
+
+    .dtm-select-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
         color: var(--dark);
-        margin: 0 0 0.15rem;
+        margin-bottom: 0.5rem;
     }
 
-    .mandatory-item-info span {
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--gray-500);
-    }
-
-    .mandatory-lock {
-        position: absolute;
-        top: 0.6rem;
-        right: 0.6rem;
-        font-size: 0.75rem;
-        color: var(--gray-400);
-    }
-
-    /* ========== ELECTIVE SUBJECTS ========== */
-    .elective-section {
-        margin-bottom: 2rem;
-    }
-
-    /* Preset Blocks */
-    .preset-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .preset-card {
+    .dtm-select {
+        width: 100%;
+        padding: 0.85rem 1rem;
         background: var(--white);
         border: 2px solid var(--gray-200);
-        border-radius: 16px;
-        padding: 1.25rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%236B7280' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
+        transition: all 0.2s ease;
     }
 
-    .preset-card:hover {
-        border-color: var(--primary-light);
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.1);
-    }
-
-    .preset-card.selected {
+    .dtm-select:focus {
+        outline: none;
         border-color: var(--primary);
-        background: rgba(139, 197, 64, 0.04);
         box-shadow: 0 0 0 3px rgba(139, 197, 64, 0.15);
     }
 
-    .preset-card.selected::after {
-        content: '✓';
-        position: absolute;
-        top: 0.75rem;
-        right: 0.75rem;
-        width: 24px;
-        height: 24px;
-        background: var(--primary);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: 800;
-    }
+    .dtm-select option[value=""] { color: var(--gray-400); }
+    .dtm-select option { color: var(--dark); font-weight: 600; }
+    .dtm-select.error { border-color: #EF4444; }
 
-    .preset-icons {
-        display: flex;
-        gap: 0.35rem;
-        margin-bottom: 0.75rem;
+    .dtm-error-msg {
+        font-size: 0.78rem; color: #EF4444; font-weight: 600;
+        margin-top: 0.35rem; display: none;
     }
+    .dtm-error-msg.show { display: block; }
 
-    .preset-icons span {
-        width: 36px;
-        height: 36px;
-        background: var(--gray-100);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-    }
-
-    .preset-card h3 {
-        font-size: 0.95rem;
-        font-weight: 800;
-        margin: 0 0 0.25rem;
-    }
-
-    .preset-card p {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-        margin: 0;
-        font-weight: 600;
-    }
-
-    /* Divider */
-    .divider-or {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        color: var(--gray-400);
-        font-size: 0.82rem;
-        font-weight: 700;
-    }
-
-    .divider-or::before,
-    .divider-or::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: var(--gray-200);
-    }
-
-    /* Manual Subject Selection */
-    .manual-select-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 20px;
-        padding: 1.5rem;
-    }
-
-    .manual-label {
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 1rem;
-    }
-
-    .manual-subjects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.75rem;
-    }
-
-    .subject-option {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.85rem 1rem;
-        background: var(--gray-50);
-        border: 2px solid var(--gray-200);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        user-select: none;
-    }
-
-    .subject-option:hover {
-        background: var(--gray-100);
-        border-color: var(--gray-300);
-    }
-
-    .subject-option.selected {
-        border-color: var(--primary);
-        background: rgba(139, 197, 64, 0.06);
-    }
-
-    .subject-option.disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-
-    .subject-option-check {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--gray-300);
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all 0.2s;
-    }
-
-    .subject-option.selected .subject-option-check {
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    .subject-option.selected .subject-option-check::after {
-        content: '✓';
-        color: white;
-        font-size: 0.7rem;
-        font-weight: 800;
-    }
-
-    .subject-option-icon {
-        font-size: 1.25rem;
-    }
-
-    .subject-option-name {
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .selected-count {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 20px;
-        height: 20px;
-        padding: 0 0.35rem;
-        background: var(--gray-200);
-        border-radius: 50px;
-        font-size: 0.72rem;
-        font-weight: 800;
-        color: var(--dark-600);
-        margin-left: 0.5rem;
-    }
-
-    .selected-count.full {
-        background: var(--primary);
-        color: white;
-    }
-
-    /* ========== SUMMARY & START ========== */
-    .dtm-summary-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 20px;
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-
-    .summary-body {
-        padding: 1.5rem;
-    }
-
-    .summary-breakdown {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .summary-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.65rem 1rem;
-        background: var(--gray-50);
-        border-radius: 10px;
-    }
-
-    .summary-row-left {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-    }
-
-    .summary-row-icon {
-        font-size: 1.1rem;
-    }
-
-    .summary-row-name {
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .summary-row-badge {
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--gray-500);
-    }
-
-    .summary-row-badge.mandatory {
-        color: var(--gray-400);
-        font-style: italic;
-    }
-
-    .summary-row.elective {
-        background: rgba(139, 197, 64, 0.06);
-        border: 1px solid rgba(139, 197, 64, 0.15);
-    }
-
-    .summary-row.empty-slot {
-        border: 2px dashed var(--gray-300);
-        background: transparent;
-    }
-
-    .summary-row.empty-slot .summary-row-name {
-        color: var(--gray-400);
-        font-weight: 600;
-    }
-
-    .summary-divider {
-        height: 1px;
-        background: var(--gray-200);
-        margin: 0.5rem 0;
-    }
-
-    .summary-total-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.85rem 1rem;
-        background: var(--dark);
-        border-radius: 12px;
-        color: white;
-    }
-
-    .summary-total-label {
-        font-size: 0.92rem;
-        font-weight: 700;
-    }
-
-    .summary-total-nums {
-        display: flex;
-        gap: 1.5rem;
-    }
-
-    .summary-total-item {
-        text-align: center;
-    }
-
-    .summary-total-value {
-        font-size: 1.15rem;
-        font-weight: 900;
-    }
-
-    .summary-total-sub {
-        font-size: 0.68rem;
-        opacity: 0.7;
-        font-weight: 600;
-    }
-
-    /* Start Button */
-    .summary-footer {
-        padding: 1.25rem 1.5rem;
+    .dtm-card-footer {
+        padding: 1.25rem 2rem;
         background: var(--gray-50);
         border-top: 1px solid var(--gray-200);
         display: flex;
@@ -509,312 +159,144 @@
         justify-content: space-between;
     }
 
-    .summary-footer-hint {
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        font-weight: 600;
-    }
-
-    .summary-footer-hint i {
-        color: var(--primary);
-        margin-right: 0.25rem;
-    }
+    .dtm-footer-info { font-size: 0.85rem; color: var(--gray-500); font-weight: 600; }
+    .dtm-footer-info strong { color: var(--dark); }
 
     .dtm-start-btn {
-        padding: 0.85rem 2.5rem;
+        padding: 0.8rem 2rem;
         background: var(--gradient-primary);
-        border: none;
-        color: white;
-        border-radius: 14px;
-        font-size: 1rem;
-        font-weight: 800;
+        border: none; color: white;
+        border-radius: 12px;
+        font-size: 0.95rem; font-weight: 800;
         cursor: pointer;
         transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
+        display: flex; align-items: center; gap: 0.5rem;
         box-shadow: 0 8px 24px -6px rgba(139, 197, 64, 0.4);
     }
 
     .dtm-start-btn:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 14px 32px -6px rgba(139, 197, 64, 0.5);
+        box-shadow: 0 12px 30px -6px rgba(139, 197, 64, 0.5);
     }
 
-    .dtm-start-btn:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-
-    /* ========== RESPONSIVE ========== */
-    @media (max-width: 991px) {
-        .dtm-hero-badges { display: none; }
-        .preset-row { grid-template-columns: 1fr; }
-    }
+    .dtm-start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
     @media (max-width: 768px) {
-        .dtm-hero { padding: 2rem 0; }
+        .dtm-hero-nums { display: none; }
         .dtm-hero-text h1 { font-size: 1.65rem; }
-
-        .mandatory-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .manual-subjects-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .summary-footer {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
+        .dtm-card { margin: 1.5rem auto 0; }
+        .dtm-card-body { padding: 1.5rem; }
+        .dtm-card-footer { flex-direction: column; gap: 1rem; padding: 1.25rem 1.5rem; }
         .dtm-start-btn { width: 100%; justify-content: center; }
-        .summary-footer-hint { text-align: center; }
-    }
-
-    @media (max-width: 575px) {
-        .summary-total-nums { gap: 1rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="dtm-page">
-    <!-- ========== HERO ========== -->
     <div class="dtm-hero">
         <div class="container">
             <div class="dtm-hero-inner">
                 <div class="dtm-hero-text">
                     <h1>🎓 DTM Simulyatsiya</h1>
-                    <p>Haqiqiy DTM imtihoni formatida test yeching — 3 ta majburiy fan + 2 ta yo'nalish fani</p>
+                    <p>Haqiqiy imtihon formati — 5 fan, 90 savol, 3 soat</p>
                 </div>
-                <div class="dtm-hero-badges">
-                    <div class="dtm-hero-badge">
-                        <div class="dtm-hero-badge-num">90</div>
-                        <div class="dtm-hero-badge-label">Savol</div>
-                    </div>
-                    <div class="dtm-hero-badge">
-                        <div class="dtm-hero-badge-num">3</div>
-                        <div class="dtm-hero-badge-label">Soat</div>
-                    </div>
-                    <div class="dtm-hero-badge">
-                        <div class="dtm-hero-badge-num">189</div>
-                        <div class="dtm-hero-badge-label">Maks. ball</div>
-                    </div>
+                <div class="dtm-hero-nums">
+                    <div class="dtm-hero-num"><strong>90</strong><span>savol</span></div>
+                    <div class="dtm-hero-num"><strong>3</strong><span>soat</span></div>
+                    <div class="dtm-hero-num"><strong>189</strong><span>maks. ball</span></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <div class="dtm-steps">
+        <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
+            {% csrf_token %}
+            <input type="hidden" name="questions_per_subject" value="30">
 
-            <!-- ========== STEP 1: Mandatory Subjects ========== -->
-            <div class="step-label">
-                <div class="step-num done">1</div>
-                <div class="step-text">Majburiy fanlar <span>· avtomatik, 30 ta savol</span></div>
-            </div>
+            {% for subject in subjects %}
+                {% if subject.slug == 'ona-tili' or subject.slug == 'matematika' or subject.slug == 'tarix' or subject.slug == 'ozbekiston-tarixi' %}
+                <input type="hidden" name="subjects" value="{{ subject.id }}">
+                {% endif %}
+            {% endfor %}
 
-            <div class="mandatory-card">
-                <div class="mandatory-grid">
-                    <div class="mandatory-item">
-                        <div class="mandatory-item-icon">📝</div>
-                        <div class="mandatory-item-info">
-                            <h4>Ona tili</h4>
-                            <span>10 ta savol · 11 ball</span>
+            <div class="dtm-card">
+                <div class="dtm-card-body">
+
+                    <div class="dtm-section">
+                        <div class="dtm-section-label">Majburiy fanlar · 30 savol</div>
+                        <div class="mandatory-list">
+                            <div class="mandatory-item">
+                                <div class="mandatory-item-left">
+                                    <div class="mandatory-item-icon">📝</div>
+                                    <span class="mandatory-item-name">Ona tili</span>
+                                </div>
+                                <div class="mandatory-item-right">10 savol <i class="bi bi-lock-fill"></i></div>
+                            </div>
+                            <div class="mandatory-item">
+                                <div class="mandatory-item-left">
+                                    <div class="mandatory-item-icon">➗</div>
+                                    <span class="mandatory-item-name">Matematika</span>
+                                </div>
+                                <div class="mandatory-item-right">10 savol <i class="bi bi-lock-fill"></i></div>
+                            </div>
+                            <div class="mandatory-item">
+                                <div class="mandatory-item-left">
+                                    <div class="mandatory-item-icon">📜</div>
+                                    <span class="mandatory-item-name">O'zbekiston tarixi</span>
+                                </div>
+                                <div class="mandatory-item-right">10 savol <i class="bi bi-lock-fill"></i></div>
+                            </div>
                         </div>
-                        <div class="mandatory-lock"><i class="bi bi-lock-fill"></i></div>
                     </div>
-                    <div class="mandatory-item">
-                        <div class="mandatory-item-icon">➗</div>
-                        <div class="mandatory-item-info">
-                            <h4>Matematika</h4>
-                            <span>10 ta savol · 11 ball</span>
+
+                    <div class="dtm-divider"></div>
+
+                    <div class="dtm-section">
+                        <div class="dtm-section-label">Yo'nalish fanlari · 60 savol</div>
+
+                        <div class="dtm-select-group">
+                            <label class="dtm-select-label">1-fan (30 savol · 93 ball)</label>
+                            <select class="dtm-select" name="subjects" id="fan1" required>
+                                <option value="">Fan tanlang...</option>
+                                {% for subject in subjects %}
+                                    {% if subject.slug != 'ona-tili' and subject.slug != 'matematika' and subject.slug != 'tarix' and subject.slug != 'ozbekiston-tarixi' %}
+                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <div class="dtm-error-msg" id="fan1Error">Fan tanlang</div>
                         </div>
-                        <div class="mandatory-lock"><i class="bi bi-lock-fill"></i></div>
-                    </div>
-                    <div class="mandatory-item">
-                        <div class="mandatory-item-icon">📜</div>
-                        <div class="mandatory-item-info">
-                            <h4>O'zbekiston tarixi</h4>
-                            <span>10 ta savol · 11 ball</span>
+
+                        <div class="dtm-select-group">
+                            <label class="dtm-select-label">2-fan (30 savol · 63 ball)</label>
+                            <select class="dtm-select" name="subjects" id="fan2" required>
+                                <option value="">Fan tanlang...</option>
+                                {% for subject in subjects %}
+                                    {% if subject.slug != 'ona-tili' and subject.slug != 'matematika' and subject.slug != 'tarix' and subject.slug != 'ozbekiston-tarixi' %}
+                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <div class="dtm-error-msg" id="fan2Error">Fan tanlang</div>
+                            <div class="dtm-error-msg" id="sameError">Ikki xil fan tanlang</div>
                         </div>
-                        <div class="mandatory-lock"><i class="bi bi-lock-fill"></i></div>
                     </div>
+
+                </div>
+
+                <div class="dtm-card-footer">
+                    <div class="dtm-footer-info">
+                        <strong>90</strong> savol · <strong>3</strong> soat · <strong>189</strong> maks. ball
+                    </div>
+                    <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
+                        <i class="bi bi-play-fill"></i>
+                        Boshlash
+                    </button>
                 </div>
             </div>
-
-            <!-- ========== STEP 2: Elective Subjects ========== -->
-            <div class="step-label">
-                <div class="step-num" id="step2Num">2</div>
-                <div class="step-text">Yo'nalish fanlarini tanlang <span>· 2 ta fan, 60 ta savol</span></div>
-            </div>
-
-            <div class="elective-section">
-                <!-- Preset Blocks -->
-                <div class="preset-row">
-                    <div class="preset-card" data-fan1="fizika" data-fan2="ingliz-tili">
-                        <div class="preset-icons">
-                            <span>🔬</span>
-                            <span>📖</span>
-                        </div>
-                        <h3>Aniq fanlar</h3>
-                        <p>Fizika + Ingliz tili</p>
-                    </div>
-                    <div class="preset-card" data-fan1="biologiya" data-fan2="kimyo">
-                        <div class="preset-icons">
-                            <span>🧬</span>
-                            <span>⚗️</span>
-                        </div>
-                        <h3>Tabiiy fanlar</h3>
-                        <p>Biologiya + Kimyo</p>
-                    </div>
-                    <div class="preset-card" data-fan1="geografiya" data-fan2="ingliz-tili">
-                        <div class="preset-icons">
-                            <span>🌍</span>
-                            <span>📖</span>
-                        </div>
-                        <h3>Ijtimoiy fanlar</h3>
-                        <p>Geografiya + Ingliz tili</p>
-                    </div>
-                </div>
-
-                <div class="divider-or">yoki o'zingiz tanlang</div>
-
-                <!-- Manual Selection -->
-                <div class="manual-select-card">
-                    <div class="manual-label">
-                        Yo'nalish fanlarini tanlang
-                        <span class="selected-count" id="selectedCount">0/2</span>
-                    </div>
-                    <div class="manual-subjects-grid" id="subjectsGrid">
-                        {% for subject in subjects %}
-                            {% if subject.slug != 'ona-tili' and subject.slug != 'matematika' and subject.slug != 'tarix' and subject.slug != 'ozbekiston-tarixi' %}
-                            <div class="subject-option"
-                                 data-slug="{{ subject.slug }}"
-                                 data-id="{{ subject.id }}"
-                                 data-name="{{ subject.name }}"
-                                 data-icon="{{ subject.icon }}">
-                                <div class="subject-option-check"></div>
-                                <span class="subject-option-icon">{{ subject.icon }}</span>
-                                <span class="subject-option-name">{{ subject.name }}</span>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- ========== STEP 3: Summary & Start ========== -->
-            <div class="step-label">
-                <div class="step-num" id="step3Num">3</div>
-                <div class="step-text">Tekshiring va boshlang</div>
-            </div>
-
-            <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
-                {% csrf_token %}
-                <!-- Hidden inputs for mandatory subjects -->
-                {% for subject in subjects %}
-                    {% if subject.slug == 'ona-tili' %}
-                    <input type="hidden" name="subjects" value="{{ subject.id }}">
-                    <input type="hidden" name="mandatory_ids" value="{{ subject.id }}">
-                    {% endif %}
-                    {% if subject.slug == 'matematika' %}
-                    <input type="hidden" name="subjects" value="{{ subject.id }}">
-                    <input type="hidden" name="mandatory_ids" value="{{ subject.id }}">
-                    {% endif %}
-                    {% if subject.slug == 'tarix' or subject.slug == 'ozbekiston-tarixi' %}
-                    <input type="hidden" name="subjects" value="{{ subject.id }}">
-                    <input type="hidden" name="mandatory_ids" value="{{ subject.id }}">
-                    {% endif %}
-                {% endfor %}
-                <input type="hidden" name="questions_per_subject" value="30">
-
-                <!-- Elective hidden inputs (filled by JS) -->
-                <div id="electiveInputs"></div>
-
-                <div class="dtm-summary-card">
-                    <div class="summary-body">
-                        <div class="summary-breakdown">
-                            <!-- Mandatory -->
-                            <div class="summary-row">
-                                <div class="summary-row-left">
-                                    <span class="summary-row-icon">📝</span>
-                                    <span class="summary-row-name">Ona tili</span>
-                                </div>
-                                <span class="summary-row-badge mandatory">10 savol · majburiy</span>
-                            </div>
-                            <div class="summary-row">
-                                <div class="summary-row-left">
-                                    <span class="summary-row-icon">➗</span>
-                                    <span class="summary-row-name">Matematika</span>
-                                </div>
-                                <span class="summary-row-badge mandatory">10 savol · majburiy</span>
-                            </div>
-                            <div class="summary-row">
-                                <div class="summary-row-left">
-                                    <span class="summary-row-icon">📜</span>
-                                    <span class="summary-row-name">O'zbekiston tarixi</span>
-                                </div>
-                                <span class="summary-row-badge mandatory">10 savol · majburiy</span>
-                            </div>
-
-                            <div class="summary-divider"></div>
-
-                            <!-- Elective slots -->
-                            <div class="summary-row elective empty-slot" id="slot1">
-                                <div class="summary-row-left">
-                                    <span class="summary-row-icon" id="slot1Icon">❓</span>
-                                    <span class="summary-row-name" id="slot1Name">1-fan tanlang</span>
-                                </div>
-                                <span class="summary-row-badge" id="slot1Badge">30 savol · 93 ball</span>
-                            </div>
-                            <div class="summary-row elective empty-slot" id="slot2">
-                                <div class="summary-row-left">
-                                    <span class="summary-row-icon" id="slot2Icon">❓</span>
-                                    <span class="summary-row-name" id="slot2Name">2-fan tanlang</span>
-                                </div>
-                                <span class="summary-row-badge" id="slot2Badge">30 savol · 63 ball</span>
-                            </div>
-                        </div>
-
-                        <!-- Total -->
-                        <div class="summary-total-row">
-                            <span class="summary-total-label">Jami</span>
-                            <div class="summary-total-nums">
-                                <div class="summary-total-item">
-                                    <div class="summary-total-value">90</div>
-                                    <div class="summary-total-sub">savol</div>
-                                </div>
-                                <div class="summary-total-item">
-                                    <div class="summary-total-value">180</div>
-                                    <div class="summary-total-sub">daqiqa</div>
-                                </div>
-                                <div class="summary-total-item">
-                                    <div class="summary-total-value">189</div>
-                                    <div class="summary-total-sub">maks. ball</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="summary-footer">
-                        <span class="summary-footer-hint">
-                            <i class="bi bi-info-circle-fill"></i>
-                            Vaqt boshlangandan keyin ortga qaytib bo'lmaydi
-                        </span>
-                        <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
-                            <i class="bi bi-play-fill"></i>
-                            Simulyatsiyani boshlash
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -822,175 +304,46 @@
 {% block extra_js %}
 <script>
 (function() {
-    // ==========================================
-    // STATE
-    // ==========================================
-    var selectedElectives = []; // [{id, slug, name, icon}, ...]
-    var MAX_ELECTIVES = 2;
+    var fan1 = document.getElementById('fan1');
+    var fan2 = document.getElementById('fan2');
+    var startBtn = document.getElementById('startBtn');
+    var sameError = document.getElementById('sameError');
 
-    // ==========================================
-    // MANUAL SUBJECT SELECTION
-    // ==========================================
-    document.querySelectorAll('.subject-option').forEach(function(option) {
-        option.addEventListener('click', function() {
-            var slug = this.dataset.slug;
-            var id = this.dataset.id;
-            var name = this.dataset.name;
-            var icon = this.dataset.icon;
+    function validate() {
+        var v1 = fan1.value;
+        var v2 = fan2.value;
 
-            // Check if already selected
-            var existingIndex = -1;
-            for (var i = 0; i < selectedElectives.length; i++) {
-                if (selectedElectives[i].slug === slug) {
-                    existingIndex = i;
-                    break;
-                }
-            }
+        fan1.classList.remove('error');
+        fan2.classList.remove('error');
+        sameError.classList.remove('show');
+        document.getElementById('fan1Error').classList.remove('show');
+        document.getElementById('fan2Error').classList.remove('show');
 
-            if (existingIndex >= 0) {
-                // Deselect
-                selectedElectives.splice(existingIndex, 1);
-                this.classList.remove('selected');
-            } else {
-                // Check max
-                if (selectedElectives.length >= MAX_ELECTIVES) {
-                    // Remove first selected, add new
-                    var oldSlug = selectedElectives[0].slug;
-                    selectedElectives.shift();
-                    var oldEl = document.querySelector('.subject-option[data-slug="' + oldSlug + '"]');
-                    if (oldEl) oldEl.classList.remove('selected');
-                }
-
-                selectedElectives.push({id: id, slug: slug, name: name, icon: icon});
-                this.classList.add('selected');
-            }
-
-            // Clear preset selection
-            document.querySelectorAll('.preset-card').forEach(function(p) {
-                p.classList.remove('selected');
-            });
-
-            updateUI();
-        });
-    });
-
-    // ==========================================
-    // PRESET SELECTION
-    // ==========================================
-    document.querySelectorAll('.preset-card').forEach(function(card) {
-        card.addEventListener('click', function() {
-            var fan1Slug = this.dataset.fan1;
-            var fan2Slug = this.dataset.fan2;
-
-            // Clear all
-            document.querySelectorAll('.preset-card').forEach(function(p) {
-                p.classList.remove('selected');
-            });
-            document.querySelectorAll('.subject-option').forEach(function(o) {
-                o.classList.remove('selected');
-            });
-            selectedElectives = [];
-
-            // Select this preset
-            this.classList.add('selected');
-
-            // Find and select subjects
-            [fan1Slug, fan2Slug].forEach(function(slug) {
-                var el = document.querySelector('.subject-option[data-slug="' + slug + '"]');
-                if (el) {
-                    el.classList.add('selected');
-                    selectedElectives.push({
-                        id: el.dataset.id,
-                        slug: el.dataset.slug,
-                        name: el.dataset.name,
-                        icon: el.dataset.icon
-                    });
-                }
-            });
-
-            updateUI();
-        });
-    });
-
-    // ==========================================
-    // UPDATE UI
-    // ==========================================
-    function updateUI() {
-        // Update count badge
-        var countEl = document.getElementById('selectedCount');
-        countEl.textContent = selectedElectives.length + '/2';
-        if (selectedElectives.length === 2) {
-            countEl.classList.add('full');
-        } else {
-            countEl.classList.remove('full');
+        if (v1 && v2 && v1 === v2) {
+            fan2.classList.add('error');
+            sameError.classList.add('show');
         }
 
-        // Update summary slots
-        updateSlot(1, selectedElectives[0] || null);
-        updateSlot(2, selectedElectives[1] || null);
-
-        // Update step 2 indicator
-        var step2 = document.getElementById('step2Num');
-        if (selectedElectives.length === 2) {
-            step2.classList.add('done');
-        } else {
-            step2.classList.remove('done');
-        }
-
-        // Update step 3
-        var step3 = document.getElementById('step3Num');
-        if (selectedElectives.length === 2) {
-            step3.classList.add('done');
-        } else {
-            step3.classList.remove('done');
-        }
-
-        // Update hidden inputs
-        var electiveInputs = document.getElementById('electiveInputs');
-        electiveInputs.innerHTML = '';
-        selectedElectives.forEach(function(s) {
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'subjects';
-            input.value = s.id;
-            electiveInputs.appendChild(input);
+        fan2.querySelectorAll('option').forEach(function(opt) {
+            opt.disabled = (opt.value && opt.value === v1);
+        });
+        fan1.querySelectorAll('option').forEach(function(opt) {
+            opt.disabled = (opt.value && opt.value === v2);
         });
 
-        // Enable/disable start
-        document.getElementById('startBtn').disabled = (selectedElectives.length !== 2);
-
-        // Disable remaining subjects if 2 selected (unless already selected)
-        document.querySelectorAll('.subject-option').forEach(function(opt) {
-            var isSelected = opt.classList.contains('selected');
-            if (selectedElectives.length >= MAX_ELECTIVES && !isSelected) {
-                opt.classList.add('disabled');
-            } else {
-                opt.classList.remove('disabled');
-            }
-        });
+        startBtn.disabled = !(v1 && v2 && v1 !== v2);
     }
 
-    function updateSlot(num, data) {
-        var slot = document.getElementById('slot' + num);
-        var iconEl = document.getElementById('slot' + num + 'Icon');
-        var nameEl = document.getElementById('slot' + num + 'Name');
+    fan1.addEventListener('change', validate);
+    fan2.addEventListener('change', validate);
 
-        if (data) {
-            slot.classList.remove('empty-slot');
-            iconEl.textContent = data.icon || '📚';
-            nameEl.textContent = data.name;
-        } else {
-            slot.classList.add('empty-slot');
-            iconEl.textContent = '❓';
-            nameEl.textContent = num + '-fan tanlang';
+    document.getElementById('dtmForm').addEventListener('submit', function(e) {
+        if (!fan1.value || !fan2.value || fan1.value === fan2.value) {
+            e.preventDefault();
+            if (!fan1.value) { fan1.classList.add('error'); document.getElementById('fan1Error').classList.add('show'); }
+            if (!fan2.value) { fan2.classList.add('error'); document.getElementById('fan2Error').classList.add('show'); }
         }
-    }
-
-    // ==========================================
-    // INIT
-    // ==========================================
-    updateUI();
-
+    });
 })();
 </script>
 {% endblock %}
