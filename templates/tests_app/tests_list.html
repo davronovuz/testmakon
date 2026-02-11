@@ -5,134 +5,354 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .tests-header {
+    /* ========== PAGE LAYOUT ========== */
+    .tests-page {
+        padding-bottom: 4rem;
+    }
+
+    /* ========== HERO SECTION ========== */
+    .tests-hero {
         background: var(--white);
         border-bottom: 1px solid var(--gray-200);
-        padding: 2.5rem 0;
+        padding: 2.5rem 0 0;
     }
 
-    .tests-header h1 {
+    .tests-hero-inner {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 0;
+    }
+
+    .tests-hero-text h1 {
         font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-weight: 900;
+        margin-bottom: 0.35rem;
     }
 
-    .tests-header p {
+    .tests-hero-text p {
         color: var(--gray-500);
+        font-size: 1rem;
         margin: 0;
     }
 
-    /* ========== CONTENT ========== */
-    .tests-content {
-        padding: 2.5rem 0;
+    .tests-hero-stats {
+        display: flex;
+        gap: 1.5rem;
+        flex-shrink: 0;
     }
 
-    /* ========== QUICK ACTIONS ========== */
-    .tests-quick-actions {
+    .hero-stat {
+        text-align: center;
+        padding: 0 0.5rem;
+    }
+
+    .hero-stat-num {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .hero-stat-label {
+        font-size: 0.72rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        margin-top: 0.2rem;
+    }
+
+    /* Tabs Navigation */
+    .tests-tabs {
+        display: flex;
+        gap: 0;
+        margin-top: 1.75rem;
+        border-bottom: none;
+    }
+
+    .tests-tab {
+        padding: 0.85rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        cursor: pointer;
+        border: none;
+        background: none;
+        position: relative;
+        transition: all 0.25s ease;
+    }
+
+    .tests-tab:hover {
+        color: var(--dark);
+    }
+
+    .tests-tab.active {
+        color: var(--primary-dark);
+    }
+
+    .tests-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--primary);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .tests-tab .tab-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 0.4rem;
+        background: var(--gray-200);
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        margin-left: 0.35rem;
+        color: var(--dark-600);
+    }
+
+    .tests-tab.active .tab-count {
+        background: rgba(139, 197, 64, 0.15);
+        color: var(--primary-dark);
+    }
+
+    /* ========== QUICK START SECTION ========== */
+    .quick-start {
+        padding: 2rem 0;
+    }
+
+    .quick-start-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 1rem;
+    }
+
+    .quick-start-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 2.5rem;
+        gap: 1rem;
     }
 
-    @media (max-width: 768px) {
-        .tests-quick-actions {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .quick-action-card {
+    .quick-card {
+        position: relative;
         padding: 1.5rem;
-        border-radius: var(--radius-xl);
+        border-radius: 20px;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.15rem;
         color: white;
-        transition: all 0.3s;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        text-decoration: none;
     }
 
-    .quick-action-card:hover {
+    .quick-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 60%);
+        pointer-events: none;
+    }
+
+    .quick-card:hover {
         transform: translateY(-4px);
         color: white;
     }
 
-    .quick-action-card.practice {
-        background: var(--gradient-primary);
-        box-shadow: var(--shadow-primary);
+    .quick-card-practice {
+        background: linear-gradient(135deg, #8BC540 0%, #5A9E1E 100%);
+        box-shadow: 0 10px 30px -8px rgba(139, 197, 64, 0.45);
     }
 
-    .quick-action-card.dtm {
-        background: var(--gradient-dark);
-        box-shadow: var(--shadow-lg);
+    .quick-card-practice:hover {
+        box-shadow: 0 16px 40px -8px rgba(139, 197, 64, 0.55);
     }
 
-    .quick-action-card.random {
+    .quick-card-dtm {
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.4);
+    }
+
+    .quick-card-dtm:hover {
+        box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.5);
+    }
+
+    .quick-card-bank {
         background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.4);
+        box-shadow: 0 10px 30px -8px rgba(139, 92, 246, 0.4);
     }
 
-    .quick-action-icon {
-        width: 56px;
-        height: 56px;
-        background: rgba(255,255,255,0.2);
-        border-radius: var(--radius-lg);
+    .quick-card-bank:hover {
+        box-shadow: 0 16px 40px -8px rgba(139, 92, 246, 0.5);
+    }
+
+    .quick-card-icon {
+        width: 52px;
+        height: 52px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         flex-shrink: 0;
+        backdrop-filter: blur(8px);
     }
 
-    .quick-action-info h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
+    .quick-card-text h3 {
+        font-size: 1.05rem;
+        font-weight: 800;
         color: white;
-        margin: 0 0 0.25rem;
+        margin: 0 0 0.2rem;
     }
 
-    .quick-action-info p {
-        font-size: 0.85rem;
-        opacity: 0.9;
+    .quick-card-text p {
+        font-size: 0.82rem;
+        opacity: 0.85;
         margin: 0;
         color: white;
+        font-weight: 500;
     }
 
-    /* ========== FILTERS ========== */
+    .quick-card-arrow {
+        position: absolute;
+        right: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .quick-card:hover .quick-card-arrow {
+        opacity: 1;
+        right: 1rem;
+    }
+
+    /* ========== TAB CONTENT ========== */
+    .tab-content {
+        padding: 0 0 2rem;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    /* ========== FILTERS BAR ========== */
     .tests-filters {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 1rem;
         margin-bottom: 1.5rem;
         flex-wrap: wrap;
-        gap: 1rem;
     }
 
-    .tests-filter-group {
+    .filters-left {
         display: flex;
+        align-items: center;
         gap: 0.5rem;
         flex-wrap: wrap;
     }
 
-    .tests-filter-btn {
-        padding: 0.5rem 1rem;
+    .filter-pill {
+        padding: 0.45rem 1rem;
         background: var(--white);
         border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.85rem;
+        border-radius: 50px;
+        font-size: 0.82rem;
         font-weight: 600;
         color: var(--dark-600);
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
     }
 
-    .tests-filter-btn:hover {
+    .filter-pill:hover {
         background: var(--gray-100);
+        border-color: var(--gray-300);
     }
 
-    .tests-filter-btn.active {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: white;
+    .filter-pill.active {
+        background: var(--dark);
+        border-color: var(--dark);
+        color: var(--white);
+    }
+
+    .filter-pill .emoji {
+        font-size: 0.9rem;
+    }
+
+    .filters-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .filter-sort {
+        padding: 0.45rem 0.85rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--dark-600);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .filter-view-btns {
+        display: flex;
+        border: 1px solid var(--gray-200);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .filter-view-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        border: none;
+        color: var(--gray-500);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1rem;
+    }
+
+    .filter-view-btn.active {
+        background: var(--dark);
+        color: var(--white);
+    }
+
+    .filter-view-btn:not(:last-child) {
+        border-right: 1px solid var(--gray-200);
     }
 
     /* ========== TESTS GRID ========== */
@@ -142,51 +362,58 @@
         gap: 1.25rem;
     }
 
-    @media (max-width: 768px) {
-        .tests-grid {
-            grid-template-columns: 1fr;
-        }
+    .tests-grid.list-view {
+        grid-template-columns: 1fr;
     }
 
+    /* ========== TEST CARD ========== */
     .test-card {
         background: var(--white);
         border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
+        border-radius: 20px;
         overflow: hidden;
-        transition: all 0.3s;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .test-card:hover {
         transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12);
         border-color: var(--gray-300);
     }
 
-    .test-card-header {
-        padding: 1.25rem;
+    .test-card-top {
+        padding: 1.25rem 1.25rem 0;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
+    }
+
+    .test-card-badges {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .test-card-subject {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.75rem;
+        gap: 0.4rem;
+        padding: 0.3rem 0.7rem;
         background: var(--gray-100);
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 700;
         color: var(--dark-600);
     }
 
     .test-card-type {
-        font-size: 0.75rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 800;
         padding: 0.25rem 0.6rem;
-        border-radius: 4px;
+        border-radius: 6px;
         text-transform: uppercase;
+        letter-spacing: 0.03em;
     }
 
     .test-card-type.practice {
@@ -204,243 +431,781 @@
         color: #2563EB;
     }
 
+    .test-card-type.test {
+        background: #F3F4F6;
+        color: #4B5563;
+    }
+
+    .test-card-menu {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        color: var(--gray-400);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .test-card-menu:hover {
+        background: var(--gray-100);
+        color: var(--dark-600);
+    }
+
     .test-card-body {
-        padding: 0 1.25rem;
+        padding: 1rem 1.25rem;
     }
 
     .test-card-title {
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: 1.05rem;
+        font-weight: 800;
         color: var(--dark);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.6rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        line-height: 1.4;
     }
 
-    .test-card-meta {
+    .test-card-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .test-card-title a:hover {
+        color: var(--primary-dark);
+    }
+
+    .test-card-info {
         display: flex;
-        gap: 1rem;
-        font-size: 0.85rem;
-        color: var(--gray-500);
+        align-items: center;
+        gap: 1.25rem;
     }
 
-    .test-card-meta span {
+    .test-card-info-item {
         display: flex;
         align-items: center;
         gap: 0.35rem;
+        font-size: 0.82rem;
+        color: var(--gray-500);
+        font-weight: 600;
     }
 
+    .test-card-info-item i {
+        font-size: 0.9rem;
+        color: var(--gray-400);
+    }
+
+    /* Difficulty Bar */
+    .test-card-difficulty {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
+    }
+
+    .difficulty-bar {
+        flex: 1;
+        height: 4px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .difficulty-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .difficulty-bar-fill.easy {
+        background: #22C55E;
+        width: 33%;
+    }
+
+    .difficulty-bar-fill.medium {
+        background: #F59E0B;
+        width: 66%;
+    }
+
+    .difficulty-bar-fill.hard {
+        background: #EF4444;
+        width: 100%;
+    }
+
+    .difficulty-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .difficulty-label.easy { color: #16A34A; }
+    .difficulty-label.medium { color: #D97706; }
+    .difficulty-label.hard { color: #DC2626; }
+
+    /* Card Footer */
     .test-card-footer {
-        padding: 1.25rem;
+        padding: 1rem 1.25rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         border-top: 1px solid var(--gray-100);
-        margin-top: 1rem;
     }
 
-    .test-card-difficulty {
-        display: flex;
-        gap: 0.25rem;
+    .test-card-attempts {
+        font-size: 0.78rem;
+        color: var(--gray-500);
+        font-weight: 600;
     }
 
-    .difficulty-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--gray-300);
+    .test-card-attempts i {
+        margin-right: 0.25rem;
     }
-
-    .difficulty-dot.active.easy { background: #10B981; }
-    .difficulty-dot.active.medium { background: #F59E0B; }
-    .difficulty-dot.active.hard { background: #EF4444; }
 
     .test-card-btn {
-        padding: 0.5rem 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1.25rem;
         background: var(--gradient-primary);
         color: white;
         border: none;
-        border-radius: var(--radius);
+        border-radius: 10px;
         font-size: 0.85rem;
         font-weight: 700;
-        transition: all 0.2s;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
     }
 
     .test-card-btn:hover {
-        box-shadow: var(--shadow-primary);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px -6px rgba(139, 197, 64, 0.45);
         color: white;
+    }
+
+    .test-card-btn i {
+        font-size: 0.9rem;
+    }
+
+    /* List view adjustments */
+    .tests-grid.list-view .test-card {
+        display: flex;
+        align-items: center;
+    }
+
+    .tests-grid.list-view .test-card-top {
+        padding: 0 1.25rem 0 0;
+        flex-direction: column;
+        gap: 0.35rem;
+        align-items: flex-start;
+    }
+
+    .tests-grid.list-view .test-card-body {
+        flex: 1;
+        padding: 1.25rem 0;
+    }
+
+    .tests-grid.list-view .test-card-footer {
+        border-top: none;
+        border-left: 1px solid var(--gray-100);
+        padding: 1.25rem;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 140px;
+    }
+
+    .tests-grid.list-view .test-card-difficulty {
+        display: none;
     }
 
     /* ========== EMPTY STATE ========== */
     .tests-empty {
         text-align: center;
-        padding: 4rem 2rem;
+        padding: 5rem 2rem;
         background: var(--white);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--gray-200);
+        border-radius: 24px;
+        border: 2px dashed var(--gray-200);
         grid-column: 1 / -1;
     }
 
     .tests-empty-icon {
-        width: 80px;
-        height: 80px;
+        width: 88px;
+        height: 88px;
         background: var(--gray-100);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 1.5rem;
-        font-size: 2rem;
+        font-size: 2.25rem;
         color: var(--gray-400);
+    }
+
+    .tests-empty h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .tests-empty p {
+        font-size: 0.95rem;
+        max-width: 380px;
+        margin: 0 auto 1.75rem;
+    }
+
+    .tests-empty-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .tests-empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        border: none;
+    }
+
+    .tests-empty-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: var(--shadow-primary);
+    }
+
+    .tests-empty-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
+        color: white;
+    }
+
+    .tests-empty-btn.secondary {
+        background: var(--white);
+        color: var(--dark-600);
+        border: 1px solid var(--gray-200);
+    }
+
+    .tests-empty-btn.secondary:hover {
+        background: var(--gray-100);
+        color: var(--dark);
+    }
+
+    /* ========== MY ACTIVITY SIDEBAR (for logged in users) ========== */
+    .my-activity {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 1.5rem;
+    }
+
+    .my-activity-title {
+        font-size: 0.88rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .my-activity-title i {
+        color: var(--primary);
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .activity-label {
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        font-weight: 600;
+    }
+
+    .activity-value {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .activity-link {
+        display: block;
+        text-align: center;
+        padding: 0.7rem;
+        margin-top: 1rem;
+        background: var(--gray-50);
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        transition: all 0.2s;
+    }
+
+    .activity-link:hover {
+        background: rgba(139, 197, 64, 0.1);
+        color: var(--primary-dark);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 991px) {
+        .tests-hero-stats { display: none; }
+        .tests-content-grid { grid-template-columns: 1fr !important; }
+    }
+
+    @media (max-width: 768px) {
+        .quick-start-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .quick-card {
+            padding: 1.25rem;
+        }
+
+        .tests-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tests-hero-text h1 { font-size: 1.65rem; }
+        .tests-hero { padding: 1.75rem 0 0; }
+
+        .tests-tabs { gap: 0; overflow-x: auto; }
+        .tests-tab { padding: 0.75rem 1rem; white-space: nowrap; font-size: 0.85rem; }
+
+        .filter-sort, .filter-view-btns { display: none; }
+
+        .filter-pill { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+
+        .tests-content-grid { grid-template-columns: 1fr !important; }
+    }
+
+    @media (max-width: 575px) {
+        .quick-card-arrow { display: none; }
+        .quick-card-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+        .quick-card-text h3 { font-size: 0.95rem; }
+
+        .test-card-info { gap: 0.75rem; }
+        .test-card-btn { padding: 0.5rem 1rem; font-size: 0.82rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="tests-header">
-    <div class="container">
-        <h1>Testlar</h1>
-        <p>Tayyor testlar va mashq qilish</p>
-    </div>
-</div>
+<div class="tests-page">
+    <!-- ========== HERO ========== -->
+    <div class="tests-hero">
+        <div class="container">
+            <div class="tests-hero-inner">
+                <div class="tests-hero-text">
+                    <h1>Testlar markazi</h1>
+                    <p>Fan tanlang, mashq qiling va imtihonga tayyorlaning</p>
+                </div>
 
-<!-- Content -->
-<div class="tests-content">
-    <div class="container">
-        <!-- Quick Actions -->
-        <div class="tests-quick-actions">
-            <a href="{% url 'tests_app:practice_select' %}" class="quick-action-card practice">
-                <div class="quick-action-icon">
-                    <i class="bi bi-journal-check"></i>
+                {% if user.is_authenticated %}
+                <div class="tests-hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ user.total_tests_taken|default:"0" }}</div>
+                        <div class="hero-stat-label">Yechilgan testlar</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ user.xp_points|default:"0" }}</div>
+                        <div class="hero-stat-label">XP ballar</div>
+                    </div>
                 </div>
-                <div class="quick-action-info">
-                    <h3>Mashq qilish</h3>
-                    <p>Fan va mavzu tanlang</p>
-                </div>
-            </a>
+                {% endif %}
+            </div>
 
-            <a href="{% url 'tests_app:dtm_simulation' %}" class="quick-action-card dtm">
-                <div class="quick-action-icon">
-                    <i class="bi bi-mortarboard"></i>
-                </div>
-                <div class="quick-action-info">
-                    <h3>DTM Simulyatsiya</h3>
-                    <p>Haqiqiy imtihon formati</p>
-                </div>
-            </a>
-
-            <a href="{% url 'tests_app:question_bank' %}" class="quick-action-card random">
-                <div class="quick-action-icon">
-                    <i class="bi bi-collection"></i>
-                </div>
-                <div class="quick-action-info">
-                    <h3>Savol banki</h3>
-                    <p>Barcha savollar</p>
-                </div>
-            </a>
-        </div>
-
-        <!-- Filters -->
-        <div class="tests-filters">
-            <div class="tests-filter-group">
-                <button class="tests-filter-btn active" data-filter="all">Barchasi</button>
-                {% for subject in subjects %}
-                <button class="tests-filter-btn" data-filter="{{ subject.slug }}">
-                    {{ subject.icon }} {{ subject.name }}
+            <!-- Tabs -->
+            <div class="tests-tabs">
+                <button class="tests-tab active" data-tab="all">
+                    Barchasi
                 </button>
-                {% endfor %}
+                <button class="tests-tab" data-tab="quick-start">
+                    Tez boshlash
+                </button>
+                <button class="tests-tab" data-tab="ready-tests">
+                    Tayyor testlar
+                    <span class="tab-count" id="testsCount">{{ tests|length }}</span>
+                </button>
+                {% if user.is_authenticated %}
+                <button class="tests-tab" data-tab="my-tests">
+                    Mening testlarim
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ========== QUICK START ========== -->
+        <div class="quick-start" id="sectionQuickStart">
+            <div class="quick-start-label">Tez boshlash</div>
+            <div class="quick-start-grid">
+                <a href="{% url 'tests_app:practice_select' %}" class="quick-card quick-card-practice">
+                    <div class="quick-card-icon">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <div class="quick-card-text">
+                        <h3>Mashq qilish</h3>
+                        <p>Fan va mavzuni tanlang — tezkor mashq</p>
+                    </div>
+                    <div class="quick-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="{% url 'tests_app:dtm_simulation' %}" class="quick-card quick-card-dtm">
+                    <div class="quick-card-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    <div class="quick-card-text">
+                        <h3>DTM Simulyatsiya</h3>
+                        <p>Haqiqiy imtihon formati — vaqt bilan</p>
+                    </div>
+                    <div class="quick-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="{% url 'tests_app:question_bank' %}" class="quick-card quick-card-bank">
+                    <div class="quick-card-icon">
+                        <i class="bi bi-collection-fill"></i>
+                    </div>
+                    <div class="quick-card-text">
+                        <h3>Savol banki</h3>
+                        <p>10,000+ savol — qiyinlik bo'yicha filterlang</p>
+                    </div>
+                    <div class="quick-card-arrow">
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
             </div>
         </div>
 
-        <!-- Tests Grid -->
-        <div class="tests-grid">
-            {% if tests %}
-                {% for test in tests %}
-                <div class="test-card" data-subject="{{ test.subject.slug|default:'all' }}">
-                    <div class="test-card-header">
-                        {% if test.subject %}
-                        <span class="test-card-subject">
-                            {{ test.subject.icon }}
-                            {{ test.subject.name }}
-                        </span>
-                        {% else %}
-                        <span class="test-card-subject">📚 Umumiy</span>
-                        {% endif %}
+        <!-- ========== READY TESTS SECTION ========== -->
+        <div id="sectionReadyTests">
+            <!-- Filters -->
+            <div class="tests-filters">
+                <div class="filters-left">
+                    <button class="filter-pill active" data-filter="all">Barchasi</button>
+                    {% for subject in subjects %}
+                    <button class="filter-pill" data-filter="{{ subject.slug }}">
+                        <span class="emoji">{{ subject.icon }}</span>
+                        {{ subject.name }}
+                    </button>
+                    {% endfor %}
+                </div>
 
-                        <span class="test-card-type {{ test.test_type }}">
-                            {% if test.test_type == 'practice' %}Mashq
-                            {% elif test.test_type == 'exam' %}Imtihon
-                            {% elif test.test_type == 'block' %}Blok
-                            {% else %}Test{% endif %}
-                        </span>
-                    </div>
-
-                    <div class="test-card-body">
-                        <h3 class="test-card-title">{{ test.title }}</h3>
-                        <div class="test-card-meta">
-                            <span>
-                                <i class="bi bi-journal-text"></i>
-                                {{ test.question_count }} savol
-                            </span>
-                            {% if test.time_limit %}
-                            <span>
-                                <i class="bi bi-clock"></i>
-                                {{ test.time_limit }} daqiqa
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="test-card-footer">
-                        <div class="test-card-difficulty">
-                            <div class="difficulty-dot active easy"></div>
-                            <div class="difficulty-dot active medium"></div>
-                            <div class="difficulty-dot"></div>
-                        </div>
-                        <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="test-card-btn">
-                            Batafsil
-                        </a>
+                <div class="filters-right">
+                    <button class="filter-sort" id="sortBtn">
+                        <i class="bi bi-sort-down"></i>
+                        Yangi
+                    </button>
+                    <div class="filter-view-btns">
+                        <button class="filter-view-btn active" data-view="grid" title="Grid">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </button>
+                        <button class="filter-view-btn" data-view="list" title="Ro'yxat">
+                            <i class="bi bi-list-ul"></i>
+                        </button>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-            <div class="tests-empty">
-                <div class="tests-empty-icon">
-                    <i class="bi bi-journal-x"></i>
+            </div>
+
+            <!-- Tests Grid -->
+            <div class="tests-grid" id="testsGrid">
+                {% if tests %}
+                    {% for test in tests %}
+                    <div class="test-card" data-subject="{{ test.subject.slug|default:'all' }}" data-type="{{ test.test_type }}">
+                        <div class="test-card-top">
+                            <div class="test-card-badges">
+                                {% if test.subject %}
+                                <span class="test-card-subject">
+                                    {{ test.subject.icon }}
+                                    {{ test.subject.name }}
+                                </span>
+                                {% else %}
+                                <span class="test-card-subject">📚 Umumiy</span>
+                                {% endif %}
+
+                                <span class="test-card-type {{ test.test_type }}">
+                                    {% if test.test_type == 'practice' %}Mashq
+                                    {% elif test.test_type == 'exam' %}Imtihon
+                                    {% elif test.test_type == 'block' %}Blok
+                                    {% else %}Test{% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="test-card-body">
+                            <h3 class="test-card-title">
+                                <a href="{% url 'tests_app:test_detail' slug=test.slug %}">
+                                    {{ test.title }}
+                                </a>
+                            </h3>
+                            <div class="test-card-info">
+                                <div class="test-card-info-item">
+                                    <i class="bi bi-journal-text"></i>
+                                    {{ test.question_count }} savol
+                                </div>
+                                {% if test.time_limit %}
+                                <div class="test-card-info-item">
+                                    <i class="bi bi-clock"></i>
+                                    {{ test.time_limit }} daqiqa
+                                </div>
+                                {% else %}
+                                <div class="test-card-info-item">
+                                    <i class="bi bi-infinity"></i>
+                                    Cheksiz vaqt
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Difficulty -->
+                            <div class="test-card-difficulty">
+                                <div class="difficulty-bar">
+                                    <div class="difficulty-bar-fill {% if test.difficulty == 'easy' %}easy{% elif test.difficulty == 'hard' %}hard{% else %}medium{% endif %}"></div>
+                                </div>
+                                <span class="difficulty-label {% if test.difficulty == 'easy' %}easy{% elif test.difficulty == 'hard' %}hard{% else %}medium{% endif %}">
+                                    {% if test.difficulty == 'easy' %}Oson
+                                    {% elif test.difficulty == 'hard' %}Qiyin
+                                    {% else %}O'rta{% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="test-card-footer">
+                            <span class="test-card-attempts">
+                                <i class="bi bi-people-fill"></i>
+                                {{ test.attempts_count|default:"0" }} marta yechilgan
+                            </span>
+                            <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="test-card-btn">
+                                Boshlash <i class="bi bi-play-fill"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="tests-empty">
+                        <div class="tests-empty-icon">
+                            <i class="bi bi-journal-x"></i>
+                        </div>
+                        <h3>Tayyor testlar hali qo'shilmagan</h3>
+                        <p>Lekin bu muammo emas! Mashq rejimida istalgan fan bo'yicha test yechishingiz mumkin.</p>
+                        <div class="tests-empty-actions">
+                            <a href="{% url 'tests_app:practice_select' %}" class="tests-empty-btn primary">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                                Mashq boshlash
+                            </a>
+                            <a href="{% url 'tests_app:question_bank' %}" class="tests-empty-btn secondary">
+                                <i class="bi bi-collection"></i>
+                                Savol banki
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ========== MY TESTS (for logged in users) ========== -->
+        {% if user.is_authenticated %}
+        <div id="sectionMyTests" style="display: none; margin-top: 1.5rem;">
+            <div class="my-activity">
+                <div class="my-activity-title">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    Mening statistikam
                 </div>
-                <h3>Testlar topilmadi</h3>
-                <p class="text-muted">Hozircha tayyor testlar qo'shilmagan</p>
-                <a href="{% url 'tests_app:practice_select' %}" class="btn btn-primary mt-3">
-                    <i class="bi bi-play-fill me-2"></i>Mashq boshlash
+                <div class="activity-item">
+                    <span class="activity-label">Yechilgan testlar</span>
+                    <span class="activity-value">{{ user.total_tests_taken|default:"0" }}</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-label">To'g'ri javoblar</span>
+                    <span class="activity-value">{{ user.total_correct_answers|default:"0" }}</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-label">Noto'g'ri javoblar</span>
+                    <span class="activity-value">{{ user.total_wrong_answers|default:"0" }}</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-label">XP ballar</span>
+                    <span class="activity-value" style="color: var(--primary-dark);">{{ user.xp_points|default:"0" }} XP</span>
+                </div>
+                <a href="{% url 'tests_app:my_results' %}" class="activity-link">
+                    Barcha natijalarni ko'rish <i class="bi bi-arrow-right"></i>
                 </a>
+            </div>
+
+            {% if user.total_tests_taken > 0 %}
+            <div style="margin-top: 1.25rem;">
+                <div class="quick-start-label">Tezkor havolalar</div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                    <a href="{% url 'tests_app:saved_questions' %}" class="test-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-radius: 16px;">
+                        <div style="width: 44px; height: 44px; background: #FEF3C7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #D97706; flex-shrink: 0;">
+                            <i class="bi bi-bookmark-fill"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.9rem; color: var(--dark);">Saqlangan savollar</div>
+                            <div style="font-size: 0.78rem; color: var(--gray-500); font-weight: 600;">Keyinroq yechish uchun</div>
+                        </div>
+                    </a>
+                    <a href="{% url 'tests_app:wrong_answers' %}" class="test-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-radius: 16px;">
+                        <div style="width: 44px; height: 44px; background: #FEE2E2; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #DC2626; flex-shrink: 0;">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; font-size: 0.9rem; color: var(--dark);">Xatolar ustida ishlash</div>
+                            <div style="font-size: 0.78rem; color: var(--gray-500); font-weight: 600;">Noto'g'ri javoblarni qaytadan yechish</div>
+                        </div>
+                    </a>
+                </div>
             </div>
             {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Filter by subject
-    document.querySelectorAll('.tests-filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filter = this.dataset.filter;
+(function() {
+    // ==========================================
+    // TABS
+    // ==========================================
+    const tabs = document.querySelectorAll('.tests-tab');
+    const sectionQuick = document.getElementById('sectionQuickStart');
+    const sectionReady = document.getElementById('sectionReadyTests');
+    const sectionMy = document.getElementById('sectionMyTests');
 
-            document.querySelectorAll('.tests-filter-btn').forEach(b => b.classList.remove('active'));
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
             this.classList.add('active');
 
-            document.querySelectorAll('.test-card').forEach(card => {
+            var target = this.dataset.tab;
+
+            // Show/hide sections
+            if (target === 'all') {
+                if (sectionQuick) sectionQuick.style.display = '';
+                if (sectionReady) sectionReady.style.display = '';
+                if (sectionMy) sectionMy.style.display = 'none';
+            } else if (target === 'quick-start') {
+                if (sectionQuick) sectionQuick.style.display = '';
+                if (sectionReady) sectionReady.style.display = 'none';
+                if (sectionMy) sectionMy.style.display = 'none';
+            } else if (target === 'ready-tests') {
+                if (sectionQuick) sectionQuick.style.display = 'none';
+                if (sectionReady) sectionReady.style.display = '';
+                if (sectionMy) sectionMy.style.display = 'none';
+            } else if (target === 'my-tests') {
+                if (sectionQuick) sectionQuick.style.display = 'none';
+                if (sectionReady) sectionReady.style.display = 'none';
+                if (sectionMy) sectionMy.style.display = '';
+            }
+        });
+    });
+
+    // ==========================================
+    // SUBJECT FILTER
+    // ==========================================
+    document.querySelectorAll('.filter-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            var filter = this.dataset.filter;
+
+            // Update active state
+            document.querySelectorAll('.filter-pill').forEach(function(p) {
+                p.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            // Filter cards
+            var cards = document.querySelectorAll('.test-card[data-subject]');
+            var visibleCount = 0;
+
+            cards.forEach(function(card) {
                 if (filter === 'all' || card.dataset.subject === filter) {
-                    card.style.display = 'block';
+                    card.style.display = '';
+                    visibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
+
+            // Show/hide empty state
+            var emptyState = document.querySelector('.tests-empty');
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? '' : 'none';
+            }
+
+            // Update count
+            var countEl = document.getElementById('testsCount');
+            if (countEl) countEl.textContent = visibleCount;
         });
     });
+
+    // ==========================================
+    // VIEW TOGGLE (Grid/List)
+    // ==========================================
+    document.querySelectorAll('.filter-view-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var view = this.dataset.view;
+
+            document.querySelectorAll('.filter-view-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+
+            var grid = document.getElementById('testsGrid');
+            if (view === 'list') {
+                grid.classList.add('list-view');
+            } else {
+                grid.classList.remove('list-view');
+            }
+        });
+    });
+
+    // ==========================================
+    // SORT (basic toggle)
+    // ==========================================
+    var sortBtn = document.getElementById('sortBtn');
+    var sortOrder = 'new'; // new, old, popular
+
+    if (sortBtn) {
+        sortBtn.addEventListener('click', function() {
+            if (sortOrder === 'new') {
+                sortOrder = 'popular';
+                this.innerHTML = '<i class="bi bi-sort-down"></i> Mashhur';
+            } else {
+                sortOrder = 'new';
+                this.innerHTML = '<i class="bi bi-sort-down"></i> Yangi';
+            }
+            // Client-side sort could be added here, or reload with query params
+        });
+    }
+
+})();
 </script>
 {% endblock %}
