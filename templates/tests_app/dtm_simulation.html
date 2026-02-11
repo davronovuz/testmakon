@@ -5,8 +5,13 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .dtm-header {
+    /* ========== PAGE ========== */
+    .dtm-page {
+        padding-bottom: 4rem;
+    }
+
+    /* ========== HERO ========== */
+    .dtm-hero {
         background: var(--gradient-dark);
         padding: 3rem 0;
         color: white;
@@ -14,543 +19,801 @@
         overflow: hidden;
     }
 
-    .dtm-header::before {
+    .dtm-hero::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
     }
 
-    .dtm-header-content {
+    .dtm-hero-inner {
         position: relative;
         z-index: 1;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
     }
 
-    .dtm-header-icon {
-        width: 80px;
-        height: 80px;
-        background: var(--gradient-primary);
+    .dtm-hero-text h1 {
+        font-size: 2rem;
+        font-weight: 900;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .dtm-hero-text p {
+        font-size: 1rem;
+        color: var(--gray-400);
+        margin: 0;
+        max-width: 500px;
+    }
+
+    .dtm-hero-badges {
+        display: flex;
+        gap: 1rem;
+        flex-shrink: 0;
+    }
+
+    .dtm-hero-badge {
+        text-align: center;
+        padding: 0.85rem 1.25rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        backdrop-filter: blur(8px);
+    }
+
+    .dtm-hero-badge-num {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: white;
+        line-height: 1;
+    }
+
+    .dtm-hero-badge-label {
+        font-size: 0.72rem;
+        color: var(--gray-400);
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+
+    /* ========== STEPS CONTAINER ========== */
+    .dtm-steps {
+        padding: 2.5rem 0;
+    }
+
+    /* ========== STEP LABEL ========== */
+    .step-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .step-num {
+        width: 32px;
+        height: 32px;
+        background: var(--dark);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .step-num.done {
+        background: var(--primary);
+    }
+
+    .step-text {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .step-text span {
+        font-weight: 600;
+        color: var(--gray-500);
+        font-size: 0.88rem;
+    }
+
+    /* ========== MANDATORY SUBJECTS ========== */
+    .mandatory-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .mandatory-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .mandatory-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: var(--gray-50);
+        border: 2px solid var(--gray-200);
+        border-radius: 14px;
+        position: relative;
+    }
+
+    .mandatory-item-icon {
+        width: 46px;
+        height: 46px;
+        background: var(--white);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
+    }
+
+    .mandatory-item-info h4 {
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 0.15rem;
+    }
+
+    .mandatory-item-info span {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--gray-500);
+    }
+
+    .mandatory-lock {
+        position: absolute;
+        top: 0.6rem;
+        right: 0.6rem;
+        font-size: 0.75rem;
+        color: var(--gray-400);
+    }
+
+    /* ========== ELECTIVE SUBJECTS ========== */
+    .elective-section {
+        margin-bottom: 2rem;
+    }
+
+    /* Preset Blocks */
+    .preset-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .preset-card {
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .preset-card:hover {
+        border-color: var(--primary-light);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.1);
+    }
+
+    .preset-card.selected {
+        border-color: var(--primary);
+        background: rgba(139, 197, 64, 0.04);
+        box-shadow: 0 0 0 3px rgba(139, 197, 64, 0.15);
+    }
+
+    .preset-card.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 24px;
+        height: 24px;
+        background: var(--primary);
+        color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2rem;
-        box-shadow: var(--shadow-primary);
+        font-size: 0.75rem;
+        font-weight: 800;
     }
 
-    .dtm-header h1 {
-        font-size: 2.25rem;
-        color: white;
+    .preset-icons {
+        display: flex;
+        gap: 0.35rem;
         margin-bottom: 0.75rem;
     }
 
-    .dtm-header p {
-        font-size: 1.1rem;
-        color: var(--gray-400);
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    /* ========== CONTENT ========== */
-    .dtm-content {
-        padding: 3rem 0;
-    }
-
-    /* ========== PRESET BLOCKS ========== */
-    .dtm-section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 1.5rem;
+    .preset-icons span {
+        width: 36px;
+        height: 36px;
+        background: var(--gray-100);
+        border-radius: 10px;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-    }
-
-    .dtm-section-title i {
-        color: var(--primary);
-    }
-
-    .dtm-presets {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 3rem;
-    }
-
-    @media (max-width: 992px) {
-        .dtm-presets {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .dtm-preset-card {
-        background: var(--white);
-        border: 2px solid var(--gray-200);
-        border-radius: var(--radius-xl);
-        padding: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .dtm-preset-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .dtm-preset-card.selected {
-        border-color: var(--primary);
-        background: var(--primary-glow);
-    }
-
-    .dtm-preset-card.popular::before {
-        content: 'Mashhur';
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: var(--accent);
-        color: var(--dark);
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 0.25rem 0.6rem;
-        border-radius: 20px;
-    }
-
-    .dtm-preset-icons {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .dtm-preset-icons span {
-        font-size: 1.75rem;
-    }
-
-    .dtm-preset-card h3 {
+        justify-content: center;
         font-size: 1.1rem;
-        margin-bottom: 0.5rem;
     }
 
-    .dtm-preset-card p {
-        font-size: 0.9rem;
-        color: var(--gray-500);
-        margin-bottom: 1rem;
+    .preset-card h3 {
+        font-size: 0.95rem;
+        font-weight: 800;
+        margin: 0 0 0.25rem;
     }
 
-    .dtm-preset-meta {
-        display: flex;
-        gap: 1rem;
+    .preset-card p {
         font-size: 0.8rem;
         color: var(--gray-500);
+        margin: 0;
+        font-weight: 600;
     }
 
-    .dtm-preset-meta span {
+    /* Divider */
+    .divider-or {
         display: flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        color: var(--gray-400);
+        font-size: 0.82rem;
+        font-weight: 700;
     }
 
-    /* ========== CUSTOM BLOCK ========== */
-    .dtm-custom-card {
+    .divider-or::before,
+    .divider-or::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--gray-200);
+    }
+
+    /* Manual Subject Selection */
+    .manual-select-card {
         background: var(--white);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow);
         border: 1px solid var(--gray-200);
-        overflow: hidden;
-    }
-
-    .dtm-custom-header {
+        border-radius: 20px;
         padding: 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
     }
 
-    .dtm-custom-title {
-        font-size: 1.1rem;
+    .manual-label {
+        font-size: 0.88rem;
         font-weight: 700;
         color: var(--dark);
-        margin: 0;
+        margin-bottom: 1rem;
     }
 
-    .dtm-custom-hint {
-        font-size: 0.85rem;
-        color: var(--gray-500);
-    }
-
-    .dtm-custom-body {
-        padding: 1.5rem;
-    }
-
-    /* Subject checkboxes */
-    .dtm-subjects-grid {
+    .manual-subjects-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.75rem;
     }
 
-    @media (max-width: 992px) {
-        .dtm-subjects-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 480px) {
-        .dtm-subjects-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .dtm-subject-check {
+    .subject-option {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 1rem;
+        padding: 0.85rem 1rem;
         background: var(--gray-50);
         border: 2px solid var(--gray-200);
-        border-radius: var(--radius);
+        border-radius: 12px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.25s ease;
+        user-select: none;
     }
 
-    .dtm-subject-check:hover {
+    .subject-option:hover {
         background: var(--gray-100);
+        border-color: var(--gray-300);
     }
 
-    .dtm-subject-check.selected {
+    .subject-option.selected {
         border-color: var(--primary);
-        background: var(--primary-glow);
+        background: rgba(139, 197, 64, 0.06);
     }
 
-    .dtm-subject-check input {
-        display: none;
+    .subject-option.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
-    .dtm-subject-checkbox {
-        width: 22px;
-        height: 22px;
+    .subject-option-check {
+        width: 20px;
+        height: 20px;
         border: 2px solid var(--gray-300);
         border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s;
         flex-shrink: 0;
+        transition: all 0.2s;
     }
 
-    .dtm-subject-check.selected .dtm-subject-checkbox {
+    .subject-option.selected .subject-option-check {
         background: var(--primary);
         border-color: var(--primary);
     }
 
-    .dtm-subject-check.selected .dtm-subject-checkbox::after {
+    .subject-option.selected .subject-option-check::after {
         content: '✓';
         color: white;
-        font-size: 0.8rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 800;
     }
 
-    .dtm-subject-icon {
-        font-size: 1.5rem;
+    .subject-option-icon {
+        font-size: 1.25rem;
     }
 
-    .dtm-subject-info h4 {
-        font-size: 0.9rem;
+    .subject-option-name {
+        font-size: 0.88rem;
         font-weight: 700;
         color: var(--dark);
-        margin: 0;
     }
 
-    .dtm-subject-info span {
-        font-size: 0.8rem;
+    .selected-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 0.35rem;
+        background: var(--gray-200);
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: var(--dark-600);
+        margin-left: 0.5rem;
+    }
+
+    .selected-count.full {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* ========== SUMMARY & START ========== */
+    .dtm-summary-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .summary-body {
+        padding: 1.5rem;
+    }
+
+    .summary-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 1rem;
+        background: var(--gray-50);
+        border-radius: 10px;
+    }
+
+    .summary-row-left {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .summary-row-icon {
+        font-size: 1.1rem;
+    }
+
+    .summary-row-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .summary-row-badge {
+        font-size: 0.78rem;
+        font-weight: 600;
         color: var(--gray-500);
     }
 
-    /* Settings */
-    .dtm-settings {
-        display: flex;
-        gap: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--gray-200);
-        flex-wrap: wrap;
+    .summary-row-badge.mandatory {
+        color: var(--gray-400);
+        font-style: italic;
     }
 
-    .dtm-setting-group {
-        flex: 1;
-        min-width: 200px;
+    .summary-row.elective {
+        background: rgba(139, 197, 64, 0.06);
+        border: 1px solid rgba(139, 197, 64, 0.15);
     }
 
-    .dtm-setting-label {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.75rem;
-        display: block;
+    .summary-row.empty-slot {
+        border: 2px dashed var(--gray-300);
+        background: transparent;
     }
 
-    .dtm-setting-options {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .dtm-setting-option {
-        padding: 0.6rem 1rem;
-        background: var(--gray-100);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.85rem;
+    .summary-row.empty-slot .summary-row-name {
+        color: var(--gray-400);
         font-weight: 600;
-        color: var(--dark-600);
-        cursor: pointer;
-        transition: all 0.2s;
     }
 
-    .dtm-setting-option:hover {
+    .summary-divider {
+        height: 1px;
         background: var(--gray-200);
+        margin: 0.5rem 0;
     }
 
-    .dtm-setting-option.selected {
-        background: var(--primary);
-        border-color: var(--primary);
+    .summary-total-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 1rem;
+        background: var(--dark);
+        border-radius: 12px;
         color: white;
     }
 
-    /* Summary & Start */
-    .dtm-footer {
-        padding: 1.5rem;
+    .summary-total-label {
+        font-size: 0.92rem;
+        font-weight: 700;
+    }
+
+    .summary-total-nums {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .summary-total-item {
+        text-align: center;
+    }
+
+    .summary-total-value {
+        font-size: 1.15rem;
+        font-weight: 900;
+    }
+
+    .summary-total-sub {
+        font-size: 0.68rem;
+        opacity: 0.7;
+        font-weight: 600;
+    }
+
+    /* Start Button */
+    .summary-footer {
+        padding: 1.25rem 1.5rem;
         background: var(--gray-50);
         border-top: 1px solid var(--gray-200);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
     }
 
-    .dtm-summary {
-        display: flex;
-        gap: 2rem;
-    }
-
-    .dtm-summary-item {
-        text-align: center;
-    }
-
-    .dtm-summary-value {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--dark);
-    }
-
-    .dtm-summary-label {
-        font-size: 0.75rem;
+    .summary-footer-hint {
+        font-size: 0.85rem;
         color: var(--gray-500);
-        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .summary-footer-hint i {
+        color: var(--primary);
+        margin-right: 0.25rem;
     }
 
     .dtm-start-btn {
-        padding: 1rem 2.5rem;
+        padding: 0.85rem 2.5rem;
         background: var(--gradient-primary);
         border: none;
         color: white;
-        border-radius: var(--radius-lg);
+        border-radius: 14px;
         font-size: 1rem;
-        font-weight: 700;
+        font-weight: 800;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
+        box-shadow: 0 8px 24px -6px rgba(139, 197, 64, 0.4);
     }
 
-    .dtm-start-btn:hover {
+    .dtm-start-btn:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
+        box-shadow: 0 14px 32px -6px rgba(139, 197, 64, 0.5);
     }
 
     .dtm-start-btn:disabled {
-        opacity: 0.6;
+        opacity: 0.45;
         cursor: not-allowed;
         transform: none;
+        box-shadow: none;
     }
 
-    /* ========== INFO CARD ========== */
-    .dtm-info {
-        margin-top: 2rem;
-        padding: 1.5rem;
-        background: #DBEAFE;
-        border-radius: var(--radius-lg);
-        border-left: 4px solid #3B82F6;
-        display: flex;
-        gap: 1rem;
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 991px) {
+        .dtm-hero-badges { display: none; }
+        .preset-row { grid-template-columns: 1fr; }
     }
 
-    .dtm-info-icon {
-        font-size: 1.5rem;
-        color: #2563EB;
+    @media (max-width: 768px) {
+        .dtm-hero { padding: 2rem 0; }
+        .dtm-hero-text h1 { font-size: 1.65rem; }
+
+        .mandatory-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .manual-subjects-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .dtm-start-btn { width: 100%; justify-content: center; }
+        .summary-footer-hint { text-align: center; }
     }
 
-    .dtm-info-content h4 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0 0 0.5rem;
-    }
-
-    .dtm-info-content p {
-        font-size: 0.9rem;
-        color: var(--dark-600);
-        margin: 0;
-    }
-
-    .dtm-info-content ul {
-        margin: 0.5rem 0 0;
-        padding-left: 1.25rem;
-        font-size: 0.9rem;
-        color: var(--dark-600);
+    @media (max-width: 575px) {
+        .summary-total-nums { gap: 1rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="dtm-header">
-    <div class="container">
-        <div class="dtm-header-content">
-            <div class="dtm-header-icon">
-                <i class="bi bi-mortarboard-fill"></i>
+<div class="dtm-page">
+    <!-- ========== HERO ========== -->
+    <div class="dtm-hero">
+        <div class="container">
+            <div class="dtm-hero-inner">
+                <div class="dtm-hero-text">
+                    <h1>🎓 DTM Simulyatsiya</h1>
+                    <p>Haqiqiy DTM imtihoni formatida test yeching — 3 ta majburiy fan + 2 ta yo'nalish fani</p>
+                </div>
+                <div class="dtm-hero-badges">
+                    <div class="dtm-hero-badge">
+                        <div class="dtm-hero-badge-num">90</div>
+                        <div class="dtm-hero-badge-label">Savol</div>
+                    </div>
+                    <div class="dtm-hero-badge">
+                        <div class="dtm-hero-badge-num">3</div>
+                        <div class="dtm-hero-badge-label">Soat</div>
+                    </div>
+                    <div class="dtm-hero-badge">
+                        <div class="dtm-hero-badge-num">189</div>
+                        <div class="dtm-hero-badge-label">Maks. ball</div>
+                    </div>
+                </div>
             </div>
-            <h1>DTM Simulyatsiya</h1>
-            <p>Haqiqiy DTM imtihoni formatida blok test yeching va o'z tayyorgarligingizni tekshiring</p>
         </div>
     </div>
-</div>
 
-<!-- Content -->
-<div class="dtm-content">
     <div class="container">
-        <!-- Preset Blocks -->
-        <div class="dtm-section-title">
-            <i class="bi bi-lightning-charge-fill"></i>
-            Tayyor bloklar
-        </div>
+        <div class="dtm-steps">
 
-        <div class="dtm-presets">
-            {% for block in preset_blocks %}
-            <div class="dtm-preset-card {% if forloop.first %}popular{% endif %}"
-                 data-subjects="{{ block.subjects|join:',' }}">
-                <div class="dtm-preset-icons">
-                    {% for slug in block.subjects %}
+            <!-- ========== STEP 1: Mandatory Subjects ========== -->
+            <div class="step-label">
+                <div class="step-num done">1</div>
+                <div class="step-text">Majburiy fanlar <span>· avtomatik, 30 ta savol</span></div>
+            </div>
+
+            <div class="mandatory-card">
+                <div class="mandatory-grid">
+                    <div class="mandatory-item">
+                        <div class="mandatory-item-icon">📝</div>
+                        <div class="mandatory-item-info">
+                            <h4>Ona tili</h4>
+                            <span>10 ta savol · 11 ball</span>
+                        </div>
+                        <div class="mandatory-lock"><i class="bi bi-lock-fill"></i></div>
+                    </div>
+                    <div class="mandatory-item">
+                        <div class="mandatory-item-icon">➗</div>
+                        <div class="mandatory-item-info">
+                            <h4>Matematika</h4>
+                            <span>10 ta savol · 11 ball</span>
+                        </div>
+                        <div class="mandatory-lock"><i class="bi bi-lock-fill"></i></div>
+                    </div>
+                    <div class="mandatory-item">
+                        <div class="mandatory-item-icon">📜</div>
+                        <div class="mandatory-item-info">
+                            <h4>O'zbekiston tarixi</h4>
+                            <span>10 ta savol · 11 ball</span>
+                        </div>
+                        <div class="mandatory-lock"><i class="bi bi-lock-fill"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== STEP 2: Elective Subjects ========== -->
+            <div class="step-label">
+                <div class="step-num" id="step2Num">2</div>
+                <div class="step-text">Yo'nalish fanlarini tanlang <span>· 2 ta fan, 60 ta savol</span></div>
+            </div>
+
+            <div class="elective-section">
+                <!-- Preset Blocks -->
+                <div class="preset-row">
+                    <div class="preset-card" data-fan1="fizika" data-fan2="ingliz-tili">
+                        <div class="preset-icons">
+                            <span>🔬</span>
+                            <span>📖</span>
+                        </div>
+                        <h3>Aniq fanlar</h3>
+                        <p>Fizika + Ingliz tili</p>
+                    </div>
+                    <div class="preset-card" data-fan1="biologiya" data-fan2="kimyo">
+                        <div class="preset-icons">
+                            <span>🧬</span>
+                            <span>⚗️</span>
+                        </div>
+                        <h3>Tabiiy fanlar</h3>
+                        <p>Biologiya + Kimyo</p>
+                    </div>
+                    <div class="preset-card" data-fan1="geografiya" data-fan2="ingliz-tili">
+                        <div class="preset-icons">
+                            <span>🌍</span>
+                            <span>📖</span>
+                        </div>
+                        <h3>Ijtimoiy fanlar</h3>
+                        <p>Geografiya + Ingliz tili</p>
+                    </div>
+                </div>
+
+                <div class="divider-or">yoki o'zingiz tanlang</div>
+
+                <!-- Manual Selection -->
+                <div class="manual-select-card">
+                    <div class="manual-label">
+                        Yo'nalish fanlarini tanlang
+                        <span class="selected-count" id="selectedCount">0/2</span>
+                    </div>
+                    <div class="manual-subjects-grid" id="subjectsGrid">
                         {% for subject in subjects %}
-                            {% if subject.slug == slug %}
-                                <span>{{ subject.icon }}</span>
+                            {% if subject.slug != 'ona-tili' and subject.slug != 'matematika' and subject.slug != 'tarix' and subject.slug != 'ozbekiston-tarixi' %}
+                            <div class="subject-option"
+                                 data-slug="{{ subject.slug }}"
+                                 data-id="{{ subject.id }}"
+                                 data-name="{{ subject.name }}"
+                                 data-icon="{{ subject.icon }}">
+                                <div class="subject-option-check"></div>
+                                <span class="subject-option-icon">{{ subject.icon }}</span>
+                                <span class="subject-option-name">{{ subject.name }}</span>
+                            </div>
                             {% endif %}
                         {% endfor %}
-                    {% endfor %}
-                </div>
-                <h3>{{ block.name }}</h3>
-                <p>{{ block.description }}</p>
-                <div class="dtm-preset-meta">
-                    <span><i class="bi bi-journal-text"></i> 90 savol</span>
-                    <span><i class="bi bi-clock"></i> 3 soat</span>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
-        </div>
 
-        <!-- Custom Block -->
-        <div class="dtm-section-title">
-            <i class="bi bi-sliders"></i>
-            O'zingiz tanlang
-        </div>
+            <!-- ========== STEP 3: Summary & Start ========== -->
+            <div class="step-label">
+                <div class="step-num" id="step3Num">3</div>
+                <div class="step-text">Tekshiring va boshlang</div>
+            </div>
 
-        <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
-            {% csrf_token %}
-            <input type="hidden" name="questions_per_subject" id="questionsInput" value="30">
+            <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
+                {% csrf_token %}
+                <!-- Hidden inputs for mandatory subjects -->
+                {% for subject in subjects %}
+                    {% if subject.slug == 'ona-tili' %}
+                    <input type="hidden" name="subjects" value="{{ subject.id }}">
+                    <input type="hidden" name="mandatory_ids" value="{{ subject.id }}">
+                    {% endif %}
+                    {% if subject.slug == 'matematika' %}
+                    <input type="hidden" name="subjects" value="{{ subject.id }}">
+                    <input type="hidden" name="mandatory_ids" value="{{ subject.id }}">
+                    {% endif %}
+                    {% if subject.slug == 'tarix' or subject.slug == 'ozbekiston-tarixi' %}
+                    <input type="hidden" name="subjects" value="{{ subject.id }}">
+                    <input type="hidden" name="mandatory_ids" value="{{ subject.id }}">
+                    {% endif %}
+                {% endfor %}
+                <input type="hidden" name="questions_per_subject" value="30">
 
-            <div class="dtm-custom-card">
-                <div class="dtm-custom-header">
-                    <h3 class="dtm-custom-title">Fanlarni tanlang</h3>
-                    <span class="dtm-custom-hint">Kamida 2 ta fan tanlang</span>
-                </div>
+                <!-- Elective hidden inputs (filled by JS) -->
+                <div id="electiveInputs"></div>
 
-                <div class="dtm-custom-body">
-                    <div class="dtm-subjects-grid">
-                        {% for subject in subjects %}
-                        <label class="dtm-subject-check" data-id="{{ subject.id }}">
-                            <input type="checkbox" name="subjects" value="{{ subject.id }}">
-                            <div class="dtm-subject-checkbox"></div>
-                            <span class="dtm-subject-icon">{{ subject.icon }}</span>
-                            <div class="dtm-subject-info">
-                                <h4>{{ subject.name }}</h4>
-                                <span>{{ subject.questions_count }} savol</span>
+                <div class="dtm-summary-card">
+                    <div class="summary-body">
+                        <div class="summary-breakdown">
+                            <!-- Mandatory -->
+                            <div class="summary-row">
+                                <div class="summary-row-left">
+                                    <span class="summary-row-icon">📝</span>
+                                    <span class="summary-row-name">Ona tili</span>
+                                </div>
+                                <span class="summary-row-badge mandatory">10 savol · majburiy</span>
                             </div>
-                        </label>
-                        {% endfor %}
-                    </div>
+                            <div class="summary-row">
+                                <div class="summary-row-left">
+                                    <span class="summary-row-icon">➗</span>
+                                    <span class="summary-row-name">Matematika</span>
+                                </div>
+                                <span class="summary-row-badge mandatory">10 savol · majburiy</span>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-row-left">
+                                    <span class="summary-row-icon">📜</span>
+                                    <span class="summary-row-name">O'zbekiston tarixi</span>
+                                </div>
+                                <span class="summary-row-badge mandatory">10 savol · majburiy</span>
+                            </div>
 
-                    <div class="dtm-settings">
-                        <div class="dtm-setting-group">
-                            <label class="dtm-setting-label">Har bir fandan savollar</label>
-                            <div class="dtm-setting-options">
-                                <div class="dtm-setting-option" data-value="10">10 ta</div>
-                                <div class="dtm-setting-option" data-value="20">20 ta</div>
-                                <div class="dtm-setting-option selected" data-value="30">30 ta</div>
-                                <div class="dtm-setting-option" data-value="40">40 ta</div>
+                            <div class="summary-divider"></div>
+
+                            <!-- Elective slots -->
+                            <div class="summary-row elective empty-slot" id="slot1">
+                                <div class="summary-row-left">
+                                    <span class="summary-row-icon" id="slot1Icon">❓</span>
+                                    <span class="summary-row-name" id="slot1Name">1-fan tanlang</span>
+                                </div>
+                                <span class="summary-row-badge" id="slot1Badge">30 savol · 93 ball</span>
+                            </div>
+                            <div class="summary-row elective empty-slot" id="slot2">
+                                <div class="summary-row-left">
+                                    <span class="summary-row-icon" id="slot2Icon">❓</span>
+                                    <span class="summary-row-name" id="slot2Name">2-fan tanlang</span>
+                                </div>
+                                <span class="summary-row-badge" id="slot2Badge">30 savol · 63 ball</span>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="summary-total-row">
+                            <span class="summary-total-label">Jami</span>
+                            <div class="summary-total-nums">
+                                <div class="summary-total-item">
+                                    <div class="summary-total-value">90</div>
+                                    <div class="summary-total-sub">savol</div>
+                                </div>
+                                <div class="summary-total-item">
+                                    <div class="summary-total-value">180</div>
+                                    <div class="summary-total-sub">daqiqa</div>
+                                </div>
+                                <div class="summary-total-item">
+                                    <div class="summary-total-value">189</div>
+                                    <div class="summary-total-sub">maks. ball</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="dtm-footer">
-                    <div class="dtm-summary">
-                        <div class="dtm-summary-item">
-                            <div class="dtm-summary-value" id="totalSubjects">0</div>
-                            <div class="dtm-summary-label">Fan</div>
-                        </div>
-                        <div class="dtm-summary-item">
-                            <div class="dtm-summary-value" id="totalQuestions">0</div>
-                            <div class="dtm-summary-label">Savol</div>
-                        </div>
-                        <div class="dtm-summary-item">
-                            <div class="dtm-summary-value" id="totalTime">0</div>
-                            <div class="dtm-summary-label">Daqiqa</div>
-                        </div>
+                    <div class="summary-footer">
+                        <span class="summary-footer-hint">
+                            <i class="bi bi-info-circle-fill"></i>
+                            Vaqt boshlangandan keyin ortga qaytib bo'lmaydi
+                        </span>
+                        <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
+                            <i class="bi bi-play-fill"></i>
+                            Simulyatsiyani boshlash
+                        </button>
                     </div>
-
-                    <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
-                        <i class="bi bi-play-fill"></i>
-                        Simulyatsiyani boshlash
-                    </button>
                 </div>
-            </div>
-        </form>
+            </form>
 
-        <!-- Info -->
-        <div class="dtm-info">
-            <div class="dtm-info-icon">
-                <i class="bi bi-info-circle-fill"></i>
-            </div>
-            <div class="dtm-info-content">
-                <h4>DTM formati haqida</h4>
-                <p>Haqiqiy DTM imtihonida:</p>
-                <ul>
-                    <li>3 ta fan bo'yicha 90 ta savol</li>
-                    <li>Umumiy vaqt: 3 soat (180 daqiqa)</li>
-                    <li>Har bir savol 2.1 ball</li>
-                    <li>Maksimal ball: 189</li>
-                </ul>
-            </div>
         </div>
     </div>
 </div>
@@ -558,88 +821,176 @@
 
 {% block extra_js %}
 <script>
-    const questionsPerSubject = 30;
-    let selectedSubjects = new Set();
+(function() {
+    // ==========================================
+    // STATE
+    // ==========================================
+    var selectedElectives = []; // [{id, slug, name, icon}, ...]
+    var MAX_ELECTIVES = 2;
 
-    // Subject checkbox click
-    document.querySelectorAll('.dtm-subject-check').forEach(check => {
-        check.addEventListener('click', function(e) {
-            if (e.target.tagName === 'INPUT') return;
+    // ==========================================
+    // MANUAL SUBJECT SELECTION
+    // ==========================================
+    document.querySelectorAll('.subject-option').forEach(function(option) {
+        option.addEventListener('click', function() {
+            var slug = this.dataset.slug;
+            var id = this.dataset.id;
+            var name = this.dataset.name;
+            var icon = this.dataset.icon;
 
-            const checkbox = this.querySelector('input');
-            checkbox.checked = !checkbox.checked;
-            this.classList.toggle('selected', checkbox.checked);
-
-            const id = this.dataset.id;
-            if (checkbox.checked) {
-                selectedSubjects.add(id);
-            } else {
-                selectedSubjects.delete(id);
+            // Check if already selected
+            var existingIndex = -1;
+            for (var i = 0; i < selectedElectives.length; i++) {
+                if (selectedElectives[i].slug === slug) {
+                    existingIndex = i;
+                    break;
+                }
             }
 
-            updateSummary();
+            if (existingIndex >= 0) {
+                // Deselect
+                selectedElectives.splice(existingIndex, 1);
+                this.classList.remove('selected');
+            } else {
+                // Check max
+                if (selectedElectives.length >= MAX_ELECTIVES) {
+                    // Remove first selected, add new
+                    var oldSlug = selectedElectives[0].slug;
+                    selectedElectives.shift();
+                    var oldEl = document.querySelector('.subject-option[data-slug="' + oldSlug + '"]');
+                    if (oldEl) oldEl.classList.remove('selected');
+                }
+
+                selectedElectives.push({id: id, slug: slug, name: name, icon: icon});
+                this.classList.add('selected');
+            }
 
             // Clear preset selection
-            document.querySelectorAll('.dtm-preset-card').forEach(p => p.classList.remove('selected'));
+            document.querySelectorAll('.preset-card').forEach(function(p) {
+                p.classList.remove('selected');
+            });
+
+            updateUI();
         });
     });
 
-    // Preset card click
-    document.querySelectorAll('.dtm-preset-card').forEach(card => {
+    // ==========================================
+    // PRESET SELECTION
+    // ==========================================
+    document.querySelectorAll('.preset-card').forEach(function(card) {
         card.addEventListener('click', function() {
+            var fan1Slug = this.dataset.fan1;
+            var fan2Slug = this.dataset.fan2;
+
             // Clear all
-            document.querySelectorAll('.dtm-preset-card').forEach(p => p.classList.remove('selected'));
-            document.querySelectorAll('.dtm-subject-check').forEach(c => {
-                c.classList.remove('selected');
-                c.querySelector('input').checked = false;
+            document.querySelectorAll('.preset-card').forEach(function(p) {
+                p.classList.remove('selected');
             });
-            selectedSubjects.clear();
+            document.querySelectorAll('.subject-option').forEach(function(o) {
+                o.classList.remove('selected');
+            });
+            selectedElectives = [];
 
             // Select this preset
             this.classList.add('selected');
 
-            // Select subjects
-            const subjects = this.dataset.subjects.split(',');
-            subjects.forEach(slug => {
-                document.querySelectorAll('.dtm-subject-check').forEach(check => {
-                    const name = check.querySelector('h4').textContent.toLowerCase();
-                    const subjectSlug = name.replace(/\s+/g, '-').replace("'", '');
-
-                    // Match by checking if slug is similar
-                    if (slug.includes(subjectSlug) || subjectSlug.includes(slug.replace('-', ''))) {
-                        check.classList.add('selected');
-                        check.querySelector('input').checked = true;
-                        selectedSubjects.add(check.dataset.id);
-                    }
-                });
+            // Find and select subjects
+            [fan1Slug, fan2Slug].forEach(function(slug) {
+                var el = document.querySelector('.subject-option[data-slug="' + slug + '"]');
+                if (el) {
+                    el.classList.add('selected');
+                    selectedElectives.push({
+                        id: el.dataset.id,
+                        slug: el.dataset.slug,
+                        name: el.dataset.name,
+                        icon: el.dataset.icon
+                    });
+                }
             });
 
-            updateSummary();
+            updateUI();
         });
     });
 
-    // Questions per subject option
-    document.querySelectorAll('.dtm-setting-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.dtm-setting-option').forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
-            document.getElementById('questionsInput').value = this.dataset.value;
-            updateSummary();
+    // ==========================================
+    // UPDATE UI
+    // ==========================================
+    function updateUI() {
+        // Update count badge
+        var countEl = document.getElementById('selectedCount');
+        countEl.textContent = selectedElectives.length + '/2';
+        if (selectedElectives.length === 2) {
+            countEl.classList.add('full');
+        } else {
+            countEl.classList.remove('full');
+        }
+
+        // Update summary slots
+        updateSlot(1, selectedElectives[0] || null);
+        updateSlot(2, selectedElectives[1] || null);
+
+        // Update step 2 indicator
+        var step2 = document.getElementById('step2Num');
+        if (selectedElectives.length === 2) {
+            step2.classList.add('done');
+        } else {
+            step2.classList.remove('done');
+        }
+
+        // Update step 3
+        var step3 = document.getElementById('step3Num');
+        if (selectedElectives.length === 2) {
+            step3.classList.add('done');
+        } else {
+            step3.classList.remove('done');
+        }
+
+        // Update hidden inputs
+        var electiveInputs = document.getElementById('electiveInputs');
+        electiveInputs.innerHTML = '';
+        selectedElectives.forEach(function(s) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'subjects';
+            input.value = s.id;
+            electiveInputs.appendChild(input);
         });
-    });
 
-    function updateSummary() {
-        const numSubjects = selectedSubjects.size;
-        const questionsPerSubj = parseInt(document.getElementById('questionsInput').value);
-        const totalQuestions = numSubjects * questionsPerSubj;
-        const totalTime = totalQuestions * 2; // 2 minutes per question
+        // Enable/disable start
+        document.getElementById('startBtn').disabled = (selectedElectives.length !== 2);
 
-        document.getElementById('totalSubjects').textContent = numSubjects;
-        document.getElementById('totalQuestions').textContent = totalQuestions;
-        document.getElementById('totalTime').textContent = totalTime;
-
-        // Enable/disable start button
-        document.getElementById('startBtn').disabled = numSubjects < 2;
+        // Disable remaining subjects if 2 selected (unless already selected)
+        document.querySelectorAll('.subject-option').forEach(function(opt) {
+            var isSelected = opt.classList.contains('selected');
+            if (selectedElectives.length >= MAX_ELECTIVES && !isSelected) {
+                opt.classList.add('disabled');
+            } else {
+                opt.classList.remove('disabled');
+            }
+        });
     }
+
+    function updateSlot(num, data) {
+        var slot = document.getElementById('slot' + num);
+        var iconEl = document.getElementById('slot' + num + 'Icon');
+        var nameEl = document.getElementById('slot' + num + 'Name');
+
+        if (data) {
+            slot.classList.remove('empty-slot');
+            iconEl.textContent = data.icon || '📚';
+            nameEl.textContent = data.name;
+        } else {
+            slot.classList.add('empty-slot');
+            iconEl.textContent = '❓';
+            nameEl.textContent = num + '-fan tanlang';
+        }
+    }
+
+    // ==========================================
+    // INIT
+    // ==========================================
+    updateUI();
+
+})();
 </script>
 {% endblock %}
