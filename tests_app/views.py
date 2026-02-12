@@ -687,9 +687,6 @@ def dtm_simulation(request):
 
     return render(request, 'tests_app/dtm_simulation.html', context)
 
-
-
-
 @login_required
 @require_POST
 def dtm_simulation_start(request):
@@ -707,10 +704,9 @@ def dtm_simulation_start(request):
     fan1 = get_object_or_404(Subject, id=fan1_id, is_active=True)
     fan2 = get_object_or_404(Subject, id=fan2_id, is_active=True)
 
-    all_questions = []
     seen_ids = set()
 
-    def add_questions(subject, count):
+    def get_questions(subject, count):
         """Fandan unique savollarni olish"""
         questions = list(Question.objects.filter(
             subject=subject,
@@ -720,23 +716,34 @@ def dtm_simulation_start(request):
         selected = questions[:count]
         for q in selected:
             seen_ids.add(q.id)
-        all_questions.extend(selected)
+        return selected
 
-    # MAJBURIY FANLAR — har biridan 10 ta
+    # ==========================================
+    # DTM TARTIB:
+    # 1) 1-fan — 30 ta savol (93 ball)
+    # 2) 2-fan — 30 ta savol (63 ball)
+    # 3) Majburiy fanlar — 30 ta savol (33 ball)
+    #    - Ona tili: 10 ta
+    #    - Matematika: 10 ta
+    #    - O'zbekiston tarixi: 10 ta
+    # ==========================================
+
+    all_questions = []
+
+    # 1) YO'NALISH 1-FAN — 30 ta
+    all_questions.extend(get_questions(fan1, 30))
+
+    # 2) YO'NALISH 2-FAN — 30 ta
+    all_questions.extend(get_questions(fan2, 30))
+
+    # 3) MAJBURIY FANLAR — har biridan 10 ta
     mandatory_slugs = ['ona-tili', 'matematika', 'ozbekiston-tarixi']
-    used_slugs = set()
-
     for slug in mandatory_slugs:
         subj = Subject.objects.filter(slug=slug, is_active=True).first()
         if not subj and slug == 'ozbekiston-tarixi':
             subj = Subject.objects.filter(slug='tarix', is_active=True).first()
-        if subj and subj.slug not in used_slugs:
-            add_questions(subj, 10)
-            used_slugs.add(subj.slug)
-
-    # YO'NALISH FANLARI — har biridan 30 ta
-    add_questions(fan1, 30)
-    add_questions(fan2, 30)
+        if subj:
+            all_questions.extend(get_questions(subj, 10))
 
     if len(all_questions) < 20:
         messages.error(request, "Yetarli savol topilmadi. Boshqa fanlarni tanlang.")
@@ -749,25 +756,23 @@ def dtm_simulation_start(request):
         test_type='exam',
         time_limit=180,
         question_count=len(all_questions),
-        shuffle_questions=False,
+        shuffle_questions=False,   # ARALASHTIRILMAYDI — tartib muhim!
         shuffle_answers=True,
         show_correct_answers=True,
         created_by=request.user
     )
 
     # Fanlarni bog'lash
-    subject_ids = set()
+    subject_ids = set([fan1.id, fan2.id])
     for slug in mandatory_slugs:
         s = Subject.objects.filter(slug=slug, is_active=True).first()
         if not s and slug == 'ozbekiston-tarixi':
             s = Subject.objects.filter(slug='tarix', is_active=True).first()
         if s:
             subject_ids.add(s.id)
-    subject_ids.add(fan1.id)
-    subject_ids.add(fan2.id)
     test.subjects.set(Subject.objects.filter(id__in=subject_ids))
 
-    # Savollarni qo'shish
+    # Savollarni TARTIB BILAN qo'shish (aralashtirilmaydi!)
     for i, q in enumerate(all_questions):
         TestQuestion.objects.create(test=test, question=q, order=i)
 
