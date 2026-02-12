@@ -692,57 +692,109 @@ def dtm_simulation(request):
 @require_POST
 def dtm_simulation_start(request):
     """
-    DTM simulyatsiyani boshlash
+    DTM simulyatsiyani boshlash (yangilangan format)
+
+    Majburiy fanlar (avtomatik): Ona tili (10), Matematika (10), O'zb. tarixi (10)
+    Yo'nalish fanlari (user tanlaydi): fan1 (30), fan2 (30)
+    Jami: 90 savol, 3 soat (180 daqiqa)
     """
-    subject_ids = request.POST.getlist('subjects')
-    questions_per_subject = int(request.POST.get('questions_per_subject', 30))
+    fan1_id = request.POST.get('fan1')
+    fan2_id = request.POST.get('fan2')
 
-    if len(subject_ids) < 2:
-        messages.error(request, "Kamida 2 ta fan tanlang")
+    # Validatsiya
+    if not fan1_id or not fan2_id:
+        messages.error(request, "Ikkita yo'nalish fanini tanlang")
         return redirect('tests_app:dtm_simulation')
 
-    if len(subject_ids) > 4:
-        messages.error(request, "Maksimum 4 ta fan tanlash mumkin")
+    if fan1_id == fan2_id:
+        messages.error(request, "Ikki xil fan tanlang")
         return redirect('tests_app:dtm_simulation')
 
-    subjects = Subject.objects.filter(id__in=subject_ids, is_active=True)
+    fan1 = get_object_or_404(Subject, id=fan1_id, is_active=True)
+    fan2 = get_object_or_404(Subject, id=fan2_id, is_active=True)
+
+    # ==========================================
+    # MAJBURIY FANLAR — 10 ta savol har biridan
+    # ==========================================
+    mandatory_slugs = ['ona-tili', 'matematika', 'tarix', 'ozbekiston-tarixi']
+    mandatory_subjects = Subject.objects.filter(
+        slug__in=mandatory_slugs,
+        is_active=True
+    )
 
     all_questions = []
-    for subject in subjects:
+    subjects_used = set()
+
+    for subj in mandatory_subjects:
+        if subj.slug in subjects_used:
+            continue  # tarix va ozbekiston-tarixi dublikat bo'lmasin
+
         questions = list(Question.objects.filter(
-            subject=subject,
+            subject=subj,
             is_active=True
         ))
         random.shuffle(questions)
-        all_questions.extend(questions[:questions_per_subject])
+        all_questions.extend(questions[:10])  # 10 ta
+        subjects_used.add(subj.slug)
 
-    if len(all_questions) < 10:
-        messages.error(request, "Yetarli savol topilmadi")
+    # ==========================================
+    # YO'NALISH FANLARI — 30 ta savol har biridan
+    # ==========================================
+    for subj in [fan1, fan2]:
+        questions = list(Question.objects.filter(
+            subject=subj,
+            is_active=True
+        ))
+        random.shuffle(questions)
+        all_questions.extend(questions[:30])  # 30 ta
+
+    if len(all_questions) < 20:
+        messages.error(request, "Yetarli savol topilmadi. Boshqa fanlarni tanlang.")
         return redirect('tests_app:dtm_simulation')
 
-    # Test yaratish
+    # ==========================================
+    # TEST YARATISH
+    # ==========================================
     test = Test.objects.create(
-        title=f"DTM Simulyatsiya - {', '.join([s.name for s in subjects])}",
+        title=f"DTM Simulyatsiya — {fan1.name} + {fan2.name}",
         slug=f"dtm-{request.user.id}-{timezone.now().timestamp()}",
         test_type='exam',
-        time_limit=len(all_questions) * 2,  # Har savolga 2 daqiqa
+        time_limit=180,  # 3 soat = 180 daqiqa
         question_count=len(all_questions),
-        shuffle_questions=True,
+        shuffle_questions=False,  # DTM da tartib muhim
         shuffle_answers=True,
         show_correct_answers=True,
         created_by=request.user
     )
-    test.subjects.set(subjects)
 
-    random.shuffle(all_questions)
+    # Barcha foydalanilgan fanlarni qo'shish
+    all_subject_ids = [s.id for s in mandatory_subjects] + [fan1.id, fan2.id]
+    test.subjects.set(Subject.objects.filter(id__in=all_subject_ids))
+
+    # Savollarni tartibda qo'shish
     for i, q in enumerate(all_questions):
         TestQuestion.objects.create(test=test, question=q, order=i)
 
+    # Attempt yaratish
     attempt = TestAttempt.objects.create(
         user=request.user,
         test=test,
         total_questions=len(all_questions),
         status='in_progress'
+    )
+
+    # Activity log
+    UserActivityLog.objects.create(
+        user=request.user,
+        action='test_start',
+        details={
+            'test_id': test.id,
+            'test_type': 'dtm_simulation',
+            'fan1': fan1.name,
+            'fan2': fan2.name,
+            'question_count': len(all_questions),
+        },
+        subject=fan1
     )
 
     return redirect('tests_app:test_play', uuid=attempt.uuid)

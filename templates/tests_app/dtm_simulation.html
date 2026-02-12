@@ -24,12 +24,8 @@
     }
 
     .dtm-hero-inner {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
+        position: relative; z-index: 1;
+        display: flex; align-items: center; justify-content: space-between; gap: 2rem;
     }
 
     .dtm-hero-text h1 { font-size: 2rem; font-weight: 900; color: white; margin-bottom: 0.4rem; }
@@ -38,11 +34,8 @@
     .dtm-hero-nums { display: flex; gap: 1rem; flex-shrink: 0; }
 
     .dtm-hero-num {
-        text-align: center;
-        padding: 0.75rem 1.15rem;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 14px;
+        text-align: center; padding: 0.75rem 1.15rem;
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
     }
 
     .dtm-hero-num strong { display: block; font-size: 1.4rem; font-weight: 900; color: white; line-height: 1; }
@@ -50,12 +43,9 @@
 
     /* Card */
     .dtm-card {
-        max-width: 600px;
-        margin: 2.5rem auto 0;
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 24px;
-        overflow: hidden;
+        max-width: 600px; margin: 2.5rem auto 0;
+        background: var(--white); border: 1px solid var(--gray-200);
+        border-radius: 24px; overflow: hidden;
         box-shadow: 0 20px 50px -15px rgba(0,0,0,0.08);
     }
 
@@ -65,34 +55,24 @@
     .dtm-section:last-child { margin-bottom: 0; }
 
     .dtm-section-label {
-        font-size: 0.75rem;
-        font-weight: 800;
-        color: var(--gray-500);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-bottom: 0.85rem;
+        font-size: 0.75rem; font-weight: 800; color: var(--gray-500);
+        text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.85rem;
     }
 
+    /* Mandatory */
     .mandatory-list { display: flex; flex-direction: column; gap: 0.6rem; }
 
     .mandatory-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.85rem 1rem;
-        background: var(--gray-50);
-        border: 1px solid var(--gray-200);
-        border-radius: 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.85rem 1rem; background: var(--gray-50);
+        border: 1px solid var(--gray-200); border-radius: 12px;
     }
 
     .mandatory-item-left { display: flex; align-items: center; gap: 0.75rem; }
 
     .mandatory-item-icon {
-        width: 38px; height: 38px;
-        background: var(--white);
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.15rem;
+        width: 38px; height: 38px; background: var(--white); border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
         box-shadow: 0 2px 6px -2px rgba(0,0,0,0.06);
     }
 
@@ -105,43 +85,33 @@
 
     .dtm-divider { height: 1px; background: var(--gray-200); margin: 1.5rem 0; }
 
-    .dtm-select-group { margin-bottom: 1rem; }
+    /* Select */
+    .dtm-select-group { margin-bottom: 1.15rem; }
     .dtm-select-group:last-child { margin-bottom: 0; }
 
     .dtm-select-label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.5rem;
+        display: block; font-size: 0.85rem; font-weight: 700;
+        color: var(--dark); margin-bottom: 0.5rem;
     }
 
     .dtm-select {
-        width: 100%;
-        padding: 0.85rem 1rem;
-        background: var(--white);
-        border: 2px solid var(--gray-200);
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--dark);
-        appearance: none;
-        -webkit-appearance: none;
+        width: 100%; padding: 0.85rem 1rem;
+        background: var(--white); border: 2px solid var(--gray-200); border-radius: 12px;
+        font-size: 0.95rem; font-weight: 600; color: var(--dark);
+        appearance: none; -webkit-appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%236B7280' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        background-repeat: no-repeat; background-position: right 1rem center;
+        cursor: pointer; transition: all 0.2s ease;
     }
 
     .dtm-select:focus {
-        outline: none;
-        border-color: var(--primary);
+        outline: none; border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(139, 197, 64, 0.15);
     }
 
     .dtm-select option[value=""] { color: var(--gray-400); }
     .dtm-select option { color: var(--dark); font-weight: 600; }
+    .dtm-select option:disabled { color: var(--gray-300); }
     .dtm-select.error { border-color: #EF4444; }
 
     .dtm-error-msg {
@@ -150,25 +120,27 @@
     }
     .dtm-error-msg.show { display: block; }
 
+    .dtm-match-hint {
+        font-size: 0.78rem; color: var(--primary-dark); font-weight: 600;
+        margin-top: 0.35rem; display: none;
+    }
+    .dtm-match-hint.show { display: block; }
+    .dtm-match-hint i { margin-right: 0.2rem; }
+
+    /* Footer */
     .dtm-card-footer {
-        padding: 1.25rem 2rem;
-        background: var(--gray-50);
+        padding: 1.25rem 2rem; background: var(--gray-50);
         border-top: 1px solid var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: flex; align-items: center; justify-content: space-between;
     }
 
     .dtm-footer-info { font-size: 0.85rem; color: var(--gray-500); font-weight: 600; }
     .dtm-footer-info strong { color: var(--dark); }
 
     .dtm-start-btn {
-        padding: 0.8rem 2rem;
-        background: var(--gradient-primary);
-        border: none; color: white;
-        border-radius: 12px;
-        font-size: 0.95rem; font-weight: 800;
-        cursor: pointer;
+        padding: 0.8rem 2rem; background: var(--gradient-primary);
+        border: none; color: white; border-radius: 12px;
+        font-size: 0.95rem; font-weight: 800; cursor: pointer;
         transition: all 0.3s ease;
         display: flex; align-items: center; gap: 0.5rem;
         box-shadow: 0 8px 24px -6px rgba(139, 197, 64, 0.4);
@@ -213,19 +185,13 @@
     <div class="container">
         <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
             {% csrf_token %}
-            <input type="hidden" name="questions_per_subject" value="30">
-
-            {% for subject in subjects %}
-                {% if subject.slug == 'ona-tili' or subject.slug == 'matematika' or subject.slug == 'tarix' or subject.slug == 'ozbekiston-tarixi' %}
-                <input type="hidden" name="subjects" value="{{ subject.id }}">
-                {% endif %}
-            {% endfor %}
 
             <div class="dtm-card">
                 <div class="dtm-card-body">
 
+                    <!-- Majburiy fanlar -->
                     <div class="dtm-section">
-                        <div class="dtm-section-label">Majburiy fanlar · 30 savol</div>
+                        <div class="dtm-section-label">Majburiy fanlar · 30 savol · 33 ball</div>
                         <div class="mandatory-list">
                             <div class="mandatory-item">
                                 <div class="mandatory-item-left">
@@ -253,17 +219,18 @@
 
                     <div class="dtm-divider"></div>
 
+                    <!-- Yo'nalish fanlari -->
                     <div class="dtm-section">
-                        <div class="dtm-section-label">Yo'nalish fanlari · 60 savol</div>
+                        <div class="dtm-section-label">Yo'nalish fanlari · 60 savol · 156 ball</div>
 
                         <div class="dtm-select-group">
                             <label class="dtm-select-label">1-fan (30 savol · 93 ball)</label>
-                            <select class="dtm-select" name="subjects" id="fan1" required>
+                            <select class="dtm-select" name="fan1" id="fan1" required>
                                 <option value="">Fan tanlang...</option>
                                 {% for subject in subjects %}
-                                    {% if subject.slug != 'ona-tili' and subject.slug != 'matematika' and subject.slug != 'tarix' and subject.slug != 'ozbekiston-tarixi' %}
-                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
-                                    {% endif %}
+                                <option value="{{ subject.id }}" data-slug="{{ subject.slug }}" data-icon="{{ subject.icon }}">
+                                    {{ subject.icon }} {{ subject.name }}
+                                </option>
                                 {% endfor %}
                             </select>
                             <div class="dtm-error-msg" id="fan1Error">Fan tanlang</div>
@@ -271,16 +238,14 @@
 
                         <div class="dtm-select-group">
                             <label class="dtm-select-label">2-fan (30 savol · 63 ball)</label>
-                            <select class="dtm-select" name="subjects" id="fan2" required>
-                                <option value="">Fan tanlang...</option>
-                                {% for subject in subjects %}
-                                    {% if subject.slug != 'ona-tili' and subject.slug != 'matematika' and subject.slug != 'tarix' and subject.slug != 'ozbekiston-tarixi' %}
-                                    <option value="{{ subject.id }}">{{ subject.icon }} {{ subject.name }}</option>
-                                    {% endif %}
-                                {% endfor %}
+                            <select class="dtm-select" name="fan2" id="fan2" required disabled>
+                                <option value="">Avval 1-fanni tanlang...</option>
                             </select>
                             <div class="dtm-error-msg" id="fan2Error">Fan tanlang</div>
-                            <div class="dtm-error-msg" id="sameError">Ikki xil fan tanlang</div>
+                            <div class="dtm-match-hint" id="matchHint">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span id="matchHintText"></span>
+                            </div>
                         </div>
                     </div>
 
@@ -307,41 +272,155 @@
     var fan1 = document.getElementById('fan1');
     var fan2 = document.getElementById('fan2');
     var startBtn = document.getElementById('startBtn');
-    var sameError = document.getElementById('sameError');
+    var matchHint = document.getElementById('matchHint');
+    var matchHintText = document.getElementById('matchHintText');
 
-    function validate() {
+    // ==========================================
+    // Barcha fanlar ro'yxati (fan2 uchun qayta qurish kerak)
+    // ==========================================
+    var allSubjects = [
+        {% for subject in subjects %}
+        {id: '{{ subject.id }}', slug: '{{ subject.slug }}', name: '{{ subject.name }}', icon: '{{ subject.icon }}'},
+        {% endfor %}
+    ];
+
+    // ==========================================
+    // Yo'nalish fanlari mosligi
+    // 1-fan tanlanganda 2-fan faqat mos fanlarni ko'rsatadi
+    // ==========================================
+    var compatibility = {
+        'matematika':   ['fizika', 'informatika', 'ingliz-tili', 'geografiya'],
+        'fizika':       ['matematika', 'informatika', 'ingliz-tili'],
+        'kimyo':        ['biologiya', 'matematika', 'ingliz-tili'],
+        'biologiya':    ['kimyo', 'ingliz-tili', 'geografiya'],
+        'informatika':  ['matematika', 'fizika', 'ingliz-tili'],
+        'ingliz-tili':  ['matematika', 'fizika', 'kimyo', 'biologiya', 'informatika', 'geografiya'],
+        'geografiya':   ['matematika', 'ingliz-tili', 'biologiya'],
+        'tarix':        ['geografiya', 'ingliz-tili'],
+        'ona-tili':     ['ingliz-tili'],
+    };
+
+    var directionNames = {
+        'matematika+fizika':        'Aniq fanlar (Muhandislik, IT)',
+        'matematika+informatika':   'Kompyuter fanlari, Dasturlash',
+        'matematika+ingliz-tili':   'Iqtisodiyot, Xalqaro biznes',
+        'matematika+geografiya':    'Geodeziya, Kartografiya',
+        'fizika+matematika':        'Aniq fanlar (Muhandislik, IT)',
+        'fizika+informatika':       'Kompyuter muhandisligi',
+        'fizika+ingliz-tili':       'Xalqaro muhandislik',
+        'kimyo+biologiya':          'Tibbiyot, Farmatsevtika',
+        'kimyo+matematika':         'Kimyoviy texnologiya',
+        'kimyo+ingliz-tili':        'Xalqaro tibbiyot',
+        'biologiya+kimyo':          'Tibbiyot, Farmatsevtika',
+        'biologiya+ingliz-tili':    'Biologik fanlar, Veterinariya',
+        'biologiya+geografiya':     'Ekologiya, Tuproqshunoslik',
+        'informatika+matematika':   'Kompyuter fanlari, Dasturlash',
+        'informatika+fizika':       'Kompyuter muhandisligi',
+        'informatika+ingliz-tili':  'IT, Sun\'iy intellekt',
+        'ingliz-tili+matematika':   'Iqtisodiyot, Xalqaro biznes',
+        'ingliz-tili+fizika':       'Xalqaro muhandislik',
+        'ingliz-tili+kimyo':        'Xalqaro tibbiyot',
+        'ingliz-tili+biologiya':    'Biologik fanlar',
+        'ingliz-tili+informatika':  'IT, Sun\'iy intellekt',
+        'ingliz-tili+geografiya':   'Turizm, Xalqaro munosabatlar',
+        'geografiya+matematika':    'Geodeziya, Kartografiya',
+        'geografiya+ingliz-tili':   'Turizm, Xalqaro munosabatlar',
+        'geografiya+biologiya':     'Ekologiya, Tuproqshunoslik',
+        'tarix+geografiya':         'Ijtimoiy fanlar, Pedagogika',
+        'tarix+ingliz-tili':        'Xalqaro munosabatlar, Huquq',
+        'ona-tili+ingliz-tili':     'Filologiya, Tarjimonlik',
+    };
+
+    // ==========================================
+    // 1-fan o'zgarganida
+    // ==========================================
+    fan1.addEventListener('change', function() {
+        var selectedOption = fan1.options[fan1.selectedIndex];
+        var slug1 = selectedOption ? selectedOption.dataset.slug : '';
+
+        // fan2 ni tozalash va qayta to'ldirish
+        fan2.innerHTML = '<option value="">Fan tanlang...</option>';
+        fan2.disabled = true;
+        startBtn.disabled = true;
+        matchHint.classList.remove('show');
+
+        if (!slug1) return;
+
+        // Mos fanlarni olish
+        var compatibleSlugs = compatibility[slug1] || [];
+
+        if (compatibleSlugs.length === 0) {
+            fan2.innerHTML = '<option value="">Mos fan topilmadi</option>';
+            return;
+        }
+
+        // fan2 ga mos fanlarni qo'shish
+        var addedCount = 0;
+        allSubjects.forEach(function(s) {
+            if (compatibleSlugs.indexOf(s.slug) !== -1) {
+                var opt = document.createElement('option');
+                opt.value = s.id;
+                opt.dataset.slug = s.slug;
+                opt.textContent = s.icon + ' ' + s.name;
+                fan2.appendChild(opt);
+                addedCount++;
+            }
+        });
+
+        if (addedCount > 0) {
+            fan2.disabled = false;
+            fan2.querySelector('option[value=""]').textContent = 'Fan tanlang...';
+        } else {
+            fan2.innerHTML = '<option value="">Mos fan topilmadi</option>';
+        }
+    });
+
+    // ==========================================
+    // 2-fan o'zgarganida
+    // ==========================================
+    fan2.addEventListener('change', function() {
         var v1 = fan1.value;
         var v2 = fan2.value;
 
-        fan1.classList.remove('error');
         fan2.classList.remove('error');
-        sameError.classList.remove('show');
-        document.getElementById('fan1Error').classList.remove('show');
         document.getElementById('fan2Error').classList.remove('show');
 
-        if (v1 && v2 && v1 === v2) {
-            fan2.classList.add('error');
-            sameError.classList.add('show');
+        startBtn.disabled = !(v1 && v2);
+
+        // Yo'nalish hintini ko'rsatish
+        if (v1 && v2) {
+            var slug1 = fan1.options[fan1.selectedIndex].dataset.slug;
+            var slug2 = fan2.options[fan2.selectedIndex].dataset.slug;
+            var key = slug1 + '+' + slug2;
+            var dirName = directionNames[key];
+
+            if (dirName) {
+                matchHintText.textContent = 'Yo\'nalish: ' + dirName;
+                matchHint.classList.add('show');
+            } else {
+                matchHint.classList.remove('show');
+            }
+        } else {
+            matchHint.classList.remove('show');
         }
+    });
 
-        fan2.querySelectorAll('option').forEach(function(opt) {
-            opt.disabled = (opt.value && opt.value === v1);
-        });
-        fan1.querySelectorAll('option').forEach(function(opt) {
-            opt.disabled = (opt.value && opt.value === v2);
-        });
-
-        startBtn.disabled = !(v1 && v2 && v1 !== v2);
-    }
-
-    fan1.addEventListener('change', validate);
-    fan2.addEventListener('change', validate);
-
+    // ==========================================
+    // Form submit
+    // ==========================================
     document.getElementById('dtmForm').addEventListener('submit', function(e) {
-        if (!fan1.value || !fan2.value || fan1.value === fan2.value) {
+        var v1 = fan1.value;
+        var v2 = fan2.value;
+
+        document.getElementById('fan1Error').classList.remove('show');
+        document.getElementById('fan2Error').classList.remove('show');
+        fan1.classList.remove('error');
+        fan2.classList.remove('error');
+
+        if (!v1 || !v2) {
             e.preventDefault();
-            if (!fan1.value) { fan1.classList.add('error'); document.getElementById('fan1Error').classList.add('show'); }
-            if (!fan2.value) { fan2.classList.add('error'); document.getElementById('fan2Error').classList.add('show'); }
+            if (!v1) { fan1.classList.add('error'); document.getElementById('fan1Error').classList.add('show'); }
+            if (!v2) { fan2.classList.add('error'); document.getElementById('fan2Error').classList.add('show'); }
         }
     });
 })();
