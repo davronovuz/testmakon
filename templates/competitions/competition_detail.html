@@ -5,1071 +5,859 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .cd-header {
-        position: relative;
-        padding: 3rem 0;
-        color: white;
-        overflow: hidden;
-    }
+    .cd-page { padding: 2rem 0 4rem; }
 
-    .cd-header.olympiad { background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); }
-    .cd-header.weekly { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
-    .cd-header.monthly { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
-    .cd-header.daily { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
-    .cd-header.special { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-    .cd-header.tournament { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
-    .cd-header.default { background: var(--gradient-dark); }
-
-    .cd-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-
-    .cd-header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .cd-breadcrumb {
+    /* ========== BREADCRUMB ========== */
+    .cd-bread {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        color: var(--gray-500);
         margin-bottom: 1.5rem;
-        opacity: 0.9;
     }
 
-    .cd-breadcrumb a {
-        color: white;
-        opacity: 0.8;
-    }
+    .cd-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .cd-bread a:hover { text-decoration: underline; }
 
-    .cd-breadcrumb a:hover {
-        opacity: 1;
-    }
-
-    .cd-header-main {
-        display: flex;
+    /* ========== LAYOUT ========== */
+    .cd-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
         gap: 2rem;
-        align-items: flex-start;
+        align-items: start;
     }
 
-    @media (max-width: 768px) {
-        .cd-header-main {
-            flex-direction: column;
-        }
-    }
-
-    .cd-header-icon {
-        width: 100px;
-        height: 100px;
-        background: rgba(255,255,255,0.15);
-        border-radius: var(--radius-xl);
+    /* ========== MAIN ========== */
+    .cd-banner {
+        width: 100%;
+        height: 200px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 3rem;
-        flex-shrink: 0;
+        font-size: 5rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
     }
 
-    .cd-header-info {
-        flex: 1;
-    }
+    .cd-banner.daily { background: linear-gradient(135deg, #10B981, #059669); }
+    .cd-banner.weekly { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+    .cd-banner.monthly { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+    .cd-banner.special { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    .cd-banner.olympiad { background: linear-gradient(135deg, #EF4444, #B91C1C); }
+    .cd-banner.tournament { background: linear-gradient(135deg, #06B6D4, #0891B2); }
 
-    .cd-badges {
+    .cd-banner img { width: 100%; height: 100%; object-fit: cover; }
+
+    .cd-banner-badges {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
+        justify-content: space-between;
     }
 
     .cd-badge {
-        padding: 0.4rem 0.9rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
         font-weight: 700;
-        text-transform: uppercase;
+        backdrop-filter: blur(8px);
     }
 
-    .cd-badge.type {
-        background: rgba(255,255,255,0.2);
-        color: white;
-    }
+    .cd-badge.type { background: rgba(0,0,0,0.5); color: white; text-transform: uppercase; }
+    .cd-badge.free { background: #D1FAE5; color: #059669; }
+    .cd-badge.paid { background: #FEF3C7; color: #D97706; }
+    .cd-badge.premium_only { background: #EDE9FE; color: #7C3AED; }
 
-    .cd-badge.free {
-        background: #10B981;
-        color: white;
-    }
-
-    .cd-badge.premium {
-        background: #F59E0B;
-        color: white;
-    }
-
-    .cd-badge.paid {
-        background: #EF4444;
-        color: white;
-    }
-
-    .cd-badge.status-active {
-        background: white;
-        color: #10B981;
-    }
-
-    .cd-badge.status-upcoming {
-        background: white;
-        color: #3B82F6;
-    }
-
-    .cd-badge.status-finished {
-        background: rgba(255,255,255,0.3);
-        color: white;
-    }
-
-    .cd-header h1 {
-        font-size: 2rem;
-        color: white;
+    .cd-status-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin-bottom: 0.75rem;
+    }
+
+    .cd-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+    }
+
+    .cd-status.draft { background: var(--gray-100); color: var(--gray-500); }
+    .cd-status.upcoming { background: #DBEAFE; color: #2563EB; }
+    .cd-status.registration { background: #FEF3C7; color: #D97706; }
+    .cd-status.active { background: #D1FAE5; color: #059669; }
+    .cd-status.finished { background: var(--gray-100); color: var(--gray-500); }
+    .cd-status.cancelled { background: #FEE2E2; color: #DC2626; }
+
+    .cd-title {
+        font-size: 1.65rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin: 0 0 0.75rem;
         line-height: 1.3;
     }
 
-    .cd-header-desc {
-        font-size: 1.05rem;
-        color: rgba(255,255,255,0.9);
+    .cd-desc {
+        font-size: 0.95rem;
+        color: var(--gray-600);
+        line-height: 1.7;
         margin-bottom: 1.5rem;
-        max-width: 600px;
     }
 
-    .cd-header-stats {
+    /* Info Grid */
+    .cd-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cd-info-item {
+        background: var(--gray-50);
+        border-radius: 12px;
+        padding: 1rem;
         display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-    .cd-header-stat {
+    .cd-info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .cd-info-icon.blue { background: #DBEAFE; color: #2563EB; }
+    .cd-info-icon.green { background: #D1FAE5; color: #059669; }
+    .cd-info-icon.purple { background: #EDE9FE; color: #7C3AED; }
+    .cd-info-icon.amber { background: #FEF3C7; color: #D97706; }
+
+    .cd-info-label { font-size: 0.75rem; color: var(--gray-500); font-weight: 600; }
+    .cd-info-val { font-size: 0.95rem; font-weight: 800; color: var(--dark); }
+
+    /* Rules */
+    .cd-rules {
+        background: var(--gray-50);
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cd-rules h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 0.75rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.95rem;
     }
 
-    .cd-header-stat i {
-        opacity: 0.8;
+    .cd-rules-text {
+        font-size: 0.9rem;
+        color: var(--gray-600);
+        line-height: 1.7;
+        white-space: pre-line;
     }
 
-    /* ========== COUNTDOWN ========== */
-    .cd-countdown {
-        background: rgba(0,0,0,0.2);
-        border-radius: var(--radius-lg);
+    /* Prizes */
+    .cd-prizes {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cd-prizes h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cd-prize-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 0;
+    }
+
+    .cd-prize-row + .cd-prize-row { border-top: 1px solid var(--gray-100); }
+
+    .cd-prize-medal {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .cd-prize-medal.gold { background: #FEF3C7; }
+    .cd-prize-medal.silver { background: #F1F5F9; }
+    .cd-prize-medal.bronze { background: #FED7AA; }
+
+    .cd-prize-place { font-size: 0.85rem; font-weight: 700; color: var(--dark); flex: 1; }
+    .cd-prize-amount { font-size: 0.92rem; font-weight: 800; color: var(--primary); }
+
+    /* Leaderboard */
+    .cd-lb {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .cd-lb-head {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .cd-lb-head h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cd-lb-link {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .cd-lb-link:hover { text-decoration: underline; }
+
+    .cd-lb-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        transition: background 0.15s;
+    }
+
+    .cd-lb-row:hover { background: var(--gray-50); }
+    .cd-lb-row + .cd-lb-row { border-top: 1px solid var(--gray-50); }
+
+    .cd-lb-rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 800;
+        flex-shrink: 0;
+        background: var(--gray-100);
+        color: var(--gray-600);
+    }
+
+    .cd-lb-rank.r1 { background: #FEF3C7; color: #D97706; }
+    .cd-lb-rank.r2 { background: #F1F5F9; color: #64748B; }
+    .cd-lb-rank.r3 { background: #FED7AA; color: #C2410C; }
+
+    .cd-lb-name { flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--dark); }
+    .cd-lb-score { font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+    .cd-lb-time { font-size: 0.78rem; color: var(--gray-500); }
+
+    .cd-lb-empty {
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--gray-400);
+    }
+
+    /* ========== SIDEBAR ========== */
+    .cd-sidebar { position: sticky; top: 1.5rem; }
+
+    .cd-action-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
         padding: 1.5rem;
-        margin-top: 1.5rem;
-        display: inline-block;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Countdown */
+    .cd-countdown {
+        text-align: center;
+        margin-bottom: 1.25rem;
     }
 
     .cd-countdown-label {
-        font-size: 0.85rem;
-        opacity: 0.9;
-        margin-bottom: 0.5rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        margin-bottom: 0.65rem;
     }
 
-    .cd-countdown-timer {
+    .cd-countdown-grid {
         display: flex;
-        gap: 1rem;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     .cd-countdown-item {
+        background: var(--gray-50);
+        border-radius: 10px;
+        padding: 0.6rem 0.85rem;
         text-align: center;
+        min-width: 56px;
     }
 
-    .cd-countdown-value {
-        font-size: 2rem;
-        font-weight: 800;
+    .cd-countdown-num {
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--dark);
         line-height: 1;
     }
 
     .cd-countdown-unit {
-        font-size: 0.75rem;
-        opacity: 0.8;
+        font-size: 0.68rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        margin-top: 0.2rem;
     }
 
-    /* ========== CONTENT ========== */
-    .cd-content {
-        padding: 2.5rem 0;
-    }
-
-    .cd-layout {
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 2rem;
-    }
-
-    @media (max-width: 992px) {
-        .cd-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== CARDS ========== */
-    .cd-card {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        border: 1px solid var(--gray-200);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    .cd-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .cd-card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
+    /* Participant status */
+    .cd-my-status {
+        background: #F0FFF4;
+        border: 1px solid #C6F6D5;
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.25rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-    }
-
-    .cd-card-title i {
-        color: var(--primary);
-    }
-
-    .cd-card-body {
-        padding: 1.5rem;
-    }
-
-    /* ========== INFO LIST ========== */
-    .cd-info-list {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .cd-info-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--gray-100);
-    }
-
-    .cd-info-item:last-child {
-        border-bottom: none;
-    }
-
-    .cd-info-label {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 0.95rem;
-        color: var(--gray-500);
-    }
-
-    .cd-info-label i {
-        width: 20px;
-        text-align: center;
-        color: var(--primary);
-    }
-
-    .cd-info-value {
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         font-weight: 600;
-        color: var(--dark);
-    }
-
-    /* ========== PRIZES ========== */
-    .cd-prizes {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .cd-prize-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
-    }
-
-    .cd-prize-item.gold {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        border: 1px solid #F59E0B;
-    }
-
-    .cd-prize-item.silver {
-        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-        border: 1px solid #9CA3AF;
-    }
-
-    .cd-prize-item.bronze {
-        background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
-        border: 1px solid #F97316;
-    }
-
-    .cd-prize-icon {
-        font-size: 2rem;
-    }
-
-    .cd-prize-info {
-        flex: 1;
-    }
-
-    .cd-prize-place {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .cd-prize-desc {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .cd-prize-amount {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--dark);
-    }
-
-    /* ========== RULES ========== */
-    .cd-rules {
-        font-size: 0.95rem;
-        color: var(--dark-600);
-        line-height: 1.8;
-    }
-
-    .cd-rules ul {
-        padding-left: 1.5rem;
-        margin: 1rem 0;
-    }
-
-    .cd-rules li {
-        margin-bottom: 0.5rem;
-    }
-
-    /* ========== LEADERBOARD ========== */
-    .cd-leaderboard {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .cd-leader-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--gray-100);
-    }
-
-    .cd-leader-item:last-child {
-        border-bottom: none;
-    }
-
-    .cd-leader-rank {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .cd-leader-rank.gold {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .cd-leader-rank.silver {
-        background: #F3F4F6;
-        color: #6B7280;
-    }
-
-    .cd-leader-rank.bronze {
-        background: #FED7AA;
-        color: #EA580C;
-    }
-
-    .cd-leader-rank.normal {
-        background: var(--gray-100);
-        color: var(--gray-500);
-    }
-
-    .cd-leader-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        color: var(--dark-600);
-        overflow: hidden;
-    }
-
-    .cd-leader-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .cd-leader-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .cd-leader-name {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .cd-leader-score {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .cd-leader-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        background: var(--primary-glow);
-        color: var(--primary-dark);
-    }
-
-    /* ========== SIDEBAR ========== */
-    .cd-sidebar {
-        position: sticky;
-        top: 100px;
-        align-self: start;
-    }
-
-    /* Action Card */
-    .cd-action-card {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow);
-        border: 1px solid var(--gray-200);
-        margin-bottom: 1.5rem;
-    }
-
-    .cd-action-status {
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .cd-action-status-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 1.75rem;
-    }
-
-    .cd-action-status-icon.success {
-        background: #D1FAE5;
         color: #059669;
     }
 
-    .cd-action-status-icon.warning {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .cd-action-status-icon.info {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .cd-action-status h4 {
-        font-size: 1.1rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .cd-action-status p {
-        font-size: 0.9rem;
-        color: var(--gray-500);
-        margin: 0;
-    }
-
-    .cd-action-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
+    .cd-my-result {
         background: var(--gray-50);
-        border-radius: var(--radius);
-    }
-
-    .cd-action-info-item {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9rem;
-    }
-
-    .cd-action-info-label {
-        color: var(--gray-500);
-    }
-
-    .cd-action-info-value {
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    .cd-action-btn {
-        width: 100%;
+        border-radius: 12px;
         padding: 1rem;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .cd-my-result-title {
+        font-size: 0.82rem;
         font-weight: 700;
+        color: var(--gray-500);
+        margin-bottom: 0.65rem;
+    }
+
+    .cd-my-result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .cd-my-stat {
+        text-align: center;
+        padding: 0.5rem;
+    }
+
+    .cd-my-stat-val { font-size: 1.15rem; font-weight: 800; color: var(--dark); }
+    .cd-my-stat-label { font-size: 0.7rem; color: var(--gray-500); font-weight: 600; }
+
+    /* Action buttons */
+    .cd-btn {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        width: 100%;
+        padding: 0.85rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-decoration: none;
         transition: all 0.3s;
+        border: none;
         cursor: pointer;
+        margin-bottom: 0.65rem;
     }
 
-    .cd-action-btn.primary {
+    .cd-btn.primary {
         background: var(--gradient-primary);
         color: white;
-        border: none;
+        box-shadow: 0 4px 14px -3px rgba(139,197,64,0.4);
     }
 
-    .cd-action-btn.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
-    }
+    .cd-btn.primary:hover { transform: translateY(-1px); color: white; }
 
-    .cd-action-btn.outline {
-        background: transparent;
-        border: 2px solid var(--gray-300);
-        color: var(--dark-600);
-    }
-
-    .cd-action-btn.outline:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-
-    .cd-action-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    /* Participant Card */
-    .cd-participant-card {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
+    .cd-btn.success {
+        background: linear-gradient(135deg, #10B981, #059669);
         color: white;
-        margin-bottom: 1.5rem;
     }
 
-    .cd-participant-header {
+    .cd-btn.success:hover { transform: translateY(-1px); color: white; }
+
+    .cd-btn.outline {
+        background: transparent;
+        border: 2px solid var(--gray-200);
+        color: var(--dark);
+    }
+
+    .cd-btn.outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    .cd-btn.disabled {
+        background: var(--gray-100);
+        color: var(--gray-400);
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Sidebar info */
+    .cd-sidebar-info {
+        padding: 0;
+        list-style: none;
+        margin: 0;
+    }
+
+    .cd-sidebar-info li {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .cd-participant-status {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .cd-participant-info {
-        display: flex;
         justify-content: space-between;
-        margin-bottom: 1rem;
-        padding: 0.75rem;
-        background: rgba(255,255,255,0.15);
-        border-radius: var(--radius);
+        padding: 0.7rem 0;
+        font-size: 0.88rem;
     }
 
-    .cd-participant-stat {
-        text-align: center;
-    }
+    .cd-sidebar-info li + li { border-top: 1px solid var(--gray-100); }
+    .cd-sidebar-info li span:first-child { color: var(--gray-500); font-weight: 600; }
+    .cd-sidebar-info li span:last-child { color: var(--dark); font-weight: 700; }
 
-    .cd-participant-stat-value {
-        font-size: 1.25rem;
-        font-weight: 800;
-    }
-
-    .cd-participant-stat-label {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    /* ========== SPONSORS ========== */
+    /* Sponsors */
     .cd-sponsors {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        align-items: center;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
     }
+
+    .cd-sponsors h4 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        margin: 0 0 0.75rem;
+    }
+
+    .cd-sponsor-list { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
     .cd-sponsor {
         padding: 0.5rem 1rem;
         background: var(--gray-50);
-        border-radius: var(--radius);
+        border-radius: 8px;
         font-size: 0.85rem;
         font-weight: 600;
-        color: var(--dark-600);
+        color: var(--dark);
+        text-decoration: none;
+    }
+
+    .cd-sponsor:hover { background: var(--gray-100); color: var(--dark); }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 991px) {
+        .cd-layout { grid-template-columns: 1fr; }
+        .cd-sidebar { position: static; }
+        .cd-info-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 575px) {
+        .cd-banner { height: 150px; font-size: 3.5rem; }
+        .cd-title { font-size: 1.35rem; }
+        .cd-info-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="cd-header {{ competition.competition_type }}">
+<div class="cd-page">
     <div class="container">
-        <div class="cd-header-content">
-            <div class="cd-breadcrumb">
-                <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
-                <i class="bi bi-chevron-right"></i>
-                <span>{{ competition.title }}</span>
-            </div>
 
-            <div class="cd-header-main">
-                <div class="cd-header-icon">
-                    {{ competition.icon }}
-                </div>
-
-                <div class="cd-header-info">
-                    <div class="cd-badges">
-                        <span class="cd-badge type">{{ competition.get_competition_type_display }}</span>
-
-                        {% if competition.entry_type == 'free' %}
-                        <span class="cd-badge free">Bepul</span>
-                        {% elif competition.entry_type == 'premium_only' %}
-                        <span class="cd-badge premium">Premium</span>
-                        {% else %}
-                        <span class="cd-badge paid">{{ competition.entry_fee }} so'm</span>
-                        {% endif %}
-
-                        {% if competition.status == 'active' %}
-                        <span class="cd-badge status-active">🟢 Faol</span>
-                        {% elif competition.status == 'upcoming' or competition.status == 'registration' %}
-                        <span class="cd-badge status-upcoming">📅 Kutilmoqda</span>
-                        {% else %}
-                        <span class="cd-badge status-finished">✅ Yakunlangan</span>
-                        {% endif %}
-                    </div>
-
-                    <h1>{{ competition.title }}</h1>
-
-                    {% if competition.short_description %}
-                    <p class="cd-header-desc">{{ competition.short_description }}</p>
-                    {% endif %}
-
-                    <div class="cd-header-stats">
-                        <div class="cd-header-stat">
-                            <i class="bi bi-people"></i>
-                            {{ participants_count }} qatnashchi
-                        </div>
-                        <div class="cd-header-stat">
-                            <i class="bi bi-clock"></i>
-                            {{ competition.duration_minutes }} daqiqa
-                        </div>
-                        <div class="cd-header-stat">
-                            <i class="bi bi-journal-text"></i>
-                            {{ competition.total_questions }} savol
-                        </div>
-                        {% if competition.subject %}
-                        <div class="cd-header-stat">
-                            <i class="bi bi-book"></i>
-                            {{ competition.subject.name }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    {% if time_info %}
-                    <div class="cd-countdown">
-                        <div class="cd-countdown-label">
-                            {% if time_info.type == 'until_start' %}Boshlanishiga:{% else %}Tugashiga:{% endif %}
-                        </div>
-                        <div class="cd-countdown-timer">
-                            {% if time_info.days > 0 %}
-                            <div class="cd-countdown-item">
-                                <div class="cd-countdown-value">{{ time_info.days }}</div>
-                                <div class="cd-countdown-unit">kun</div>
-                            </div>
-                            {% endif %}
-                            <div class="cd-countdown-item">
-                                <div class="cd-countdown-value">{{ time_info.hours }}</div>
-                                <div class="cd-countdown-unit">soat</div>
-                            </div>
-                            <div class="cd-countdown-item">
-                                <div class="cd-countdown-value">{{ time_info.minutes }}</div>
-                                <div class="cd-countdown-unit">daqiqa</div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        <!-- Breadcrumb -->
+        <div class="cd-bread">
+            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>{{ competition.title|truncatewords:5 }}</span>
         </div>
-    </div>
-</div>
 
-<!-- Content -->
-<div class="cd-content">
-    <div class="container">
         <div class="cd-layout">
-            <!-- Main -->
+
+            <!-- ========== MAIN CONTENT ========== -->
             <div class="cd-main">
-                <!-- Description -->
-                <div class="cd-card">
-                    <div class="cd-card-header">
-                        <h3 class="cd-card-title">
-                            <i class="bi bi-info-circle"></i>
-                            Musobaqa haqida
-                        </h3>
+
+                <!-- Banner -->
+                <div class="cd-banner {{ competition.competition_type }}">
+                    {% if competition.banner %}
+                    <img src="{{ competition.banner.url }}" alt="{{ competition.title }}">
+                    {% else %}
+                    {{ competition.icon }}
+                    {% endif %}
+                    <div class="cd-banner-badges">
+                        <span class="cd-badge type">{{ competition.get_competition_type_display }}</span>
+                        <span class="cd-badge {{ competition.entry_type }}">
+                            {% if competition.entry_type == 'free' %}Bepul
+                            {% elif competition.entry_type == 'paid' %}{{ competition.entry_fee|floatformat:0 }} so'm
+                            {% else %}Premium
+                            {% endif %}
+                        </span>
                     </div>
-                    <div class="cd-card-body">
-                        <div class="cd-rules">
-                            {{ competition.description|linebreaks }}
+                </div>
+
+                <!-- Status + Title -->
+                <div class="cd-status-row">
+                    <span class="cd-status {{ competition.status }}">
+                        {% if competition.status == 'draft' %}📝 Qoralama
+                        {% elif competition.status == 'upcoming' %}📅 Kutilmoqda
+                        {% elif competition.status == 'registration' %}✏️ Ro'yxatga olish
+                        {% elif competition.status == 'active' %}🟢 Faol
+                        {% elif competition.status == 'finished' %}✅ Yakunlangan
+                        {% elif competition.status == 'cancelled' %}❌ Bekor qilingan
+                        {% endif %}
+                    </span>
+                </div>
+
+                <h1 class="cd-title">{{ competition.title }}</h1>
+                <p class="cd-desc">{{ competition.description }}</p>
+
+                <!-- Info Grid -->
+                <div class="cd-info-grid">
+                    <div class="cd-info-item">
+                        <div class="cd-info-icon blue"><i class="bi bi-clock-fill"></i></div>
+                        <div>
+                            <div class="cd-info-label">Davomiyligi</div>
+                            <div class="cd-info-val">{{ competition.duration_minutes }} daqiqa</div>
+                        </div>
+                    </div>
+                    <div class="cd-info-item">
+                        <div class="cd-info-icon green"><i class="bi bi-journal-text"></i></div>
+                        <div>
+                            <div class="cd-info-label">Savollar</div>
+                            <div class="cd-info-val">{{ competition.total_questions }} ta</div>
+                        </div>
+                    </div>
+                    <div class="cd-info-item">
+                        <div class="cd-info-icon purple"><i class="bi bi-people-fill"></i></div>
+                        <div>
+                            <div class="cd-info-label">Qatnashchilar</div>
+                            <div class="cd-info-val">{{ participants_count }}{% if competition.max_participants %} / {{ competition.max_participants }}{% endif %}</div>
+                        </div>
+                    </div>
+                    <div class="cd-info-item">
+                        <div class="cd-info-icon amber"><i class="bi bi-calendar3"></i></div>
+                        <div>
+                            <div class="cd-info-label">Boshlanish</div>
+                            <div class="cd-info-val">{{ competition.start_time|date:"d M, H:i" }}</div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Rules -->
+                {% if competition.rules %}
+                <div class="cd-rules">
+                    <h3><i class="bi bi-list-check"></i> Qoidalar</h3>
+                    <div class="cd-rules-text">{{ competition.rules }}</div>
+                </div>
+                {% endif %}
 
                 <!-- Prizes -->
-                {% if competition.prizes or competition.prize_pool > 0 %}
-                <div class="cd-card">
-                    <div class="cd-card-header">
-                        <h3 class="cd-card-title">
-                            <i class="bi bi-trophy"></i>
-                            Sovrinlar
-                        </h3>
-                        {% if competition.prize_pool > 0 %}
-                        <span style="font-weight:700; color:var(--primary);">{{ competition.prize_pool|floatformat:0 }} so'm</span>
+                {% if competition.prizes %}
+                <div class="cd-prizes">
+                    <h3><i class="bi bi-trophy-fill"></i> Sovrinlar</h3>
+                    {% for prize in competition.prizes %}
+                    <div class="cd-prize-row">
+                        <div class="cd-prize-medal {% if prize.place == 1 %}gold{% elif prize.place == 2 %}silver{% elif prize.place == 3 %}bronze{% endif %}">
+                            {% if prize.place == 1 %}🥇{% elif prize.place == 2 %}🥈{% elif prize.place == 3 %}🥉{% else %}{{ prize.place }}{% endif %}
+                        </div>
+                        <span class="cd-prize-place">{{ prize.description|default:"" }} {{ prize.place }}-o'rin</span>
+                        {% if prize.amount %}
+                        <span class="cd-prize-amount">{{ prize.amount|floatformat:0 }} so'm</span>
                         {% endif %}
                     </div>
-                    <div class="cd-card-body">
-                        <div class="cd-prizes">
-                            <div class="cd-prize-item gold">
-                                <div class="cd-prize-icon">🥇</div>
-                                <div class="cd-prize-info">
-                                    <div class="cd-prize-place">1-o'rin</div>
-                                    <div class="cd-prize-desc">G'olib</div>
-                                </div>
-                                <div class="cd-prize-amount">
-                                    {% if competition.prizes %}
-                                        {{ competition.prizes.0.amount|default:competition.xp_reward_first }} {% if competition.prizes.0.amount %}so'm{% else %}XP{% endif %}
-                                    {% else %}
-                                        +{{ competition.xp_reward_first }} XP
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="cd-prize-item silver">
-                                <div class="cd-prize-icon">🥈</div>
-                                <div class="cd-prize-info">
-                                    <div class="cd-prize-place">2-o'rin</div>
-                                    <div class="cd-prize-desc">Kumush medal</div>
-                                </div>
-                                <div class="cd-prize-amount">+{{ competition.xp_reward_second }} XP</div>
-                            </div>
-
-                            <div class="cd-prize-item bronze">
-                                <div class="cd-prize-icon">🥉</div>
-                                <div class="cd-prize-info">
-                                    <div class="cd-prize-place">3-o'rin</div>
-                                    <div class="cd-prize-desc">Bronza medal</div>
-                                </div>
-                                <div class="cd-prize-amount">+{{ competition.xp_reward_third }} XP</div>
-                            </div>
-                        </div>
+                    {% endfor %}
+                </div>
+                {% elif competition.prize_pool > 0 %}
+                <div class="cd-prizes">
+                    <h3><i class="bi bi-trophy-fill"></i> Sovrinlar</h3>
+                    <div class="cd-prize-row">
+                        <div class="cd-prize-medal gold">🏆</div>
+                        <span class="cd-prize-place">Jami sovrin fondi</span>
+                        <span class="cd-prize-amount">{{ competition.prize_pool|floatformat:0 }} so'm</span>
                     </div>
                 </div>
                 {% endif %}
 
-                <!-- Rules -->
-                {% if competition.rules %}
-                <div class="cd-card">
-                    <div class="cd-card-header">
-                        <h3 class="cd-card-title">
-                            <i class="bi bi-list-check"></i>
-                            Qoidalar
-                        </h3>
+                <!-- XP Rewards (agar prizes bo'lmasa) -->
+                {% if not competition.prizes and competition.prize_pool == 0 %}
+                <div class="cd-prizes">
+                    <h3><i class="bi bi-lightning-fill"></i> XP mukofotlar</h3>
+                    <div class="cd-prize-row">
+                        <div class="cd-prize-medal gold">🥇</div>
+                        <span class="cd-prize-place">1-o'rin</span>
+                        <span class="cd-prize-amount">+{{ competition.xp_reward_first }} XP</span>
                     </div>
-                    <div class="cd-card-body">
-                        <div class="cd-rules">
-                            {{ competition.rules|linebreaks }}
-                        </div>
+                    <div class="cd-prize-row">
+                        <div class="cd-prize-medal silver">🥈</div>
+                        <span class="cd-prize-place">2-o'rin</span>
+                        <span class="cd-prize-amount">+{{ competition.xp_reward_second }} XP</span>
+                    </div>
+                    <div class="cd-prize-row">
+                        <div class="cd-prize-medal bronze">🥉</div>
+                        <span class="cd-prize-place">3-o'rin</span>
+                        <span class="cd-prize-amount">+{{ competition.xp_reward_third }} XP</span>
                     </div>
                 </div>
                 {% endif %}
 
                 <!-- Leaderboard -->
-                {% if leaderboard %}
-                <div class="cd-card">
-                    <div class="cd-card-header">
-                        <h3 class="cd-card-title">
-                            <i class="bi bi-bar-chart"></i>
-                            Reyting
-                        </h3>
-                        <a href="{% url 'competitions:competition_leaderboard' slug=competition.slug %}" style="font-size:0.85rem; color:var(--primary);">
-                            To'liq ro'yxat <i class="bi bi-arrow-right"></i>
+                {% if competition.show_live_leaderboard %}
+                <div class="cd-lb">
+                    <div class="cd-lb-head">
+                        <h3><i class="bi bi-bar-chart-fill"></i> Reyting</h3>
+                        <a href="{% url 'competitions:competition_leaderboard' slug=competition.slug %}" class="cd-lb-link">
+                            To'liq reyting →
                         </a>
                     </div>
-                    <div class="cd-card-body">
-                        <div class="cd-leaderboard">
-                            {% for p in leaderboard %}
-                            <div class="cd-leader-item">
-                                <div class="cd-leader-rank {% if p.rank == 1 %}gold{% elif p.rank == 2 %}silver{% elif p.rank == 3 %}bronze{% else %}normal{% endif %}">
-                                    {% if p.rank == 1 %}🥇{% elif p.rank == 2 %}🥈{% elif p.rank == 3 %}🥉{% else %}{{ p.rank }}{% endif %}
-                                </div>
-                                <div class="cd-leader-avatar">
-                                    {% if p.user.avatar %}
-                                    <img src="{{ p.user.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ p.user.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="cd-leader-info">
-                                    <div class="cd-leader-name">{{ p.user.full_name|default:p.user.first_name }}</div>
-                                    <div class="cd-leader-score">{{ p.correct_answers }} to'g'ri • {{ p.time_spent }}s</div>
-                                </div>
-                                <div class="cd-leader-badge">{{ p.score }} ball</div>
+                    {% if leaderboard %}
+                        {% for p in leaderboard %}
+                        <div class="cd-lb-row">
+                            <div class="cd-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
+                                {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
                             </div>
-                            {% endfor %}
+                            <span class="cd-lb-name">{{ p.user.first_name }} {{ p.user.last_name|default:"" }}</span>
+                            <span class="cd-lb-score">{{ p.score|floatformat:0 }} ball</span>
+                            {% if p.time_spent %}
+                            <span class="cd-lb-time">{{ p.time_spent|floatformat:0 }}s</span>
+                            {% endif %}
                         </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Sidebar -->
-            <div class="cd-sidebar">
-                <!-- Participant Status -->
-                {% if participant %}
-                <div class="cd-participant-card">
-                    <div class="cd-participant-header">
-                        <i class="bi bi-check-circle-fill"></i>
-                        Siz ro'yxatdan o'tgansiz
-                    </div>
-
-                    {% if participant.status == 'completed' %}
-                    <div class="cd-participant-status">Natijangiz</div>
-                    <div class="cd-participant-info">
-                        <div class="cd-participant-stat">
-                            <div class="cd-participant-stat-value">{{ participant.rank|default:"-" }}</div>
-                            <div class="cd-participant-stat-label">O'rin</div>
-                        </div>
-                        <div class="cd-participant-stat">
-                            <div class="cd-participant-stat-value">{{ participant.score }}</div>
-                            <div class="cd-participant-stat-label">Ball</div>
-                        </div>
-                        <div class="cd-participant-stat">
-                            <div class="cd-participant-stat-value">{{ participant.percentage|floatformat:0 }}%</div>
-                            <div class="cd-participant-stat-label">Foiz</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'competitions:competition_result' slug=competition.slug %}" class="cd-action-btn outline" style="color:white; border-color:rgba(255,255,255,0.5);">
-                        <i class="bi bi-eye"></i>
-                        Batafsil natija
-                    </a>
+                        {% endfor %}
                     {% else %}
-                    <div class="cd-participant-status">
-                        {% if participant.status == 'in_progress' %}
-                        Davom etmoqda...
-                        {% else %}
-                        Tayyormisiz?
-                        {% endif %}
-                    </div>
+                        <div class="cd-lb-empty">Hali hech kim yakunlamagan</div>
                     {% endif %}
                 </div>
                 {% endif %}
+
+            </div>
+
+            <!-- ========== SIDEBAR ========== -->
+            <div class="cd-sidebar">
 
                 <!-- Action Card -->
                 <div class="cd-action-card">
-                    {% if not user.is_authenticated %}
-                    <div class="cd-action-status">
-                        <div class="cd-action-status-icon info">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <h4>Kirish kerak</h4>
-                        <p>Qatnashish uchun tizimga kiring</p>
-                    </div>
-                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="cd-action-btn primary">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        Kirish
-                    </a>
 
-                    {% elif can_start %}
-                    <div class="cd-action-status">
-                        <div class="cd-action-status-icon success">
-                            <i class="bi bi-play-fill"></i>
+                    <!-- Countdown -->
+                    {% if time_info %}
+                    <div class="cd-countdown">
+                        <div class="cd-countdown-label">
+                            {% if time_info.type == 'until_start' %}Boshlanishgacha{% else %}Tugashigacha{% endif %}
                         </div>
-                        <h4>Boshlashga tayyor!</h4>
-                        <p>Musobaqa faol, hozir boshlashingiz mumkin</p>
-                    </div>
-                    <a href="{% url 'competitions:competition_start' slug=competition.slug %}" class="cd-action-btn primary">
-                        <i class="bi bi-play-fill"></i>
-                        Boshlash
-                    </a>
-
-                    {% elif can_join %}
-                    <div class="cd-action-status">
-                        <div class="cd-action-status-icon info">
-                            <i class="bi bi-person-plus"></i>
+                        <div class="cd-countdown-grid">
+                            {% if time_info.days > 0 %}
+                            <div class="cd-countdown-item">
+                                <div class="cd-countdown-num">{{ time_info.days }}</div>
+                                <div class="cd-countdown-unit">kun</div>
+                            </div>
+                            {% endif %}
+                            <div class="cd-countdown-item">
+                                <div class="cd-countdown-num">{{ time_info.hours }}</div>
+                                <div class="cd-countdown-unit">soat</div>
+                            </div>
+                            <div class="cd-countdown-item">
+                                <div class="cd-countdown-num">{{ time_info.minutes }}</div>
+                                <div class="cd-countdown-unit">daqiqa</div>
+                            </div>
                         </div>
-                        <h4>Ro'yxatdan o'ting</h4>
-                        <p>Musobaqada qatnashish uchun ro'yxatdan o'ting</p>
-                    </div>
-
-                    <div class="cd-action-info">
-                        <div class="cd-action-info-item">
-                            <span class="cd-action-info-label">Kirish:</span>
-                            <span class="cd-action-info-value">
-                                {% if competition.entry_type == 'free' %}Bepul
-                                {% elif competition.entry_type == 'paid' %}{{ competition.entry_fee }} so'm
-                                {% else %}Premium{% endif %}
-                            </span>
-                        </div>
-                        {% if competition.max_participants %}
-                        <div class="cd-action-info-item">
-                            <span class="cd-action-info-label">Qolgan joylar:</span>
-                            <span class="cd-action-info-value">{{ competition.spots_left }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <a href="{% url 'competitions:competition_join' slug=competition.slug %}" class="cd-action-btn primary">
-                        <i class="bi bi-person-plus"></i>
-                        Ro'yxatdan o'tish
-                    </a>
-
-                    {% elif is_participant and participant.status == 'completed' %}
-                    <div class="cd-action-status">
-                        <div class="cd-action-status-icon success">
-                            <i class="bi bi-check-lg"></i>
-                        </div>
-                        <h4>Yakunladingiz!</h4>
-                        <p>Siz muvaffaqiyatli ishtirok etdingiz</p>
-                    </div>
-                    <a href="{% url 'competitions:competition_result' slug=competition.slug %}" class="cd-action-btn outline">
-                        <i class="bi bi-bar-chart"></i>
-                        Natijani ko'rish
-                    </a>
-
-                    {% elif is_participant %}
-                    <div class="cd-action-status">
-                        <div class="cd-action-status-icon warning">
-                            <i class="bi bi-hourglass-split"></i>
-                        </div>
-                        <h4>Kutilmoqda</h4>
-                        <p>Musobaqa boshlanishini kuting</p>
-                    </div>
-                    <button class="cd-action-btn outline" disabled>
-                        <i class="bi bi-clock"></i>
-                        Kutilmoqda
-                    </button>
-
-                    {% else %}
-                    <div class="cd-action-status">
-                        <div class="cd-action-status-icon">
-                            <i class="bi bi-calendar-x"></i>
-                        </div>
-                        <h4>{{ competition.get_status_display }}</h4>
-                        <p>Musobaqa yakunlangan yoki ro'yxat yopilgan</p>
                     </div>
                     {% endif %}
-                </div>
 
-                <!-- Info Card -->
-                <div class="cd-card">
-                    <div class="cd-card-header">
-                        <h3 class="cd-card-title">
-                            <i class="bi bi-calendar3"></i>
-                            Ma'lumotlar
-                        </h3>
-                    </div>
-                    <div class="cd-card-body" style="padding:0;">
-                        <div class="cd-info-list" style="padding:0 1.5rem;">
-                            <div class="cd-info-item">
-                                <span class="cd-info-label">
-                                    <i class="bi bi-play-circle"></i>
-                                    Boshlanish
-                                </span>
-                                <span class="cd-info-value">{{ competition.start_time|date:"d.m.Y H:i" }}</span>
-                            </div>
-                            <div class="cd-info-item">
-                                <span class="cd-info-label">
-                                    <i class="bi bi-stop-circle"></i>
-                                    Tugash
-                                </span>
-                                <span class="cd-info-value">{{ competition.end_time|date:"d.m.Y H:i" }}</span>
-                            </div>
-                            <div class="cd-info-item">
-                                <span class="cd-info-label">
-                                    <i class="bi bi-clock"></i>
-                                    Davomiyligi
-                                </span>
-                                <span class="cd-info-value">{{ competition.duration_minutes }} daqiqa</span>
-                            </div>
-                            <div class="cd-info-item">
-                                <span class="cd-info-label">
-                                    <i class="bi bi-journal-text"></i>
-                                    Savollar
-                                </span>
-                                <span class="cd-info-value">{{ competition.total_questions }} ta</span>
+                    <!-- Participant Status -->
+                    {% if is_participant and participant %}
+
+                        {% if participant.status == 'completed' %}
+                        <!-- Natija ko'rsatish -->
+                        <div class="cd-my-result">
+                            <div class="cd-my-result-title">Sizning natijangiz</div>
+                            <div class="cd-my-result-grid">
+                                <div class="cd-my-stat">
+                                    <div class="cd-my-stat-val">{% if participant.rank %}#{{ participant.rank }}{% else %}—{% endif %}</div>
+                                    <div class="cd-my-stat-label">O'rin</div>
+                                </div>
+                                <div class="cd-my-stat">
+                                    <div class="cd-my-stat-val">{{ participant.score|floatformat:0 }}</div>
+                                    <div class="cd-my-stat-label">Ball</div>
+                                </div>
+                                <div class="cd-my-stat">
+                                    <div class="cd-my-stat-val">{{ participant.correct_answers }}/{{ competition.total_questions }}</div>
+                                    <div class="cd-my-stat-label">To'g'ri</div>
+                                </div>
+                                <div class="cd-my-stat">
+                                    <div class="cd-my-stat-val">{{ participant.percentage|floatformat:0 }}%</div>
+                                    <div class="cd-my-stat-label">Foiz</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <a href="{% url 'competitions:competition_result' slug=competition.slug %}" class="cd-btn outline">
+                            <i class="bi bi-eye"></i> Natijani ko'rish
+                        </a>
+
+                        {% elif participant.status == 'disqualified' %}
+                        <div class="cd-my-status" style="background: #FEF2F2; border-color: #FECACA; color: #DC2626;">
+                            <i class="bi bi-x-circle-fill"></i> Diskvalifikatsiya qilindingiz
+                        </div>
+
+                        {% else %}
+                        <!-- Ro'yxatdan o'tgan / Tayyor / Davom etmoqda -->
+                        <div class="cd-my-status">
+                            <i class="bi bi-check-circle-fill"></i> Siz ro'yxatdan o'tgansiz
+                        </div>
+
+                            {% if can_start %}
+                            <a href="{% url 'competitions:competition_start' slug=competition.slug %}" class="cd-btn success">
+                                <i class="bi bi-play-fill"></i> Boshlash
+                            </a>
+                            {% elif competition.status == 'upcoming' %}
+                            <div class="cd-btn disabled">
+                                <i class="bi bi-clock"></i> Musobaqa hali boshlanmagan
+                            </div>
+                            {% endif %}
+
+                        {% endif %}
+
+                    {% else %}
+                        <!-- Qatnashmagan -->
+                        {% if user.is_authenticated %}
+                            {% if can_join %}
+                                {% if competition.entry_type == 'paid' and competition.entry_fee > 0 %}
+                                <a href="{% url 'competitions:competition_payment' slug=competition.slug %}" class="cd-btn primary">
+                                    <i class="bi bi-credit-card"></i> To'lab qo'shilish — {{ competition.entry_fee|floatformat:0 }} so'm
+                                </a>
+                                {% else %}
+                                <form method="post" action="{% url 'competitions:competition_join' slug=competition.slug %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="cd-btn primary">
+                                        <i class="bi bi-plus-circle-fill"></i> Qo'shilish
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% elif competition.status == 'finished' %}
+                            <div class="cd-btn disabled">
+                                <i class="bi bi-lock"></i> Musobaqa yakunlangan
+                            </div>
+                            {% elif competition.status == 'cancelled' %}
+                            <div class="cd-btn disabled">
+                                <i class="bi bi-x-circle"></i> Bekor qilingan
+                            </div>
+                            {% elif competition.max_participants and participants_count >= competition.max_participants %}
+                            <div class="cd-btn disabled">
+                                <i class="bi bi-people-fill"></i> Joylar tugagan
+                            </div>
+                            {% elif competition.entry_type == 'premium_only' %}
+                            <div class="cd-btn disabled">
+                                <i class="bi bi-star-fill"></i> Faqat Premium uchun
+                            </div>
+                            {% endif %}
+                        {% else %}
+                        <a href="{% url 'account_login' %}" class="cd-btn primary">
+                            <i class="bi bi-box-arrow-in-right"></i> Kirish va qo'shilish
+                        </a>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Sidebar Info -->
+                    <ul class="cd-sidebar-info">
+                        <li>
+                            <span>Fan</span>
+                            <span>
+                                {% if competition.subject %}
+                                    {{ competition.subject.name }}
+                                {% elif competition.test_format == 'dtm_block' %}
+                                    DTM blok
+                                {% else %}
+                                    Umumiy
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li>
+                            <span>Format</span>
+                            <span>{{ competition.get_test_format_display }}</span>
+                        </li>
+                        <li>
+                            <span>Boshlanish</span>
+                            <span>{{ competition.start_time|date:"d.m.Y H:i" }}</span>
+                        </li>
+                        <li>
+                            <span>Tugash</span>
+                            <span>{{ competition.end_time|date:"d.m.Y H:i" }}</span>
+                        </li>
+                        {% if competition.spots_left is not None %}
+                        <li>
+                            <span>Bo'sh joy</span>
+                            <span>{{ competition.spots_left }} ta</span>
+                        </li>
+                        {% endif %}
+                        {% if competition.min_level > 0 %}
+                        <li>
+                            <span>Min daraja</span>
+                            <span>{{ competition.min_level }}-daraja</span>
+                        </li>
+                        {% endif %}
+                        {% if competition.certificate_enabled %}
+                        <li>
+                            <span>Sertifikat</span>
+                            <span style="color: #059669;">✅ Beriladi</span>
+                        </li>
+                        {% endif %}
+                    </ul>
                 </div>
 
                 <!-- Sponsors -->
                 {% if competition.sponsors %}
-                <div class="cd-card">
-                    <div class="cd-card-header">
-                        <h3 class="cd-card-title">
-                            <i class="bi bi-heart"></i>
-                            Homiylar
-                        </h3>
-                    </div>
-                    <div class="cd-card-body">
-                        <div class="cd-sponsors">
-                            {% for sponsor in competition.sponsors %}
-                            <span class="cd-sponsor">{{ sponsor.name }}</span>
-                            {% endfor %}
-                        </div>
+                <div class="cd-sponsors">
+                    <h4>Homiylar</h4>
+                    <div class="cd-sponsor-list">
+                        {% for sponsor in competition.sponsors %}
+                        {% if sponsor.url %}
+                        <a href="{{ sponsor.url }}" target="_blank" rel="noopener" class="cd-sponsor">{{ sponsor.name }}</a>
+                        {% else %}
+                        <span class="cd-sponsor">{{ sponsor.name }}</span>
+                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 {% endif %}
+
             </div>
+
         </div>
     </div>
 </div>
