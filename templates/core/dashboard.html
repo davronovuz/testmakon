@@ -3,72 +3,194 @@
 {% block title %}Dashboard - TestMakon{% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); min-height: calc(100vh - 200px);">
-    <div class="container">
-        <!-- Welcome Header -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <span style="font-size: 2rem;">👋</span>
-                    <h2 class="mb-0">Salom, {{ user.first_name }}!</h2>
+<style>
+    /* Maxsus Premium Style-lar */
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    }
+
+    .dashboard-container {
+        background: radial-gradient(circle at top right, #e0e7ff 0%, #f8fafc 100%);
+        min-height: 100vh;
+        padding-bottom: 50px;
+    }
+
+    .premium-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--card-shadow);
+        border-radius: 24px !important;
+        transition: all 0.3s ease;
+    }
+
+    .premium-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+    }
+
+    .icon-shape {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        font-size: 1.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .quick-action-btn {
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .quick-action-btn:hover {
+        background: white !important;
+        border-color: var(--bs-primary);
+        color: var(--bs-primary) !important;
+    }
+
+    .progress-premium {
+        height: 8px;
+        border-radius: 10px;
+        background-color: #f1f5f9;
+        overflow: visible;
+    }
+
+    .progress-premium .progress-bar {
+        border-radius: 10px;
+        position: relative;
+        overflow: visible;
+    }
+
+    .progress-premium .progress-bar::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translate(50%, -50%);
+        width: 12px;
+        height: 12px;
+        background: inherit;
+        border: 2px solid white;
+        border-radius: 50%;
+    }
+
+    .profile-img-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .online-indicator {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 15px;
+        height: 15px;
+        background: #10b981;
+        border: 3px solid white;
+        border-radius: 50%;
+    }
+
+    .activity-item {
+        border-left: 2px solid #e2e8f0;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .activity-item::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--bs-primary);
+        border: 2px solid white;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="container py-4">
+
+        <!-- Header Section -->
+        <div class="row align-items-center mb-5">
+            <div class="col-md-7">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="display-5">🚀</span>
+                    <div>
+                        <h1 class="fw-extrabold mb-1" style="font-weight: 800;">Xush kelibsiz, {{ user.first_name }}!</h1>
+                        <p class="text-muted mb-0">Bugun yangi marralarni zabt etish uchun ajoyib kun.</p>
+                    </div>
                 </div>
-                <p style="color: var(--gray-500);" class="mb-0">Bugun ham o'rganishni davom ettiramiz</p>
             </div>
-            <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary btn-lg">
-                <i class="bi bi-play-fill me-2"></i> Test boshlash
-            </a>
+            <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">
+                    <i class="bi bi-rocket-takeoff me-2"></i> Testni boshlash
+                </a>
+            </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-3">
-                <div class="card p-3 card-glow" style="border-radius: 16px;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="icon-box-gradient">
-                            <i class="bi bi-lightning-charge"></i>
-                        </div>
+        <!-- Stats Grid -->
+        <div class="row g-4 mb-5">
+            <div class="col-xl-3 col-md-6">
+                <div class="premium-card card p-3 border-0">
+                    <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="fs-3 fw-bold text-gradient">{{ user.xp_points|default:0 }}</div>
-                            <small style="color: var(--gray-500);">XP ballar</small>
+                            <p class="text-muted small fw-bold text-uppercase mb-1">Jami Ballar</p>
+                            <h2 class="stat-value mb-0 text-primary">{{ user.xp_points|default:0 }} XP</h2>
+                        </div>
+                        <div class="icon-shape bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-star-fill"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-lg-3">
-                <div class="card p-3 card-glow" style="border-radius: 16px;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="icon-box" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); color: #B45309;">
+            <div class="col-xl-3 col-md-6">
+                <div class="premium-card card p-3 border-0">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted small fw-bold text-uppercase mb-1">Kunlik Streak</p>
+                            <h2 class="stat-value mb-0 text-danger">{{ user.current_streak|default:0 }} Kun</h2>
+                        </div>
+                        <div class="icon-shape bg-danger bg-opacity-10 text-danger">
                             <i class="bi bi-fire"></i>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="premium-card card p-3 border-0">
+                    <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="fs-3 fw-bold" style="color: #B45309;">{{ user.current_streak|default:0 }}</div>
-                            <small style="color: var(--gray-500);">Kunlik streak</small>
+                            <p class="text-muted small fw-bold text-uppercase mb-1">Yutuqlar</p>
+                            <h2 class="stat-value mb-0 text-success">{{ user.total_tests_taken|default:0 }} Ta</h2>
+                        </div>
+                        <div class="icon-shape bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-check2-all"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-lg-3">
-                <div class="card p-3 card-glow" style="border-radius: 16px;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="icon-box" style="background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); color: #059669;">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="premium-card card p-3 border-0">
+                    <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="fs-3 fw-bold" style="color: #059669;">{{ user.total_tests_taken|default:0 }}</div>
-                            <small style="color: var(--gray-500);">Yechilgan testlar</small>
+                            <p class="text-muted small fw-bold text-uppercase mb-1">Aniqdik darajasi</p>
+                            <h2 class="stat-value mb-0 text-info">{{ user.accuracy_rate|default:0 }}%</h2>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-3">
-                <div class="card p-3 card-glow" style="border-radius: 16px;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="icon-box" style="background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); color: #2563EB;">
-                            <i class="bi bi-percent"></i>
-                        </div>
-                        <div>
-                            <div class="fs-3 fw-bold" style="color: #2563EB;">{{ user.accuracy_rate|default:0 }}%</div>
-                            <small style="color: var(--gray-500);">To'g'ri javoblar</small>
+                        <div class="icon-shape bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-graph-up-arrow"></i>
                         </div>
                     </div>
                 </div>
@@ -76,184 +198,150 @@
         </div>
 
         <div class="row g-4">
-            <!-- Main Content -->
+            <!-- Main Content Area -->
             <div class="col-lg-8">
-                <!-- Quick Actions -->
-                <div class="card mb-4" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-grid text-primary me-2"></i> Tezkor harakatlar
-                        </h5>
-                        <div class="row g-3">
-                            <div class="col-6 col-md-3">
-                                <a href="{% url 'tests_app:tests_list' %}" class="card text-center p-4 text-decoration-none h-100 card-glow" style="border: 2px dashed var(--gray-300); border-radius: 16px;">
-                                    <div class="icon-box-gradient mx-auto mb-3">
-                                        <i class="bi bi-journal-text"></i>
-                                    </div>
-                                    <span class="fw-semibold" style="color: var(--dark);">Testlar</span>
-                                </a>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <a href="{% url 'ai_core:ai_mentor' %}" class="card text-center p-4 text-decoration-none h-100 card-glow" style="border: 2px dashed var(--gray-300); border-radius: 16px;">
-                                    <div class="icon-box-gradient mx-auto mb-3">
-                                        <i class="bi bi-robot"></i>
-                                    </div>
-                                    <span class="fw-semibold" style="color: var(--dark);">AI Mentor</span>
-                                </a>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <a href="{% url 'competitions:competitions_list' %}" class="card text-center p-4 text-decoration-none h-100 card-glow" style="border: 2px dashed var(--gray-300); border-radius: 16px;">
-                                    <div class="icon-box-gradient mx-auto mb-3">
-                                        <i class="bi bi-trophy"></i>
-                                    </div>
-                                    <span class="fw-semibold" style="color: var(--dark);">Musobaqalar</span>
-                                </a>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <a href="{% url 'leaderboard:global_leaderboard' %}" class="card text-center p-4 text-decoration-none h-100 card-glow" style="border: 2px dashed var(--gray-300); border-radius: 16px;">
-                                    <div class="icon-box-gradient mx-auto mb-3">
-                                        <i class="bi bi-bar-chart"></i>
-                                    </div>
-                                    <span class="fw-semibold" style="color: var(--dark);">Reyting</span>
-                                </a>
-                            </div>
+
+                <!-- Quick Navigation Grid -->
+                <div class="premium-card card border-0 p-4 mb-4">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center">
+                        <span class="p-2 bg-primary rounded-3 me-3 text-white"><i class="bi bi-grid-fill"></i></span>
+                        Xizmatlar
+                    </h5>
+                    <div class="row g-3">
+                        {% set nav_items = [
+                            {'url': 'tests_app:tests_list', 'icon': 'bi-journal-text', 'title': 'Testlar', 'color': '#4f46e5'},
+                            {'url': 'ai_core:ai_mentor', 'icon': 'bi-robot', 'title': 'AI Mentor', 'color': '#7c3aed'},
+                            {'url': 'competitions:competitions_list', 'icon': 'bi-trophy', 'title': 'Musobaqa', 'color': '#f59e0b'},
+                            {'url': 'leaderboard:global_leaderboard', 'icon': 'bi-bar-chart-line', 'title': 'Reyting', 'color': '#10b981'}
+                        ] %}
+                        {% for item in nav_items %}
+                        <div class="col-6 col-md-3">
+                            <a href="{% url item.url %}" class="quick-action-btn card h-100 p-3 text-center text-decoration-none bg-light rounded-4">
+                                <div class="mb-2 fs-3" style="color: {{ item.color }};">
+                                    <i class="bi {{ item.icon }}"></i>
+                                </div>
+                                <span class="fw-bold text-dark small">{{ item.title }}</span>
+                            </a>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                <div class="card" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold mb-0">
-                                <i class="bi bi-clock-history text-primary me-2"></i> So'nggi faoliyat
-                            </h5>
-                            <a href="{% url 'accounts:activity_log' %}" class="btn btn-sm btn-light">Barchasini ko'rish</a>
-                        </div>
+                <!-- Recent Activity Timeline -->
+                <div class="premium-card card border-0 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">So'nggi harakatlar</h5>
+                        <a href="{% url 'accounts:activity_log' %}" class="btn btn-link text-decoration-none fw-bold small">Hammasi <i class="bi bi-arrow-right"></i></a>
+                    </div>
 
-                        {% if recent_activities %}
-                            <div class="d-flex flex-column gap-3">
-                                {% for activity in recent_activities %}
-                                <div class="d-flex align-items-center gap-3 p-3" style="background: var(--gray-50); border-radius: 12px;">
-                                    <div class="icon-box" style="width: 44px; height: 44px; font-size: 1.1rem;">
-                                        {% if activity.activity_type == 'test_complete' %}
-                                            <i class="bi bi-check-circle"></i>
-                                        {% elif activity.activity_type == 'competition_join' %}
-                                            <i class="bi bi-trophy"></i>
-                                        {% elif activity.activity_type == 'badge_earn' %}
-                                            <i class="bi bi-award"></i>
-                                        {% else %}
-                                            <i class="bi bi-activity"></i>
-                                        {% endif %}
+                    {% if recent_activities %}
+                        <div class="ms-2">
+                            {% for activity in recent_activities %}
+                            <div class="activity-item pb-4">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">{{ activity.description }}</h6>
+                                        <p class="text-muted small mb-0">{{ activity.created_at|timesince }} oldin</p>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium" style="color: var(--dark);">{{ activity.description }}</p>
-                                        <small style="color: var(--gray-400);">{{ activity.created_at|timesince }} oldin</small>
-                                    </div>
-                                    {% if activity.xp_earned > 0 %}
-                                    <span class="badge badge-primary">+{{ activity.xp_earned }} XP</span>
+                                    {% if activity.xp_earned %}
+                                    <span class="badge bg-soft-primary text-primary rounded-pill">+{{ activity.xp_earned }} XP</span>
                                     {% endif %}
                                 </div>
-                                {% endfor %}
                             </div>
-                        {% else %}
-                            <div class="text-center py-5">
-                                <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
-                                <h5 style="color: var(--dark);">Hali faoliyat yo'q</h5>
-                                <p style="color: var(--gray-500);" class="mb-4">Birinchi testni yechib, faoliyatingizni boshlang!</p>
-                                <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary">
-                                    <i class="bi bi-play-fill me-2"></i> Birinchi testni boshlash
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="https://illustrations.popsy.co/flat/empty-state.svg" style="width: 150px;" class="mb-3 opacity-50">
+                            <p class="text-muted">Hozircha hech qanday harakat mavjud emas.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="col-lg-4">
-                <!-- Profile Card -->
-                <div class="card mb-4" style="border-radius: 20px; overflow: hidden;">
-                    <div style="height: 80px; background: var(--gradient-primary);"></div>
-                    <div class="card-body text-center" style="margin-top: -50px;">
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="{{ user.first_name }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover; border: 4px solid white; box-shadow: var(--shadow-md);">
-                        {% else %}
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 100px; height: 100px; background: var(--white); border: 4px solid white; box-shadow: var(--shadow-md);">
-                                <span style="font-size: 2.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ user.first_name|slice:":1" }}</span>
-                            </div>
-                        {% endif %}
-                        <h5 class="fw-bold mb-1">{{ user.full_name }}</h5>
-                        <span class="badge badge-primary mb-3">{{ user.get_level_display }}</span>
 
-                        <div class="d-flex justify-content-center gap-4 mb-3 pt-2">
-                            <div class="text-center">
-                                <div class="fs-5 fw-bold" style="color: var(--dark);">{{ user.global_rank|default:"-" }}</div>
-                                <small style="color: var(--gray-500);">Reyting</small>
-                            </div>
-                            <div style="width: 1px; background: var(--gray-200);"></div>
-                            <div class="text-center">
-                                <div class="fs-5 fw-bold" style="color: var(--dark);">{{ user.competitions_won|default:0 }}</div>
-                                <small style="color: var(--gray-500);">G'alabalar</small>
-                            </div>
+                <!-- Profile Card -->
+                <div class="premium-card card border-0 overflow-hidden mb-4">
+                    <div style="height: 100px; background: linear-gradient(45deg, #4f46e5, #06b6d4);"></div>
+                    <div class="card-body text-center position-relative" style="margin-top: -60px;">
+                        <div class="profile-img-container mb-3">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" class="rounded-circle shadow" style="width: 110px; height: 110px; object-fit: cover; border: 5px solid white;">
+                            {% else %}
+                                <div class="rounded-circle shadow d-flex align-items-center justify-content-center bg-white mx-auto" style="width: 110px; height: 110px; border: 5px solid white;">
+                                    <span class="display-6 fw-bold text-primary">{{ user.first_name|slice:":1" }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="online-indicator"></div>
+                        </div>
+                        <h4 class="fw-bold mb-1">{{ user.get_full_name }}</h4>
+                        <p class="text-muted small mb-3">@{{ user.username }}</p>
+                        <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4">
+                            Level {{ user.level|default:1 }} • {{ user.get_level_display }}
                         </div>
 
-                        <a href="{% url 'accounts:profile' %}" class="btn btn-dark btn-sm w-100">
-                            <i class="bi bi-person me-2"></i> Profilni ko'rish
-                        </a>
+                        <div class="row g-0 border-top pt-4 mt-2">
+                            <div class="col-6 border-end">
+                                <h6 class="fw-bold mb-0">#{{ user.global_rank|default:"-" }}</h6>
+                                <small class="text-muted">Global Rank</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="fw-bold mb-0">{{ user.competitions_won|default:0 }}</h6>
+                                <small class="text-muted">G'alabalar</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Premium Card -->
-                {% if not user.is_premium %}
-                <div class="card mb-4" style="border-radius: 20px; background: var(--gradient-dark); overflow: hidden;">
-                    <div class="card-body text-center p-4">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">💎</div>
-                        <h5 class="text-white fw-bold">Premium ga o'ting</h5>
-                        <p class="mb-4" style="color: var(--gray-400);">Cheksiz testlar, AI mentor va batafsil tahlillar</p>
-                        <a href="{% url 'subscriptions:pricing' %}" class="btn" style="background: var(--gradient-primary); color: white;">
-                            Batafsil <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
+                <!-- Daily Goals -->
+                <div class="premium-card card border-0 p-4">
+                    <h5 class="fw-bold mb-4">Kunlik maqsadlar</h5>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-dark">Test yechish (5 ta)</span>
+                            <span class="small text-muted">{{ user.total_tests_taken|default:0 }}/5</span>
+                        </div>
+                        <div class="progress progress-premium">
+                            <div class="progress-bar bg-primary shadow-sm" style="width: {% widthratio user.total_tests_taken|default:0 5 100 %}%"></div>
+                        </div>
                     </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-dark">XP to'plash (100)</span>
+                            <span class="small text-muted">{{ user.xp_points|default:0 }}/100</span>
+                        </div>
+                        <div class="progress progress-premium">
+                            <div class="progress-bar bg-warning shadow-sm" style="width: {% widthratio user.xp_points|default:0 100 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-4 mt-2 border border-dashed text-center">
+                        <p class="small text-muted mb-0">Maqsadlarni bajaring va <strong>+20 bonus XP</strong> oling!</p>
+                    </div>
+                </div>
+
+                <!-- Premium CTA -->
+                {% if not user.is_premium %}
+                <div class="premium-card card border-0 mt-4 position-relative overflow-hidden" style="background: #1e293b;">
+                    <div class="card-body p-4 text-center z-index-1">
+                        <div class="mb-3">
+                            <i class="bi bi-gem text-warning display-5"></i>
+                        </div>
+                        <h5 class="text-white fw-bold">Premiumga o'ting</h5>
+                        <p class="text-light opacity-75 small mb-4">Reklamasiz, AI tahlillar va cheksiz imkoniyatlar!</p>
+                        <a href="{% url 'subscriptions:pricing' %}" class="btn btn-warning w-100 rounded-pill fw-bold">Batafsil ma'lumot</a>
+                    </div>
+                    <!-- Bezak uchun doiralar -->
+                    <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
                 </div>
                 {% endif %}
 
-                <!-- Daily Goal -->
-                <div class="card" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-bullseye text-primary me-2"></i> Kunlik maqsad
-                        </h6>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span style="color: var(--dark); font-weight: 500;">5 ta test yechish</span>
-                                <span style="color: var(--gray-500);">{{ user.total_tests_taken|default:0 }}/5</span>
-                            </div>
-                            <div class="progress" style="height: 10px; border-radius: 5px; background: var(--gray-200);">
-                                <div class="progress-bar" role="progressbar" style="width: {% widthratio user.total_tests_taken|default:0 5 100 %}%; background: var(--gradient-primary); border-radius: 5px;"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span style="color: var(--dark); font-weight: 500;">100 XP to'plash</span>
-                                <span style="color: var(--gray-500);">{{ user.xp_points|default:0 }}/100</span>
-                            </div>
-                            <div class="progress" style="height: 10px; border-radius: 5px; background: var(--gray-200);">
-                                <div class="progress-bar" role="progressbar" style="width: {% widthratio user.xp_points|default:0 100 100 %}%; background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); border-radius: 5px;"></div>
-                            </div>
-                        </div>
-
-                        <div class="text-center mt-4 p-3" style="background: var(--primary-glow); border-radius: 12px;">
-                            <small style="color: var(--primary-dark);">
-                                <i class="bi bi-info-circle me-1"></i> Kunlik maqsadni bajaring va bonus XP oling!
-                            </small>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
