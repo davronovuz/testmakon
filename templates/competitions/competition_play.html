@@ -5,68 +5,50 @@
 
 {% block extra_css %}
 <style>
-    /* ========== FULLSCREEN MODE ========== */
-    body.exam-mode {
-        overflow: hidden;
+    /* ========== LAYOUT ========== */
+    .cp-page {
+        min-height: 100vh;
+        background: var(--gray-50);
+        padding-bottom: 100px;
     }
 
-    /* ========== HEADER ========== */
-    .cp-header {
-        background: var(--gradient-dark);
+    /* ========== TOP BAR ========== */
+    .cp-topbar {
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
         padding: 0.75rem 0;
-        position: fixed;
+        position: sticky;
         top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        z-index: 100;
     }
 
-    .cp-header-content {
+    .cp-topbar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
     }
 
-    .cp-header-left {
+    .cp-topbar-left {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
+        min-width: 0;
     }
 
-    .cp-back-btn {
-        width: 36px;
-        height: 36px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        transition: all 0.2s;
-    }
-
-    .cp-back-btn:hover {
-        background: rgba(255,255,255,0.2);
-        color: white;
-    }
-
-    .cp-title {
-        color: white;
-        font-size: 1rem;
+    .cp-topbar-title {
+        font-size: 0.95rem;
         font-weight: 700;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .cp-title-sub {
-        font-size: 0.8rem;
-        color: var(--gray-400);
-    }
-
-    .cp-header-center {
+    .cp-topbar-center {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
 
     /* Timer */
@@ -74,333 +56,188 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        background: var(--gray-50);
         padding: 0.5rem 1rem;
-        background: rgba(255,255,255,0.1);
-        border-radius: var(--radius);
-        color: white;
-    }
-
-    .cp-timer i {
-        color: var(--primary);
-    }
-
-    .cp-timer-value {
-        font-size: 1.25rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
         font-weight: 800;
-        font-family: monospace;
+        color: var(--dark);
+        font-variant-numeric: tabular-nums;
     }
 
-    .cp-timer.warning {
-        background: rgba(245, 158, 11, 0.2);
-    }
+    .cp-timer i { font-size: 1rem; color: var(--primary); }
+    .cp-timer.warning { background: #FEF3C7; color: #D97706; }
+    .cp-timer.warning i { color: #D97706; }
+    .cp-timer.danger { background: #FEE2E2; color: #DC2626; animation: pulse-timer 1s infinite; }
+    .cp-timer.danger i { color: #DC2626; }
 
-    .cp-timer.warning .cp-timer-value {
-        color: #F59E0B;
-    }
-
-    .cp-timer.danger {
-        background: rgba(239, 68, 68, 0.2);
-        animation: timerPulse 1s infinite;
-    }
-
-    .cp-timer.danger .cp-timer-value {
-        color: #EF4444;
-    }
-
-    @keyframes timerPulse {
+    @keyframes pulse-timer {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.7; }
     }
 
     /* Progress */
-    .cp-progress {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: white;
+    .cp-progress-text {
         font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        white-space: nowrap;
     }
 
+    .cp-progress-text strong { color: var(--primary); }
+
+    /* Submit btn in topbar */
+    .cp-submit-top {
+        padding: 0.55rem 1.25rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .cp-submit-top:hover { box-shadow: 0 4px 14px -3px rgba(139,197,64,0.4); }
+
+    /* ========== PROGRESS BAR ========== */
     .cp-progress-bar {
-        width: 120px;
-        height: 6px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 3px;
-        overflow: hidden;
+        height: 3px;
+        background: var(--gray-200);
     }
 
     .cp-progress-fill {
         height: 100%;
-        background: var(--primary);
-        border-radius: 3px;
-        transition: width 0.3s;
+        background: var(--gradient-primary);
+        transition: width 0.3s ease;
     }
 
-    .cp-header-right {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .cp-violations {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.35rem 0.75rem;
-        background: rgba(239, 68, 68, 0.2);
-        border-radius: 20px;
-        font-size: 0.8rem;
-        color: #FCA5A5;
-    }
-
-    .cp-finish-btn {
-        padding: 0.5rem 1rem;
-        background: #EF4444;
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-size: 0.85rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .cp-finish-btn:hover {
-        background: #DC2626;
-    }
-
-    /* ========== MAIN CONTENT ========== */
+    /* ========== CONTENT ========== */
     .cp-content {
-        padding-top: 70px;
-        min-height: 100vh;
-        background: var(--gray-100);
-    }
-
-    .cp-container {
-        max-width: 900px;
+        max-width: 800px;
         margin: 0 auto;
-        padding: 1.5rem 1rem;
-    }
-
-    /* ========== QUESTION NAVIGATOR ========== */
-    .cp-navigator {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.4rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-    }
-
-    .cp-nav-dot {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 2px solid transparent;
-    }
-
-    .cp-nav-dot.unanswered {
-        background: var(--gray-200);
-        color: var(--gray-500);
-    }
-
-    .cp-nav-dot.answered {
-        background: var(--primary);
-        color: white;
-    }
-
-    .cp-nav-dot.bookmarked {
-        background: #FEF3C7;
-        color: #D97706;
-        border-color: #F59E0B;
-    }
-
-    .cp-nav-dot.current {
-        border-color: var(--dark);
-        transform: scale(1.15);
-    }
-
-    .cp-nav-dot:hover {
-        transform: scale(1.1);
+        padding: 2rem 1rem;
     }
 
     /* ========== QUESTION CARD ========== */
-    .cp-question-card {
+    .cp-question {
         background: var(--white);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin-bottom: 1.25rem;
+        transition: border-color 0.2s;
     }
 
-    .cp-question-header {
-        padding: 1rem 1.5rem;
-        background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
+    .cp-question.answered { border-color: var(--primary); }
+
+    .cp-q-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        margin-bottom: 1rem;
     }
 
-    .cp-question-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+    .cp-q-num {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--primary);
+        background: rgba(139,197,64,0.1);
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
     }
 
-    .cp-question-number {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .cp-question-badge {
-        width: 36px;
-        height: 36px;
-        background: var(--primary);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.95rem;
-        font-weight: 700;
-    }
-
-    .cp-question-difficulty {
-        font-size: 0.75rem;
+    .cp-q-subject {
+        font-size: 0.78rem;
         font-weight: 600;
-        padding: 0.25rem 0.6rem;
-        border-radius: 4px;
+        color: var(--gray-400);
     }
 
-    .cp-question-difficulty.easy {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .cp-question-difficulty.medium {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .cp-question-difficulty.hard {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .cp-question-right {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .cp-bookmark-btn {
-        width: 36px;
-        height: 36px;
-        background: var(--gray-100);
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--gray-500);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .cp-bookmark-btn:hover {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .cp-bookmark-btn.active {
-        background: #FEF3C7;
-        color: #F59E0B;
-    }
-
-    .cp-question-body {
-        padding: 2rem;
-    }
-
-    .cp-question-text {
-        font-size: 1.15rem;
+    .cp-q-text {
+        font-size: 1.05rem;
         font-weight: 600;
         color: var(--dark);
-        line-height: 1.8;
-        margin-bottom: 0.5rem;
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
     }
 
-    .cp-question-image {
-        margin-top: 1.5rem;
-        border-radius: var(--radius);
-        overflow: hidden;
-        max-width: 100%;
-    }
-
-    .cp-question-image img {
+    .cp-q-image {
         width: 100%;
-        height: auto;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 1.25rem;
+        background: var(--gray-50);
     }
 
-    /* ========== ANSWERS ========== */
-    .cp-answers {
-        padding: 0 2rem 2rem;
-    }
+    /* Answers */
+    .cp-answers { display: flex; flex-direction: column; gap: 0.6rem; }
 
     .cp-answer {
         display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 1.25rem 1.5rem;
-        background: var(--gray-50);
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
         border: 2px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        margin-bottom: 0.75rem;
+        border-radius: 12px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
+        user-select: none;
     }
 
-    .cp-answer:hover {
-        border-color: var(--gray-300);
-        background: var(--gray-100);
-    }
+    .cp-answer:hover { border-color: var(--gray-300); background: var(--gray-50); }
 
     .cp-answer.selected {
         border-color: var(--primary);
-        background: var(--primary-glow);
+        background: rgba(139,197,64,0.06);
     }
 
-    .cp-answer input {
-        display: none;
-    }
-
-    .cp-answer-letter {
-        width: 40px;
-        height: 40px;
-        background: var(--gray-200);
+    .cp-answer-radio {
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--gray-300);
         border-radius: 50%;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark-600);
-        flex-shrink: 0;
         transition: all 0.2s;
+    }
+
+    .cp-answer.selected .cp-answer-radio {
+        border-color: var(--primary);
+        background: var(--primary);
+    }
+
+    .cp-answer.selected .cp-answer-radio::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+    }
+
+    .cp-answer-text {
+        font-size: 0.95rem;
+        color: var(--dark);
+        line-height: 1.5;
+        flex: 1;
+    }
+
+    .cp-answer-letter {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--gray-400);
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border-radius: 8px;
+        flex-shrink: 0;
     }
 
     .cp-answer.selected .cp-answer-letter {
@@ -408,395 +245,232 @@
         color: white;
     }
 
-    .cp-answer-text {
-        flex: 1;
-        font-size: 1rem;
-        color: var(--dark-600);
-        line-height: 1.7;
-        padding-top: 0.5rem;
+    /* ========== BOTTOM BAR ========== */
+    .cp-bottombar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border-top: 1px solid var(--gray-200);
+        padding: 0.85rem 0;
+        z-index: 100;
     }
 
-    .cp-answer.selected .cp-answer-text {
-        color: var(--dark);
-        font-weight: 500;
-    }
-
-    /* ========== NAVIGATION ========== */
-    .cp-navigation {
+    .cp-bottom-inner {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: 1rem;
     }
 
-    .cp-nav-btn {
-        padding: 1rem 2rem;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
+    /* Question map */
+    .cp-qmap {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        flex: 1;
+        max-height: 36px;
+        overflow: hidden;
+    }
+
+    .cp-qmap-item {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 700;
         cursor: pointer;
+        transition: all 0.15s;
+        background: var(--gray-100);
+        color: var(--gray-500);
+        border: none;
     }
 
-    .cp-nav-btn.prev {
-        background: var(--white);
-        color: var(--dark-600);
-        border: 2px solid var(--gray-300);
-    }
+    .cp-qmap-item:hover { background: var(--gray-200); }
+    .cp-qmap-item.answered { background: var(--primary); color: white; }
+    .cp-qmap-item.current { border: 2px solid var(--primary); background: white; color: var(--primary); }
 
-    .cp-nav-btn.prev:hover {
-        border-color: var(--gray-400);
-    }
-
-    .cp-nav-btn.prev:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .cp-nav-btn.next {
+    .cp-submit-btn {
+        padding: 0.7rem 1.75rem;
         background: var(--gradient-primary);
         color: white;
         border: none;
-        flex: 1;
-        justify-content: center;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
-    .cp-nav-btn.next:hover {
-        box-shadow: var(--shadow-primary);
-    }
+    .cp-submit-btn:hover { box-shadow: 0 4px 14px -3px rgba(139,197,64,0.4); }
 
-    .cp-nav-btn.finish {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    }
-
-    /* ========== FINISH MODAL ========== */
-    .cp-modal-overlay {
+    /* ========== ANTI-CHEAT WARNING ========== */
+    .cp-cheat-warn {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.8);
-        display: flex;
+        background: #DC2626;
+        color: white;
+        text-align: center;
+        padding: 0.65rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        z-index: 200;
+        display: none;
+    }
+
+    .cp-cheat-warn.show { display: block; }
+
+    /* ========== CONFIRM MODAL ========== */
+    .cp-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 300;
+        display: none;
         align-items: center;
         justify-content: center;
-        z-index: 2000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s;
+        padding: 1rem;
     }
 
-    .cp-modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
+    .cp-modal-overlay.show { display: flex; }
 
     .cp-modal {
-        background: var(--white);
-        border-radius: var(--radius-xl);
-        width: 90%;
-        max-width: 450px;
+        background: white;
+        border-radius: 20px;
         padding: 2rem;
+        max-width: 400px;
+        width: 100%;
         text-align: center;
-        transform: scale(0.9);
-        transition: all 0.3s;
     }
 
-    .cp-modal-overlay.active .cp-modal {
-        transform: scale(1);
-    }
-
-    .cp-modal-icon {
-        font-size: 3.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .cp-modal h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .cp-modal p {
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
+    .cp-modal-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .cp-modal h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
+    .cp-modal p { font-size: 0.9rem; color: var(--gray-500); margin: 0 0 1.5rem; }
 
     .cp-modal-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
-    }
-
-    .cp-modal-stat {
-        text-align: center;
-    }
-
-    .cp-modal-stat-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-    }
-
-    .cp-modal-stat-value.green { color: #10B981; }
-    .cp-modal-stat-value.yellow { color: #F59E0B; }
-    .cp-modal-stat-value.gray { color: var(--gray-400); }
-
-    .cp-modal-stat-label {
-        font-size: 0.75rem;
-        color: var(--gray-500);
-    }
-
-    .cp-modal-actions {
         display: flex;
-        gap: 0.75rem;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
     }
+
+    .cp-modal-stat strong { display: block; font-size: 1.25rem; font-weight: 800; color: var(--dark); }
+    .cp-modal-stat span { font-size: 0.78rem; color: var(--gray-500); }
+
+    .cp-modal-btns { display: flex; gap: 0.75rem; }
 
     .cp-modal-btn {
         flex: 1;
-        padding: 0.875rem;
-        border-radius: var(--radius);
-        font-size: 0.95rem;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
-    }
-
-    .cp-modal-btn.cancel {
-        background: var(--gray-100);
-        color: var(--dark-600);
         border: none;
     }
 
-    .cp-modal-btn.confirm {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-        border: none;
-    }
+    .cp-modal-btn.cancel { background: var(--gray-100); color: var(--dark); }
+    .cp-modal-btn.cancel:hover { background: var(--gray-200); }
+    .cp-modal-btn.confirm { background: var(--gradient-primary); color: white; }
+    .cp-modal-btn.confirm:hover { box-shadow: 0 4px 14px -3px rgba(139,197,64,0.4); }
 
-    /* ========== WARNING MODAL ========== */
-    .cp-warning-modal {
-        background: var(--white);
-        border-radius: var(--radius-xl);
-        width: 90%;
-        max-width: 400px;
-        padding: 2rem;
-        text-align: center;
-    }
-
-    .cp-warning-icon {
-        font-size: 3rem;
-        color: #EF4444;
-        margin-bottom: 1rem;
-    }
-
-    .cp-warning-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #DC2626;
-        margin-bottom: 0.5rem;
-    }
-
-    .cp-warning-text {
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-
-    .cp-warning-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: #FEE2E2;
-        color: #DC2626;
-        border-radius: 20px;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-    }
-
-    .cp-warning-btn {
-        padding: 0.875rem 2rem;
-        background: var(--dark);
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    /* ========== ANTI-CHEAT ========== */
-    .cp-content.exam-mode {
-        user-select: none;
-        -webkit-user-select: none;
-    }
-
+    /* ========== RESPONSIVE ========== */
     @media (max-width: 768px) {
-        .cp-header-center {
-            display: none;
-        }
+        .cp-topbar-title { display: none; }
+        .cp-content { padding: 1.25rem 0.75rem; }
+        .cp-question { padding: 1.25rem; }
+        .cp-qmap { max-height: 30px; }
+        .cp-qmap-item { width: 26px; height: 26px; font-size: 0.68rem; }
+    }
 
-        .cp-progress {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            padding: 0.75rem;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            justify-content: center;
-        }
-
-        .cp-content {
-            padding-bottom: 60px;
-        }
+    @media (max-width: 480px) {
+        .cp-submit-top { display: none; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="cp-header">
+<!-- Anti-cheat Warning -->
+<div class="cp-cheat-warn" id="cheatWarn">
+    ⚠️ Sahifadan chiqmang! Qoidabuzarlik qayd etildi (<span id="violationCount">0</span>/3)
+</div>
+
+<!-- Top Bar -->
+<div class="cp-topbar">
     <div class="container">
-        <div class="cp-header-content">
-            <div class="cp-header-left">
-                <div>
-                    <div class="cp-title">{{ competition.title }}</div>
-                    <div class="cp-title-sub">{{ competition.get_competition_type_display }}</div>
+        <div class="cp-topbar-inner">
+            <div class="cp-topbar-left">
+                <span class="cp-topbar-title">{{ competition.title }}</span>
+            </div>
+            <div class="cp-topbar-center">
+                <div class="cp-timer" id="timer">
+                    <i class="bi bi-clock-fill"></i>
+                    <span id="timerText">00:00</span>
+                </div>
+                <div class="cp-progress-text">
+                    <strong id="answeredCount">0</strong> / {{ total_questions }}
                 </div>
             </div>
-
-            <div class="cp-header-center">
-                <div class="cp-timer" id="mainTimer">
-                    <i class="bi bi-clock"></i>
-                    <span class="cp-timer-value" id="timerDisplay">{{ remaining_time|default:3600 }}</span>
-                </div>
-
-                <div class="cp-progress">
-                    <span id="answeredCount">0</span>/{{ total_questions }}
-                    <div class="cp-progress-bar">
-                        <div class="cp-progress-fill" id="progressFill" style="width:0%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cp-header-right">
-                {% if anti_cheat %}
-                <div class="cp-violations" id="violationsDisplay" style="display:none;">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <span id="violationsCount">0</span>/3
-                </div>
-                {% endif %}
-
-                <button class="cp-finish-btn" id="finishBtn">
-                    <i class="bi bi-check-lg"></i>
-                    Yakunlash
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Content -->
-<div class="cp-content {% if anti_cheat %}exam-mode{% endif %}">
-    <div class="cp-container">
-        <!-- Question Navigator -->
-        <div class="cp-navigator" id="questionNavigator">
-            {% for i in questions_data %}
-            <div class="cp-nav-dot unanswered {% if forloop.first %}current{% endif %}" data-index="{{ forloop.counter0 }}">
-                {{ forloop.counter }}
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Question Card -->
-        <div class="cp-question-card">
-            <div class="cp-question-header">
-                <div class="cp-question-left">
-                    <div class="cp-question-number">
-                        <div class="cp-question-badge" id="questionBadge">1</div>
-                        <span style="font-weight:600; color:var(--dark);">Savol</span>
-                    </div>
-                    <span class="cp-question-difficulty medium" id="questionDifficulty">O'rta</span>
-                </div>
-                <div class="cp-question-right">
-                    <button class="cp-bookmark-btn" id="bookmarkBtn" title="Belgilash">
-                        <i class="bi bi-bookmark"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="cp-question-body">
-                <div class="cp-question-text" id="questionText"></div>
-                <div class="cp-question-image" id="questionImage" style="display:none;">
-                    <img src="" alt="" id="questionImg">
-                </div>
-            </div>
-
-            <div class="cp-answers" id="answersContainer">
-                <!-- Answers will be inserted here -->
-            </div>
-        </div>
-
-        <!-- Navigation -->
-        <div class="cp-navigation">
-            <button class="cp-nav-btn prev" id="prevBtn" disabled>
-                <i class="bi bi-arrow-left"></i>
-                Oldingi
-            </button>
-            <button class="cp-nav-btn next" id="nextBtn">
-                Keyingi
-                <i class="bi bi-arrow-right"></i>
+            <button type="button" class="cp-submit-top" onclick="showConfirm()">
+                Yakunlash
             </button>
         </div>
     </div>
+    <!-- Progress bar -->
+    <div class="cp-progress-bar">
+        <div class="cp-progress-fill" id="progressBar" style="width: 0%"></div>
+    </div>
 </div>
 
-<!-- Finish Modal -->
-<div class="cp-modal-overlay" id="finishModal">
+<div class="cp-page">
+    <div class="cp-content">
+        <!-- Questions rendered by JS -->
+        <div id="questionsContainer"></div>
+    </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="cp-bottombar">
+    <div class="cp-bottom-inner">
+        <div class="cp-qmap" id="questionMap"></div>
+        <button type="button" class="cp-submit-btn" onclick="showConfirm()">
+            <i class="bi bi-send-fill"></i> Yakunlash
+        </button>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="cp-modal-overlay" id="confirmModal">
     <div class="cp-modal">
-        <div class="cp-modal-icon">🏁</div>
-        <h3>Musobaqani yakunlaysizmi?</h3>
-        <p>Barcha javoblaringiz saqlanadi va natija hisoblanadi</p>
-
+        <div class="cp-modal-icon">📋</div>
+        <h3>Yakunlashni tasdiqlang</h3>
+        <p>Javoblaringiz yuboriladi. Qayta yechish imkoni yo'q.</p>
         <div class="cp-modal-stats">
             <div class="cp-modal-stat">
-                <div class="cp-modal-stat-value green" id="modalAnswered">0</div>
-                <div class="cp-modal-stat-label">Javob berilgan</div>
+                <strong id="modalAnswered">0</strong>
+                <span>Javob berildi</span>
             </div>
             <div class="cp-modal-stat">
-                <div class="cp-modal-stat-value yellow" id="modalBookmarked">0</div>
-                <div class="cp-modal-stat-label">Belgilangan</div>
-            </div>
-            <div class="cp-modal-stat">
-                <div class="cp-modal-stat-value gray" id="modalUnanswered">0</div>
-                <div class="cp-modal-stat-label">Javobsiz</div>
+                <strong id="modalSkipped">0</strong>
+                <span>Bo'sh qoldi</span>
             </div>
         </div>
-
-        <div class="cp-modal-actions">
-            <button class="cp-modal-btn cancel" id="modalCancel">Davom etish</button>
-            <button class="cp-modal-btn confirm" id="modalConfirm">Yakunlash</button>
+        <div class="cp-modal-btns">
+            <button class="cp-modal-btn cancel" onclick="hideConfirm()">Qaytish</button>
+            <button class="cp-modal-btn confirm" onclick="submitTest()">Tasdiqlash</button>
         </div>
-    </div>
-</div>
-
-<!-- Warning Modal (Anti-cheat) -->
-<div class="cp-modal-overlay" id="warningModal">
-    <div class="cp-warning-modal">
-        <div class="cp-warning-icon">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-        </div>
-        <div class="cp-warning-title">Ogohlantirish!</div>
-        <p class="cp-warning-text" id="warningText">Sahifadan chiqish aniqlandi</p>
-        <div class="cp-warning-count">
-            <i class="bi bi-exclamation-circle"></i>
-            <span id="warningCount">1</span>/3 ogohlantirish
-        </div>
-        <button class="cp-warning-btn" id="warningClose">Tushundim</button>
     </div>
 </div>
 
@@ -806,351 +480,242 @@
     <input type="hidden" name="answers" id="answersInput">
     <input type="hidden" name="time_spent" id="timeSpentInput">
 </form>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Data
-    const questions = {{ questions_data|safe }};
-    const totalTime = {{ remaining_time|default:3600 }};
-    const totalQuestions = questions.length;
-    const antiCheat = {{ anti_cheat|yesno:"true,false" }};
-    const competitionId = {{ competition.id }};
+(function() {
+    // ========== DATA ==========
+    var questions = {{ questions_data|safe }};
+    var totalQuestions = {{ total_questions }};
+    var remainingSeconds = {{ remaining_time }};
+    var antiCheat = {{ anti_cheat|yesno:"true,false" }};
+    var answers = {};        // {question_id: answer_id}
+    var violations = 0;
+    var startTime = Date.now();
+    var submitted = false;
+    var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-    // State
-    let currentIndex = 0;
-    let answers = {};
-    let bookmarked = new Set();
-    let timeRemaining = totalTime;
-    let violations = 0;
-    let startTime = Date.now();
-    let timerInterval;
+    // ========== RENDER QUESTIONS ==========
+    function renderQuestions() {
+        var container = document.getElementById('questionsContainer');
+        var mapContainer = document.getElementById('questionMap');
+        var html = '';
+        var mapHtml = '';
 
-    // Elements
-    const timerDisplay = document.getElementById('timerDisplay');
-    const mainTimer = document.getElementById('mainTimer');
-    const questionText = document.getElementById('questionText');
-    const questionImage = document.getElementById('questionImage');
-    const questionImg = document.getElementById('questionImg');
-    const questionBadge = document.getElementById('questionBadge');
-    const questionDifficulty = document.getElementById('questionDifficulty');
-    const answersContainer = document.getElementById('answersContainer');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const bookmarkBtn = document.getElementById('bookmarkBtn');
-    const answeredCount = document.getElementById('answeredCount');
-    const progressFill = document.getElementById('progressFill');
-    const finishModal = document.getElementById('finishModal');
-    const warningModal = document.getElementById('warningModal');
-    const violationsDisplay = document.getElementById('violationsDisplay');
-    const violationsCount = document.getElementById('violationsCount');
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            var isAnswered = answers[q.id] !== undefined;
 
-    // Initialize
-    loadQuestion(0);
-    startTimer();
+            html += '<div class="cp-question' + (isAnswered ? ' answered' : '') + '" id="q-' + q.id + '">';
+            html += '<div class="cp-q-header">';
+            html += '<span class="cp-q-num">' + (i + 1) + '-savol</span>';
+            html += '</div>';
 
-    if (antiCheat) {
-        initAntiCheat();
-    }
+            html += '<div class="cp-q-text">' + q.text + '</div>';
 
-    // Timer
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            timeRemaining--;
-            updateTimerDisplay();
-
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                submitCompetition();
+            if (q.image) {
+                html += '<img class="cp-q-image" src="' + q.image + '" alt="Savol rasmi">';
             }
-        }, 1000);
-    }
 
-    function updateTimerDisplay() {
-        const hours = Math.floor(timeRemaining / 3600);
-        const minutes = Math.floor((timeRemaining % 3600) / 60);
-        const seconds = timeRemaining % 60;
-
-        if (hours > 0) {
-            timerDisplay.textContent = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        } else {
-            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        mainTimer.classList.remove('warning', 'danger');
-        if (timeRemaining <= 60) {
-            mainTimer.classList.add('danger');
-        } else if (timeRemaining <= 300) {
-            mainTimer.classList.add('warning');
-        }
-    }
-
-    // Load question
-    function loadQuestion(index) {
-        const q = questions[index];
-        currentIndex = index;
-
-        // Update header
-        questionBadge.textContent = index + 1;
-
-        // Difficulty
-        const diffMap = {easy: ['Oson', 'easy'], medium: ['O\'rta', 'medium'], hard: ['Qiyin', 'hard']};
-        const diff = diffMap[q.difficulty] || ['O\'rta', 'medium'];
-        questionDifficulty.textContent = diff[0];
-        questionDifficulty.className = 'cp-question-difficulty ' + diff[1];
-
-        // Question text
-        questionText.textContent = q.text;
-
-        // Question image
-        if (q.image) {
-            questionImage.style.display = 'block';
-            questionImg.src = q.image;
-        } else {
-            questionImage.style.display = 'none';
-        }
-
-        // Bookmark
-        bookmarkBtn.classList.toggle('active', bookmarked.has(q.id));
-        bookmarkBtn.innerHTML = bookmarked.has(q.id) ?
-            '<i class="bi bi-bookmark-fill"></i>' :
-            '<i class="bi bi-bookmark"></i>';
-
-        // Answers
-        const letters = ['A', 'B', 'C', 'D'];
-        answersContainer.innerHTML = q.answers.map((ans, i) => `
-            <label class="cp-answer ${answers[q.id] === ans.id ? 'selected' : ''}" data-id="${ans.id}">
-                <input type="radio" name="answer" value="${ans.id}" ${answers[q.id] === ans.id ? 'checked' : ''}>
-                <div class="cp-answer-letter">${letters[i]}</div>
-                <div class="cp-answer-text">${ans.text}</div>
-            </label>
-        `).join('');
-
-        // Attach answer handlers
-        document.querySelectorAll('.cp-answer').forEach(answer => {
-            answer.addEventListener('click', function() {
-                selectAnswer(q.id, parseInt(this.dataset.id));
-            });
-        });
-
-        // Navigation buttons
-        prevBtn.disabled = index === 0;
-
-        if (index === totalQuestions - 1) {
-            nextBtn.innerHTML = '<i class="bi bi-check-lg"></i> Yakunlash';
-            nextBtn.classList.add('finish');
-        } else {
-            nextBtn.innerHTML = 'Keyingi <i class="bi bi-arrow-right"></i>';
-            nextBtn.classList.remove('finish');
-        }
-
-        updateNavigator();
-        updateProgress();
-    }
-
-    // Select answer
-    function selectAnswer(questionId, answerId) {
-        answers[questionId] = answerId;
-
-        document.querySelectorAll('.cp-answer').forEach(a => a.classList.remove('selected'));
-        document.querySelector(`.cp-answer[data-id="${answerId}"]`).classList.add('selected');
-
-        updateNavigator();
-        updateProgress();
-    }
-
-    // Bookmark
-    bookmarkBtn.addEventListener('click', () => {
-        const qId = questions[currentIndex].id;
-        if (bookmarked.has(qId)) {
-            bookmarked.delete(qId);
-            bookmarkBtn.classList.remove('active');
-            bookmarkBtn.innerHTML = '<i class="bi bi-bookmark"></i>';
-        } else {
-            bookmarked.add(qId);
-            bookmarkBtn.classList.add('active');
-            bookmarkBtn.innerHTML = '<i class="bi bi-bookmark-fill"></i>';
-        }
-        updateNavigator();
-    });
-
-    // Update navigator
-    function updateNavigator() {
-        document.querySelectorAll('.cp-nav-dot').forEach((dot, i) => {
-            dot.classList.remove('current', 'answered', 'unanswered', 'bookmarked');
-
-            if (i === currentIndex) dot.classList.add('current');
-
-            const qId = questions[i].id;
-            if (bookmarked.has(qId)) {
-                dot.classList.add('bookmarked');
-            } else if (answers[qId]) {
-                dot.classList.add('answered');
-            } else {
-                dot.classList.add('unanswered');
+            html += '<div class="cp-answers">';
+            for (var j = 0; j < q.answers.length; j++) {
+                var a = q.answers[j];
+                var sel = answers[q.id] === a.id ? ' selected' : '';
+                html += '<div class="cp-answer' + sel + '" onclick="selectAnswer(' + q.id + ',' + a.id + ')" data-qid="' + q.id + '" data-aid="' + a.id + '">';
+                html += '<span class="cp-answer-letter">' + LETTERS[j] + '</span>';
+                html += '<span class="cp-answer-radio"></span>';
+                html += '<span class="cp-answer-text">' + a.text + '</span>';
+                html += '</div>';
             }
-        });
+            html += '</div></div>';
+
+            var mapClass = 'cp-qmap-item';
+            if (isAnswered) mapClass += ' answered';
+            mapHtml += '<button type="button" class="' + mapClass + '" onclick="scrollToQ(' + q.id + ')" id="map-' + q.id + '">' + (i + 1) + '</button>';
+        }
+
+        container.innerHTML = html;
+        mapContainer.innerHTML = mapHtml;
     }
 
-    // Update progress
+    // ========== SELECT ANSWER ==========
+    window.selectAnswer = function(qId, aId) {
+        if (submitted) return;
+
+        // O'sha savolning barchasi
+        if (answers[qId] === aId) {
+            delete answers[qId];
+        } else {
+            answers[qId] = aId;
+        }
+
+        // UI yangilash — faqat shu savol
+        var qCard = document.getElementById('q-' + qId);
+        var answerEls = qCard.querySelectorAll('.cp-answer');
+        var isAnswered = answers[qId] !== undefined;
+
+        qCard.classList.toggle('answered', isAnswered);
+
+        for (var i = 0; i < answerEls.length; i++) {
+            var el = answerEls[i];
+            var elAid = parseInt(el.getAttribute('data-aid'));
+            el.classList.toggle('selected', elAid === answers[qId]);
+        }
+
+        // Map yangilash
+        var mapItem = document.getElementById('map-' + qId);
+        if (mapItem) {
+            mapItem.classList.toggle('answered', isAnswered);
+        }
+
+        updateProgress();
+    };
+
+    // ========== SCROLL TO QUESTION ==========
+    window.scrollToQ = function(qId) {
+        var el = document.getElementById('q-' + qId);
+        if (el) {
+            var topbarH = document.querySelector('.cp-topbar').offsetHeight;
+            var y = el.getBoundingClientRect().top + window.pageYOffset - topbarH - 16;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    };
+
+    // ========== UPDATE PROGRESS ==========
     function updateProgress() {
-        const answered = Object.keys(answers).length;
-        answeredCount.textContent = answered;
-        progressFill.style.width = `${(answered / totalQuestions) * 100}%`;
+        var count = Object.keys(answers).length;
+        document.getElementById('answeredCount').textContent = count;
+
+        var pct = totalQuestions > 0 ? (count / totalQuestions * 100) : 0;
+        document.getElementById('progressBar').style.width = pct + '%';
     }
 
-    // Navigation
-    prevBtn.addEventListener('click', () => {
-        if (currentIndex > 0) loadQuestion(currentIndex - 1);
-    });
+    // ========== TIMER ==========
+    function updateTimer() {
+        if (submitted) return;
 
-    nextBtn.addEventListener('click', () => {
-        if (currentIndex < totalQuestions - 1) {
-            loadQuestion(currentIndex + 1);
-        } else {
-            showFinishModal();
+        remainingSeconds--;
+
+        if (remainingSeconds <= 0) {
+            submitTest();
+            return;
         }
-    });
 
-    // Navigator dot click
-    document.querySelectorAll('.cp-nav-dot').forEach(dot => {
-        dot.addEventListener('click', function() {
-            loadQuestion(parseInt(this.dataset.index));
-        });
-    });
+        var h = Math.floor(remainingSeconds / 3600);
+        var m = Math.floor((remainingSeconds % 3600) / 60);
+        var s = remainingSeconds % 60;
 
-    // Finish modal
-    document.getElementById('finishBtn').addEventListener('click', showFinishModal);
+        var text = '';
+        if (h > 0) text = pad(h) + ':';
+        text += pad(m) + ':' + pad(s);
 
-    function showFinishModal() {
-        const answered = Object.keys(answers).length;
-        document.getElementById('modalAnswered').textContent = answered;
-        document.getElementById('modalBookmarked').textContent = bookmarked.size;
-        document.getElementById('modalUnanswered').textContent = totalQuestions - answered;
-        finishModal.classList.add('active');
+        var timerEl = document.getElementById('timer');
+        document.getElementById('timerText').textContent = text;
+
+        timerEl.classList.remove('warning', 'danger');
+        if (remainingSeconds <= 60) {
+            timerEl.classList.add('danger');
+        } else if (remainingSeconds <= 300) {
+            timerEl.classList.add('warning');
+        }
     }
 
-    document.getElementById('modalCancel').addEventListener('click', () => {
-        finishModal.classList.remove('active');
-    });
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
-    document.getElementById('modalConfirm').addEventListener('click', submitCompetition);
+    // ========== CONFIRM MODAL ==========
+    window.showConfirm = function() {
+        var answered = Object.keys(answers).length;
+        var skipped = totalQuestions - answered;
 
-    // Submit
-    function submitCompetition() {
-        clearInterval(timerInterval);
+        document.getElementById('modalAnswered').textContent = answered;
+        document.getElementById('modalSkipped').textContent = skipped;
+        document.getElementById('confirmModal').classList.add('show');
+    };
 
-        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        const answersArray = Object.entries(answers).map(([qId, aId]) => ({
-            question_id: parseInt(qId),
-            answer_id: aId
-        }));
+    window.hideConfirm = function() {
+        document.getElementById('confirmModal').classList.remove('show');
+    };
+
+    // ========== SUBMIT ==========
+    window.submitTest = function() {
+        if (submitted) return;
+        submitted = true;
+
+        var answersArray = [];
+        for (var qId in answers) {
+            if (answers.hasOwnProperty(qId)) {
+                answersArray.push({
+                    question_id: parseInt(qId),
+                    answer_id: answers[qId]
+                });
+            }
+        }
+
+        var timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
         document.getElementById('answersInput').value = JSON.stringify(answersArray);
         document.getElementById('timeSpentInput').value = timeSpent;
         document.getElementById('submitForm').submit();
-    }
+    };
 
-    // Anti-cheat
-    function initAntiCheat() {
-        // Tab visibility
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                logViolation('tab_switch', 'Boshqa tabga o\'tildi');
+    // ========== ANTI-CHEAT ==========
+    if (antiCheat) {
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !submitted) {
+                violations++;
+                var warn = document.getElementById('cheatWarn');
+                document.getElementById('violationCount').textContent = violations;
+                warn.classList.add('show');
+
+                setTimeout(function() {
+                    warn.classList.remove('show');
+                }, 4000);
+
+                // API ga log
+                fetch("{% url 'competitions:api_log_violation' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        competition_id: {{ competition.id }},
+                        type: 'tab_switch',
+                        details: 'Violation #' + violations
+                    })
+                });
+
+                if (violations >= 3) {
+                    alert('3 marta qoidabuzarlik! Test avtomatik yakunlanadi.');
+                    submitTest();
+                }
             }
         });
 
-        // Window blur
-        window.addEventListener('blur', () => {
-            logViolation('window_blur', 'Oyna fokusdan chiqdi');
-        });
+        // Kontekst menyuni bloklash
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-        // Right click
-        document.addEventListener('contextmenu', (e) => {
+        // Copy/paste bloklash
+        document.addEventListener('copy', function(e) { e.preventDefault(); });
+        document.addEventListener('paste', function(e) { e.preventDefault(); });
+    }
+
+    // ========== PREVENT ACCIDENTAL LEAVE ==========
+    window.addEventListener('beforeunload', function(e) {
+        if (!submitted) {
             e.preventDefault();
-            return false;
-        });
-
-        // Copy/paste
-        document.addEventListener('copy', (e) => e.preventDefault());
-        document.addEventListener('paste', (e) => e.preventDefault());
-        document.addEventListener('cut', (e) => e.preventDefault());
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 'p')) {
-                e.preventDefault();
-                return false;
-            }
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-                logViolation('devtools', 'DevTools ochishga urinish');
-                return false;
-            }
-        });
-    }
-
-    function logViolation(type, message) {
-        violations++;
-        violationsCount.textContent = violations;
-        violationsDisplay.style.display = 'flex';
-
-        // Show warning
-        document.getElementById('warningText').textContent = message;
-        document.getElementById('warningCount').textContent = violations;
-        warningModal.classList.add('active');
-
-        // Log to server
-        fetch('{% url "competitions:api_log_violation" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                competition_id: competitionId,
-                type: type,
-                details: message
-            })
-        });
-
-        // Disqualify after 3 violations
-        if (violations >= 3) {
-            alert('Siz diskvalifikatsiya qilindingiz!');
-            submitCompetition();
-        }
-    }
-
-    document.getElementById('warningClose').addEventListener('click', () => {
-        warningModal.classList.remove('active');
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        if (finishModal.classList.contains('active') || warningModal.classList.contains('active')) return;
-
-        const q = questions[currentIndex];
-
-        switch(e.key) {
-            case '1': case '2': case '3': case '4':
-                const ansIndex = parseInt(e.key) - 1;
-                if (q.answers[ansIndex]) selectAnswer(q.id, q.answers[ansIndex].id);
-                break;
-            case 'ArrowLeft':
-                if (currentIndex > 0) loadQuestion(currentIndex - 1);
-                break;
-            case 'ArrowRight':
-            case 'Enter':
-                if (currentIndex < totalQuestions - 1) loadQuestion(currentIndex + 1);
-                else showFinishModal();
-                break;
-            case 'b':
-            case 'B':
-                bookmarkBtn.click();
-                break;
+            e.returnValue = '';
         }
     });
-});
+
+    // ========== INIT ==========
+    renderQuestions();
+    updateProgress();
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+})();
 </script>
 {% endblock %}

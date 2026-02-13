@@ -1,0 +1,558 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kunlik Challenge | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dcp-page {
+        min-height: 100vh;
+        background: var(--gray-50);
+        padding-bottom: 100px;
+    }
+
+    /* ========== TOP BAR ========== */
+    .dcp-topbar {
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        padding: 0.75rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .dcp-topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .dcp-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+
+    .dcp-topbar-badge {
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        color: white;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.3rem 0.7rem;
+        border-radius: 50px;
+        white-space: nowrap;
+    }
+
+    .dcp-topbar-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .dcp-topbar-center {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .dcp-timer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--gray-50);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--dark);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .dcp-timer i { font-size: 1rem; color: #7C3AED; }
+    .dcp-timer.warning { background: #FEF3C7; color: #D97706; }
+    .dcp-timer.warning i { color: #D97706; }
+    .dcp-timer.danger { background: #FEE2E2; color: #DC2626; animation: dcp-pulse 1s infinite; }
+    .dcp-timer.danger i { color: #DC2626; }
+
+    @keyframes dcp-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+    .dcp-progress-text {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        white-space: nowrap;
+    }
+
+    .dcp-progress-text strong { color: #7C3AED; }
+
+    .dcp-submit-top {
+        padding: 0.55rem 1.25rem;
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .dcp-submit-top:hover { box-shadow: 0 4px 14px -3px rgba(124,58,237,0.4); }
+
+    /* Progress Bar */
+    .dcp-progress-bar { height: 3px; background: var(--gray-200); }
+    .dcp-progress-fill { height: 100%; background: linear-gradient(90deg, #8B5CF6, #6D28D9); transition: width 0.3s ease; }
+
+    /* ========== CONTENT ========== */
+    .dcp-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* Question Card */
+    .dcp-question {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin-bottom: 1.25rem;
+        transition: border-color 0.2s;
+    }
+
+    .dcp-question.answered { border-color: #8B5CF6; }
+
+    .dcp-q-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .dcp-q-num {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: #7C3AED;
+        background: #EDE9FE;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+    }
+
+    .dcp-q-text {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dark);
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
+    }
+
+    .dcp-q-image {
+        width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 1.25rem;
+        background: var(--gray-50);
+    }
+
+    /* Answers */
+    .dcp-answers { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .dcp-answer {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .dcp-answer:hover { border-color: var(--gray-300); background: var(--gray-50); }
+
+    .dcp-answer.selected {
+        border-color: #8B5CF6;
+        background: rgba(139,92,246,0.05);
+    }
+
+    .dcp-answer-letter {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--gray-400);
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .dcp-answer.selected .dcp-answer-letter { background: #8B5CF6; color: white; }
+
+    .dcp-answer-radio {
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .dcp-answer.selected .dcp-answer-radio { border-color: #8B5CF6; background: #8B5CF6; }
+    .dcp-answer.selected .dcp-answer-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+
+    .dcp-answer-text { font-size: 0.95rem; color: var(--dark); line-height: 1.5; flex: 1; }
+
+    /* ========== BOTTOM BAR ========== */
+    .dcp-bottombar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border-top: 1px solid var(--gray-200);
+        padding: 0.85rem 0;
+        z-index: 100;
+    }
+
+    .dcp-bottom-inner {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .dcp-qmap {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        flex: 1;
+        max-height: 36px;
+        overflow: hidden;
+    }
+
+    .dcp-qmap-item {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
+        background: var(--gray-100);
+        color: var(--gray-500);
+        border: none;
+        transition: all 0.15s;
+    }
+
+    .dcp-qmap-item:hover { background: var(--gray-200); }
+    .dcp-qmap-item.answered { background: #8B5CF6; color: white; }
+
+    .dcp-submit-btn {
+        padding: 0.7rem 1.75rem;
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .dcp-submit-btn:hover { box-shadow: 0 4px 14px -3px rgba(124,58,237,0.4); }
+
+    /* ========== CONFIRM MODAL ========== */
+    .dcp-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 300;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .dcp-modal-overlay.show { display: flex; }
+
+    .dcp-modal {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .dcp-modal-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .dcp-modal h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
+    .dcp-modal p { font-size: 0.9rem; color: var(--gray-500); margin: 0 0 1.5rem; }
+
+    .dcp-modal-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .dcp-modal-stat strong { display: block; font-size: 1.25rem; font-weight: 800; color: var(--dark); }
+    .dcp-modal-stat span { font-size: 0.78rem; color: var(--gray-500); }
+
+    .dcp-modal-btns { display: flex; gap: 0.75rem; }
+
+    .dcp-modal-btn {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .dcp-modal-btn.cancel { background: var(--gray-100); color: var(--dark); }
+    .dcp-modal-btn.cancel:hover { background: var(--gray-200); }
+    .dcp-modal-btn.confirm { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dcp-topbar-title { display: none; }
+        .dcp-content { padding: 1.25rem 0.75rem; }
+        .dcp-question { padding: 1.25rem; }
+    }
+
+    @media (max-width: 480px) {
+        .dcp-submit-top { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Top Bar -->
+<div class="dcp-topbar">
+    <div class="container">
+        <div class="dcp-topbar-inner">
+            <div class="dcp-topbar-left">
+                <span class="dcp-topbar-badge">📅 Challenge</span>
+                <span class="dcp-topbar-title">{{ challenge.subject.name|default:"Umumiy" }}</span>
+            </div>
+            <div class="dcp-topbar-center">
+                <div class="dcp-timer" id="timer">
+                    <i class="bi bi-clock-fill"></i>
+                    <span id="timerText">00:00</span>
+                </div>
+                <div class="dcp-progress-text">
+                    <strong id="answeredCount">0</strong> / {{ challenge.question_count }}
+                </div>
+            </div>
+            <button type="button" class="dcp-submit-top" onclick="showConfirm()">
+                Yakunlash
+            </button>
+        </div>
+    </div>
+    <div class="dcp-progress-bar">
+        <div class="dcp-progress-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+</div>
+
+<div class="dcp-page">
+    <div class="dcp-content" id="questionsContainer"></div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="dcp-bottombar">
+    <div class="dcp-bottom-inner">
+        <div class="dcp-qmap" id="questionMap"></div>
+        <button type="button" class="dcp-submit-btn" onclick="showConfirm()">
+            <i class="bi bi-send-fill"></i> Yakunlash
+        </button>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="dcp-modal-overlay" id="confirmModal">
+    <div class="dcp-modal">
+        <div class="dcp-modal-icon">📋</div>
+        <h3>Challenge yakunlansimi?</h3>
+        <p>Javoblaringiz yuboriladi. Qayta yechish imkoni yo'q.</p>
+        <div class="dcp-modal-stats">
+            <div class="dcp-modal-stat">
+                <strong id="modalAnswered">0</strong>
+                <span>Javob berildi</span>
+            </div>
+            <div class="dcp-modal-stat">
+                <strong id="modalSkipped">0</strong>
+                <span>Bo'sh qoldi</span>
+            </div>
+        </div>
+        <div class="dcp-modal-btns">
+            <button class="dcp-modal-btn cancel" onclick="hideConfirm()">Qaytish</button>
+            <button class="dcp-modal-btn confirm" onclick="submitChallenge()">Tasdiqlash</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Form -->
+<form id="submitForm" method="post" action="{% url 'competitions:daily_challenge_submit' %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="answers" id="answersInput">
+    <input type="hidden" name="time_spent" id="timeSpentInput">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var questions = {{ questions_data|safe }};
+    var totalQ = {{ challenge.question_count }};
+    var remaining = {{ remaining_time }};
+    var answers = {};
+    var startTime = Date.now();
+    var submitted = false;
+    var LETTERS = ['A','B','C','D','E','F','G','H'];
+
+    // Render
+    function render() {
+        var container = document.getElementById('questionsContainer');
+        var mapEl = document.getElementById('questionMap');
+        var html = '';
+        var mapH = '';
+
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            var done = answers[q.id] !== undefined;
+
+            html += '<div class="dcp-question' + (done ? ' answered' : '') + '" id="q-' + q.id + '">';
+            html += '<div class="dcp-q-header"><span class="dcp-q-num">' + (i+1) + '-savol</span></div>';
+            html += '<div class="dcp-q-text">' + q.text + '</div>';
+            if (q.image) html += '<img class="dcp-q-image" src="' + q.image + '">';
+            html += '<div class="dcp-answers">';
+
+            for (var j = 0; j < q.answers.length; j++) {
+                var a = q.answers[j];
+                var sel = answers[q.id] === a.id ? ' selected' : '';
+                html += '<div class="dcp-answer' + sel + '" onclick="pick(' + q.id + ',' + a.id + ')" data-q="' + q.id + '" data-a="' + a.id + '">';
+                html += '<span class="dcp-answer-letter">' + LETTERS[j] + '</span>';
+                html += '<span class="dcp-answer-radio"></span>';
+                html += '<span class="dcp-answer-text">' + a.text + '</span>';
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+            mapH += '<button type="button" class="dcp-qmap-item' + (done ? ' answered' : '') + '" onclick="goQ(' + q.id + ')" id="m-' + q.id + '">' + (i+1) + '</button>';
+        }
+
+        container.innerHTML = html;
+        mapEl.innerHTML = mapH;
+    }
+
+    window.pick = function(qId, aId) {
+        if (submitted) return;
+        if (answers[qId] === aId) { delete answers[qId]; } else { answers[qId] = aId; }
+
+        var card = document.getElementById('q-' + qId);
+        var els = card.querySelectorAll('.dcp-answer');
+        var done = answers[qId] !== undefined;
+        card.classList.toggle('answered', done);
+
+        for (var i = 0; i < els.length; i++) {
+            els[i].classList.toggle('selected', parseInt(els[i].getAttribute('data-a')) === answers[qId]);
+        }
+
+        var m = document.getElementById('m-' + qId);
+        if (m) m.classList.toggle('answered', done);
+        updateUI();
+    };
+
+    window.goQ = function(qId) {
+        var el = document.getElementById('q-' + qId);
+        if (el) {
+            var top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+        }
+    };
+
+    function updateUI() {
+        var count = Object.keys(answers).length;
+        document.getElementById('answeredCount').textContent = count;
+        document.getElementById('progressBar').style.width = (totalQ > 0 ? count/totalQ*100 : 0) + '%';
+    }
+
+    // Timer
+    function tick() {
+        if (submitted) return;
+        remaining--;
+        if (remaining <= 0) { submitChallenge(); return; }
+
+        var m = Math.floor(remaining / 60);
+        var s = remaining % 60;
+        document.getElementById('timerText').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+
+        var t = document.getElementById('timer');
+        t.classList.remove('warning','danger');
+        if (remaining <= 60) t.classList.add('danger');
+        else if (remaining <= 300) t.classList.add('warning');
+    }
+
+    // Confirm
+    window.showConfirm = function() {
+        var a = Object.keys(answers).length;
+        document.getElementById('modalAnswered').textContent = a;
+        document.getElementById('modalSkipped').textContent = totalQ - a;
+        document.getElementById('confirmModal').classList.add('show');
+    };
+
+    window.hideConfirm = function() {
+        document.getElementById('confirmModal').classList.remove('show');
+    };
+
+    // Submit
+    window.submitChallenge = function() {
+        if (submitted) return;
+        submitted = true;
+
+        var arr = [];
+        for (var qId in answers) {
+            if (answers.hasOwnProperty(qId)) {
+                arr.push({ question_id: parseInt(qId), answer_id: answers[qId] });
+            }
+        }
+
+        document.getElementById('answersInput').value = JSON.stringify(arr);
+        document.getElementById('timeSpentInput').value = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('submitForm').submit();
+    };
+
+    // Prevent leave
+    window.addEventListener('beforeunload', function(e) {
+        if (!submitted) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    render();
+    updateUI();
+    tick();
+    setInterval(tick, 1000);
+})();
+</script>
+{% endblock %}

@@ -5,188 +5,150 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .wl-header {
-        background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #3B82F6 100%);
-        padding: 3rem 0;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
+    .wl-page { padding: 2rem 0 4rem; }
 
-    .wl-header::before {
-        content: '🏆';
-        position: absolute;
-        top: -30px;
-        right: -30px;
-        font-size: 12rem;
-        opacity: 0.1;
-    }
-
-    .wl-header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .wl-header-grid {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 2rem;
-        align-items: center;
-    }
-
-    @media (max-width: 768px) {
-        .wl-header-grid {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-    }
-
-    .wl-badge {
-        display: inline-flex;
+    /* Breadcrumb */
+    .wl-bread {
+        display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(255,255,255,0.2);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
         font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .wl-header h1 {
-        font-size: 2.25rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .wl-header-desc {
-        font-size: 1.05rem;
-        color: rgba(255,255,255,0.9);
+        color: var(--gray-500);
         margin-bottom: 1.5rem;
-        max-width: 500px;
     }
 
-    @media (max-width: 768px) {
-        .wl-header-desc {
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
+    .wl-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .wl-bread a:hover { text-decoration: underline; }
 
-    .wl-header-stats {
-        display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    @media (max-width: 768px) {
-        .wl-header-stats {
-            justify-content: center;
-        }
-    }
-
-    .wl-header-stat {
-        text-align: center;
-    }
-
-    .wl-header-stat-value {
-        font-size: 1.75rem;
-        font-weight: 800;
-    }
-
-    .wl-header-stat-label {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-
-    /* Tier Card */
-    .wl-tier-card {
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        text-align: center;
-        min-width: 260px;
-    }
-
-    .wl-tier-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-    }
-
-    .wl-tier-name {
-        font-size: 1.5rem;
-        font-weight: 800;
-        margin-bottom: 0.25rem;
-    }
-
-    .wl-tier-desc {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        margin-bottom: 1rem;
-    }
-
-    .wl-tier-progress {
-        width: 100%;
-        height: 8px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 0.5rem;
-    }
-
-    .wl-tier-progress-fill {
-        height: 100%;
-        background: white;
-        border-radius: 4px;
-        transition: width 0.5s;
-    }
-
-    .wl-tier-progress-text {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-
-    /* ========== CONTENT ========== */
-    .wl-content {
-        padding: 2.5rem 0;
-        background: var(--gray-100);
-    }
-
+    /* Layout */
     .wl-layout {
         display: grid;
-        grid-template-columns: 1fr 350px;
+        grid-template-columns: 1fr 340px;
         gap: 2rem;
+        align-items: start;
     }
 
-    @media (max-width: 992px) {
-        .wl-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== CARD ========== */
-    .wl-card {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        border: 1px solid var(--gray-200);
+    /* ========== HERO ========== */
+    .wl-hero {
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        position: relative;
         overflow: hidden;
         margin-bottom: 1.5rem;
     }
 
-    .wl-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    .wl-hero.bronze { background: linear-gradient(135deg, #B45309, #92400E); }
+    .wl-hero.silver { background: linear-gradient(135deg, #6B7280, #4B5563); }
+    .wl-hero.gold { background: linear-gradient(135deg, #D97706, #B45309); }
+    .wl-hero.platinum { background: linear-gradient(135deg, #0891B2, #0E7490); }
+    .wl-hero.diamond { background: linear-gradient(135deg, #7C3AED, #6D28D9); }
+    .wl-hero.master { background: linear-gradient(135deg, #DC2626, #B91C1C); }
+    .wl-hero.grandmaster { background: linear-gradient(135deg, #1E1E1E, #374151); }
+
+    .wl-hero::after {
+        content: '';
+        position: absolute;
+        right: -30px;
+        bottom: -30px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    .wl-card-title {
-        font-size: 1rem;
+    .wl-hero-inner { position: relative; z-index: 1; }
+
+    .wl-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255,255,255,0.18);
+        padding: 0.4rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
         font-weight: 700;
+        margin-bottom: 0.85rem;
+    }
+
+    .wl-hero h1 {
+        font-size: 1.65rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 0 0.4rem;
+    }
+
+    .wl-hero p {
+        font-size: 0.92rem;
+        color: rgba(255,255,255,0.8);
+        margin: 0 0 1.25rem;
+    }
+
+    .wl-hero-row {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .wl-hero-stat strong { display: block; font-size: 1.35rem; font-weight: 900; }
+    .wl-hero-stat span { font-size: 0.78rem; opacity: 0.85; font-weight: 600; }
+
+    /* ========== MY POSITION ========== */
+    .wl-my {
+        background: var(--white);
+        border: 2px solid var(--primary);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .wl-my-rank {
+        width: 52px;
+        height: 52px;
+        background: rgba(139,197,64,0.1);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .wl-my-info { flex: 1; }
+    .wl-my-label { font-size: 0.78rem; color: var(--gray-500); font-weight: 600; }
+    .wl-my-name { font-size: 1rem; font-weight: 800; color: var(--dark); }
+
+    .wl-my-stats {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .wl-my-stat { text-align: center; }
+    .wl-my-stat-val { font-size: 1.1rem; font-weight: 800; color: var(--dark); }
+    .wl-my-stat-label { font-size: 0.7rem; color: var(--gray-500); font-weight: 600; }
+
+    /* ========== LEADERBOARD ========== */
+    .wl-lb {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .wl-lb-head {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .wl-lb-head h3 {
+        font-size: 1rem;
+        font-weight: 800;
         color: var(--dark);
         margin: 0;
         display: flex;
@@ -194,649 +156,384 @@
         gap: 0.5rem;
     }
 
-    .wl-card-title i {
-        color: var(--primary);
-    }
-
-    .wl-card-body {
-        padding: 1.5rem;
-    }
-
-    /* ========== TIERS INFO ========== */
-    .wl-tiers-row {
+    .wl-lb-zones {
         display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .wl-tier-badge {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
+        gap: 0;
+        font-size: 0.72rem;
         font-weight: 700;
-        transition: all 0.2s;
+        margin-top: 0.65rem;
     }
 
-    .wl-tier-badge.bronze { background: #FED7AA; color: #9A3412; }
-    .wl-tier-badge.silver { background: #E5E7EB; color: #374151; }
-    .wl-tier-badge.gold { background: #FDE68A; color: #92400E; }
-    .wl-tier-badge.platinum { background: #DBEAFE; color: #1E40AF; }
-    .wl-tier-badge.diamond { background: #CFFAFE; color: #0E7490; }
-    .wl-tier-badge.master { background: #FEE2E2; color: #991B1B; }
-    .wl-tier-badge.grandmaster { background: #EDE9FE; color: #5B21B6; }
-
-    .wl-tier-badge.active {
-        transform: scale(1.1);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    .wl-lb-zone {
+        padding: 0.25rem 0.65rem;
+        border-radius: 50px;
     }
 
-    /* ========== LEADERBOARD ========== */
-    .wl-leaderboard {
-        display: flex;
-        flex-direction: column;
-    }
+    .wl-lb-zone.up { background: #D1FAE5; color: #059669; }
+    .wl-lb-zone.stay { background: var(--gray-100); color: var(--gray-500); margin: 0 0.35rem; }
+    .wl-lb-zone.down { background: #FEE2E2; color: #DC2626; }
 
-    .wl-leader-item {
+    .wl-lb-row {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: var(--radius);
-        transition: all 0.2s;
-        position: relative;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        transition: background 0.15s;
     }
 
-    .wl-leader-item:hover {
-        background: var(--gray-50);
-    }
+    .wl-lb-row:hover { background: var(--gray-50); }
+    .wl-lb-row + .wl-lb-row { border-top: 1px solid var(--gray-50); }
+    .wl-lb-row.me { background: rgba(139,197,64,0.06); }
+    .wl-lb-row.promo-zone { border-left: 3px solid #10B981; }
+    .wl-lb-row.demo-zone { border-left: 3px solid #EF4444; }
 
-    .wl-leader-item.promotion-zone {
-        background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
-        border-left: 3px solid #10B981;
-    }
-
-    .wl-leader-item.demotion-zone {
-        background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
-        border-left: 3px solid #EF4444;
-    }
-
-    .wl-leader-item.you {
-        background: var(--primary-glow);
-        border: 2px solid var(--primary);
-    }
-
-    .wl-leader-rank {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
+    .wl-lb-rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 700;
+        font-size: 0.78rem;
+        font-weight: 800;
         flex-shrink: 0;
-        background: var(--gray-200);
+        background: var(--gray-100);
         color: var(--gray-600);
     }
 
-    .wl-leader-item.promotion-zone .wl-leader-rank {
-        background: #10B981;
-        color: white;
-    }
+    .wl-lb-rank.r1 { background: #FEF3C7; color: #D97706; }
+    .wl-lb-rank.r2 { background: #F1F5F9; color: #64748B; }
+    .wl-lb-rank.r3 { background: #FED7AA; color: #C2410C; }
 
-    .wl-leader-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: var(--gray-200);
+    .wl-lb-name { flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--dark); }
+
+    .wl-lb-xp {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary);
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        color: var(--dark-600);
-        overflow: hidden;
-        flex-shrink: 0;
+        gap: 0.25rem;
     }
 
-    .wl-leader-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .wl-leader-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .wl-leader-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--dark);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .wl-leader-status {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.4rem;
-        border-radius: 4px;
-    }
-
-    .wl-leader-status.up {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .wl-leader-status.down {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .wl-leader-stats {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .wl-leader-xp {
+    .wl-lb-tests {
+        font-size: 0.78rem;
+        color: var(--gray-400);
+        min-width: 50px;
         text-align: right;
     }
 
-    .wl-leader-xp-value {
-        font-size: 1.1rem;
+    .wl-lb-empty {
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--gray-400);
+    }
+
+    /* ========== SIDEBAR ========== */
+    .wl-sidebar { position: sticky; top: 1.5rem; }
+
+    .wl-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .wl-card h4 {
+        font-size: 0.95rem;
         font-weight: 800;
-        color: var(--primary);
-    }
-
-    .wl-leader-xp-label {
-        font-size: 0.7rem;
-        color: var(--gray-500);
-    }
-
-    /* ========== ZONE LABELS ========== */
-    .wl-zone-label {
+        color: var(--dark);
+        margin: 0 0 1rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-        font-weight: 700;
-        border-radius: var(--radius);
-        margin: 0.5rem 0;
     }
 
-    .wl-zone-label.promotion {
-        background: #D1FAE5;
-        color: #059669;
-    }
+    /* Tiers */
+    .wl-tiers { display: flex; flex-direction: column; gap: 0.5rem; }
 
-    .wl-zone-label.demotion {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    /* ========== YOUR STATUS ========== */
-    .wl-your-status {
-        padding: 1.5rem;
-        border-radius: var(--radius-lg);
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .wl-your-status.promotion {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-    }
-
-    .wl-your-status.safe {
-        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-        color: white;
-    }
-
-    .wl-your-status.demotion {
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-        color: white;
-    }
-
-    .wl-your-status-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .wl-your-status-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-    }
-
-    .wl-your-status-desc {
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    /* ========== REWARDS ========== */
-    .wl-rewards {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .wl-reward-item {
+    .wl-tier {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
+        gap: 0.65rem;
+        padding: 0.6rem;
+        border-radius: 10px;
+        transition: background 0.15s;
     }
 
-    .wl-reward-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        flex-shrink: 0;
-    }
+    .wl-tier:hover { background: var(--gray-50); }
+    .wl-tier.current { background: rgba(139,197,64,0.08); border: 1px solid rgba(139,197,64,0.2); }
 
-    .wl-reward-icon.gold {
-        background: #FEF3C7;
-    }
+    .wl-tier-icon { font-size: 1.25rem; }
+    .wl-tier-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); flex: 1; }
 
-    .wl-reward-icon.silver {
-        background: #F3F4F6;
-    }
-
-    .wl-reward-icon.bronze {
-        background: #FED7AA;
-    }
-
-    .wl-reward-info h4 {
-        font-size: 0.9rem;
+    .wl-tier-tag {
+        font-size: 0.68rem;
         font-weight: 700;
-        color: var(--dark);
-        margin: 0 0 0.15rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 50px;
+        background: var(--primary);
+        color: white;
     }
 
-    .wl-reward-info p {
-        font-size: 0.8rem;
-        color: var(--gray-500);
+    /* Info list */
+    .wl-info-list {
+        list-style: none;
+        padding: 0;
         margin: 0;
     }
 
-    .wl-reward-value {
-        margin-left: auto;
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--primary);
-    }
-
-    /* ========== COUNTDOWN ========== */
-    .wl-countdown {
-        text-align: center;
-        padding: 1.5rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-lg);
-    }
-
-    .wl-countdown-label {
-        font-size: 0.9rem;
-        color: var(--gray-500);
-        margin-bottom: 1rem;
-    }
-
-    .wl-countdown-timer {
+    .wl-info-list li {
         display: flex;
-        justify-content: center;
-        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 0;
+        font-size: 0.88rem;
     }
 
-    .wl-countdown-item {
-        text-align: center;
-    }
+    .wl-info-list li + li { border-top: 1px solid var(--gray-100); }
+    .wl-info-list li span:first-child { color: var(--gray-500); font-weight: 600; }
+    .wl-info-list li span:last-child { color: var(--dark); font-weight: 700; }
 
-    .wl-countdown-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--dark);
-        background: var(--white);
-        padding: 0.5rem 0.75rem;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        min-width: 50px;
-    }
-
-    .wl-countdown-unit {
-        font-size: 0.7rem;
-        color: var(--gray-500);
-        margin-top: 0.35rem;
-    }
-
-    /* ========== PAST LEAGUES ========== */
-    .wl-past-leagues {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
+    /* Past Leagues */
+    .wl-past { display: flex; flex-direction: column; gap: 0.5rem; }
 
     .wl-past-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+        gap: 0.65rem;
+        padding: 0.6rem;
+        border-radius: 10px;
         background: var(--gray-50);
-        border-radius: var(--radius);
     }
 
-    .wl-past-tier {
-        font-size: 1.5rem;
-    }
+    .wl-past-icon { font-size: 1.1rem; }
+    .wl-past-info { flex: 1; }
+    .wl-past-name { font-size: 0.85rem; font-weight: 700; color: var(--dark); }
+    .wl-past-date { font-size: 0.72rem; color: var(--gray-500); }
 
-    .wl-past-info {
-        flex: 1;
-    }
-
-    .wl-past-week {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    .wl-past-result {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .wl-past-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.6rem;
-        border-radius: 4px;
-    }
-
-    .wl-past-badge.up {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .wl-past-badge.down {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .wl-past-badge.stay {
-        background: var(--gray-200);
-        color: var(--gray-600);
-    }
-
-    /* ========== NO LEAGUE ========== */
-    .wl-no-league {
+    /* Empty */
+    .wl-empty {
         text-align: center;
         padding: 4rem 2rem;
+        background: var(--gray-50);
+        border-radius: 20px;
     }
 
-    .wl-no-league-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
+    .wl-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.5; }
+    .wl-empty h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
+    .wl-empty p { font-size: 0.92rem; color: var(--gray-500); margin: 0 0 1.25rem; }
+
+    .wl-empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--gradient-primary);
+        color: white;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        text-decoration: none;
     }
 
-    .wl-no-league h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
+    .wl-empty-btn:hover { color: white; }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .wl-layout { grid-template-columns: 1fr; }
+        .wl-sidebar { position: static; }
     }
 
-    .wl-no-league p {
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
+    @media (max-width: 575px) {
+        .wl-my { flex-direction: column; text-align: center; }
+        .wl-my-stats { justify-content: center; }
+        .wl-hero-row { justify-content: center; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-{% if current_league %}
-<!-- Header -->
-<div class="wl-header">
+<div class="wl-page">
     <div class="container">
-        <div class="wl-header-content">
-            <div class="wl-header-grid">
-                <div>
-                    <div class="wl-badge">
-                        <i class="bi bi-calendar-week"></i>
-                        {{ current_league.week_start|date:"d.m" }} - {{ current_league.week_end|date:"d.m.Y" }}
-                    </div>
 
-                    <h1>🏆 Haftalik Liga</h1>
-
-                    <p class="wl-header-desc">
-                        Har hafta XP yig'ing, reytingda ko'tariling va qimmatbaho mukofotlar yutib oling!
-                    </p>
-
-                    <div class="wl-header-stats">
-                        <div class="wl-header-stat">
-                            <div class="wl-header-stat-value">{{ leaderboard.count }}</div>
-                            <div class="wl-header-stat-label">Qatnashchilar</div>
-                        </div>
-                        <div class="wl-header-stat">
-                            <div class="wl-header-stat-value">+{{ current_league.xp_reward_first }}</div>
-                            <div class="wl-header-stat-label">XP (1-o'rin)</div>
-                        </div>
-                        <div class="wl-header-stat">
-                            <div class="wl-header-stat-value">{{ current_league.promotion_count }}</div>
-                            <div class="wl-header-stat-label">Ko'tariladi</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Current Tier -->
-                <div class="wl-tier-card">
-                    <div class="wl-tier-icon">
-                        {% if current_league.tier == 'bronze' %}🥉
-                        {% elif current_league.tier == 'silver' %}🥈
-                        {% elif current_league.tier == 'gold' %}🥇
-                        {% elif current_league.tier == 'platinum' %}💎
-                        {% elif current_league.tier == 'diamond' %}💠
-                        {% elif current_league.tier == 'master' %}🔥
-                        {% elif current_league.tier == 'grandmaster' %}👑
-                        {% else %}🏅{% endif %}
-                    </div>
-                    <div class="wl-tier-name">{{ current_league.get_tier_display }}</div>
-                    <div class="wl-tier-desc">Joriy daraja</div>
-
-                    {% if user_participation %}
-                    <div class="wl-tier-progress">
-                        <div class="wl-tier-progress-fill" style="width: {% widthratio user_participation.rank leaderboard.count 100 %}%"></div>
-                    </div>
-                    <div class="wl-tier-progress-text">
-                        #{{ user_participation.rank|default:"—" }} o'rin
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Content -->
-<div class="wl-content">
-    <div class="container">
-        <!-- Tiers Row -->
-        <div class="wl-tiers-row">
-            <span class="wl-tier-badge bronze {% if current_league.tier == 'bronze' %}active{% endif %}">🥉 Bronza</span>
-            <span class="wl-tier-badge silver {% if current_league.tier == 'silver' %}active{% endif %}">🥈 Kumush</span>
-            <span class="wl-tier-badge gold {% if current_league.tier == 'gold' %}active{% endif %}">🥇 Oltin</span>
-            <span class="wl-tier-badge platinum {% if current_league.tier == 'platinum' %}active{% endif %}">💎 Platina</span>
-            <span class="wl-tier-badge diamond {% if current_league.tier == 'diamond' %}active{% endif %}">💠 Olmos</span>
-            <span class="wl-tier-badge master {% if current_league.tier == 'master' %}active{% endif %}">🔥 Master</span>
-            <span class="wl-tier-badge grandmaster {% if current_league.tier == 'grandmaster' %}active{% endif %}">👑 Grandmaster</span>
+        <!-- Breadcrumb -->
+        <div class="wl-bread">
+            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Haftalik Liga</span>
         </div>
 
+        {% if current_league %}
         <div class="wl-layout">
-            <!-- Main -->
             <div class="wl-main">
+
+                <!-- Hero -->
+                <div class="wl-hero {{ current_league.tier }}">
+                    <div class="wl-hero-inner">
+                        <div class="wl-hero-badge">
+                            <i class="bi bi-bar-chart-fill"></i> Joriy hafta
+                        </div>
+                        <h1>
+                            {% if current_league.tier == 'bronze' %}🥉 Bronza
+                            {% elif current_league.tier == 'silver' %}🥈 Kumush
+                            {% elif current_league.tier == 'gold' %}🥇 Oltin
+                            {% elif current_league.tier == 'platinum' %}💎 Platina
+                            {% elif current_league.tier == 'diamond' %}💠 Olmos
+                            {% elif current_league.tier == 'master' %}🔥 Master
+                            {% elif current_league.tier == 'grandmaster' %}👑 Grandmaster
+                            {% endif %}
+                            Liga
+                        </h1>
+                        <p>{{ current_league.week_start|date:"d M" }} — {{ current_league.week_end|date:"d M, Y" }}</p>
+                        <div class="wl-hero-row">
+                            <div class="wl-hero-stat">
+                                <strong>+{{ current_league.xp_reward_first }}</strong>
+                                <span>1-o'rin XP</span>
+                            </div>
+                            <div class="wl-hero-stat">
+                                <strong>Top {{ current_league.promotion_count }}</strong>
+                                <span>ko'tariladi</span>
+                            </div>
+                            <div class="wl-hero-stat">
+                                <strong>Oxirgi {{ current_league.demotion_count }}</strong>
+                                <span>tushadi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Position -->
+                {% if user_participation %}
+                <div class="wl-my">
+                    <div class="wl-my-rank">
+                        {% if user_participation.rank %}#{{ user_participation.rank }}{% else %}—{% endif %}
+                    </div>
+                    <div class="wl-my-info">
+                        <div class="wl-my-label">Sizning o'rningiz</div>
+                        <div class="wl-my-name">{{ request.user.first_name }} {{ request.user.last_name|default:"" }}</div>
+                    </div>
+                    <div class="wl-my-stats">
+                        <div class="wl-my-stat">
+                            <div class="wl-my-stat-val">{{ user_participation.xp_earned }}</div>
+                            <div class="wl-my-stat-label">XP</div>
+                        </div>
+                        <div class="wl-my-stat">
+                            <div class="wl-my-stat-val">{{ user_participation.tests_completed }}</div>
+                            <div class="wl-my-stat-label">Testlar</div>
+                        </div>
+                        <div class="wl-my-stat">
+                            <div class="wl-my-stat-val">{{ user_participation.correct_answers }}</div>
+                            <div class="wl-my-stat-label">To'g'ri</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Leaderboard -->
-                <div class="wl-card">
-                    <div class="wl-card-header">
-                        <h3 class="wl-card-title">
-                            <i class="bi bi-bar-chart"></i>
-                            Haftalik reyting
-                        </h3>
-                        <span style="font-size:0.85rem; color:var(--gray-500);">{{ current_league.get_tier_display }} Liga</span>
-                    </div>
-                    <div class="wl-card-body" style="padding:0.5rem;">
-                        {% if leaderboard %}
-                        <div class="wl-leaderboard">
-                            <!-- Promotion zone label -->
-                            <div class="wl-zone-label promotion">
-                                <i class="bi bi-arrow-up-circle-fill"></i>
-                                Ko'tarilish zonasi (Top {{ current_league.promotion_count }})
-                            </div>
-
-                            {% for p in leaderboard %}
-                            <div class="wl-leader-item {% if forloop.counter <= current_league.promotion_count %}promotion-zone{% elif forloop.counter > leaderboard.count|add:current_league.demotion_count|add:"-"|add:leaderboard.count %}demotion-zone{% endif %} {% if p.user == request.user %}you{% endif %}">
-                                <div class="wl-leader-rank">
-                                    {% if forloop.counter == 1 %}🥇
-                                    {% elif forloop.counter == 2 %}🥈
-                                    {% elif forloop.counter == 3 %}🥉
-                                    {% else %}{{ forloop.counter }}{% endif %}
-                                </div>
-                                <div class="wl-leader-avatar">
-                                    {% if p.user.avatar %}
-                                    <img src="{{ p.user.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ p.user.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="wl-leader-info">
-                                    <div class="wl-leader-name">
-                                        {% if p.user == request.user %}Siz{% else %}{{ p.user.first_name }} {{ p.user.last_name|slice:":1" }}.{% endif %}
-                                        {% if forloop.counter <= current_league.promotion_count %}
-                                        <span class="wl-leader-status up">⬆️</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="wl-leader-stats">
-                                        {{ p.tests_completed }} test • {{ p.correct_answers|default:0 }} to'g'ri
-                                    </div>
-                                </div>
-                                <div class="wl-leader-xp">
-                                    <div class="wl-leader-xp-value">{{ p.xp_earned }}</div>
-                                    <div class="wl-leader-xp-label">XP</div>
-                                </div>
-                            </div>
-
-                            {% if forloop.counter == current_league.promotion_count and not forloop.last %}
-                            <!-- Safe zone -->
-                            <div class="wl-zone-label" style="background:var(--gray-100); color:var(--gray-500);">
-                                <i class="bi bi-shield-check"></i>
-                                Xavfsiz zona
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-
-                            {% if current_league.demotion_count > 0 %}
-                            <!-- Demotion zone label -->
-                            <div class="wl-zone-label demotion">
-                                <i class="bi bi-arrow-down-circle-fill"></i>
-                                Tushish zonasi (Oxirgi {{ current_league.demotion_count }})
-                            </div>
-                            {% endif %}
+                <div class="wl-lb">
+                    <div class="wl-lb-head">
+                        <h3><i class="bi bi-trophy-fill"></i> Liga reytingi</h3>
+                        <div class="wl-lb-zones">
+                            <span class="wl-lb-zone up">🟢 Top {{ current_league.promotion_count }} ko'tariladi</span>
+                            <span class="wl-lb-zone stay">— Qoladi</span>
+                            <span class="wl-lb-zone down">🔴 Oxirgi {{ current_league.demotion_count }} tushadi</span>
                         </div>
-                        {% else %}
-                        <div style="text-align:center; padding:3rem; color:var(--gray-500);">
-                            <div style="font-size:3rem; margin-bottom:1rem;">🏆</div>
-                            <p>Hali qatnashchilar yo'q</p>
-                            <p style="font-size:0.85rem;">Test yechib XP to'plang va ligaga qo'shiling!</p>
-                        </div>
-                        {% endif %}
                     </div>
+                    {% if leaderboard %}
+                        {% for p in leaderboard %}
+                        <div class="wl-lb-row {% if p.user == request.user %}me{% endif %} {% if forloop.counter <= current_league.promotion_count %}promo-zone{% endif %} {% if forloop.counter > leaderboard|length|add:"-"|add:current_league.demotion_count|stringformat:"d" %}demo-zone{% endif %}">
+                            <div class="wl-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
+                                {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+                            </div>
+                            <span class="wl-lb-name">
+                                {{ p.user.first_name }} {{ p.user.last_name|default:"" }}
+                                {% if p.user == request.user %}<small style="color:var(--primary);">(siz)</small>{% endif %}
+                            </span>
+                            <span class="wl-lb-xp">⚡ {{ p.xp_earned }}</span>
+                            <span class="wl-lb-tests">{{ p.tests_completed }} test</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="wl-lb-empty">Hali hech kim qatnashmagan</div>
+                    {% endif %}
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="wl-sidebar">
-                <!-- Your Status -->
-                {% if user_participation %}
-                <div class="wl-your-status {% if user_participation.rank <= current_league.promotion_count %}promotion{% elif user_participation.rank > leaderboard.count|add:'-'|add:current_league.demotion_count|add:'' %}demotion{% else %}safe{% endif %}">
-                    <div class="wl-your-status-icon">
-                        {% if user_participation.rank <= current_league.promotion_count %}⬆️
-                        {% elif user_participation.rank > leaderboard.count|add:'-'|add:current_league.demotion_count|add:'' %}⬇️
-                        {% else %}🛡️{% endif %}
-                    </div>
-                    <div class="wl-your-status-title">
-                        {% if user_participation.rank <= current_league.promotion_count %}Ko'tarilasiz!
-                        {% elif user_participation.rank > leaderboard.count|add:'-'|add:current_league.demotion_count|add:'' %}Tushish xavfi!
-                        {% else %}Xavfsiz zonada{% endif %}
-                    </div>
-                    <div class="wl-your-status-desc">
-                        #{{ user_participation.rank }} o'rin • {{ user_participation.xp_earned }} XP
-                    </div>
-                </div>
-                {% endif %}
 
-                <!-- Rewards -->
+                <!-- League Info -->
                 <div class="wl-card">
-                    <div class="wl-card-header">
-                        <h3 class="wl-card-title">
-                            <i class="bi bi-gift"></i>
-                            Mukofotlar
-                        </h3>
-                    </div>
-                    <div class="wl-card-body">
-                        <div class="wl-rewards">
-                            <div class="wl-reward-item">
-                                <div class="wl-reward-icon gold">🥇</div>
-                                <div class="wl-reward-info">
-                                    <h4>1-o'rin</h4>
-                                    <p>Hafta g'olibi</p>
-                                </div>
-                                <div class="wl-reward-value">+{{ current_league.xp_reward_first }} XP</div>
-                            </div>
-                            <div class="wl-reward-item">
-                                <div class="wl-reward-icon silver">🥈🥉</div>
-                                <div class="wl-reward-info">
-                                    <h4>2-3 o'rin</h4>
-                                    <p>Top 3</p>
-                                </div>
-                                <div class="wl-reward-value">+{{ current_league.xp_reward_top3 }} XP</div>
-                            </div>
-                            <div class="wl-reward-item">
-                                <div class="wl-reward-icon bronze">🏅</div>
-                                <div class="wl-reward-info">
-                                    <h4>Top 10</h4>
-                                    <p>Yaxshi natija</p>
-                                </div>
-                                <div class="wl-reward-value">+{{ current_league.xp_reward_top10 }} XP</div>
-                            </div>
-                        </div>
-                    </div>
+                    <h4><i class="bi bi-info-circle-fill"></i> Liga haqida</h4>
+                    <ul class="wl-info-list">
+                        <li>
+                            <span>Daraja</span>
+                            <span>{{ current_league.get_tier_display }}</span>
+                        </li>
+                        <li>
+                            <span>Boshlanish</span>
+                            <span>{{ current_league.week_start|date:"d.m.Y" }}</span>
+                        </li>
+                        <li>
+                            <span>Tugash</span>
+                            <span>{{ current_league.week_end|date:"d.m.Y" }}</span>
+                        </li>
+                        <li>
+                            <span>1-o'rin XP</span>
+                            <span style="color: var(--primary);">+{{ current_league.xp_reward_first }}</span>
+                        </li>
+                        <li>
+                            <span>Top 3 XP</span>
+                            <span>+{{ current_league.xp_reward_top3 }}</span>
+                        </li>
+                        <li>
+                            <span>Top 10 XP</span>
+                            <span>+{{ current_league.xp_reward_top10 }}</span>
+                        </li>
+                    </ul>
                 </div>
 
-                <!-- Countdown -->
-                <div class="wl-countdown">
-                    <div class="wl-countdown-label">Liga tugashiga:</div>
-                    <div class="wl-countdown-timer" id="leagueCountdown">
-                        <div class="wl-countdown-item">
-                            <div class="wl-countdown-value" id="days">0</div>
-                            <div class="wl-countdown-unit">kun</div>
+                <!-- Tiers -->
+                <div class="wl-card">
+                    <h4><i class="bi bi-layers-fill"></i> Liga darajalari</h4>
+                    <div class="wl-tiers">
+                        <div class="wl-tier {% if current_league.tier == 'grandmaster' %}current{% endif %}">
+                            <span class="wl-tier-icon">👑</span>
+                            <span class="wl-tier-name">Grandmaster</span>
+                            {% if current_league.tier == 'grandmaster' %}<span class="wl-tier-tag">Siz</span>{% endif %}
                         </div>
-                        <div class="wl-countdown-item">
-                            <div class="wl-countdown-value" id="hours">0</div>
-                            <div class="wl-countdown-unit">soat</div>
+                        <div class="wl-tier {% if current_league.tier == 'master' %}current{% endif %}">
+                            <span class="wl-tier-icon">🔥</span>
+                            <span class="wl-tier-name">Master</span>
+                            {% if current_league.tier == 'master' %}<span class="wl-tier-tag">Siz</span>{% endif %}
                         </div>
-                        <div class="wl-countdown-item">
-                            <div class="wl-countdown-value" id="minutes">0</div>
-                            <div class="wl-countdown-unit">daqiqa</div>
+                        <div class="wl-tier {% if current_league.tier == 'diamond' %}current{% endif %}">
+                            <span class="wl-tier-icon">💠</span>
+                            <span class="wl-tier-name">Olmos</span>
+                            {% if current_league.tier == 'diamond' %}<span class="wl-tier-tag">Siz</span>{% endif %}
+                        </div>
+                        <div class="wl-tier {% if current_league.tier == 'platinum' %}current{% endif %}">
+                            <span class="wl-tier-icon">💎</span>
+                            <span class="wl-tier-name">Platina</span>
+                            {% if current_league.tier == 'platinum' %}<span class="wl-tier-tag">Siz</span>{% endif %}
+                        </div>
+                        <div class="wl-tier {% if current_league.tier == 'gold' %}current{% endif %}">
+                            <span class="wl-tier-icon">🥇</span>
+                            <span class="wl-tier-name">Oltin</span>
+                            {% if current_league.tier == 'gold' %}<span class="wl-tier-tag">Siz</span>{% endif %}
+                        </div>
+                        <div class="wl-tier {% if current_league.tier == 'silver' %}current{% endif %}">
+                            <span class="wl-tier-icon">🥈</span>
+                            <span class="wl-tier-name">Kumush</span>
+                            {% if current_league.tier == 'silver' %}<span class="wl-tier-tag">Siz</span>{% endif %}
+                        </div>
+                        <div class="wl-tier {% if current_league.tier == 'bronze' %}current{% endif %}">
+                            <span class="wl-tier-icon">🥉</span>
+                            <span class="wl-tier-name">Bronza</span>
+                            {% if current_league.tier == 'bronze' %}<span class="wl-tier-tag">Siz</span>{% endif %}
                         </div>
                     </div>
                 </div>
@@ -844,83 +541,37 @@
                 <!-- Past Leagues -->
                 {% if past_leagues %}
                 <div class="wl-card">
-                    <div class="wl-card-header">
-                        <h3 class="wl-card-title">
-                            <i class="bi bi-clock-history"></i>
-                            O'tgan haftalar
-                        </h3>
-                    </div>
-                    <div class="wl-card-body">
-                        <div class="wl-past-leagues">
-                            {% for league in past_leagues %}
-                            <div class="wl-past-item">
-                                <div class="wl-past-tier">
-                                    {% if league.tier == 'bronze' %}🥉
-                                    {% elif league.tier == 'silver' %}🥈
-                                    {% elif league.tier == 'gold' %}🥇
-                                    {% else %}💎{% endif %}
-                                </div>
-                                <div class="wl-past-info">
-                                    <div class="wl-past-week">{{ league.week_start|date:"d.m" }} - {{ league.week_end|date:"d.m" }}</div>
-                                    <div class="wl-past-result">{{ league.get_tier_display }}</div>
-                                </div>
+                    <h4><i class="bi bi-clock-history"></i> O'tgan haftalar</h4>
+                    <div class="wl-past">
+                        {% for league in past_leagues %}
+                        <div class="wl-past-item">
+                            <span class="wl-past-icon">
+                                {% if league.tier == 'bronze' %}🥉{% elif league.tier == 'silver' %}🥈{% elif league.tier == 'gold' %}🥇{% elif league.tier == 'platinum' %}💎{% elif league.tier == 'diamond' %}💠{% elif league.tier == 'master' %}🔥{% elif league.tier == 'grandmaster' %}👑{% endif %}
+                            </span>
+                            <div class="wl-past-info">
+                                <div class="wl-past-name">{{ league.get_tier_display }} Liga</div>
+                                <div class="wl-past-date">{{ league.week_start|date:"d.m" }} — {{ league.week_end|date:"d.m.Y" }}</div>
                             </div>
-                            {% endfor %}
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
-{% else %}
-<!-- No Active League -->
-<div class="wl-content" style="padding-top:4rem;">
-    <div class="container">
-        <div class="wl-card">
-            <div class="wl-card-body wl-no-league">
-                <div class="wl-no-league-icon">🏆</div>
-                <h3>Hozircha faol liga yo'q</h3>
-                <p>Yangi haftalik liga tez orada boshlanadi!</p>
-                <a href="{% url 'competitions:competitions_list' %}" class="btn btn-primary">
-                    <i class="bi bi-trophy me-2"></i>Boshqa musobaqalar
-                </a>
-            </div>
+        {% else %}
+        <!-- No league -->
+        <div class="wl-empty">
+            <div class="wl-empty-icon">📊</div>
+            <h3>Hozircha liga yo'q</h3>
+            <p>Yangi haftalik liga tez orada boshlanadi. Testlar yeching va XP yig'ing!</p>
+            <a href="{% url 'competitions:competitions_list' %}" class="wl-empty-btn">
+                <i class="bi bi-arrow-left"></i> Musobaqalarga qaytish
+            </a>
         </div>
+        {% endif %}
+
     </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-{% if current_league %}
-<script>
-// Countdown to league end
-function updateCountdown() {
-    const endDate = new Date('{{ current_league.week_end|date:"Y-m-d" }}T23:59:59');
-    const now = new Date();
-    const diff = endDate - now;
-
-    if (diff <= 0) {
-        document.getElementById('days').textContent = '0';
-        document.getElementById('hours').textContent = '0';
-        document.getElementById('minutes').textContent = '0';
-        return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-    document.getElementById('days').textContent = days;
-    document.getElementById('hours').textContent = hours;
-    document.getElementById('minutes').textContent = minutes;
-}
-
-updateCountdown();
-setInterval(updateCountdown, 60000); // Update every minute
-</script>
-{% endif %}
 {% endblock %}

@@ -5,838 +5,528 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .dc-header {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        padding: 3rem 0;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
+    .dc-page { padding: 2rem 0 4rem; }
 
-    .dc-header::before {
-        content: '📅';
-        position: absolute;
-        top: -40px;
-        right: -40px;
-        font-size: 15rem;
-        opacity: 0.1;
-    }
-
-    .dc-header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .dc-header-grid {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 2rem;
-        align-items: center;
-    }
-
-    @media (max-width: 768px) {
-        .dc-header-grid {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-    }
-
-    .dc-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(255,255,255,0.2);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .dc-header h1 {
-        font-size: 2.25rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .dc-header-desc {
-        font-size: 1.05rem;
-        color: rgba(255,255,255,0.9);
-        margin-bottom: 1.5rem;
-        max-width: 500px;
-    }
-
-    @media (max-width: 768px) {
-        .dc-header-desc {
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    .dc-header-stats {
+    /* Breadcrumb */
+    .dc-bread {
         display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    @media (max-width: 768px) {
-        .dc-header-stats {
-            justify-content: center;
-        }
-    }
-
-    .dc-header-stat {
-        text-align: center;
-    }
-
-    .dc-header-stat-value {
-        font-size: 1.75rem;
-        font-weight: 800;
-    }
-
-    .dc-header-stat-label {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-
-    /* Action Card */
-    .dc-action-card {
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        text-align: center;
-        min-width: 280px;
-    }
-
-    .dc-action-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-
-    .dc-action-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .dc-action-desc {
-        font-size: 0.9rem;
-        opacity: 0.9;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--gray-500);
         margin-bottom: 1.5rem;
     }
 
-    .dc-action-btn {
-        padding: 0.875rem 2rem;
-        background: white;
-        color: #6D28D9;
-        border: none;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
-    }
+    .dc-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .dc-bread a:hover { text-decoration: underline; }
 
-    .dc-action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        color: #6D28D9;
-    }
-
-    .dc-action-btn.completed {
-        background: rgba(255,255,255,0.3);
-        color: white;
-        cursor: default;
-    }
-
-    .dc-action-btn.completed:hover {
-        transform: none;
-        box-shadow: none;
-    }
-
-    /* ========== CONTENT ========== */
-    .dc-content {
-        padding: 2.5rem 0;
-    }
-
+    /* Layout */
     .dc-layout {
         display: grid;
-        grid-template-columns: 1fr 380px;
+        grid-template-columns: 1fr 340px;
         gap: 2rem;
+        align-items: start;
     }
 
-    @media (max-width: 992px) {
-        .dc-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== CARD ========== */
-    .dc-card {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        border: 1px solid var(--gray-200);
+    /* ========== HERO CARD ========== */
+    .dc-hero {
+        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        position: relative;
         overflow: hidden;
         margin-bottom: 1.5rem;
     }
 
-    .dc-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    .dc-hero::after {
+        content: '📅';
+        position: absolute;
+        right: -10px;
+        bottom: -20px;
+        font-size: 8rem;
+        opacity: 0.08;
+        pointer-events: none;
     }
 
-    .dc-card-title {
-        font-size: 1rem;
+    .dc-hero-inner { position: relative; z-index: 1; }
+
+    .dc-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255,255,255,0.18);
+        padding: 0.4rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
         font-weight: 700;
-        color: var(--dark);
-        margin: 0;
+        margin-bottom: 1rem;
+    }
+
+    .dc-hero h1 {
+        font-size: 1.65rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 0 0.5rem;
+    }
+
+    .dc-hero p {
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.85);
+        margin: 0 0 1.5rem;
+        line-height: 1.6;
+    }
+
+    .dc-hero-stats {
         display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .dc-hero-stat strong {
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 900;
+    }
+
+    .dc-hero-stat span {
+        font-size: 0.78rem;
+        opacity: 0.85;
+        font-weight: 600;
+    }
+
+    .dc-hero-btn {
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        padding: 0.8rem 1.75rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: none;
     }
 
-    .dc-card-title i {
-        color: var(--primary);
+    .dc-hero-btn.start { background: white; color: #6D28D9; }
+    .dc-hero-btn.start:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); color: #6D28D9; }
+    .dc-hero-btn.done { background: rgba(255,255,255,0.25); color: white; cursor: default; }
+
+    /* ========== RESULT CARD ========== */
+    .dc-result {
+        background: var(--white);
+        border: 2px solid var(--primary);
+        border-radius: 20px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
     }
 
-    .dc-card-body {
-        padding: 1.5rem;
+    .dc-result-head {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .dc-result-head h3 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .dc-result-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+
+    .dc-result-item {
+        text-align: center;
+        padding: 0.85rem 0.5rem;
+        background: var(--gray-50);
+        border-radius: 12px;
+    }
+
+    .dc-result-val {
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--dark);
+    }
+
+    .dc-result-val.green { color: #059669; }
+    .dc-result-val.red { color: #DC2626; }
+    .dc-result-val.primary { color: var(--primary); }
+
+    .dc-result-label {
+        font-size: 0.72rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        margin-top: 0.15rem;
     }
 
     /* ========== LEADERBOARD ========== */
-    .dc-leaderboard {
-        display: flex;
-        flex-direction: column;
+    .dc-lb {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        overflow: hidden;
     }
 
-    .dc-leader-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: var(--radius);
-        transition: all 0.2s;
+    .dc-lb-head {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
     }
 
-    .dc-leader-item:hover {
-        background: var(--gray-50);
-    }
-
-    .dc-leader-item.top-1 {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-    }
-
-    .dc-leader-item.top-2 {
-        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-    }
-
-    .dc-leader-item.top-3 {
-        background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
-    }
-
-    .dc-leader-item.you {
-        background: var(--primary-glow);
-        border: 2px solid var(--primary);
-    }
-
-    .dc-leader-rank {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .dc-lb-head h3 {
         font-size: 1rem;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .dc-leader-item.top-1 .dc-leader-rank {
-        background: #F59E0B;
-        color: white;
-    }
-
-    .dc-leader-item.top-2 .dc-leader-rank {
-        background: #9CA3AF;
-        color: white;
-    }
-
-    .dc-leader-item.top-3 .dc-leader-rank {
-        background: #F97316;
-        color: white;
-    }
-
-    .dc-leader-rank:not(.dc-leader-item.top-1 .dc-leader-rank):not(.dc-leader-item.top-2 .dc-leader-rank):not(.dc-leader-item.top-3 .dc-leader-rank) {
-        background: var(--gray-200);
-        color: var(--gray-600);
-    }
-
-    .dc-leader-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        color: var(--dark-600);
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .dc-leader-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .dc-leader-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .dc-leader-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--dark);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .dc-leader-stats {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .dc-leader-score {
-        text-align: right;
-    }
-
-    .dc-leader-score-value {
-        font-size: 1.1rem;
         font-weight: 800;
         color: var(--dark);
-    }
-
-    .dc-leader-score-label {
-        font-size: 0.7rem;
-        color: var(--gray-500);
-    }
-
-    /* ========== YOUR RESULT ========== */
-    .dc-your-result {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        border-radius: var(--radius-xl);
-        padding: 1.5rem;
-        color: white;
-        margin-bottom: 1.5rem;
-    }
-
-    .dc-your-result-header {
+        margin: 0;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        opacity: 0.9;
     }
 
-    .dc-your-result-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    .dc-your-result-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    .dc-your-result-stat {
-        text-align: center;
-        padding: 0.75rem;
-        background: rgba(255,255,255,0.15);
-        border-radius: var(--radius);
-    }
-
-    .dc-your-result-stat-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-    }
-
-    .dc-your-result-stat-label {
-        font-size: 0.75rem;
-        opacity: 0.9;
-    }
-
-    /* ========== INFO CARD ========== */
-    .dc-info {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .dc-info-item {
+    .dc-lb-row {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        transition: background 0.15s;
     }
 
-    .dc-info-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: var(--radius);
+    .dc-lb-row:hover { background: var(--gray-50); }
+    .dc-lb-row + .dc-lb-row { border-top: 1px solid var(--gray-50); }
+
+    .dc-lb-row.me { background: rgba(139,197,64,0.06); }
+
+    .dc-lb-rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
+        font-size: 0.78rem;
+        font-weight: 800;
+        flex-shrink: 0;
+        background: var(--gray-100);
+        color: var(--gray-600);
+    }
+
+    .dc-lb-rank.r1 { background: #FEF3C7; color: #D97706; }
+    .dc-lb-rank.r2 { background: #F1F5F9; color: #64748B; }
+    .dc-lb-rank.r3 { background: #FED7AA; color: #C2410C; }
+
+    .dc-lb-name {
+        flex: 1;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .dc-lb-score {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .dc-lb-time {
+        font-size: 0.78rem;
+        color: var(--gray-400);
+        min-width: 40px;
+        text-align: right;
+    }
+
+    .dc-lb-empty {
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--gray-400);
+    }
+
+    /* ========== SIDEBAR ========== */
+    .dc-sidebar { position: sticky; top: 1.5rem; }
+
+    .dc-info-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .dc-info-card h4 {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dc-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .dc-info-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 0;
+        font-size: 0.88rem;
+    }
+
+    .dc-info-list li + li { border-top: 1px solid var(--gray-100); }
+    .dc-info-list li span:first-child { color: var(--gray-500); font-weight: 600; }
+    .dc-info-list li span:last-child { color: var(--dark); font-weight: 700; }
+
+    /* How it works */
+    .dc-steps { counter-reset: step; }
+
+    .dc-step {
+        display: flex;
+        gap: 0.85rem;
+        padding: 0.65rem 0;
+    }
+
+    .dc-step + .dc-step { border-top: 1px solid var(--gray-100); }
+
+    .dc-step-num {
+        width: 28px;
+        height: 28px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
         flex-shrink: 0;
     }
 
-    .dc-info-icon.purple {
-        background: #EDE9FE;
-        color: #7C3AED;
+    .dc-step-text {
+        font-size: 0.88rem;
+        color: var(--gray-600);
+        line-height: 1.5;
+        padding-top: 0.15rem;
     }
 
-    .dc-info-icon.green {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .dc-info-icon.blue {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .dc-info-text h4 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0 0 0.15rem;
-    }
-
-    .dc-info-text p {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-        margin: 0;
-    }
-
-    /* ========== NO CHALLENGE ========== */
-    .dc-no-challenge {
+    /* Empty */
+    .dc-empty {
         text-align: center;
         padding: 4rem 2rem;
-        background: var(--white);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow);
-    }
-
-    .dc-no-challenge-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.5;
-    }
-
-    .dc-no-challenge h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .dc-no-challenge p {
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-
-    /* ========== COUNTDOWN ========== */
-    .dc-countdown {
-        text-align: center;
-        padding: 2rem;
         background: var(--gray-50);
-        border-radius: var(--radius-lg);
+        border-radius: 20px;
     }
 
-    .dc-countdown-label {
-        font-size: 0.9rem;
-        color: var(--gray-500);
-        margin-bottom: 1rem;
-    }
+    .dc-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.5; }
+    .dc-empty h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
+    .dc-empty p { font-size: 0.92rem; color: var(--gray-500); margin: 0 0 1.25rem; }
 
-    .dc-countdown-timer {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-    }
-
-    .dc-countdown-item {
-        text-align: center;
-    }
-
-    .dc-countdown-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--dark);
-        background: var(--white);
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-    }
-
-    .dc-countdown-unit {
-        font-size: 0.75rem;
-        color: var(--gray-500);
-        margin-top: 0.5rem;
-    }
-
-    /* ========== STREAK ========== */
-    .dc-streak {
-        display: flex;
+    .dc-empty-btn {
+        display: inline-flex;
         align-items: center;
-        gap: 1rem;
-        padding: 1.25rem;
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        border-radius: var(--radius-lg);
-        border: 1px solid #F59E0B;
-    }
-
-    .dc-streak-icon {
-        font-size: 2rem;
-    }
-
-    .dc-streak-info h4 {
-        font-size: 1rem;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--gradient-primary);
+        color: white;
+        border-radius: 12px;
         font-weight: 700;
-        color: #92400E;
-        margin: 0 0 0.15rem;
+        font-size: 0.92rem;
+        text-decoration: none;
+        transition: all 0.2s;
     }
 
-    .dc-streak-info p {
-        font-size: 0.85rem;
-        color: #B45309;
-        margin: 0;
+    .dc-empty-btn:hover { color: white; transform: translateY(-2px); }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .dc-layout { grid-template-columns: 1fr; }
+        .dc-sidebar { position: static; }
     }
 
-    .dc-streak-count {
-        margin-left: auto;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #D97706;
+    @media (max-width: 575px) {
+        .dc-result-grid { grid-template-columns: repeat(2, 1fr); }
+        .dc-hero-stats { gap: 1.25rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-{% if challenge %}
-<!-- Header -->
-<div class="dc-header">
+<div class="dc-page">
     <div class="container">
-        <div class="dc-header-content">
-            <div class="dc-header-grid">
-                <div>
-                    <div class="dc-badge">
-                        <i class="bi bi-calendar-check"></i>
-                        {{ challenge.date|date:"d F, Y" }}
-                    </div>
 
-                    <h1>📅 Kunlik Challenge</h1>
-
-                    <p class="dc-header-desc">
-                        Har kuni yangi challenge! Bugun {{ challenge.subject.name|default:"Umumiy" }} fanidan
-                        {{ challenge.question_count }} ta savolga javob bering va XP yutib oling.
-                    </p>
-
-                    <div class="dc-header-stats">
-                        <div class="dc-header-stat">
-                            <div class="dc-header-stat-value">{{ challenge.participants_count }}</div>
-                            <div class="dc-header-stat-label">Qatnashdi</div>
-                        </div>
-                        <div class="dc-header-stat">
-                            <div class="dc-header-stat-value">{{ challenge.question_count }}</div>
-                            <div class="dc-header-stat-label">Savollar</div>
-                        </div>
-                        <div class="dc-header-stat">
-                            <div class="dc-header-stat-value">{{ challenge.time_limit }}</div>
-                            <div class="dc-header-stat-label">Daqiqa</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dc-action-card">
-                    {% if completed %}
-                    <div class="dc-action-icon">✅</div>
-                    <div class="dc-action-title">Yakunladingiz!</div>
-                    <div class="dc-action-desc">Bugungi challengeni bajardingiz</div>
-                    <span class="dc-action-btn completed">
-                        <i class="bi bi-check-circle-fill"></i>
-                        Bajarildi
-                    </span>
-                    {% else %}
-                    <div class="dc-action-icon">🎯</div>
-                    <div class="dc-action-title">Tayyor bo'ling!</div>
-                    <div class="dc-action-desc">{{ challenge.time_limit }} daqiqa, {{ challenge.question_count }} savol</div>
-                    <a href="{% url 'competitions:daily_challenge_start' %}" class="dc-action-btn">
-                        <i class="bi bi-play-fill"></i>
-                        Boshlash
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+        <!-- Breadcrumb -->
+        <div class="dc-bread">
+            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Kunlik Challenge</span>
         </div>
-    </div>
-</div>
 
-<!-- Content -->
-<div class="dc-content">
-    <div class="container">
+        {% if challenge %}
         <div class="dc-layout">
-            <!-- Main -->
             <div class="dc-main">
-                <!-- Your Result (if completed) -->
+
+                <!-- Hero -->
+                <div class="dc-hero">
+                    <div class="dc-hero-inner">
+                        <div class="dc-hero-badge">
+                            <i class="bi bi-calendar-check-fill"></i> Bugungi challenge
+                        </div>
+                        <h1>{{ challenge.subject.name|default:"Umumiy" }} Challenge</h1>
+                        <p>{{ challenge.question_count }} ta savolga {{ challenge.time_limit }} daqiqa ichida javob bering va XP yuting!</p>
+                        <div class="dc-hero-stats">
+                            <div class="dc-hero-stat">
+                                <strong>{{ challenge.participants_count }}</strong>
+                                <span>qatnashdi</span>
+                            </div>
+                            <div class="dc-hero-stat">
+                                <strong>+{{ challenge.xp_reward }}</strong>
+                                <span>XP mukofot</span>
+                            </div>
+                            {% if challenge.bonus_xp_top10 > 0 %}
+                            <div class="dc-hero-stat">
+                                <strong>+{{ challenge.bonus_xp_top10 }}</strong>
+                                <span>Top 10 bonus</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if completed %}
+                        <span class="dc-hero-btn done">
+                            <i class="bi bi-check-circle-fill"></i> Yakunladingiz ✓
+                        </span>
+                        {% elif user.is_authenticated %}
+                        <a href="{% url 'competitions:daily_challenge_start' %}" class="dc-hero-btn start">
+                            <i class="bi bi-play-fill"></i> Boshlash
+                        </a>
+                        {% else %}
+                        <a href="{% url 'account_login' %}" class="dc-hero-btn start">
+                            <i class="bi bi-box-arrow-in-right"></i> Kirish va boshlash
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Result (agar yakunlagan bo'lsa) -->
                 {% if participant %}
-                <div class="dc-your-result">
-                    <div class="dc-your-result-header">
-                        <i class="bi bi-trophy-fill"></i>
-                        Sizning natijangiz
+                <div class="dc-result">
+                    <div class="dc-result-head">
+                        <span style="font-size: 1.35rem;">📊</span>
+                        <h3>Sizning natijangiz</h3>
                     </div>
-                    <div class="dc-your-result-title">
-                        {% if participant.rank %}#{{ participant.rank }} o'rin{% else %}Baholandi{% endif %}
-                    </div>
-                    <div class="dc-your-result-stats">
-                        <div class="dc-your-result-stat">
-                            <div class="dc-your-result-stat-value">{{ participant.correct_answers }}/{{ challenge.question_count }}</div>
-                            <div class="dc-your-result-stat-label">To'g'ri</div>
+                    <div class="dc-result-grid">
+                        <div class="dc-result-item">
+                            <div class="dc-result-val primary">{{ participant.score }}</div>
+                            <div class="dc-result-label">Ball</div>
                         </div>
-                        <div class="dc-your-result-stat">
-                            <div class="dc-your-result-stat-value">{{ participant.percentage|floatformat:0 }}%</div>
-                            <div class="dc-your-result-stat-label">Foiz</div>
+                        <div class="dc-result-item">
+                            <div class="dc-result-val green">{{ participant.correct_answers }}</div>
+                            <div class="dc-result-label">To'g'ri</div>
                         </div>
-                        <div class="dc-your-result-stat">
-                            <div class="dc-your-result-stat-value">+{{ participant.xp_earned }}</div>
-                            <div class="dc-your-result-stat-label">XP</div>
+                        <div class="dc-result-item">
+                            <div class="dc-result-val red">{{ participant.wrong_answers }}</div>
+                            <div class="dc-result-label">Noto'g'ri</div>
+                        </div>
+                        <div class="dc-result-item">
+                            <div class="dc-result-val">+{{ participant.xp_earned }}</div>
+                            <div class="dc-result-label">XP olindi</div>
                         </div>
                     </div>
                 </div>
                 {% endif %}
 
                 <!-- Leaderboard -->
-                <div class="dc-card">
-                    <div class="dc-card-header">
-                        <h3 class="dc-card-title">
-                            <i class="bi bi-trophy"></i>
-                            Bugungi reyting
-                        </h3>
-                        <span style="font-size:0.85rem; color:var(--gray-500);">Top 10</span>
+                <div class="dc-lb">
+                    <div class="dc-lb-head">
+                        <h3><i class="bi bi-bar-chart-fill"></i> Bugungi reyting</h3>
                     </div>
-                    <div class="dc-card-body" style="padding:0.5rem;">
-                        {% if leaderboard %}
-                        <div class="dc-leaderboard">
-                            {% for p in leaderboard %}
-                            <div class="dc-leader-item {% if forloop.counter == 1 %}top-1{% elif forloop.counter == 2 %}top-2{% elif forloop.counter == 3 %}top-3{% endif %} {% if p.user == request.user %}you{% endif %}">
-                                <div class="dc-leader-rank">
-                                    {% if forloop.counter == 1 %}🥇
-                                    {% elif forloop.counter == 2 %}🥈
-                                    {% elif forloop.counter == 3 %}🥉
-                                    {% else %}{{ forloop.counter }}{% endif %}
-                                </div>
-                                <div class="dc-leader-avatar">
-                                    {% if p.user.avatar %}
-                                    <img src="{{ p.user.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ p.user.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="dc-leader-info">
-                                    <div class="dc-leader-name">
-                                        {% if p.user == request.user %}Siz{% else %}{{ p.user.first_name }} {{ p.user.last_name|slice:":1" }}.{% endif %}
-                                    </div>
-                                    <div class="dc-leader-stats">
-                                        {{ p.correct_answers }}/{{ challenge.question_count }} to'g'ri • {{ p.time_spent }}s
-                                    </div>
-                                </div>
-                                <div class="dc-leader-score">
-                                    <div class="dc-leader-score-value">{{ p.score }}</div>
-                                    <div class="dc-leader-score-label">ball</div>
-                                </div>
+                    {% if leaderboard %}
+                        {% for p in leaderboard %}
+                        <div class="dc-lb-row {% if p.user == request.user %}me{% endif %}">
+                            <div class="dc-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
+                                {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
                             </div>
-                            {% endfor %}
+                            <span class="dc-lb-name">
+                                {{ p.user.first_name }} {{ p.user.last_name|default:"" }}
+                                {% if p.user == request.user %}<small style="color: var(--primary);">(siz)</small>{% endif %}
+                            </span>
+                            <span class="dc-lb-score">{{ p.score }} ball</span>
+                            <span class="dc-lb-time">{{ p.time_spent }}s</span>
                         </div>
-                        {% else %}
-                        <div style="text-align:center; padding:2rem; color:var(--gray-500);">
-                            <div style="font-size:2rem; margin-bottom:0.5rem;">🏆</div>
-                            Hali hech kim qatnashmadi
-                        </div>
-                        {% endif %}
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="dc-lb-empty">Hali hech kim qatnashmagan. Birinchi bo'ling!</div>
+                    {% endif %}
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="dc-sidebar">
-                <!-- Reward Info -->
-                <div class="dc-card">
-                    <div class="dc-card-header">
-                        <h3 class="dc-card-title">
-                            <i class="bi bi-gift"></i>
-                            Mukofotlar
-                        </h3>
-                    </div>
-                    <div class="dc-card-body">
-                        <div class="dc-info">
-                            <div class="dc-info-item">
-                                <div class="dc-info-icon purple">
-                                    <i class="bi bi-lightning-fill"></i>
-                                </div>
-                                <div class="dc-info-text">
-                                    <h4>+{{ challenge.xp_reward }} XP</h4>
-                                    <p>Ishtirok etganlik uchun</p>
-                                </div>
-                            </div>
-                            <div class="dc-info-item">
-                                <div class="dc-info-icon green">
-                                    <i class="bi bi-trophy-fill"></i>
-                                </div>
-                                <div class="dc-info-text">
-                                    <h4>+{{ challenge.bonus_xp_top10 }} XP bonus</h4>
-                                    <p>Top 10 ga kirganlik uchun</p>
-                                </div>
-                            </div>
-                            <div class="dc-info-item">
-                                <div class="dc-info-icon blue">
-                                    <i class="bi bi-fire"></i>
-                                </div>
-                                <div class="dc-info-text">
-                                    <h4>Streak bonus</h4>
-                                    <p>Ketma-ket kunlar uchun</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="dc-info-card">
+                    <h4><i class="bi bi-info-circle-fill"></i> Ma'lumot</h4>
+                    <ul class="dc-info-list">
+                        <li>
+                            <span>Fan</span>
+                            <span>{{ challenge.subject.name|default:"Umumiy" }}</span>
+                        </li>
+                        <li>
+                            <span>Savollar</span>
+                            <span>{{ challenge.question_count }} ta</span>
+                        </li>
+                        <li>
+                            <span>Vaqt</span>
+                            <span>{{ challenge.time_limit }} daqiqa</span>
+                        </li>
+                        <li>
+                            <span>XP mukofot</span>
+                            <span style="color: var(--primary); font-weight: 800;">+{{ challenge.xp_reward }}</span>
+                        </li>
+                        <li>
+                            <span>Qatnashchilar</span>
+                            <span>{{ challenge.participants_count }}</span>
+                        </li>
+                    </ul>
                 </div>
 
-                <!-- Challenge Info -->
-                <div class="dc-card">
-                    <div class="dc-card-header">
-                        <h3 class="dc-card-title">
-                            <i class="bi bi-info-circle"></i>
-                            Ma'lumot
-                        </h3>
-                    </div>
-                    <div class="dc-card-body">
-                        <div class="dc-info">
-                            <div class="dc-info-item">
-                                <div class="dc-info-icon purple">
-                                    <i class="bi bi-book"></i>
-                                </div>
-                                <div class="dc-info-text">
-                                    <h4>{{ challenge.subject.name|default:"Umumiy" }}</h4>
-                                    <p>Bugungi fan</p>
-                                </div>
-                            </div>
-                            <div class="dc-info-item">
-                                <div class="dc-info-icon green">
-                                    <i class="bi bi-clock"></i>
-                                </div>
-                                <div class="dc-info-text">
-                                    <h4>{{ challenge.time_limit }} daqiqa</h4>
-                                    <p>Vaqt limiti</p>
-                                </div>
-                            </div>
+                <div class="dc-info-card">
+                    <h4><i class="bi bi-lightbulb-fill"></i> Qanday ishlaydi?</h4>
+                    <div class="dc-steps">
+                        <div class="dc-step">
+                            <div class="dc-step-num">1</div>
+                            <div class="dc-step-text">Har kuni yangi challenge — bitta fan, cheklangan vaqt</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Next Challenge Countdown -->
-                <div class="dc-countdown">
-                    <div class="dc-countdown-label">Keyingi challenge:</div>
-                    <div class="dc-countdown-timer" id="nextChallenge">
-                        <div class="dc-countdown-item">
-                            <div class="dc-countdown-value" id="hours">00</div>
-                            <div class="dc-countdown-unit">soat</div>
+                        <div class="dc-step">
+                            <div class="dc-step-num">2</div>
+                            <div class="dc-step-text">Savollarga javob bering va natijangizni ko'ring</div>
                         </div>
-                        <div class="dc-countdown-item">
-                            <div class="dc-countdown-value" id="minutes">00</div>
-                            <div class="dc-countdown-unit">daqiqa</div>
-                        </div>
-                        <div class="dc-countdown-item">
-                            <div class="dc-countdown-value" id="seconds">00</div>
-                            <div class="dc-countdown-unit">soniya</div>
+                        <div class="dc-step">
+                            <div class="dc-step-num">3</div>
+                            <div class="dc-step-text">Top 10 ga kirsangiz qo'shimcha +{{ challenge.bonus_xp_top10 }} XP bonus</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-{% else %}
-<!-- No Challenge Today -->
-<div class="dc-content" style="padding-top:4rem;">
-    <div class="container">
-        <div class="dc-no-challenge">
-            <div class="dc-no-challenge-icon">📅</div>
+        {% else %}
+        <!-- No challenge today -->
+        <div class="dc-empty">
+            <div class="dc-empty-icon">📅</div>
             <h3>Bugun challenge yo'q</h3>
-            <p>Yangi challenge tez orada boshlanadi!</p>
-
-            <div class="dc-countdown" style="max-width:400px; margin:2rem auto 0;">
-                <div class="dc-countdown-label">Keyingi challenge:</div>
-                <div class="dc-countdown-timer" id="nextChallenge">
-                    <div class="dc-countdown-item">
-                        <div class="dc-countdown-value" id="hours">00</div>
-                        <div class="dc-countdown-unit">soat</div>
-                    </div>
-                    <div class="dc-countdown-item">
-                        <div class="dc-countdown-value" id="minutes">00</div>
-                        <div class="dc-countdown-unit">daqiqa</div>
-                    </div>
-                    <div class="dc-countdown-item">
-                        <div class="dc-countdown-value" id="seconds">00</div>
-                        <div class="dc-countdown-unit">soniya</div>
-                    </div>
-                </div>
-            </div>
-
-            <a href="{% url 'competitions:competitions_list' %}" class="btn btn-primary mt-4">
-                <i class="bi bi-trophy me-2"></i>Boshqa musobaqalar
+            <p>Ertaga yangi challenge bilan qaytib keling!</p>
+            <a href="{% url 'competitions:competitions_list' %}" class="dc-empty-btn">
+                <i class="bi bi-arrow-left"></i> Musobaqalarga qaytish
             </a>
         </div>
+        {% endif %}
+
     </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Countdown to midnight (next challenge)
-function updateCountdown() {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-
-    const diff = tomorrow - now;
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-}
-
-updateCountdown();
-setInterval(updateCountdown, 1000);
-</script>
 {% endblock %}
