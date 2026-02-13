@@ -1,189 +1,404 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Jang - {{ battle.challenger.first_name }} vs {{ battle.opponent.first_name }} - TestMakon{% endblock %}
+{% block title %}Jang — {{ battle.subject.name|default:"Umumiy" }} | TestMakon{% endblock %}
 
-{% block content %}
-<section class="section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Battle Card -->
-                <div class="card" style="overflow: visible;">
-                    <!-- Header -->
-                    <div style="background: var(--gradient-dark); padding: 2rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                        <div class="text-center">
-                            <span class="badge mb-3" style="
-                                {% if battle.status == 'pending' %}background: #FEF3C7; color: #92400E;
-                                {% elif battle.status == 'accepted' %}background: #DBEAFE; color: #1E40AF;
-                                {% elif battle.status == 'in_progress' %}background: #D1FAE5; color: #065F46;
-                                {% elif battle.status == 'completed' %}background: var(--gray-200); color: var(--gray-600);
-                                {% elif battle.status == 'rejected' %}background: #FEE2E2; color: #991B1B;
-                                {% else %}background: var(--gray-200); color: var(--gray-600);{% endif %}">
-                                {{ battle.get_status_display }}
-                            </span>
-                            <h2 class="text-white mb-0">1v1 Jang</h2>
-                        </div>
-                    </div>
+{% block extra_css %}
+<style>
+    .bd-page { padding: 2rem 0 4rem; }
 
-                    <!-- Players -->
-                    <div class="p-4">
-                        <div class="row align-items-center text-center">
-                            <!-- Challenger -->
-                            <div class="col-5">
-                                <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid {% if is_challenger %}var(--primary){% else %}var(--gray-300){% endif %};">
-                                    {% if battle.challenger.avatar %}
-                                    <img src="{{ battle.challenger.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                    <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
-                                    {% endif %}
-                                </div>
-                                <h5 class="fw-bold mt-3 mb-1">{{ battle.challenger.full_name|default:battle.challenger.phone_number }}</h5>
-                                <small style="color: var(--gray-500);">Level {{ battle.challenger.level }}</small>
-                                {% if is_challenger %}
-                                <div class="mt-2">
-                                    <span class="badge badge-primary">Siz</span>
-                                </div>
-                                {% endif %}
-                            </div>
+    .bd-bread {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
 
-                            <!-- VS -->
-                            <div class="col-2">
-                                <div style="width: 60px; height: 60px; background: var(--dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                    <span class="text-white fw-bold">VS</span>
-                                </div>
-                            </div>
+    .bd-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .bd-bread a:hover { text-decoration: underline; }
 
-                            <!-- Opponent -->
-                            <div class="col-5">
-                                <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid {% if not is_challenger %}var(--primary){% else %}var(--gray-300){% endif %};">
-                                    {% if battle.opponent.avatar %}
-                                    <img src="{{ battle.opponent.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                    <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
-                                    {% endif %}
-                                </div>
-                                <h5 class="fw-bold mt-3 mb-1">{{ battle.opponent.full_name|default:battle.opponent.phone_number }}</h5>
-                                <small style="color: var(--gray-500);">Level {{ battle.opponent.level }}</small>
-                                {% if not is_challenger %}
-                                <div class="mt-2">
-                                    <span class="badge badge-primary">Siz</span>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
+    .bd-layout {
+        max-width: 600px;
+        margin: 0 auto;
+    }
 
-                        <hr class="my-4">
+    /* ========== HERO ========== */
+    .bd-hero {
+        background: linear-gradient(135deg, #DC2626, #991B1B);
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
 
-                        <!-- Battle Info -->
-                        <div class="row g-3 text-center">
-                            <div class="col-4">
-                                <div style="color: var(--gray-500);">Fan</div>
-                                <div class="fw-bold">{{ battle.subject.name|default:"Aralash" }}</div>
-                            </div>
-                            <div class="col-4">
-                                <div style="color: var(--gray-500);">Savollar</div>
-                                <div class="fw-bold">{{ battle.question_count }}</div>
-                            </div>
-                            <div class="col-4">
-                                <div style="color: var(--gray-500);">Vaqt</div>
-                                <div class="fw-bold">{{ battle.time_per_question }}s/savol</div>
-                            </div>
-                        </div>
+    .bd-hero::after {
+        content: '⚔️';
+        position: absolute;
+        right: -10px;
+        bottom: -20px;
+        font-size: 8rem;
+        opacity: 0.06;
+        pointer-events: none;
+    }
 
-                        <hr class="my-4">
+    .bd-hero-inner { position: relative; z-index: 1; }
 
-                        <!-- Actions based on status -->
-                        {% if battle.status == 'pending' %}
-                            {% if not is_challenger %}
-                            <div class="d-flex gap-3 justify-content-center">
-                                <a href="{% url 'competitions:battle_accept' battle.uuid %}" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-check2 me-2"></i> Qabul qilish
-                                </a>
-                                <a href="{% url 'competitions:battle_reject' battle.uuid %}" class="btn btn-outline btn-lg">
-                                    Rad etish
-                                </a>
-                            </div>
-                            {% else %}
-                            <div class="text-center">
-                                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <h5>Raqib javobini kutilmoqda...</h5>
-                                <p style="color: var(--gray-500);">{{ battle.opponent.first_name }} 24 soat ichida qabul qilishi kerak</p>
-                            </div>
-                            {% endif %}
+    .bd-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+    }
 
-                        {% elif battle.status == 'accepted' or battle.status == 'in_progress' %}
-                            {% if is_challenger and battle.challenger_completed %}
-                            <div class="text-center">
-                                <div class="alert alert-success d-inline-block">
-                                    <i class="bi bi-check-circle me-2"></i> Siz yakunladingiz. Raqibni kuting.
-                                </div>
-                            </div>
-                            {% elif not is_challenger and battle.opponent_completed %}
-                            <div class="text-center">
-                                <div class="alert alert-success d-inline-block">
-                                    <i class="bi bi-check-circle me-2"></i> Siz yakunladingiz. Raqibni kuting.
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="text-center">
-                                <a href="{% url 'competitions:battle_play' battle.uuid %}" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-play-fill me-2"></i> O'yinni boshlash
-                                </a>
-                            </div>
-                            {% endif %}
+    .bd-hero-badge.waiting { background: rgba(255,255,255,0.2); }
+    .bd-hero-badge.in_progress { background: rgba(16,185,129,0.3); }
+    .bd-hero-badge.completed { background: rgba(255,255,255,0.2); }
 
-                        {% elif battle.status == 'completed' %}
-                            <div class="text-center">
-                                <a href="{% url 'competitions:battle_result' battle.uuid %}" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-trophy me-2"></i> Natijani ko'rish
-                                </a>
-                            </div>
+    /* VS Section */
+    .bd-vs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.75rem;
+        margin-bottom: 1.25rem;
+    }
 
-                        {% elif battle.status == 'rejected' %}
-                            <div class="text-center">
-                                <div class="alert alert-danger d-inline-block">
-                                    <i class="bi bi-x-circle me-2"></i> Jang rad etildi
-                                </div>
-                            </div>
+    .bd-vs-player { text-align: center; }
 
-                        {% elif battle.status == 'expired' %}
-                            <div class="text-center">
-                                <div class="alert alert-warning d-inline-block">
-                                    <i class="bi bi-clock me-2"></i> Jang muddati o'tdi
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+    .bd-vs-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin: 0 auto 0.5rem;
+        background: rgba(255,255,255,0.15);
+        border: 2px solid rgba(255,255,255,0.3);
+    }
 
-                <!-- Back Link -->
-                <div class="text-center mt-4">
-                    <a href="{% url 'competitions:battles_list' %}" class="btn btn-outline">
-                        <i class="bi bi-arrow-left me-2"></i> Janglarga qaytish
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    .bd-vs-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .bd-vs-label {
+        font-size: 0.72rem;
+        opacity: 0.7;
+    }
+
+    .bd-vs-text {
+        font-size: 1.5rem;
+        font-weight: 900;
+        opacity: 0.4;
+    }
+
+    .bd-hero-subject {
+        font-size: 0.92rem;
+        opacity: 0.85;
+        margin: 0;
+    }
+
+    /* ========== INFO CARD ========== */
+    .bd-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .bd-card h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bd-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .bd-info-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        font-size: 0.9rem;
+    }
+
+    .bd-info-list li + li { border-top: 1px solid var(--gray-100); }
+    .bd-info-list li span:first-child { color: var(--gray-500); font-weight: 600; }
+    .bd-info-list li span:last-child { color: var(--dark); font-weight: 700; }
+
+    /* ========== ACTION BUTTONS ========== */
+    .bd-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .bd-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.9rem;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .bd-btn.danger {
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
+        color: white;
+        box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4);
+    }
+
+    .bd-btn.danger:hover { transform: translateY(-1px); color: white; }
+
+    .bd-btn.success {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+    }
+
+    .bd-btn.success:hover { transform: translateY(-1px); color: white; }
+
+    .bd-btn.outline {
+        background: transparent;
+        border: 2px solid var(--gray-200);
+        color: var(--dark);
+    }
+
+    .bd-btn.outline:hover { border-color: var(--gray-300); color: var(--dark); }
+
+    .bd-btn.disabled {
+        background: var(--gray-100);
+        color: var(--gray-400);
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Decline btn */
+    .bd-btn-sm {
+        padding: 0.65rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .bd-btn-sm:hover { background: #FECACA; }
+
+    /* Status message */
+    .bd-status-msg {
+        padding: 1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .bd-status-msg.waiting { background: #FEF3C7; color: #D97706; }
+    .bd-status-msg.your_turn { background: #D1FAE5; color: #059669; }
+    .bd-status-msg.opponent_turn { background: #DBEAFE; color: #2563EB; }
+
+    @media (max-width: 575px) {
+        .bd-hero { padding: 1.75rem 1.25rem; }
+        .bd-vs { gap: 1rem; }
+        .bd-vs-avatar { width: 52px; height: 52px; font-size: 1.15rem; }
+    }
+</style>
 {% endblock %}
 
-{% block extra_js %}
-{% if battle.status == 'pending' and is_challenger %}
-<script>
-// Auto refresh to check if opponent accepted
-setInterval(function() {
-    fetch('{% url "competitions:api_battle_status" battle.uuid %}')
-        .then(response => response.json())
-        .then(data => {
-            if (data.status !== 'pending') {
-                location.reload();
-            }
-        });
-}, 5000);
-</script>
-{% endif %}
+{% block content %}
+<div class="bd-page">
+    <div class="container">
+
+        <div class="bd-bread">
+            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="{% url 'competitions:battles_list' %}">Janglar</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Jang tafsiloti</span>
+        </div>
+
+        <div class="bd-layout">
+
+            <!-- Hero -->
+            <div class="bd-hero">
+                <div class="bd-hero-inner">
+                    <div class="bd-hero-badge {{ battle.status }}">
+                        {% if battle.status == 'waiting' %}⏳ Kutilmoqda
+                        {% elif battle.status == 'in_progress' %}🔴 Davom etmoqda
+                        {% elif battle.status == 'completed' %}✅ Yakunlangan
+                        {% endif %}
+                    </div>
+
+                    <div class="bd-vs">
+                        <!-- Challenger -->
+                        <div class="bd-vs-player">
+                            <div class="bd-vs-avatar">
+                                {{ battle.challenger.first_name|default:"?"|slice:":1" }}
+                            </div>
+                            <div class="bd-vs-name">
+                                {% if is_challenger %}Siz{% else %}{{ battle.challenger.first_name|default:"Noma'lum" }}{% endif %}
+                            </div>
+                            <div class="bd-vs-label">Tashabbuskor</div>
+                        </div>
+
+                        <div class="bd-vs-text">VS</div>
+
+                        <!-- Opponent -->
+                        <div class="bd-vs-player">
+                            <div class="bd-vs-avatar">
+                                {% if battle.opponent_type == 'bot' %}🤖
+                                {% elif battle.opponent %}{{ battle.opponent.first_name|default:"?"|slice:":1" }}
+                                {% else %}?
+                                {% endif %}
+                            </div>
+                            <div class="bd-vs-name">
+                                {% if battle.opponent_type == 'bot' %}Bot ({{ battle.get_bot_difficulty_display }})
+                                {% elif battle.opponent %}
+                                    {% if is_challenger %}{{ battle.opponent.first_name|default:"Raqib" }}{% else %}Siz{% endif %}
+                                {% else %}Kutilmoqda...
+                                {% endif %}
+                            </div>
+                            <div class="bd-vs-label">
+                                {% if battle.opponent_type == 'bot' %}Sun'iy intellekt{% else %}Raqib{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="bd-hero-subject">
+                        {{ battle.subject.name|default:"Umumiy" }} • {{ battle.question_count }} savol
+                    </p>
+                </div>
+            </div>
+
+            <!-- Status Message -->
+            {% if battle.status == 'waiting' and is_challenger %}
+            <div class="bd-status-msg waiting">
+                ⏳ Raqibingiz taklifni qabul qilishini kutmoqdasiz
+            </div>
+            {% elif battle.status == 'waiting' and is_invited %}
+            <div class="bd-status-msg your_turn">
+                ✉️ Sizni jangga taklif qilishdi!
+            </div>
+            {% elif battle.status == 'in_progress' and can_play %}
+            <div class="bd-status-msg your_turn">
+                🟢 Sizning navbatingiz — jangni boshlang!
+            </div>
+            {% elif battle.status == 'in_progress' and not can_play %}
+            <div class="bd-status-msg opponent_turn">
+                ⏳ Raqibingiz javob berishi kutilmoqda
+            </div>
+            {% endif %}
+
+            <!-- Info Card -->
+            <div class="bd-card">
+                <h3><i class="bi bi-info-circle-fill"></i> Jang ma'lumoti</h3>
+                <ul class="bd-info-list">
+                    <li>
+                        <span>Fan</span>
+                        <span>{{ battle.subject.name|default:"Umumiy" }}</span>
+                    </li>
+                    <li>
+                        <span>Savollar</span>
+                        <span>{{ battle.question_count }} ta</span>
+                    </li>
+                    <li>
+                        <span>Raqib turi</span>
+                        <span>
+                            {% if battle.opponent_type == 'bot' %}🤖 Bot
+                            {% elif battle.opponent_type == 'friend' %}👤 Do'st
+                            {% else %}🎲 Random
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li>
+                        <span>Yaratilgan</span>
+                        <span>{{ battle.created_at|date:"d.m.Y H:i" }}</span>
+                    </li>
+                    <li>
+                        <span>Holat</span>
+                        <span>
+                            {% if battle.status == 'waiting' %}⏳ Kutilmoqda
+                            {% elif battle.status == 'in_progress' %}🔴 Davom etmoqda
+                            {% elif battle.status == 'completed' %}✅ Yakunlangan
+                            {% endif %}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bd-actions">
+                {% if can_play %}
+                <a href="{% url 'competitions:battle_play' uuid=battle.uuid %}" class="bd-btn danger">
+                    <i class="bi bi-lightning-fill"></i> Jangni boshlash!
+                </a>
+                {% endif %}
+
+                {% if is_invited and battle.status == 'waiting' %}
+                <form method="post" action="{% url 'competitions:battle_accept' uuid=battle.uuid %}">
+                    {% csrf_token %}
+                    <button type="submit" class="bd-btn success" style="width:100%;">
+                        <i class="bi bi-check-circle-fill"></i> Qabul qilish
+                    </button>
+                </form>
+                <form method="post" action="{% url 'competitions:battle_decline' uuid=battle.uuid %}">
+                    {% csrf_token %}
+                    <button type="submit" class="bd-btn-sm" style="width:100%;text-align:center;">
+                        <i class="bi bi-x-lg"></i> Rad etish
+                    </button>
+                </form>
+                {% endif %}
+
+                {% if battle.status == 'completed' %}
+                <a href="{% url 'competitions:battle_result' uuid=battle.uuid %}" class="bd-btn danger">
+                    <i class="bi bi-bar-chart-fill"></i> Natijani ko'rish
+                </a>
+                {% endif %}
+
+                {% if battle.status == 'waiting' and is_challenger %}
+                <div class="bd-btn disabled">
+                    <i class="bi bi-hourglass-split"></i> Raqib javobini kutmoqda...
+                </div>
+                {% endif %}
+
+                <a href="{% url 'competitions:battles_list' %}" class="bd-btn outline">
+                    <i class="bi bi-arrow-left"></i> Janglarga qaytish
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
 {% endblock %}
