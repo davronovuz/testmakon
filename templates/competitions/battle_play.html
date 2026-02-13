@@ -1,564 +1,691 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Jang — {{ battle.subject.name|default:"Umumiy" }} | TestMakon{% endblock %}
+{% block title %}⚔️ Jang — {{ battle.subject.name|default:"Umumiy" }} | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    .bp-page {
-        min-height: 100vh;
-        background: var(--gray-50);
-        padding-bottom: 100px;
-    }
+    body { background: #F1F5F9; }
 
-    /* ========== TOP BAR ========== */
+    /* ========== TOP BAR (STICKY) ========== */
     .bp-topbar {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 0.65rem 0;
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 200;
+        background: #fff;
+        border-bottom: 2px solid #E2E8F0;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
     .bp-topbar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
+        padding: 0.6rem 0;
+        gap: 0.75rem;
     }
 
-    /* VS header */
-    .bp-vs {
+    /* VS Players */
+    .bp-players {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
+        gap: 0.5rem;
+        flex-shrink: 0;
     }
 
-    .bp-vs-player {
+    .bp-player {
         display: flex;
         align-items: center;
         gap: 0.4rem;
     }
 
-    .bp-vs-avatar {
-        width: 32px;
-        height: 32px;
-        background: var(--gray-200);
+    .bp-avatar {
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: var(--gray-500);
+        font-size: 0.85rem;
+        font-weight: 800;
+        flex-shrink: 0;
     }
 
-    .bp-vs-name {
+    .bp-avatar.me { background: rgba(139,197,64,0.15); color: var(--primary); border: 2px solid var(--primary); }
+    .bp-avatar.opp { background: #FEE2E2; color: #DC2626; border: 2px solid #DC2626; }
+
+    .bp-pname {
         font-size: 0.85rem;
         font-weight: 700;
         color: var(--dark);
     }
 
     .bp-vs-badge {
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         font-weight: 900;
-        color: var(--gray-300);
+        color: #DC2626;
+        background: #FEE2E2;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
     }
 
-    /* Timer & progress */
+    /* Center: Timer + Progress */
     .bp-center {
         display: flex;
         align-items: center;
         gap: 1.25rem;
+        flex-shrink: 0;
     }
 
     .bp-timer {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        background: var(--gray-50);
-        padding: 0.45rem 0.85rem;
-        border-radius: 10px;
-        font-size: 1.05rem;
-        font-weight: 800;
-        color: var(--dark);
+        gap: 0.45rem;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 1.15rem;
+        font-weight: 900;
         font-variant-numeric: tabular-nums;
+        background: #F1F5F9;
+        color: #1E293B;
+        min-width: 90px;
+        justify-content: center;
     }
 
-    .bp-timer i { font-size: 0.92rem; color: #DC2626; }
-    .bp-timer.warning { background: #FEF3C7; color: #D97706; }
-    .bp-timer.warning i { color: #D97706; }
-    .bp-timer.danger { background: #FEE2E2; color: #DC2626; animation: bp-pulse 1s infinite; }
+    .bp-timer i { font-size: 0.9rem; color: #64748B; }
+    .bp-timer.warning { background: #FEF3C7; color: #B45309; }
+    .bp-timer.warning i { color: #B45309; }
+    .bp-timer.danger { background: #FEE2E2; color: #DC2626; animation: bp-pulse 0.8s ease infinite; }
     .bp-timer.danger i { color: #DC2626; }
 
-    @keyframes bp-pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+    @keyframes bp-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
 
-    .bp-prog {
-        font-size: 0.85rem;
+    .bp-progress-info {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.88rem;
         font-weight: 700;
-        color: var(--gray-500);
-        white-space: nowrap;
+        color: #64748B;
     }
 
-    .bp-prog strong { color: #DC2626; }
+    .bp-progress-info strong { color: #DC2626; font-size: 1rem; }
 
     .bp-submit-top {
-        padding: 0.5rem 1.15rem;
+        padding: 0.55rem 1.25rem;
         background: linear-gradient(135deg, #DC2626, #B91C1C);
-        color: white;
+        color: #fff;
         border: none;
         border-radius: 10px;
         font-size: 0.85rem;
         font-weight: 700;
         cursor: pointer;
-        white-space: nowrap;
         transition: all 0.2s;
+        flex-shrink: 0;
     }
 
-    .bp-submit-top:hover { box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4); }
+    .bp-submit-top:hover { box-shadow: 0 4px 16px -3px rgba(220,38,38,0.45); transform: translateY(-1px); }
 
-    /* Progress bar */
-    .bp-progress-bar { height: 3px; background: var(--gray-200); }
-    .bp-progress-fill { height: 100%; background: linear-gradient(90deg, #DC2626, #EF4444); transition: width 0.3s; }
+    .bp-progress-bar { height: 3px; background: #E2E8F0; }
+    .bp-progress-fill { height: 100%; background: linear-gradient(90deg, #DC2626, #EF4444); transition: width 0.4s ease; border-radius: 0 3px 3px 0; }
 
-    /* ========== CONTENT ========== */
-    .bp-content {
-        max-width: 800px;
+    /* ========== MAIN LAYOUT ========== */
+    .bp-layout {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        gap: 1.5rem;
+        max-width: 1100px;
         margin: 0 auto;
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem 6rem;
     }
 
-    /* Question */
-    .bp-question {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
+    /* ========== QUESTIONS ========== */
+    .bp-questions { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .bp-qcard {
+        background: #fff;
+        border: 2px solid #E2E8F0;
         border-radius: 16px;
-        padding: 1.75rem;
-        margin-bottom: 1.25rem;
-        transition: border-color 0.2s;
+        overflow: hidden;
+        transition: border-color 0.25s;
     }
 
-    .bp-question.answered { border-color: #DC2626; }
+    .bp-qcard.answered { border-color: #DC2626; }
 
-    .bp-q-header { margin-bottom: 1rem; }
+    .bp-qcard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 1.25rem;
+        background: #F8FAFC;
+        border-bottom: 1px solid #E2E8F0;
+    }
 
-    .bp-q-num {
+    .bp-qnum {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        font-weight: 800;
+        color: #1E293B;
+    }
+
+    .bp-qnum-badge {
+        width: 30px;
+        height: 30px;
+        background: #DC2626;
+        color: #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 0.82rem;
         font-weight: 800;
-        color: #DC2626;
-        background: #FEE2E2;
-        padding: 0.3rem 0.75rem;
+    }
+
+    .bp-qstatus {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.7rem;
         border-radius: 50px;
     }
 
-    .bp-q-text {
+    .bp-qstatus.done { background: #D1FAE5; color: #059669; }
+    .bp-qstatus.empty { background: #F1F5F9; color: #94A3B8; }
+
+    .bp-qcard-body { padding: 1.5rem 1.25rem; }
+
+    .bp-qtext {
         font-size: 1.05rem;
         font-weight: 600;
-        color: var(--dark);
-        line-height: 1.7;
+        color: #1E293B;
+        line-height: 1.75;
         margin-bottom: 1.25rem;
     }
 
-    .bp-q-image {
+    .bp-qimage {
         width: 100%;
-        max-height: 300px;
+        max-height: 320px;
         object-fit: contain;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 1.25rem;
-        background: var(--gray-50);
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
     }
 
-    /* Answers */
-    .bp-answers { display: flex; flex-direction: column; gap: 0.6rem; }
+    .bp-answers { display: flex; flex-direction: column; gap: 0.55rem; }
 
     .bp-answer {
         display: flex;
         align-items: center;
         gap: 0.85rem;
-        padding: 0.85rem 1rem;
-        border: 2px solid var(--gray-200);
+        padding: 0.9rem 1.1rem;
+        border: 2px solid #E2E8F0;
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.2s;
         user-select: none;
+        background: #fff;
     }
 
-    .bp-answer:hover { border-color: var(--gray-300); background: var(--gray-50); }
+    .bp-answer:hover { border-color: #CBD5E1; background: #F8FAFC; }
 
-    .bp-answer.selected { border-color: #DC2626; background: rgba(220,38,38,0.04); }
+    .bp-answer.selected {
+        border-color: #DC2626;
+        background: rgba(220,38,38,0.04);
+        box-shadow: 0 0 0 1px rgba(220,38,38,0.1);
+    }
 
     .bp-answer-letter {
-        font-size: 0.82rem;
-        font-weight: 800;
-        color: var(--gray-400);
-        width: 26px;
-        height: 26px;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--gray-100);
-        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 800;
+        background: #F1F5F9;
+        color: #64748B;
         flex-shrink: 0;
+        transition: all 0.2s;
     }
 
-    .bp-answer.selected .bp-answer-letter { background: #DC2626; color: white; }
+    .bp-answer.selected .bp-answer-letter { background: #DC2626; color: #fff; }
 
     .bp-answer-radio {
-        width: 22px;
-        height: 22px;
-        border: 2px solid var(--gray-300);
+        width: 20px;
+        height: 20px;
+        border: 2px solid #CBD5E1;
         border-radius: 50%;
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
+        margin-left: auto;
     }
 
     .bp-answer.selected .bp-answer-radio { border-color: #DC2626; background: #DC2626; }
-    .bp-answer.selected .bp-answer-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+    .bp-answer.selected .bp-answer-radio::after { content: ''; width: 7px; height: 7px; background: #fff; border-radius: 50%; }
 
-    .bp-answer-text { font-size: 0.95rem; color: var(--dark); line-height: 1.5; flex: 1; }
-
-    /* ========== BOTTOM BAR ========== */
-    .bp-bottombar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--white);
-        border-top: 1px solid var(--gray-200);
-        padding: 0.85rem 0;
-        z-index: 100;
+    .bp-answer-text {
+        font-size: 0.95rem;
+        color: #334155;
+        line-height: 1.5;
+        flex: 1;
     }
 
-    .bp-bottom-inner {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 1rem;
+    .bp-answer.selected .bp-answer-text { color: #1E293B; font-weight: 600; }
+
+    /* ========== SIDEBAR ========== */
+    .bp-sidebar {
+        position: sticky;
+        top: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-self: start;
+    }
+
+    .bp-map-card {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 1.15rem;
+    }
+
+    .bp-map-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #1E293B;
+        margin-bottom: 0.85rem;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
+        gap: 0.4rem;
     }
 
-    .bp-qmap {
-        display: flex;
-        gap: 0.35rem;
-        flex-wrap: wrap;
-        flex: 1;
-        max-height: 36px;
-        overflow: hidden;
+    .bp-map-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.4rem;
     }
 
-    .bp-qmap-item {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
+    .bp-map-btn {
+        width: 100%;
+        aspect-ratio: 1;
+        border: 2px solid #E2E8F0;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.72rem;
+        font-size: 0.78rem;
         font-weight: 700;
+        color: #94A3B8;
+        background: #F8FAFC;
         cursor: pointer;
-        background: var(--gray-100);
-        color: var(--gray-500);
-        border: none;
-        transition: all 0.15s;
-    }
-
-    .bp-qmap-item:hover { background: var(--gray-200); }
-    .bp-qmap-item.answered { background: #DC2626; color: white; }
-
-    .bp-submit-btn {
-        padding: 0.7rem 1.75rem;
-        background: linear-gradient(135deg, #DC2626, #B91C1C);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 0.92rem;
-        font-weight: 700;
-        cursor: pointer;
-        white-space: nowrap;
-        flex-shrink: 0;
         transition: all 0.2s;
     }
 
-    .bp-submit-btn:hover { box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4); }
+    .bp-map-btn:hover { border-color: #CBD5E1; background: #F1F5F9; }
+    .bp-map-btn.answered { background: #DC2626; color: #fff; border-color: #DC2626; }
+
+    .bp-stats-card {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 1.15rem;
+    }
+
+    .bp-stats-title { font-size: 0.85rem; font-weight: 800; color: #1E293B; margin-bottom: 0.75rem; }
+
+    .bp-stat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.85rem;
+    }
+
+    .bp-stat-row + .bp-stat-row { border-top: 1px solid #F1F5F9; }
+    .bp-stat-row span:first-child { color: #64748B; font-weight: 600; }
+    .bp-stat-row span:last-child { color: #1E293B; font-weight: 800; }
+
+    .bp-sidebar-submit {
+        width: 100%;
+        padding: 0.85rem;
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .bp-sidebar-submit:hover { box-shadow: 0 6px 20px -4px rgba(220,38,38,0.45); transform: translateY(-1px); }
 
     /* ========== CONFIRM MODAL ========== */
-    .bp-modal-overlay {
+    .bp-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 300;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(4px);
+        z-index: 500;
         display: none;
         align-items: center;
         justify-content: center;
         padding: 1rem;
     }
 
-    .bp-modal-overlay.show { display: flex; }
+    .bp-overlay.show { display: flex; }
 
     .bp-modal {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        max-width: 400px;
+        background: #fff;
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        max-width: 420px;
         width: 100%;
         text-align: center;
+        animation: bp-modal-in 0.25s ease;
     }
 
-    .bp-modal-icon { font-size: 3rem; margin-bottom: 1rem; }
-    .bp-modal h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
-    .bp-modal p { font-size: 0.9rem; color: var(--gray-500); margin: 0 0 1.5rem; }
+    @keyframes bp-modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
 
-    .bp-modal-stats { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
-    .bp-modal-stat strong { display: block; font-size: 1.25rem; font-weight: 800; color: var(--dark); }
-    .bp-modal-stat span { font-size: 0.78rem; color: var(--gray-500); }
+    .bp-modal-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .bp-modal h3 { font-size: 1.2rem; font-weight: 900; color: #1E293B; margin: 0 0 0.4rem; }
+    .bp-modal p { font-size: 0.9rem; color: #64748B; margin: 0 0 1.5rem; line-height: 1.5; }
+
+    .bp-modal-stats { display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 1.75rem; }
+    .bp-modal-stat-val { font-size: 1.75rem; font-weight: 900; color: #1E293B; }
+    .bp-modal-stat-val.green { color: #059669; }
+    .bp-modal-stat-val.orange { color: #D97706; }
+    .bp-modal-stat-label { font-size: 0.78rem; color: #94A3B8; font-weight: 600; }
 
     .bp-modal-btns { display: flex; gap: 0.75rem; }
 
     .bp-modal-btn {
         flex: 1;
-        padding: 0.75rem;
+        padding: 0.8rem;
         border-radius: 12px;
-        font-size: 0.9rem;
+        font-size: 0.92rem;
         font-weight: 700;
-        cursor: pointer;
         border: none;
+        cursor: pointer;
         transition: all 0.2s;
     }
 
-    .bp-modal-btn.cancel { background: var(--gray-100); color: var(--dark); }
-    .bp-modal-btn.cancel:hover { background: var(--gray-200); }
-    .bp-modal-btn.confirm { background: linear-gradient(135deg, #DC2626, #B91C1C); color: white; }
+    .bp-modal-btn.cancel { background: #F1F5F9; color: #475569; }
+    .bp-modal-btn.cancel:hover { background: #E2E8F0; }
+    .bp-modal-btn.confirm { background: linear-gradient(135deg,#DC2626,#B91C1C); color:#fff; }
+    .bp-modal-btn.confirm:hover { box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4); }
 
-    @media (max-width: 768px) {
-        .bp-vs-name { display: none; }
-        .bp-content { padding: 1.25rem 0.75rem; }
-        .bp-question { padding: 1.25rem; }
+    /* ========== EMPTY STATE ========== */
+    .bp-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #fff;
+        border-radius: 16px;
+        border: 2px dashed #E2E8F0;
+    }
+
+    .bp-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .bp-empty h3 { font-size: 1.1rem; font-weight: 800; color: #1E293B; margin: 0 0 0.5rem; }
+    .bp-empty p { font-size: 0.9rem; color: #94A3B8; margin: 0; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 868px) {
+        .bp-layout { grid-template-columns: 1fr; }
+        .bp-sidebar { position: static; }
+        .bp-pname { display: none; }
     }
 
     @media (max-width: 480px) {
         .bp-submit-top { display: none; }
+        .bp-center { gap: 0.65rem; }
+        .bp-timer { font-size: 1rem; padding: 0.4rem 0.75rem; min-width: 76px; }
+        .bp-qcard-body { padding: 1rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Top Bar -->
+<!-- ===== TOP BAR ===== -->
 <div class="bp-topbar">
     <div class="container">
         <div class="bp-topbar-inner">
-            <div class="bp-vs">
-                <div class="bp-vs-player">
-                    <div class="bp-vs-avatar">{% if is_challenger %}👤{% else %}{{ battle.challenger.first_name|default:"?"|slice:":1" }}{% endif %}</div>
-                    <span class="bp-vs-name">{% if is_challenger %}Siz{% else %}{{ battle.challenger.first_name|default:"Noma'lum" }}{% endif %}</span>
+            <div class="bp-players">
+                <div class="bp-player">
+                    <div class="bp-avatar me">{{ request.user.first_name|default:"?"|slice:":1" }}</div>
+                    <span class="bp-pname">Siz</span>
                 </div>
                 <span class="bp-vs-badge">VS</span>
-                <div class="bp-vs-player">
-                    <div class="bp-vs-avatar">
-                        {% if battle.opponent_type == 'bot' %}🤖
-                        {% elif is_challenger %}{{ battle.opponent.first_name|default:"?"|slice:":1" }}
-                        {% else %}👤
-                        {% endif %}
+                <div class="bp-player">
+                    <div class="bp-avatar opp">
+                        {% if battle.opponent_type == 'bot' %}🤖{% elif is_challenger %}{{ battle.opponent.first_name|default:"?"|slice:":1" }}{% else %}{{ battle.challenger.first_name|default:"?"|slice:":1" }}{% endif %}
                     </div>
-                    <span class="bp-vs-name">
-                        {% if battle.opponent_type == 'bot' %}Bot
-                        {% elif is_challenger %}{{ battle.opponent.first_name|default:"Raqib" }}
-                        {% else %}Siz
-                        {% endif %}
+                    <span class="bp-pname">
+                        {% if battle.opponent_type == 'bot' %}Bot ({{ battle.get_bot_difficulty_display }}){% elif is_challenger %}{{ battle.opponent.first_name|default:"Raqib" }}{% else %}{{ battle.challenger.first_name|default:"Raqib" }}{% endif %}
                     </span>
                 </div>
             </div>
 
             <div class="bp-center">
-                <div class="bp-timer" id="timer">
+                <div class="bp-timer" id="bpTimer">
                     <i class="bi bi-clock-fill"></i>
-                    <span id="timerText">00:00</span>
+                    <span id="bpTimerText">--:--</span>
                 </div>
-                <div class="bp-prog">
-                    <strong id="answeredCount">0</strong> / {{ battle.question_count }}
+                <div class="bp-progress-info">
+                    <strong id="bpAnswered">0</strong> / <span id="bpTotal">0</span>
                 </div>
             </div>
 
-            <button type="button" class="bp-submit-top" onclick="showConfirm()">Yakunlash</button>
+            <button type="button" class="bp-submit-top" onclick="BattlePlay.showConfirm()">
+                <i class="bi bi-send-fill"></i> Yakunlash
+            </button>
         </div>
     </div>
     <div class="bp-progress-bar">
-        <div class="bp-progress-fill" id="progressBar" style="width:0%"></div>
+        <div class="bp-progress-fill" id="bpProgressBar" style="width:0%"></div>
     </div>
 </div>
 
-<div class="bp-page">
-    <div class="bp-content" id="questionsContainer"></div>
-</div>
+<!-- ===== MAIN ===== -->
+<div class="bp-layout">
+    <div class="bp-questions" id="bpQuestions"></div>
 
-<!-- Bottom Bar -->
-<div class="bp-bottombar">
-    <div class="bp-bottom-inner">
-        <div class="bp-qmap" id="questionMap"></div>
-        <button type="button" class="bp-submit-btn" onclick="showConfirm()">
+    <div class="bp-sidebar">
+        <div class="bp-map-card">
+            <div class="bp-map-title"><i class="bi bi-grid-3x3-gap-fill"></i> Savollar xaritasi</div>
+            <div class="bp-map-grid" id="bpMap"></div>
+        </div>
+
+        <div class="bp-stats-card">
+            <div class="bp-stats-title">📊 Statistika</div>
+            <div class="bp-stat-row"><span>Jami savollar</span><span id="bpStatTotal">0</span></div>
+            <div class="bp-stat-row"><span>Javob berildi</span><span id="bpStatAnswered" style="color:#059669">0</span></div>
+            <div class="bp-stat-row"><span>Bo'sh qoldi</span><span id="bpStatSkipped" style="color:#D97706">0</span></div>
+            <div class="bp-stat-row"><span>Qolgan vaqt</span><span id="bpStatTime">--:--</span></div>
+        </div>
+
+        <button type="button" class="bp-sidebar-submit" onclick="BattlePlay.showConfirm()">
             <i class="bi bi-send-fill"></i> Yakunlash
         </button>
     </div>
 </div>
 
-<!-- Confirm Modal -->
-<div class="bp-modal-overlay" id="confirmModal">
+<!-- ===== MODAL ===== -->
+<div class="bp-overlay" id="bpOverlay">
     <div class="bp-modal">
         <div class="bp-modal-icon">⚔️</div>
         <h3>Jangni yakunlaysizmi?</h3>
-        <p>Javoblaringiz yuboriladi va natija aniqlanadi.</p>
+        <p>Javoblaringiz yuboriladi va natija aniqlanadi. Bu amalni ortga qaytarib bo'lmaydi.</p>
         <div class="bp-modal-stats">
-            <div class="bp-modal-stat">
-                <strong id="modalAnswered">0</strong>
-                <span>Javob berildi</span>
-            </div>
-            <div class="bp-modal-stat">
-                <strong id="modalSkipped">0</strong>
-                <span>Bo'sh qoldi</span>
-            </div>
+            <div><div class="bp-modal-stat-val green" id="bpModalAnswered">0</div><div class="bp-modal-stat-label">Javob berildi</div></div>
+            <div><div class="bp-modal-stat-val orange" id="bpModalSkipped">0</div><div class="bp-modal-stat-label">Bo'sh qoldi</div></div>
         </div>
         <div class="bp-modal-btns">
-            <button class="bp-modal-btn cancel" onclick="hideConfirm()">Qaytish</button>
-            <button class="bp-modal-btn confirm" onclick="submitBattle()">Tasdiqlash</button>
+            <button class="bp-modal-btn cancel" onclick="BattlePlay.hideConfirm()">Qaytish</button>
+            <button class="bp-modal-btn confirm" onclick="BattlePlay.submit()">✓ Tasdiqlash</button>
         </div>
     </div>
 </div>
 
 <!-- Hidden Form -->
-<form id="submitForm" method="post" action="{% url 'competitions:battle_submit' uuid=battle.uuid %}" style="display:none;">
+<form id="bpForm" method="post" action="{% url 'competitions:battle_submit' uuid=battle.uuid %}" style="display:none">
     {% csrf_token %}
-    <input type="hidden" name="answers" id="answersInput">
-    <input type="hidden" name="time_spent" id="timeSpentInput">
+    <input type="hidden" name="answers" id="bpFormAnswers">
+    <input type="hidden" name="time_spent" id="bpFormTime">
 </form>
+
+<!-- Safe JSON data -->
+{{ questions|json_script:"bpQuestionsData" }}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-(function() {
-    var questions = {{ questions|safe }};
-    var totalQ = {{ battle.question_count }};
-    var remaining = {{ total_time }};
+var BattlePlay = (function() {
+    'use strict';
+
+    var questions = [];
+    try { questions = JSON.parse(document.getElementById('bpQuestionsData').textContent); } catch(e) { console.error('Parse error', e); }
+
+    var totalQ = questions.length;
+    var totalTime = {{ total_time|default:600 }};
+    var remaining = totalTime;
     var answers = {};
     var startTime = Date.now();
     var submitted = false;
+    var timerInterval = null;
     var LETTERS = ['A','B','C','D','E','F','G','H'];
 
-    function render() {
-        var c = document.getElementById('questionsContainer');
-        var m = document.getElementById('questionMap');
-        var h = '', mh = '';
+    function renderQuestions() {
+        var c = document.getElementById('bpQuestions');
+        if (totalQ === 0) {
+            c.innerHTML = '<div class="bp-empty"><div class="bp-empty-icon">⚠️</div><h3>Savollar topilmadi</h3><p>Bu jang uchun savollar hali yuklanmagan.</p></div>';
+            return;
+        }
 
+        var h = '';
         for (var i = 0; i < questions.length; i++) {
             var q = questions[i];
             var done = answers[q.id] !== undefined;
 
-            h += '<div class="bp-question' + (done ? ' answered' : '') + '" id="q-' + q.id + '">';
-            h += '<div class="bp-q-header"><span class="bp-q-num">' + (i+1) + '-savol</span></div>';
-            h += '<div class="bp-q-text">' + q.text + '</div>';
-            if (q.image) h += '<img class="bp-q-image" src="' + q.image + '">';
+            h += '<div class="bp-qcard' + (done ? ' answered' : '') + '" id="bpQ-' + q.id + '">';
+            h += '<div class="bp-qcard-header"><div class="bp-qnum"><span class="bp-qnum-badge">' + (i+1) + '</span>' + (i+1) + '-savol</div>';
+            h += '<span class="bp-qstatus ' + (done ? 'done' : 'empty') + '" id="bpQS-' + q.id + '">' + (done ? '✓ Javob berildi' : 'Javob berilmagan') + '</span></div>';
+            h += '<div class="bp-qcard-body"><div class="bp-qtext">' + q.text + '</div>';
+            if (q.image) h += '<img class="bp-qimage" src="' + q.image + '">';
             h += '<div class="bp-answers">';
 
-            for (var j = 0; j < q.answers.length; j++) {
-                var a = q.answers[j];
-                var sel = answers[q.id] === a.id ? ' selected' : '';
-                h += '<div class="bp-answer' + sel + '" onclick="pick(' + q.id + ',' + a.id + ')" data-q="' + q.id + '" data-a="' + a.id + '">';
+            var ans = q.answers || [];
+            for (var j = 0; j < ans.length; j++) {
+                var a = ans[j];
+                var sel = answers[q.id] === a.id;
+                h += '<div class="bp-answer' + (sel ? ' selected' : '') + '" data-qid="' + q.id + '" data-aid="' + a.id + '" onclick="BattlePlay.pick(' + q.id + ',' + a.id + ')">';
                 h += '<span class="bp-answer-letter">' + LETTERS[j] + '</span>';
-                h += '<span class="bp-answer-radio"></span>';
                 h += '<span class="bp-answer-text">' + a.text + '</span>';
-                h += '</div>';
+                h += '<span class="bp-answer-radio"></span></div>';
             }
-            h += '</div></div>';
-
-            mh += '<button type="button" class="bp-qmap-item' + (done ? ' answered' : '') + '" onclick="goQ(' + q.id + ')" id="m-' + q.id + '">' + (i+1) + '</button>';
+            h += '</div></div></div>';
         }
-
         c.innerHTML = h;
-        m.innerHTML = mh;
     }
 
-    window.pick = function(qId, aId) {
-        if (submitted) return;
-        if (answers[qId] === aId) delete answers[qId]; else answers[qId] = aId;
-
-        var card = document.getElementById('q-' + qId);
-        var els = card.querySelectorAll('.bp-answer');
-        var done = answers[qId] !== undefined;
-        card.classList.toggle('answered', done);
-
-        for (var i = 0; i < els.length; i++) {
-            els[i].classList.toggle('selected', parseInt(els[i].getAttribute('data-a')) === answers[qId]);
+    function renderMap() {
+        var m = document.getElementById('bpMap');
+        var h = '';
+        for (var i = 0; i < questions.length; i++) {
+            var qId = questions[i].id;
+            h += '<button type="button" class="bp-map-btn' + (answers[qId] !== undefined ? ' answered' : '') + '" id="bpM-' + qId + '" onclick="BattlePlay.goTo(' + qId + ')">' + (i+1) + '</button>';
         }
-
-        var mi = document.getElementById('m-' + qId);
-        if (mi) mi.classList.toggle('answered', done);
-        updateUI();
-    };
-
-    window.goQ = function(qId) {
-        var el = document.getElementById('q-' + qId);
-        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
-    };
+        m.innerHTML = h;
+    }
 
     function updateUI() {
         var cnt = Object.keys(answers).length;
-        document.getElementById('answeredCount').textContent = cnt;
-        document.getElementById('progressBar').style.width = (totalQ > 0 ? cnt / totalQ * 100 : 0) + '%';
+        document.getElementById('bpAnswered').textContent = cnt;
+        document.getElementById('bpTotal').textContent = totalQ;
+        document.getElementById('bpProgressBar').style.width = (totalQ > 0 ? cnt / totalQ * 100 : 0) + '%';
+        document.getElementById('bpStatTotal').textContent = totalQ;
+        document.getElementById('bpStatAnswered').textContent = cnt;
+        document.getElementById('bpStatSkipped').textContent = totalQ - cnt;
     }
+
+    function pick(qId, aId) {
+        if (submitted) return;
+        if (answers[qId] === aId) delete answers[qId]; else answers[qId] = aId;
+        var done = answers[qId] !== undefined;
+
+        var card = document.getElementById('bpQ-' + qId);
+        if (card) {
+            card.classList.toggle('answered', done);
+            var qs = document.getElementById('bpQS-' + qId);
+            if (qs) { qs.className = 'bp-qstatus ' + (done ? 'done' : 'empty'); qs.textContent = done ? '✓ Javob berildi' : 'Javob berilmagan'; }
+            var els = card.querySelectorAll('.bp-answer');
+            for (var i = 0; i < els.length; i++) els[i].classList.toggle('selected', parseInt(els[i].getAttribute('data-aid')) === answers[qId]);
+        }
+
+        var mb = document.getElementById('bpM-' + qId);
+        if (mb) mb.classList.toggle('answered', done);
+        updateUI();
+    }
+
+    function goTo(qId) {
+        var el = document.getElementById('bpQ-' + qId);
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+    }
+
+    function fmt(s) { var m = Math.floor(s/60), sec = s%60; return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec; }
 
     function tick() {
         if (submitted) return;
         remaining--;
-        if (remaining <= 0) { submitBattle(); return; }
-
-        var m = Math.floor(remaining / 60), s = remaining % 60;
-        document.getElementById('timerText').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-
-        var t = document.getElementById('timer');
-        t.classList.remove('warning', 'danger');
-        if (remaining <= 30) t.classList.add('danger');
-        else if (remaining <= 120) t.classList.add('warning');
+        if (remaining <= 0) { remaining = 0; doSubmit(); return; }
+        var t = fmt(remaining);
+        document.getElementById('bpTimerText').textContent = t;
+        document.getElementById('bpStatTime').textContent = t;
+        var el = document.getElementById('bpTimer');
+        el.classList.remove('warning','danger');
+        if (remaining <= 30) el.classList.add('danger');
+        else if (remaining <= 120) el.classList.add('warning');
     }
 
-    window.showConfirm = function() {
-        var a = Object.keys(answers).length;
-        document.getElementById('modalAnswered').textContent = a;
-        document.getElementById('modalSkipped').textContent = totalQ - a;
-        document.getElementById('confirmModal').classList.add('show');
-    };
+    function showConfirm() {
+        var c = Object.keys(answers).length;
+        document.getElementById('bpModalAnswered').textContent = c;
+        document.getElementById('bpModalSkipped').textContent = totalQ - c;
+        document.getElementById('bpOverlay').classList.add('show');
+    }
 
-    window.hideConfirm = function() {
-        document.getElementById('confirmModal').classList.remove('show');
-    };
+    function hideConfirm() { document.getElementById('bpOverlay').classList.remove('show'); }
 
-    window.submitBattle = function() {
+    function doSubmit() {
         if (submitted) return;
         submitted = true;
-
+        if (timerInterval) clearInterval(timerInterval);
         var arr = [];
-        for (var qId in answers) {
-            if (answers.hasOwnProperty(qId)) {
-                arr.push({ question_id: parseInt(qId), answer_id: answers[qId] });
-            }
-        }
+        for (var k in answers) { if (answers.hasOwnProperty(k)) arr.push({question_id:parseInt(k),answer_id:answers[k]}); }
+        document.getElementById('bpFormAnswers').value = JSON.stringify(arr);
+        document.getElementById('bpFormTime').value = Math.floor((Date.now()-startTime)/1000);
+        document.getElementById('bpForm').submit();
+    }
 
-        document.getElementById('answersInput').value = JSON.stringify(arr);
-        document.getElementById('timeSpentInput').value = Math.floor((Date.now() - startTime) / 1000);
-        document.getElementById('submitForm').submit();
-    };
-
-    window.addEventListener('beforeunload', function(e) {
-        if (!submitted) { e.preventDefault(); e.returnValue = ''; }
-    });
-
-    render();
+    // INIT
+    renderQuestions();
+    renderMap();
     updateUI();
-    tick();
-    setInterval(tick, 1000);
+    document.getElementById('bpTimerText').textContent = fmt(remaining);
+    document.getElementById('bpStatTime').textContent = fmt(remaining);
+    timerInterval = setInterval(tick, 1000);
+    window.addEventListener('beforeunload', function(e) { if (!submitted) { e.preventDefault(); e.returnValue = ''; }});
+
+    return { pick:pick, goTo:goTo, showConfirm:showConfirm, hideConfirm:hideConfirm, submit:doSubmit };
 })();
 </script>
 {% endblock %}
