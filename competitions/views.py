@@ -861,7 +861,21 @@ def battle_matchmaking(request, subject_id=None):
 
     user = request.user
     user_rating = getattr(user, 'rating', 1000)
-    user_level = getattr(user, 'level', 1)
+
+    # XATOLIK TUZATILDI: user.level 'beginner' (str) bo'lishi mumkin, bizga esa int kerak
+    raw_level = getattr(user, 'level', 1)
+    try:
+        # Agar level raqam bo'lsa o'zi qoladi
+        if isinstance(raw_level, int):
+            user_level = raw_level
+        # Agar raqamli matn bo'lsa (masalan "1") int ga o'giramiz
+        elif str(raw_level).isdigit():
+            user_level = int(raw_level)
+        else:
+            # Agar "beginner" kabi matn bo'lsa, default 1 qilib belgilaymiz
+            user_level = 1
+    except (ValueError, TypeError):
+        user_level = 1
 
     # Avvalgi queue'ni o'chirish
     MatchmakingQueue.objects.filter(user=user).delete()
@@ -915,7 +929,7 @@ def battle_matchmaking(request, subject_id=None):
         user=user,
         subject=subject,
         user_rating=user_rating,
-        user_level=user_level,
+        user_level=user_level,  # Endi bu yerda aniq raqam (int) bo'ladi
         question_count=10,
         expires_at=timezone.now() + timedelta(minutes=5)
     )
