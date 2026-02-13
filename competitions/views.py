@@ -778,7 +778,6 @@ def get_user_friends(user):
     except ImportError:
         return []
 
-
 @login_required
 def battle_create(request):
     """Yangi jang yaratish"""
@@ -802,7 +801,11 @@ def battle_create(request):
                 return redirect('competitions:battle_create')
         elif opponent_type == 'random':
             # Matchmaking queue'ga qo'shish
-            return redirect('competitions:battle_matchmaking', subject_id=subject_id or 0)
+            # FIX: Agar fan tanlangan bo'lsa _subject URL ga, bo'lmasa oddiy URL ga yo'naltiramiz
+            if subject_id:
+                return redirect('competitions:battle_matchmaking_subject', subject_id=subject_id)
+            else:
+                return redirect('competitions:battle_matchmaking')
 
         # Savollarni generatsiya qilish
         questions_data = generate_questions(
