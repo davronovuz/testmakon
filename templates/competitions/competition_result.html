@@ -1,179 +1,196 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Natija - {{ competition.title }} | TestMakon{% endblock %}
+{% block title %}Natija — {{ competition.title }} | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* ========== RESULT HEADER ========== */
-    .cr-header {
-        padding: 3rem 0;
+    .cr-page { padding: 2rem 0 4rem; }
+
+    /* Breadcrumb */
+    .cr-bread {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .cr-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .cr-bread a:hover { text-decoration: underline; }
+
+    /* Layout */
+    .cr-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* ========== RESULT HERO ========== */
+    .cr-hero {
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
         text-align: center;
         position: relative;
         overflow: hidden;
+        margin-bottom: 1.5rem;
     }
 
-    .cr-header.excellent {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    }
+    .cr-hero.excellent { background: linear-gradient(135deg, #10B981, #059669); color: white; }
+    .cr-hero.good { background: linear-gradient(135deg, #3B82F6, #1D4ED8); color: white; }
+    .cr-hero.average { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; }
+    .cr-hero.poor { background: linear-gradient(135deg, #EF4444, #B91C1C); color: white; }
 
-    .cr-header.good {
-        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-    }
-
-    .cr-header.average {
-        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    }
-
-    .cr-header.poor {
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    }
-
-    .cr-header::before {
+    .cr-hero::after {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        right: -40px;
+        top: -40px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    .cr-header-content {
-        position: relative;
-        z-index: 1;
+    .cr-hero-inner { position: relative; z-index: 1; }
+
+    .cr-hero-emoji { font-size: 3.5rem; margin-bottom: 0.75rem; }
+
+    .cr-hero h2 {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 0 0.35rem;
     }
 
-    .cr-badge {
+    .cr-hero-sub {
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.85);
+        margin: 0 0 1.5rem;
+    }
+
+    .cr-hero-rank {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         background: rgba(255,255,255,0.2);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: white;
-        margin-bottom: 1rem;
-    }
-
-    .cr-result-icon {
-        font-size: 5rem;
-        margin-bottom: 1rem;
-        animation: bounceIn 0.6s ease;
-    }
-
-    @keyframes bounceIn {
-        0% { transform: scale(0); opacity: 0; }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); opacity: 1; }
-    }
-
-    .cr-result-title {
-        font-size: 2rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .cr-result-subtitle {
+        padding: 0.6rem 1.25rem;
+        border-radius: 50px;
         font-size: 1.1rem;
-        color: rgba(255,255,255,0.9);
+        font-weight: 900;
         margin-bottom: 1.5rem;
     }
 
-    /* Score Circle */
-    .cr-score-circle {
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        border: 4px solid rgba(255,255,255,0.5);
+    /* Stats row */
+    .cr-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
     }
 
-    .cr-score-value {
-        font-size: 3rem;
-        font-weight: 800;
-        color: white;
+    .cr-stat {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        padding: 1.15rem 0.75rem;
+        text-align: center;
+    }
+
+    .cr-stat-val {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--dark);
         line-height: 1;
     }
 
-    .cr-score-label {
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.9);
-    }
-
-    /* Stats Row */
-    .cr-stats-row {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .cr-stat-item {
-        text-align: center;
-        padding: 1rem 1.5rem;
-        background: rgba(255,255,255,0.15);
-        border-radius: var(--radius-lg);
-    }
-
-    .cr-stat-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: white;
-    }
+    .cr-stat-val.green { color: #059669; }
+    .cr-stat-val.red { color: #DC2626; }
+    .cr-stat-val.blue { color: #2563EB; }
+    .cr-stat-val.primary { color: var(--primary); }
 
     .cr-stat-label {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.9);
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        margin-top: 0.3rem;
     }
 
-    /* ========== CONTENT ========== */
-    .cr-content {
-        padding: 2.5rem 0;
-        background: var(--gray-100);
-    }
-
-    .cr-layout {
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 2rem;
-        max-width: 1100px;
-        margin: 0 auto;
-    }
-
-    @media (max-width: 992px) {
-        .cr-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== CARD ========== */
-    .cr-card {
+    /* ========== DETAIL STATS ========== */
+    .cr-detail {
         background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
         border: 1px solid var(--gray-200);
-        overflow: hidden;
+        border-radius: 16px;
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
     }
 
-    .cr-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
+    .cr-detail h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 1.15rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Progress bars */
+    .cr-bar-row {
+        margin-bottom: 1rem;
+    }
+
+    .cr-bar-row:last-child { margin-bottom: 0; }
+
+    .cr-bar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.4rem;
+    }
+
+    .cr-bar-label { font-size: 0.85rem; font-weight: 600; color: var(--gray-600); }
+    .cr-bar-value { font-size: 0.85rem; font-weight: 800; color: var(--dark); }
+
+    .cr-bar-track {
+        height: 10px;
+        background: var(--gray-100);
+        border-radius: 50px;
+        overflow: hidden;
+    }
+
+    .cr-bar-fill {
+        height: 100%;
+        border-radius: 50px;
+        transition: width 0.8s ease;
+    }
+
+    .cr-bar-fill.green { background: #10B981; }
+    .cr-bar-fill.red { background: #EF4444; }
+    .cr-bar-fill.gray { background: var(--gray-400); }
+
+    /* ========== LEADERBOARD ========== */
+    .cr-lb {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .cr-lb-head {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
 
-    .cr-card-title {
+    .cr-lb-head h3 {
         font-size: 1rem;
-        font-weight: 700;
+        font-weight: 800;
         color: var(--dark);
         margin: 0;
         display: flex;
@@ -181,633 +198,321 @@
         gap: 0.5rem;
     }
 
-    .cr-card-title i {
+    .cr-lb-link {
+        font-size: 0.82rem;
+        font-weight: 600;
         color: var(--primary);
+        text-decoration: none;
     }
 
-    .cr-card-body {
-        padding: 1.5rem;
-    }
+    .cr-lb-link:hover { text-decoration: underline; }
 
-    /* ========== RANK CARD ========== */
-    .cr-rank-card {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .cr-rank-position {
-        font-size: 4rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .cr-rank-number {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
-    }
-
-    .cr-rank-total {
-        font-size: 0.9rem;
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-
-    .cr-rank-badge {
-        display: inline-flex;
+    .cr-lb-row {
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1.25rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 700;
+        gap: 0.75rem;
+        padding: 0.7rem 1.25rem;
+        transition: background 0.15s;
     }
 
-    .cr-rank-badge.gold {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        color: #92400E;
-        border: 1px solid #F59E0B;
-    }
+    .cr-lb-row:hover { background: var(--gray-50); }
+    .cr-lb-row + .cr-lb-row { border-top: 1px solid var(--gray-50); }
+    .cr-lb-row.me { background: rgba(139,197,64,0.06); }
 
-    .cr-rank-badge.silver {
-        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-        color: #374151;
-        border: 1px solid #9CA3AF;
-    }
-
-    .cr-rank-badge.bronze {
-        background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
-        color: #9A3412;
-        border: 1px solid #F97316;
-    }
-
-    .cr-rank-badge.top10 {
-        background: var(--primary-glow);
-        color: var(--primary-dark);
-        border: 1px solid var(--primary);
-    }
-
-    .cr-rank-badge.normal {
+    .cr-lb-rank {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 800;
+        flex-shrink: 0;
         background: var(--gray-100);
         color: var(--gray-600);
-        border: 1px solid var(--gray-300);
     }
 
-    /* ========== DETAILS ========== */
-    .cr-details {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
+    .cr-lb-rank.r1 { background: #FEF3C7; color: #D97706; }
+    .cr-lb-rank.r2 { background: #F1F5F9; color: #64748B; }
+    .cr-lb-rank.r3 { background: #FED7AA; color: #C2410C; }
 
-    @media (max-width: 500px) {
-        .cr-details {
-            grid-template-columns: 1fr;
-        }
-    }
+    .cr-lb-name { flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--dark); }
+    .cr-lb-score { font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+    .cr-lb-time { font-size: 0.78rem; color: var(--gray-400); min-width: 45px; text-align: right; }
 
-    .cr-detail-item {
-        padding: 1.25rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        text-align: center;
-    }
+    /* ========== SIDEBAR ========== */
+    .cr-sidebar { position: sticky; top: 1.5rem; }
 
-    .cr-detail-icon {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .cr-detail-value {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin-bottom: 0.15rem;
-    }
-
-    .cr-detail-value.green { color: #10B981; }
-    .cr-detail-value.red { color: #EF4444; }
-    .cr-detail-value.blue { color: #3B82F6; }
-    .cr-detail-value.purple { color: #8B5CF6; }
-
-    .cr-detail-label {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    /* ========== LEADERBOARD ========== */
-    .cr-leaderboard {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .cr-leader-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.875rem 1rem;
-        border-radius: var(--radius);
-        transition: all 0.2s;
-    }
-
-    .cr-leader-item:hover {
-        background: var(--gray-50);
-    }
-
-    .cr-leader-item.top-1 {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-    }
-
-    .cr-leader-item.top-2 {
-        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-    }
-
-    .cr-leader-item.top-3 {
-        background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
-    }
-
-    .cr-leader-item.you {
-        background: var(--primary-glow);
-        border: 2px solid var(--primary);
-    }
-
-    .cr-leader-rank {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        font-weight: 700;
-        flex-shrink: 0;
-        background: var(--gray-200);
-        color: var(--gray-600);
-    }
-
-    .cr-leader-item.top-1 .cr-leader-rank {
-        background: #F59E0B;
-        color: white;
-    }
-
-    .cr-leader-item.top-2 .cr-leader-rank {
-        background: #9CA3AF;
-        color: white;
-    }
-
-    .cr-leader-item.top-3 .cr-leader-rank {
-        background: #F97316;
-        color: white;
-    }
-
-    .cr-leader-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        color: var(--dark-600);
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .cr-leader-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .cr-leader-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .cr-leader-name {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .cr-leader-stats {
-        font-size: 0.75rem;
-        color: var(--gray-500);
-    }
-
-    .cr-leader-score {
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--dark);
-    }
-
-    /* ========== XP EARNED ========== */
-    .cr-xp-card {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        color: white;
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .cr-xp-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .cr-xp-value {
-        font-size: 2rem;
-        font-weight: 800;
-        margin-bottom: 0.25rem;
-    }
-
-    .cr-xp-label {
-        font-size: 0.85rem;
-        opacity: 0.9;
-    }
-
-    /* ========== ACTIONS ========== */
-    .cr-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .cr-action-btn {
-        padding: 1rem 1.5rem;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-
-    .cr-action-btn.primary {
-        background: var(--gradient-primary);
-        color: white;
-        border: none;
-    }
-
-    .cr-action-btn.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
-        color: white;
-    }
-
-    .cr-action-btn.outline {
+    .cr-card {
         background: var(--white);
-        color: var(--dark-600);
-        border: 2px solid var(--gray-300);
-    }
-
-    .cr-action-btn.outline:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-
-    /* ========== CERTIFICATE ========== */
-    .cr-certificate {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        border: 2px solid #F59E0B;
-        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
         padding: 1.5rem;
-        text-align: center;
+        margin-bottom: 1.25rem;
     }
 
-    .cr-certificate-icon {
-        font-size: 2.5rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .cr-certificate-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #92400E;
-        margin-bottom: 0.25rem;
-    }
-
-    .cr-certificate-desc {
-        font-size: 0.85rem;
-        color: #B45309;
-        margin-bottom: 1rem;
-    }
-
-    .cr-certificate-btn {
-        padding: 0.75rem 1.5rem;
-        background: #F59E0B;
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-weight: 700;
-        display: inline-flex;
+    .cr-card h4 {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 1rem;
+        display: flex;
         align-items: center;
         gap: 0.5rem;
-        transition: all 0.2s;
     }
 
-    .cr-certificate-btn:hover {
-        background: #D97706;
-        color: white;
+    .cr-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
 
-    /* ========== SHARE ========== */
-    .cr-share {
-        text-align: center;
-        padding: 1.5rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-lg);
-    }
-
-    .cr-share-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 1rem;
-    }
-
-    .cr-share-buttons {
+    .cr-info-list li {
         display: flex;
-        justify-content: center;
-        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.65rem 0;
+        font-size: 0.88rem;
     }
 
-    .cr-share-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
+    .cr-info-list li + li { border-top: 1px solid var(--gray-100); }
+    .cr-info-list li span:first-child { color: var(--gray-500); font-weight: 600; }
+    .cr-info-list li span:last-child { color: var(--dark); font-weight: 700; }
+
+    /* Actions */
+    .cr-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
-        color: white;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        text-decoration: none;
         transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 0.65rem;
     }
 
-    .cr-share-btn.telegram { background: #0088cc; }
-    .cr-share-btn.copy { background: var(--gray-600); }
+    .cr-btn.primary { background: var(--gradient-primary); color: white; }
+    .cr-btn.primary:hover { color: white; transform: translateY(-1px); }
+    .cr-btn.outline { background: transparent; border: 2px solid var(--gray-200); color: var(--dark); }
+    .cr-btn.outline:hover { border-color: var(--primary); color: var(--primary); }
 
-    .cr-share-btn:hover {
-        transform: scale(1.1);
-        color: white;
+    /* XP earned */
+    .cr-xp {
+        text-align: center;
+        padding: 1.25rem;
+        background: rgba(139,197,64,0.08);
+        border-radius: 14px;
+        margin-bottom: 1rem;
+    }
+
+    .cr-xp-val { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .cr-xp-label { font-size: 0.82rem; color: var(--gray-500); font-weight: 600; margin-top: 0.15rem; }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .cr-layout { grid-template-columns: 1fr; }
+        .cr-sidebar { position: static; }
+    }
+
+    @media (max-width: 575px) {
+        .cr-stats { grid-template-columns: repeat(2, 1fr); }
+        .cr-hero { padding: 1.75rem 1.25rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="cr-header {% if participant.percentage >= 80 %}excellent{% elif participant.percentage >= 60 %}good{% elif participant.percentage >= 40 %}average{% else %}poor{% endif %}">
+<div class="cr-page">
     <div class="container">
-        <div class="cr-header-content">
-            <div class="cr-badge">
-                <i class="bi bi-trophy"></i>
-                {{ competition.title }}
-            </div>
 
-            <div class="cr-result-icon">
-                {% if participant.percentage >= 80 %}🏆
-                {% elif participant.percentage >= 60 %}🎯
-                {% elif participant.percentage >= 40 %}📊
-                {% else %}📚{% endif %}
-            </div>
-
-            <h1 class="cr-result-title">
-                {% if participant.percentage >= 80 %}Ajoyib natija!
-                {% elif participant.percentage >= 60 %}Yaxshi natija!
-                {% elif participant.percentage >= 40 %}O'rtacha natija
-                {% else %}Mashq qiling!{% endif %}
-            </h1>
-
-            <p class="cr-result-subtitle">
-                {% if participant.percentage >= 80 %}Siz juda zo'r ishladingiz!
-                {% elif participant.percentage >= 60 %}Yaxshi harakat, davom eting!
-                {% elif participant.percentage >= 40 %}Biroz ko'proq mashq qilish kerak
-                {% else %}Ko'proq o'qish va mashq qilish tavsiya etiladi{% endif %}
-            </p>
-
-            <!-- Score Circle -->
-            <div class="cr-score-circle">
-                <div class="cr-score-value">{{ participant.percentage|floatformat:0 }}%</div>
-                <div class="cr-score-label">Foiz</div>
-            </div>
-
-            <!-- Stats Row -->
-            <div class="cr-stats-row">
-                <div class="cr-stat-item">
-                    <div class="cr-stat-value">{{ participant.correct_answers }}</div>
-                    <div class="cr-stat-label">To'g'ri</div>
-                </div>
-                <div class="cr-stat-item">
-                    <div class="cr-stat-value">{{ participant.wrong_answers }}</div>
-                    <div class="cr-stat-label">Noto'g'ri</div>
-                </div>
-                <div class="cr-stat-item">
-                    <div class="cr-stat-value">{{ participant.skipped_answers }}</div>
-                    <div class="cr-stat-label">O'tkazilgan</div>
-                </div>
-                <div class="cr-stat-item">
-                    <div class="cr-stat-value">{{ participant.score }}</div>
-                    <div class="cr-stat-label">Ball</div>
-                </div>
-            </div>
+        <!-- Breadcrumb -->
+        <div class="cr-bread">
+            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="{% url 'competitions:competition_detail' slug=competition.slug %}">{{ competition.title|truncatewords:4 }}</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Natija</span>
         </div>
-    </div>
-</div>
 
-<!-- Content -->
-<div class="cr-content">
-    <div class="container">
         <div class="cr-layout">
-            <!-- Main -->
             <div class="cr-main">
-                <!-- Rank Card -->
-                <div class="cr-card">
-                    <div class="cr-card-body cr-rank-card">
-                        <div class="cr-rank-position">
-                            {% if participant.rank == 1 %}🥇
-                            {% elif participant.rank == 2 %}🥈
-                            {% elif participant.rank == 3 %}🥉
-                            {% elif participant.rank and participant.rank <= 10 %}🏅
-                            {% else %}🎖️{% endif %}
+
+                <!-- Hero -->
+                <div class="cr-hero {% if participant.percentage >= 80 %}excellent{% elif participant.percentage >= 60 %}good{% elif participant.percentage >= 40 %}average{% else %}poor{% endif %}">
+                    <div class="cr-hero-inner">
+                        <div class="cr-hero-emoji">
+                            {% if participant.percentage >= 80 %}🏆{% elif participant.percentage >= 60 %}👍{% elif participant.percentage >= 40 %}📝{% else %}💪{% endif %}
                         </div>
-                        <div class="cr-rank-number">
-                            {% if participant.rank %}#{{ participant.rank }}{% else %}—{% endif %}
+                        <h2>
+                            {% if participant.percentage >= 80 %}Ajoyib natija!
+                            {% elif participant.percentage >= 60 %}Yaxshi natija!
+                            {% elif participant.percentage >= 40 %}O'rtacha natija
+                            {% else %}Mashq qiling!
+                            {% endif %}
+                        </h2>
+                        <p class="cr-hero-sub">{{ competition.title }}</p>
+
+                        {% if participant.rank %}
+                        <div class="cr-hero-rank">
+                            {% if participant.rank == 1 %}🥇{% elif participant.rank == 2 %}🥈{% elif participant.rank == 3 %}🥉{% else %}#{% endif %}
+                            {{ participant.rank }}-o'rin
                         </div>
-                        <div class="cr-rank-total">
-                            {{ leaderboard.count|default:competition.participants_count }} qatnashchi ichida
-                        </div>
-                        <span class="cr-rank-badge {% if participant.rank == 1 %}gold{% elif participant.rank == 2 %}silver{% elif participant.rank == 3 %}bronze{% elif participant.rank and participant.rank <= 10 %}top10{% else %}normal{% endif %}">
-                            {% if participant.rank == 1 %}🥇 Birinchi o'rin
-                            {% elif participant.rank == 2 %}🥈 Ikkinchi o'rin
-                            {% elif participant.rank == 3 %}🥉 Uchinchi o'rin
-                            {% elif participant.rank and participant.rank <= 10 %}🔥 Top 10
-                            {% else %}Qatnashchi{% endif %}
-                        </span>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- Details -->
-                <div class="cr-card">
-                    <div class="cr-card-header">
-                        <h3 class="cr-card-title">
-                            <i class="bi bi-bar-chart"></i>
-                            Batafsil natijalar
-                        </h3>
+                <!-- Stats -->
+                <div class="cr-stats">
+                    <div class="cr-stat">
+                        <div class="cr-stat-val primary">{{ participant.score|floatformat:0 }}</div>
+                        <div class="cr-stat-label">Ball</div>
                     </div>
-                    <div class="cr-card-body">
-                        <div class="cr-details">
-                            <div class="cr-detail-item">
-                                <div class="cr-detail-icon">✅</div>
-                                <div class="cr-detail-value green">{{ participant.correct_answers }}</div>
-                                <div class="cr-detail-label">To'g'ri javoblar</div>
-                            </div>
-                            <div class="cr-detail-item">
-                                <div class="cr-detail-icon">❌</div>
-                                <div class="cr-detail-value red">{{ participant.wrong_answers }}</div>
-                                <div class="cr-detail-label">Noto'g'ri javoblar</div>
-                            </div>
-                            <div class="cr-detail-item">
-                                <div class="cr-detail-icon">⏱️</div>
-                                <div class="cr-detail-value blue">
-                                    {% with mins=participant.time_spent|divisibleby:60 %}
-                                    {{ participant.time_spent|floatformat:0 }}s
-                                    {% endwith %}
-                                </div>
-                                <div class="cr-detail-label">Sarflangan vaqt</div>
-                            </div>
-                            <div class="cr-detail-item">
-                                <div class="cr-detail-icon">📊</div>
-                                <div class="cr-detail-value purple">{{ participant.score }}</div>
-                                <div class="cr-detail-label">Umumiy ball</div>
-                            </div>
+                    <div class="cr-stat">
+                        <div class="cr-stat-val green">{{ participant.correct_answers }}</div>
+                        <div class="cr-stat-label">To'g'ri</div>
+                    </div>
+                    <div class="cr-stat">
+                        <div class="cr-stat-val red">{{ participant.wrong_answers }}</div>
+                        <div class="cr-stat-label">Noto'g'ri</div>
+                    </div>
+                    <div class="cr-stat">
+                        <div class="cr-stat-val blue">{{ participant.percentage|floatformat:0 }}%</div>
+                        <div class="cr-stat-label">Foiz</div>
+                    </div>
+                </div>
+
+                <!-- Detail -->
+                <div class="cr-detail">
+                    <h3><i class="bi bi-bar-chart-fill"></i> Batafsil natija</h3>
+
+                    <div class="cr-bar-row">
+                        <div class="cr-bar-header">
+                            <span class="cr-bar-label">To'g'ri javoblar</span>
+                            <span class="cr-bar-value">{{ participant.correct_answers }} / {{ competition.total_questions }}</span>
+                        </div>
+                        <div class="cr-bar-track">
+                            <div class="cr-bar-fill green" style="width: {% widthratio participant.correct_answers competition.total_questions 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="cr-bar-row">
+                        <div class="cr-bar-header">
+                            <span class="cr-bar-label">Noto'g'ri javoblar</span>
+                            <span class="cr-bar-value">{{ participant.wrong_answers }} / {{ competition.total_questions }}</span>
+                        </div>
+                        <div class="cr-bar-track">
+                            <div class="cr-bar-fill red" style="width: {% widthratio participant.wrong_answers competition.total_questions 100 %}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="cr-bar-row">
+                        <div class="cr-bar-header">
+                            <span class="cr-bar-label">O'tkazib yuborilgan</span>
+                            <span class="cr-bar-value">{{ participant.skipped_answers }} / {{ competition.total_questions }}</span>
+                        </div>
+                        <div class="cr-bar-track">
+                            <div class="cr-bar-fill gray" style="width: {% widthratio participant.skipped_answers competition.total_questions 100 %}%"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Leaderboard -->
-                <div class="cr-card">
-                    <div class="cr-card-header">
-                        <h3 class="cr-card-title">
-                            <i class="bi bi-trophy"></i>
-                            Reyting
-                        </h3>
-                        <a href="{% url 'competitions:competition_leaderboard' slug=competition.slug %}" style="font-size:0.85rem; color:var(--primary);">
-                            To'liq ro'yxat <i class="bi bi-arrow-right"></i>
+                <div class="cr-lb">
+                    <div class="cr-lb-head">
+                        <h3><i class="bi bi-trophy-fill"></i> Reyting (Top 20)</h3>
+                        <a href="{% url 'competitions:competition_leaderboard' slug=competition.slug %}" class="cr-lb-link">
+                            To'liq reyting →
                         </a>
                     </div>
-                    <div class="cr-card-body" style="padding:0.5rem 1rem;">
-                        <div class="cr-leaderboard">
-                            {% for p in leaderboard %}
-                            <div class="cr-leader-item {% if forloop.counter == 1 %}top-1{% elif forloop.counter == 2 %}top-2{% elif forloop.counter == 3 %}top-3{% endif %} {% if p.user == request.user %}you{% endif %}">
-                                <div class="cr-leader-rank">
-                                    {% if forloop.counter == 1 %}🥇
-                                    {% elif forloop.counter == 2 %}🥈
-                                    {% elif forloop.counter == 3 %}🥉
-                                    {% else %}{{ forloop.counter }}{% endif %}
-                                </div>
-                                <div class="cr-leader-avatar">
-                                    {% if p.user.avatar %}
-                                    <img src="{{ p.user.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ p.user.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="cr-leader-info">
-                                    <div class="cr-leader-name">
-                                        {% if p.user == request.user %}Siz{% else %}{{ p.user.first_name }} {{ p.user.last_name|slice:":1" }}.{% endif %}
-                                    </div>
-                                    <div class="cr-leader-stats">
-                                        {{ p.correct_answers }} to'g'ri • {{ p.time_spent }}s
-                                    </div>
-                                </div>
-                                <div class="cr-leader-score">{{ p.score }}</div>
-                            </div>
-                            {% empty %}
-                            <div style="text-align:center; padding:2rem; color:var(--gray-500);">
-                                Ma'lumot yo'q
-                            </div>
-                            {% endfor %}
+                    {% for p in leaderboard %}
+                    <div class="cr-lb-row {% if p.user == request.user %}me{% endif %}">
+                        <div class="cr-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
+                            {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
                         </div>
+                        <span class="cr-lb-name">
+                            {{ p.user.first_name }} {{ p.user.last_name|default:"" }}
+                            {% if p.user == request.user %}<small style="color:var(--primary);">(siz)</small>{% endif %}
+                        </span>
+                        <span class="cr-lb-score">{{ p.score|floatformat:0 }}</span>
+                        <span class="cr-lb-time">{{ p.time_spent }}s</span>
                     </div>
+                    {% empty %}
+                    <div style="padding:2rem;text-align:center;color:var(--gray-400);font-size:0.88rem;">Ma'lumot yo'q</div>
+                    {% endfor %}
                 </div>
+
             </div>
 
             <!-- Sidebar -->
             <div class="cr-sidebar">
-                <!-- XP Earned -->
-                <div class="cr-xp-card">
-                    <div class="cr-xp-icon">⚡</div>
-                    <div class="cr-xp-value">+{{ participant.xp_earned|default:0 }} XP</div>
-                    <div class="cr-xp-label">Yutilgan tajriba</div>
-                </div>
 
-                <!-- Certificate (if available) -->
-                {% if competition.certificate_enabled and participant.rank and participant.rank <= 10 %}
-                <div class="cr-certificate">
-                    <div class="cr-certificate-icon">📜</div>
-                    <div class="cr-certificate-title">Sertifikat tayyor!</div>
-                    <div class="cr-certificate-desc">Yutuqingizni tasdiqlovchi sertifikat</div>
-                    <a href="{% url 'competitions:my_certificates' %}" class="cr-certificate-btn">
-                        <i class="bi bi-download"></i>
-                        Yuklab olish
-                    </a>
+                <!-- XP -->
+                {% if participant.xp_earned > 0 %}
+                <div class="cr-card">
+                    <div class="cr-xp">
+                        <div class="cr-xp-val">+{{ participant.xp_earned }} XP</div>
+                        <div class="cr-xp-label">Olingan tajriba</div>
+                    </div>
                 </div>
                 {% endif %}
 
                 <!-- Actions -->
                 <div class="cr-card">
-                    <div class="cr-card-body">
-                        <div class="cr-actions">
-                            <a href="{% url 'competitions:competition_detail' slug=competition.slug %}" class="cr-action-btn outline">
-                                <i class="bi bi-arrow-left"></i>
-                                Musobaqaga qaytish
-                            </a>
-                            <a href="{% url 'competitions:competitions_list' %}" class="cr-action-btn primary">
-                                <i class="bi bi-trophy"></i>
-                                Boshqa musobaqalar
-                            </a>
-                            {% if competition.allow_review %}
-                            <a href="#" class="cr-action-btn outline">
-                                <i class="bi bi-eye"></i>
-                                Javoblarni ko'rish
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
+                    <h4><i class="bi bi-arrow-right-circle-fill"></i> Keyingi qadam</h4>
+                    <a href="{% url 'competitions:competitions_list' %}" class="cr-btn primary">
+                        <i class="bi bi-trophy-fill"></i> Boshqa musobaqalar
+                    </a>
+                    <a href="{% url 'competitions:competition_leaderboard' slug=competition.slug %}" class="cr-btn outline">
+                        <i class="bi bi-bar-chart-fill"></i> To'liq reyting
+                    </a>
+                    <a href="{% url 'competitions:competition_detail' slug=competition.slug %}" class="cr-btn outline">
+                        <i class="bi bi-arrow-left"></i> Musobaqaga qaytish
+                    </a>
                 </div>
 
-                <!-- Share -->
-                <div class="cr-share">
-                    <div class="cr-share-title">Natijani ulashing</div>
-                    <div class="cr-share-buttons">
-                        <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text=Men TestMakon musobaqasida {{ participant.percentage|floatformat:0 }}% natija oldim! 🏆" target="_blank" class="cr-share-btn telegram">
-                            <i class="bi bi-telegram"></i>
-                        </a>
-                        <button class="cr-share-btn copy" onclick="copyResult()">
-                            <i class="bi bi-link-45deg"></i>
-                        </button>
-                    </div>
+                <!-- Info -->
+                <div class="cr-card">
+                    <h4><i class="bi bi-info-circle-fill"></i> Ma'lumot</h4>
+                    <ul class="cr-info-list">
+                        <li>
+                            <span>Musobaqa</span>
+                            <span>{{ competition.get_competition_type_display }}</span>
+                        </li>
+                        <li>
+                            <span>Jami savollar</span>
+                            <span>{{ competition.total_questions }} ta</span>
+                        </li>
+                        <li>
+                            <span>Vaqt sarflandi</span>
+                            <span>
+                                {% if participant.time_spent >= 60 %}
+                                    {{ participant.time_spent|floatformat:0 }}s (≈{{ participant.time_spent|divisibleby:60 }} daq)
+                                {% else %}
+                                    {{ participant.time_spent }}s
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li>
+                            <span>Sizning o'rningiz</span>
+                            <span style="color: var(--primary); font-weight: 800;">
+                                {% if participant.rank %}#{{ participant.rank }}{% else %}—{% endif %}
+                            </span>
+                        </li>
+                        <li>
+                            <span>Jami qatnashdi</span>
+                            <span>{{ competition.completed_count }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function copyResult() {
-    const text = `Men TestMakon "${document.querySelector('.cr-badge').textContent.trim()}" musobaqasida {{ participant.percentage|floatformat:0 }}% natija oldim! 🏆`;
-    navigator.clipboard.writeText(text);
-    alert('Natija nusxalandi!');
-}
-</script>
 {% endblock %}
