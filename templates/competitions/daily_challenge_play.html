@@ -1,558 +1,691 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Kunlik Challenge | TestMakon{% endblock %}
+{% block title %}📅 Kunlik Challenge | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    .dcp-page {
-        min-height: 100vh;
-        background: var(--gray-50);
-        padding-bottom: 100px;
-    }
+    body { background: #F1F5F9; }
 
-    /* ========== TOP BAR ========== */
-    .dcp-topbar {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 0.75rem 0;
+    /* ========== TOP BAR (STICKY) ========== */
+    .dc-topbar {
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 200;
+        background: #fff;
+        border-bottom: 2px solid #E2E8F0;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
-    .dcp-topbar-inner {
+    .dc-topbar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
+        padding: 0.6rem 0;
+        gap: 0.75rem;
     }
 
-    .dcp-topbar-left {
+    .dc-topbar-left {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
+        gap: 0.6rem;
         min-width: 0;
+        flex-shrink: 1;
     }
 
-    .dcp-topbar-badge {
+    .dc-topbar-badge {
         background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-        color: white;
+        color: #fff;
         font-size: 0.72rem;
         font-weight: 700;
-        padding: 0.3rem 0.7rem;
+        padding: 0.3rem 0.75rem;
         border-radius: 50px;
         white-space: nowrap;
+        flex-shrink: 0;
     }
 
-    .dcp-topbar-title {
-        font-size: 0.95rem;
+    .dc-topbar-title {
+        font-size: 0.9rem;
         font-weight: 700;
-        color: var(--dark);
+        color: #1E293B;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .dcp-topbar-center {
+    .dc-center {
         display: flex;
         align-items: center;
         gap: 1.25rem;
-    }
-
-    .dcp-timer {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--gray-50);
-        padding: 0.5rem 1rem;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--dark);
-        font-variant-numeric: tabular-nums;
-    }
-
-    .dcp-timer i { font-size: 1rem; color: #7C3AED; }
-    .dcp-timer.warning { background: #FEF3C7; color: #D97706; }
-    .dcp-timer.warning i { color: #D97706; }
-    .dcp-timer.danger { background: #FEE2E2; color: #DC2626; animation: dcp-pulse 1s infinite; }
-    .dcp-timer.danger i { color: #DC2626; }
-
-    @keyframes dcp-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-    .dcp-progress-text {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--gray-500);
-        white-space: nowrap;
-    }
-
-    .dcp-progress-text strong { color: #7C3AED; }
-
-    .dcp-submit-top {
-        padding: 0.55rem 1.25rem;
-        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 0.88rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        white-space: nowrap;
-    }
-
-    .dcp-submit-top:hover { box-shadow: 0 4px 14px -3px rgba(124,58,237,0.4); }
-
-    /* Progress Bar */
-    .dcp-progress-bar { height: 3px; background: var(--gray-200); }
-    .dcp-progress-fill { height: 100%; background: linear-gradient(90deg, #8B5CF6, #6D28D9); transition: width 0.3s ease; }
-
-    /* ========== CONTENT ========== */
-    .dcp-content {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-
-    /* Question Card */
-    .dcp-question {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 16px;
-        padding: 1.75rem;
-        margin-bottom: 1.25rem;
-        transition: border-color 0.2s;
-    }
-
-    .dcp-question.answered { border-color: #8B5CF6; }
-
-    .dcp-q-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .dcp-q-num {
-        font-size: 0.82rem;
-        font-weight: 800;
-        color: #7C3AED;
-        background: #EDE9FE;
-        padding: 0.3rem 0.75rem;
-        border-radius: 50px;
-    }
-
-    .dcp-q-text {
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: var(--dark);
-        line-height: 1.7;
-        margin-bottom: 1.25rem;
-    }
-
-    .dcp-q-image {
-        width: 100%;
-        max-height: 300px;
-        object-fit: contain;
-        border-radius: 10px;
-        margin-bottom: 1.25rem;
-        background: var(--gray-50);
-    }
-
-    /* Answers */
-    .dcp-answers { display: flex; flex-direction: column; gap: 0.6rem; }
-
-    .dcp-answer {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-        padding: 0.85rem 1rem;
-        border: 2px solid var(--gray-200);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        user-select: none;
-    }
-
-    .dcp-answer:hover { border-color: var(--gray-300); background: var(--gray-50); }
-
-    .dcp-answer.selected {
-        border-color: #8B5CF6;
-        background: rgba(139,92,246,0.05);
-    }
-
-    .dcp-answer-letter {
-        font-size: 0.82rem;
-        font-weight: 800;
-        color: var(--gray-400);
-        width: 26px;
-        height: 26px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--gray-100);
-        border-radius: 8px;
         flex-shrink: 0;
     }
 
-    .dcp-answer.selected .dcp-answer-letter { background: #8B5CF6; color: white; }
+    .dc-timer {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 1.15rem;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        background: #F1F5F9;
+        color: #1E293B;
+        min-width: 90px;
+        justify-content: center;
+    }
 
-    .dcp-answer-radio {
-        width: 22px;
-        height: 22px;
-        border: 2px solid var(--gray-300);
+    .dc-timer i { font-size: 0.9rem; color: #7C3AED; }
+    .dc-timer.warning { background: #FEF3C7; color: #B45309; }
+    .dc-timer.warning i { color: #B45309; }
+    .dc-timer.danger { background: #FEE2E2; color: #DC2626; animation: dc-pulse 0.8s ease infinite; }
+    .dc-timer.danger i { color: #DC2626; }
+
+    @keyframes dc-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+
+    .dc-progress-info {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #64748B;
+    }
+
+    .dc-progress-info strong { color: #7C3AED; font-size: 1rem; }
+
+    .dc-submit-top {
+        padding: 0.55rem 1.25rem;
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .dc-submit-top:hover { box-shadow: 0 4px 16px -3px rgba(124,58,237,0.45); transform: translateY(-1px); }
+
+    .dc-progress-bar { height: 3px; background: #E2E8F0; }
+    .dc-progress-fill { height: 100%; background: linear-gradient(90deg, #8B5CF6, #6D28D9); transition: width 0.4s ease; border-radius: 0 3px 3px 0; }
+
+    /* ========== MAIN LAYOUT ========== */
+    .dc-layout {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        gap: 1.5rem;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 6rem;
+    }
+
+    /* ========== QUESTIONS ========== */
+    .dc-questions { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .dc-qcard {
+        background: #fff;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: border-color 0.25s;
+    }
+
+    .dc-qcard.answered { border-color: #8B5CF6; }
+
+    .dc-qcard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 1.25rem;
+        background: #F8FAFC;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .dc-qnum {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        font-weight: 800;
+        color: #1E293B;
+    }
+
+    .dc-qnum-badge {
+        width: 30px;
+        height: 30px;
+        background: #7C3AED;
+        color: #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 800;
+    }
+
+    .dc-qstatus {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.7rem;
+        border-radius: 50px;
+    }
+
+    .dc-qstatus.done { background: #D1FAE5; color: #059669; }
+    .dc-qstatus.empty { background: #F1F5F9; color: #94A3B8; }
+
+    .dc-qcard-body { padding: 1.5rem 1.25rem; }
+
+    .dc-qtext {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #1E293B;
+        line-height: 1.75;
+        margin-bottom: 1.25rem;
+    }
+
+    .dc-qimage {
+        width: 100%;
+        max-height: 320px;
+        object-fit: contain;
+        border-radius: 12px;
+        margin-bottom: 1.25rem;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+    }
+
+    .dc-answers { display: flex; flex-direction: column; gap: 0.55rem; }
+
+    .dc-answer {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.9rem 1.1rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+        background: #fff;
+    }
+
+    .dc-answer:hover { border-color: #CBD5E1; background: #F8FAFC; }
+
+    .dc-answer.selected {
+        border-color: #8B5CF6;
+        background: rgba(139,92,246,0.04);
+        box-shadow: 0 0 0 1px rgba(139,92,246,0.1);
+    }
+
+    .dc-answer-letter {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 800;
+        background: #F1F5F9;
+        color: #64748B;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .dc-answer.selected .dc-answer-letter { background: #7C3AED; color: #fff; }
+
+    .dc-answer-radio {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #CBD5E1;
         border-radius: 50%;
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
+        margin-left: auto;
     }
 
-    .dcp-answer.selected .dcp-answer-radio { border-color: #8B5CF6; background: #8B5CF6; }
-    .dcp-answer.selected .dcp-answer-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+    .dc-answer.selected .dc-answer-radio { border-color: #7C3AED; background: #7C3AED; }
+    .dc-answer.selected .dc-answer-radio::after { content: ''; width: 7px; height: 7px; background: #fff; border-radius: 50%; }
 
-    .dcp-answer-text { font-size: 0.95rem; color: var(--dark); line-height: 1.5; flex: 1; }
-
-    /* ========== BOTTOM BAR ========== */
-    .dcp-bottombar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--white);
-        border-top: 1px solid var(--gray-200);
-        padding: 0.85rem 0;
-        z-index: 100;
+    .dc-answer-text {
+        font-size: 0.95rem;
+        color: #334155;
+        line-height: 1.5;
+        flex: 1;
     }
 
-    .dcp-bottom-inner {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 1rem;
+    .dc-answer.selected .dc-answer-text { color: #1E293B; font-weight: 600; }
+
+    /* ========== SIDEBAR ========== */
+    .dc-sidebar {
+        position: sticky;
+        top: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-self: start;
+    }
+
+    .dc-map-card {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 1.15rem;
+    }
+
+    .dc-map-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #1E293B;
+        margin-bottom: 0.85rem;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
+        gap: 0.4rem;
     }
 
-    .dcp-qmap {
-        display: flex;
-        gap: 0.35rem;
-        flex-wrap: wrap;
-        flex: 1;
-        max-height: 36px;
-        overflow: hidden;
+    .dc-map-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.4rem;
     }
 
-    .dcp-qmap-item {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
+    .dc-map-btn {
+        width: 100%;
+        aspect-ratio: 1;
+        border: 2px solid #E2E8F0;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.72rem;
+        font-size: 0.78rem;
         font-weight: 700;
-        cursor: pointer;
-        background: var(--gray-100);
-        color: var(--gray-500);
-        border: none;
-        transition: all 0.15s;
-    }
-
-    .dcp-qmap-item:hover { background: var(--gray-200); }
-    .dcp-qmap-item.answered { background: #8B5CF6; color: white; }
-
-    .dcp-submit-btn {
-        padding: 0.7rem 1.75rem;
-        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 0.92rem;
-        font-weight: 700;
+        color: #94A3B8;
+        background: #F8FAFC;
         cursor: pointer;
         transition: all 0.2s;
-        white-space: nowrap;
-        flex-shrink: 0;
     }
 
-    .dcp-submit-btn:hover { box-shadow: 0 4px 14px -3px rgba(124,58,237,0.4); }
+    .dc-map-btn:hover { border-color: #CBD5E1; background: #F1F5F9; }
+    .dc-map-btn.answered { background: #7C3AED; color: #fff; border-color: #7C3AED; }
+
+    .dc-stats-card {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 1.15rem;
+    }
+
+    .dc-stats-title { font-size: 0.85rem; font-weight: 800; color: #1E293B; margin-bottom: 0.75rem; }
+
+    .dc-stat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.85rem;
+    }
+
+    .dc-stat-row + .dc-stat-row { border-top: 1px solid #F1F5F9; }
+    .dc-stat-row span:first-child { color: #64748B; font-weight: 600; }
+    .dc-stat-row span:last-child { color: #1E293B; font-weight: 800; }
+
+    /* Info card */
+    .dc-info-card {
+        background: #EDE9FE;
+        border: 1px solid #DDD6FE;
+        border-radius: 16px;
+        padding: 1rem;
+    }
+
+    .dc-info-title {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: #6D28D9;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .dc-info-text { font-size: 0.78rem; color: #5B21B6; line-height: 1.5; margin: 0; }
+
+    .dc-sidebar-submit {
+        width: 100%;
+        padding: 0.85rem;
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .dc-sidebar-submit:hover { box-shadow: 0 6px 20px -4px rgba(124,58,237,0.45); transform: translateY(-1px); }
 
     /* ========== CONFIRM MODAL ========== */
-    .dcp-modal-overlay {
+    .dc-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 300;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(4px);
+        z-index: 500;
         display: none;
         align-items: center;
         justify-content: center;
         padding: 1rem;
     }
 
-    .dcp-modal-overlay.show { display: flex; }
+    .dc-overlay.show { display: flex; }
 
-    .dcp-modal {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        max-width: 400px;
+    .dc-modal {
+        background: #fff;
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        max-width: 420px;
         width: 100%;
         text-align: center;
+        animation: dc-modal-in 0.25s ease;
     }
 
-    .dcp-modal-icon { font-size: 3rem; margin-bottom: 1rem; }
-    .dcp-modal h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
-    .dcp-modal p { font-size: 0.9rem; color: var(--gray-500); margin: 0 0 1.5rem; }
+    @keyframes dc-modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
 
-    .dcp-modal-stats {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        margin-bottom: 1.5rem;
-    }
+    .dc-modal-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .dc-modal h3 { font-size: 1.2rem; font-weight: 900; color: #1E293B; margin: 0 0 0.4rem; }
+    .dc-modal p { font-size: 0.9rem; color: #64748B; margin: 0 0 1.5rem; line-height: 1.5; }
 
-    .dcp-modal-stat strong { display: block; font-size: 1.25rem; font-weight: 800; color: var(--dark); }
-    .dcp-modal-stat span { font-size: 0.78rem; color: var(--gray-500); }
+    .dc-modal-stats { display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 1.75rem; }
+    .dc-modal-stat-val { font-size: 1.75rem; font-weight: 900; }
+    .dc-modal-stat-val.green { color: #059669; }
+    .dc-modal-stat-val.orange { color: #D97706; }
+    .dc-modal-stat-label { font-size: 0.78rem; color: #94A3B8; font-weight: 600; }
 
-    .dcp-modal-btns { display: flex; gap: 0.75rem; }
+    .dc-modal-btns { display: flex; gap: 0.75rem; }
 
-    .dcp-modal-btn {
+    .dc-modal-btn {
         flex: 1;
-        padding: 0.75rem;
+        padding: 0.8rem;
         border-radius: 12px;
-        font-size: 0.9rem;
+        font-size: 0.92rem;
         font-weight: 700;
+        border: none;
         cursor: pointer;
         transition: all 0.2s;
-        border: none;
     }
 
-    .dcp-modal-btn.cancel { background: var(--gray-100); color: var(--dark); }
-    .dcp-modal-btn.cancel:hover { background: var(--gray-200); }
-    .dcp-modal-btn.confirm { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; }
+    .dc-modal-btn.cancel { background: #F1F5F9; color: #475569; }
+    .dc-modal-btn.cancel:hover { background: #E2E8F0; }
+    .dc-modal-btn.confirm { background: linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff; }
+    .dc-modal-btn.confirm:hover { box-shadow: 0 4px 14px -3px rgba(124,58,237,0.4); }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .dcp-topbar-title { display: none; }
-        .dcp-content { padding: 1.25rem 0.75rem; }
-        .dcp-question { padding: 1.25rem; }
+    /* Empty */
+    .dc-empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #fff;
+        border-radius: 16px;
+        border: 2px dashed #E2E8F0;
+    }
+
+    .dc-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .dc-empty h3 { font-size: 1.1rem; font-weight: 800; color: #1E293B; margin: 0 0 0.5rem; }
+    .dc-empty p { font-size: 0.9rem; color: #94A3B8; margin: 0; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 868px) {
+        .dc-layout { grid-template-columns: 1fr; }
+        .dc-sidebar { position: static; }
+        .dc-topbar-title { max-width: 120px; }
     }
 
     @media (max-width: 480px) {
-        .dcp-submit-top { display: none; }
+        .dc-submit-top { display: none; }
+        .dc-center { gap: 0.65rem; }
+        .dc-timer { font-size: 1rem; padding: 0.4rem 0.75rem; min-width: 76px; }
+        .dc-qcard-body { padding: 1rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Top Bar -->
-<div class="dcp-topbar">
+<!-- ===== TOP BAR ===== -->
+<div class="dc-topbar">
     <div class="container">
-        <div class="dcp-topbar-inner">
-            <div class="dcp-topbar-left">
-                <span class="dcp-topbar-badge">📅 Challenge</span>
-                <span class="dcp-topbar-title">{{ challenge.subject.name|default:"Umumiy" }}</span>
+        <div class="dc-topbar-inner">
+            <div class="dc-topbar-left">
+                <span class="dc-topbar-badge">📅 Challenge</span>
+                <span class="dc-topbar-title">{{ challenge.subject.name|default:"Umumiy" }}</span>
             </div>
-            <div class="dcp-topbar-center">
-                <div class="dcp-timer" id="timer">
+
+            <div class="dc-center">
+                <div class="dc-timer" id="dcTimer">
                     <i class="bi bi-clock-fill"></i>
-                    <span id="timerText">00:00</span>
+                    <span id="dcTimerText">--:--</span>
                 </div>
-                <div class="dcp-progress-text">
-                    <strong id="answeredCount">0</strong> / {{ challenge.question_count }}
+                <div class="dc-progress-info">
+                    <strong id="dcAnswered">0</strong> / <span id="dcTotal">0</span>
                 </div>
             </div>
-            <button type="button" class="dcp-submit-top" onclick="showConfirm()">
-                Yakunlash
+
+            <button type="button" class="dc-submit-top" onclick="DcPlay.showConfirm()">
+                <i class="bi bi-send-fill"></i> Yakunlash
             </button>
         </div>
     </div>
-    <div class="dcp-progress-bar">
-        <div class="dcp-progress-fill" id="progressBar" style="width: 0%"></div>
+    <div class="dc-progress-bar">
+        <div class="dc-progress-fill" id="dcProgressBar" style="width:0%"></div>
     </div>
 </div>
 
-<div class="dcp-page">
-    <div class="dcp-content" id="questionsContainer"></div>
-</div>
+<!-- ===== MAIN ===== -->
+<div class="dc-layout">
+    <div class="dc-questions" id="dcQuestions"></div>
 
-<!-- Bottom Bar -->
-<div class="dcp-bottombar">
-    <div class="dcp-bottom-inner">
-        <div class="dcp-qmap" id="questionMap"></div>
-        <button type="button" class="dcp-submit-btn" onclick="showConfirm()">
+    <div class="dc-sidebar">
+        <div class="dc-map-card">
+            <div class="dc-map-title"><i class="bi bi-grid-3x3-gap-fill"></i> Savollar xaritasi</div>
+            <div class="dc-map-grid" id="dcMap"></div>
+        </div>
+
+        <div class="dc-stats-card">
+            <div class="dc-stats-title">📊 Statistika</div>
+            <div class="dc-stat-row"><span>Jami savollar</span><span id="dcStatTotal">0</span></div>
+            <div class="dc-stat-row"><span>Javob berildi</span><span id="dcStatAnswered" style="color:#059669">0</span></div>
+            <div class="dc-stat-row"><span>Bo'sh qoldi</span><span id="dcStatSkipped" style="color:#D97706">0</span></div>
+            <div class="dc-stat-row"><span>Qolgan vaqt</span><span id="dcStatTime">--:--</span></div>
+        </div>
+
+        <div class="dc-info-card">
+            <div class="dc-info-title"><i class="bi bi-info-circle-fill"></i> Kunlik Challenge</div>
+            <p class="dc-info-text">Har kuni yangi savollar! Tez va to'g'ri javob bering — ko'proq XP oling. Natijalar yakunlangandan so'ng ko'rinadi.</p>
+        </div>
+
+        <button type="button" class="dc-sidebar-submit" onclick="DcPlay.showConfirm()">
             <i class="bi bi-send-fill"></i> Yakunlash
         </button>
     </div>
 </div>
 
-<!-- Confirm Modal -->
-<div class="dcp-modal-overlay" id="confirmModal">
-    <div class="dcp-modal">
-        <div class="dcp-modal-icon">📋</div>
+<!-- ===== MODAL ===== -->
+<div class="dc-overlay" id="dcOverlay">
+    <div class="dc-modal">
+        <div class="dc-modal-icon">📅</div>
         <h3>Challenge yakunlansimi?</h3>
-        <p>Javoblaringiz yuboriladi. Qayta yechish imkoni yo'q.</p>
-        <div class="dcp-modal-stats">
-            <div class="dcp-modal-stat">
-                <strong id="modalAnswered">0</strong>
-                <span>Javob berildi</span>
-            </div>
-            <div class="dcp-modal-stat">
-                <strong id="modalSkipped">0</strong>
-                <span>Bo'sh qoldi</span>
-            </div>
+        <p>Javoblaringiz yuboriladi va natija aniqlanadi. Qayta yechish imkoni yo'q.</p>
+        <div class="dc-modal-stats">
+            <div><div class="dc-modal-stat-val green" id="dcModalAnswered">0</div><div class="dc-modal-stat-label">Javob berildi</div></div>
+            <div><div class="dc-modal-stat-val orange" id="dcModalSkipped">0</div><div class="dc-modal-stat-label">Bo'sh qoldi</div></div>
         </div>
-        <div class="dcp-modal-btns">
-            <button class="dcp-modal-btn cancel" onclick="hideConfirm()">Qaytish</button>
-            <button class="dcp-modal-btn confirm" onclick="submitChallenge()">Tasdiqlash</button>
+        <div class="dc-modal-btns">
+            <button class="dc-modal-btn cancel" onclick="DcPlay.hideConfirm()">Qaytish</button>
+            <button class="dc-modal-btn confirm" onclick="DcPlay.submit()">✓ Tasdiqlash</button>
         </div>
     </div>
 </div>
 
 <!-- Hidden Form -->
-<form id="submitForm" method="post" action="{% url 'competitions:daily_challenge_submit' %}" style="display:none;">
+<form id="dcForm" method="post" action="{% url 'competitions:daily_challenge_submit' %}" style="display:none">
     {% csrf_token %}
-    <input type="hidden" name="answers" id="answersInput">
-    <input type="hidden" name="time_spent" id="timeSpentInput">
+    <input type="hidden" name="answers" id="dcFormAnswers">
+    <input type="hidden" name="time_spent" id="dcFormTime">
 </form>
+
+<!-- Safe JSON data -->
+{{ questions_data|json_script:"dcQuestionsData" }}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-(function() {
-    var questions = {{ questions_data|safe }};
-    var totalQ = {{ challenge.question_count }};
-    var remaining = {{ remaining_time }};
+var DcPlay = (function() {
+    'use strict';
+
+    var questions = [];
+    try { questions = JSON.parse(document.getElementById('dcQuestionsData').textContent); } catch(e) { console.error('Parse error', e); }
+
+    var totalQ = questions.length;
+    var totalTime = {{ remaining_time|default:600 }};
+    var remaining = totalTime;
     var answers = {};
     var startTime = Date.now();
     var submitted = false;
+    var timerInterval = null;
     var LETTERS = ['A','B','C','D','E','F','G','H'];
 
-    // Render
-    function render() {
-        var container = document.getElementById('questionsContainer');
-        var mapEl = document.getElementById('questionMap');
-        var html = '';
-        var mapH = '';
+    function renderQuestions() {
+        var c = document.getElementById('dcQuestions');
+        if (totalQ === 0) {
+            c.innerHTML = '<div class="dc-empty"><div class="dc-empty-icon">⚠️</div><h3>Savollar topilmadi</h3><p>Bugungi challenge uchun savollar hali yuklanmagan.</p></div>';
+            return;
+        }
 
+        var h = '';
         for (var i = 0; i < questions.length; i++) {
             var q = questions[i];
             var done = answers[q.id] !== undefined;
 
-            html += '<div class="dcp-question' + (done ? ' answered' : '') + '" id="q-' + q.id + '">';
-            html += '<div class="dcp-q-header"><span class="dcp-q-num">' + (i+1) + '-savol</span></div>';
-            html += '<div class="dcp-q-text">' + q.text + '</div>';
-            if (q.image) html += '<img class="dcp-q-image" src="' + q.image + '">';
-            html += '<div class="dcp-answers">';
+            h += '<div class="dc-qcard' + (done ? ' answered' : '') + '" id="dcQ-' + q.id + '">';
+            h += '<div class="dc-qcard-header"><div class="dc-qnum"><span class="dc-qnum-badge">' + (i+1) + '</span>' + (i+1) + '-savol</div>';
+            h += '<span class="dc-qstatus ' + (done ? 'done' : 'empty') + '" id="dcQS-' + q.id + '">' + (done ? '✓ Javob berildi' : 'Javob berilmagan') + '</span></div>';
+            h += '<div class="dc-qcard-body"><div class="dc-qtext">' + q.text + '</div>';
+            if (q.image) h += '<img class="dc-qimage" src="' + q.image + '">';
+            h += '<div class="dc-answers">';
 
-            for (var j = 0; j < q.answers.length; j++) {
-                var a = q.answers[j];
-                var sel = answers[q.id] === a.id ? ' selected' : '';
-                html += '<div class="dcp-answer' + sel + '" onclick="pick(' + q.id + ',' + a.id + ')" data-q="' + q.id + '" data-a="' + a.id + '">';
-                html += '<span class="dcp-answer-letter">' + LETTERS[j] + '</span>';
-                html += '<span class="dcp-answer-radio"></span>';
-                html += '<span class="dcp-answer-text">' + a.text + '</span>';
-                html += '</div>';
+            var ans = q.answers || [];
+            for (var j = 0; j < ans.length; j++) {
+                var a = ans[j];
+                var sel = answers[q.id] === a.id;
+                h += '<div class="dc-answer' + (sel ? ' selected' : '') + '" data-qid="' + q.id + '" data-aid="' + a.id + '" onclick="DcPlay.pick(' + q.id + ',' + a.id + ')">';
+                h += '<span class="dc-answer-letter">' + LETTERS[j] + '</span>';
+                h += '<span class="dc-answer-text">' + a.text + '</span>';
+                h += '<span class="dc-answer-radio"></span></div>';
             }
-
-            html += '</div></div>';
-            mapH += '<button type="button" class="dcp-qmap-item' + (done ? ' answered' : '') + '" onclick="goQ(' + q.id + ')" id="m-' + q.id + '">' + (i+1) + '</button>';
+            h += '</div></div></div>';
         }
-
-        container.innerHTML = html;
-        mapEl.innerHTML = mapH;
+        c.innerHTML = h;
     }
 
-    window.pick = function(qId, aId) {
-        if (submitted) return;
-        if (answers[qId] === aId) { delete answers[qId]; } else { answers[qId] = aId; }
-
-        var card = document.getElementById('q-' + qId);
-        var els = card.querySelectorAll('.dcp-answer');
-        var done = answers[qId] !== undefined;
-        card.classList.toggle('answered', done);
-
-        for (var i = 0; i < els.length; i++) {
-            els[i].classList.toggle('selected', parseInt(els[i].getAttribute('data-a')) === answers[qId]);
+    function renderMap() {
+        var m = document.getElementById('dcMap');
+        var h = '';
+        for (var i = 0; i < questions.length; i++) {
+            var qId = questions[i].id;
+            h += '<button type="button" class="dc-map-btn' + (answers[qId] !== undefined ? ' answered' : '') + '" id="dcM-' + qId + '" onclick="DcPlay.goTo(' + qId + ')">' + (i+1) + '</button>';
         }
-
-        var m = document.getElementById('m-' + qId);
-        if (m) m.classList.toggle('answered', done);
-        updateUI();
-    };
-
-    window.goQ = function(qId) {
-        var el = document.getElementById('q-' + qId);
-        if (el) {
-            var top = el.getBoundingClientRect().top + window.pageYOffset - 80;
-            window.scrollTo({ top: top, behavior: 'smooth' });
-        }
-    };
+        m.innerHTML = h;
+    }
 
     function updateUI() {
-        var count = Object.keys(answers).length;
-        document.getElementById('answeredCount').textContent = count;
-        document.getElementById('progressBar').style.width = (totalQ > 0 ? count/totalQ*100 : 0) + '%';
+        var cnt = Object.keys(answers).length;
+        document.getElementById('dcAnswered').textContent = cnt;
+        document.getElementById('dcTotal').textContent = totalQ;
+        document.getElementById('dcProgressBar').style.width = (totalQ > 0 ? cnt / totalQ * 100 : 0) + '%';
+        document.getElementById('dcStatTotal').textContent = totalQ;
+        document.getElementById('dcStatAnswered').textContent = cnt;
+        document.getElementById('dcStatSkipped').textContent = totalQ - cnt;
     }
 
-    // Timer
+    function pick(qId, aId) {
+        if (submitted) return;
+        if (answers[qId] === aId) delete answers[qId]; else answers[qId] = aId;
+        var done = answers[qId] !== undefined;
+
+        var card = document.getElementById('dcQ-' + qId);
+        if (card) {
+            card.classList.toggle('answered', done);
+            var qs = document.getElementById('dcQS-' + qId);
+            if (qs) { qs.className = 'dc-qstatus ' + (done ? 'done' : 'empty'); qs.textContent = done ? '✓ Javob berildi' : 'Javob berilmagan'; }
+            var els = card.querySelectorAll('.dc-answer');
+            for (var i = 0; i < els.length; i++) els[i].classList.toggle('selected', parseInt(els[i].getAttribute('data-aid')) === answers[qId]);
+        }
+
+        var mb = document.getElementById('dcM-' + qId);
+        if (mb) mb.classList.toggle('answered', done);
+        updateUI();
+    }
+
+    function goTo(qId) {
+        var el = document.getElementById('dcQ-' + qId);
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+    }
+
+    function fmt(s) {
+        var m = Math.floor(s / 60), sec = s % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
     function tick() {
         if (submitted) return;
         remaining--;
-        if (remaining <= 0) { submitChallenge(); return; }
-
-        var m = Math.floor(remaining / 60);
-        var s = remaining % 60;
-        document.getElementById('timerText').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-
-        var t = document.getElementById('timer');
-        t.classList.remove('warning','danger');
-        if (remaining <= 60) t.classList.add('danger');
-        else if (remaining <= 300) t.classList.add('warning');
+        if (remaining <= 0) { remaining = 0; doSubmit(); return; }
+        var t = fmt(remaining);
+        document.getElementById('dcTimerText').textContent = t;
+        document.getElementById('dcStatTime').textContent = t;
+        var el = document.getElementById('dcTimer');
+        el.classList.remove('warning','danger');
+        if (remaining <= 30) el.classList.add('danger');
+        else if (remaining <= 120) el.classList.add('warning');
     }
 
-    // Confirm
-    window.showConfirm = function() {
-        var a = Object.keys(answers).length;
-        document.getElementById('modalAnswered').textContent = a;
-        document.getElementById('modalSkipped').textContent = totalQ - a;
-        document.getElementById('confirmModal').classList.add('show');
-    };
+    function showConfirm() {
+        var c = Object.keys(answers).length;
+        document.getElementById('dcModalAnswered').textContent = c;
+        document.getElementById('dcModalSkipped').textContent = totalQ - c;
+        document.getElementById('dcOverlay').classList.add('show');
+    }
 
-    window.hideConfirm = function() {
-        document.getElementById('confirmModal').classList.remove('show');
-    };
+    function hideConfirm() { document.getElementById('dcOverlay').classList.remove('show'); }
 
-    // Submit
-    window.submitChallenge = function() {
+    function doSubmit() {
         if (submitted) return;
         submitted = true;
-
+        if (timerInterval) clearInterval(timerInterval);
         var arr = [];
-        for (var qId in answers) {
-            if (answers.hasOwnProperty(qId)) {
-                arr.push({ question_id: parseInt(qId), answer_id: answers[qId] });
-            }
-        }
+        for (var k in answers) { if (answers.hasOwnProperty(k)) arr.push({question_id:parseInt(k),answer_id:answers[k]}); }
+        document.getElementById('dcFormAnswers').value = JSON.stringify(arr);
+        document.getElementById('dcFormTime').value = Math.floor((Date.now()-startTime)/1000);
+        document.getElementById('dcForm').submit();
+    }
 
-        document.getElementById('answersInput').value = JSON.stringify(arr);
-        document.getElementById('timeSpentInput').value = Math.floor((Date.now() - startTime) / 1000);
-        document.getElementById('submitForm').submit();
-    };
-
-    // Prevent leave
-    window.addEventListener('beforeunload', function(e) {
-        if (!submitted) { e.preventDefault(); e.returnValue = ''; }
-    });
-
-    render();
+    // INIT
+    renderQuestions();
+    renderMap();
     updateUI();
-    tick();
-    setInterval(tick, 1000);
+    document.getElementById('dcTimerText').textContent = fmt(remaining);
+    document.getElementById('dcStatTime').textContent = fmt(remaining);
+    timerInterval = setInterval(tick, 1000);
+    window.addEventListener('beforeunload', function(e) { if (!submitted) { e.preventDefault(); e.returnValue = ''; }});
+
+    return { pick:pick, goTo:goTo, showConfirm:showConfirm, hideConfirm:hideConfirm, submit:doSubmit };
 })();
 </script>
 {% endblock %}
