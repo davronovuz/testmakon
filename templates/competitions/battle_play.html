@@ -1,573 +1,564 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Jang: {{ battle.challenger.first_name }} vs {% if battle.opponent %}{{ battle.opponent.first_name }}{% else %}Bot{% endif %} | TestMakon{% endblock %}
+{% block title %}Jang — {{ battle.subject.name|default:"Umumiy" }} | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* ========== PROFESSIONAL BATTLE INTEGRATION ========== */
-    .page-content { padding: 0; }
-    .test-fullscreen .navbar, .test-fullscreen .footer { display: none; }
-
-    .test-container {
-        display: flex;
-        flex-direction: column;
+    .bp-page {
         min-height: 100vh;
         background: var(--gray-50);
-        font-family: 'Inter', sans-serif;
+        padding-bottom: 100px;
     }
 
-    /* ========== BATTLE TOPBAR (1v1 Matchup) ========== */
-    .test-topbar {
+    /* ========== TOP BAR ========== */
+    .bp-topbar {
         background: var(--white);
         border-bottom: 1px solid var(--gray-200);
-        padding: 0.75rem 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        padding: 0.65rem 0;
         position: sticky;
         top: 0;
-        z-index: 1000;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    .matchup-card {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 1rem;
-        border-radius: 12px;
-        background: var(--gray-50);
-        border: 1px solid var(--gray-200);
-        min-width: 200px;
-        transition: all 0.3s ease;
-    }
-
-    .matchup-card.active {
-        border-color: var(--primary);
-        background: rgba(139, 197, 64, 0.1);
-        box-shadow: 0 0 0 2px rgba(139, 197, 64, 0.2);
-    }
-
-    .matchup-info { line-height: 1.2; }
-    .matchup-name { font-size: 0.9rem; font-weight: 800; color: var(--dark); }
-    .matchup-status { font-size: 0.75rem; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* Timer in center */
-    .test-timer {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1.5rem;
-        background: var(--dark);
-        color: white;
-        border-radius: 12px;
-        font-size: 1.4rem;
-        font-weight: 800;
-        font-family: 'Monaco', 'Courier New', monospace;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .test-timer.danger {
-        background: #EF4444;
-        animation: pulse-red 1s infinite;
-    }
-
-    @keyframes pulse-red {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-        50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-        100% { transform: scale(1); }
-    }
-
-    /* ========== MAIN LAYOUT ========== */
-    .test-main { flex: 1; display: flex; overflow: hidden; position: relative; }
-
-    /* Sidebar */
-    .test-sidebar {
-        width: 300px;
-        background: var(--white);
-        border-right: 1px solid var(--gray-200);
-        display: flex;
-        flex-direction: column;
         z-index: 100;
     }
 
-    .sidebar-header {
-        padding: 1.5rem 1.5rem 0.5rem;
+    .bp-topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }
 
-    .sidebar-questions { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
-    .sidebar-question-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    /* VS header */
+    .bp-vs {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+    }
 
-    .sidebar-q-btn {
-        aspect-ratio: 1;
-        border: 2px solid var(--gray-200);
-        border-radius: 10px;
-        background: var(--white);
-        color: var(--gray-500);
-        font-weight: 700;
-        font-size: 0.9rem;
-        cursor: pointer;
+    .bp-vs-player {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .bp-vs-avatar {
+        width: 32px;
+        height: 32px;
+        background: var(--gray-200);
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--gray-500);
     }
 
-    .sidebar-q-btn:hover { border-color: var(--primary-light); color: var(--primary); }
-    .sidebar-q-btn.current { background: var(--dark); color: white; border-color: var(--dark); transform: scale(1.05); }
-    .sidebar-q-btn.answered { background: var(--primary); color: white; border-color: var(--primary); }
-    .sidebar-q-btn.answered.current { background: var(--dark); border-color: var(--dark); }
-
-    /* Question Panel */
-    .test-question-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #F8FAFC; }
-    .test-question-content { flex: 1; overflow-y: auto; padding: 2rem 4rem; max-width: 1000px; margin: 0 auto; width: 100%; }
-
-    .test-question-badge {
-        width: 48px; height: 48px;
-        background: var(--gradient-primary); color: white;
-        border-radius: 14px; display: flex;
-        align-items: center; justify-content: center;
-        font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem;
-        box-shadow: 0 10px 20px -5px rgba(139, 197, 64, 0.4);
+    .bp-vs-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
     }
 
-    .test-question-text {
-        font-size: 1.25rem;
+    .bp-vs-badge {
+        font-size: 0.78rem;
+        font-weight: 900;
+        color: var(--gray-300);
+    }
+
+    /* Timer & progress */
+    .bp-center {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .bp-timer {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--gray-50);
+        padding: 0.45rem 0.85rem;
+        border-radius: 10px;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--dark);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .bp-timer i { font-size: 0.92rem; color: #DC2626; }
+    .bp-timer.warning { background: #FEF3C7; color: #D97706; }
+    .bp-timer.warning i { color: #D97706; }
+    .bp-timer.danger { background: #FEE2E2; color: #DC2626; animation: bp-pulse 1s infinite; }
+    .bp-timer.danger i { color: #DC2626; }
+
+    @keyframes bp-pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+
+    .bp-prog {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        white-space: nowrap;
+    }
+
+    .bp-prog strong { color: #DC2626; }
+
+    .bp-submit-top {
+        padding: 0.5rem 1.15rem;
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .bp-submit-top:hover { box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4); }
+
+    /* Progress bar */
+    .bp-progress-bar { height: 3px; background: var(--gray-200); }
+    .bp-progress-fill { height: 100%; background: linear-gradient(90deg, #DC2626, #EF4444); transition: width 0.3s; }
+
+    /* ========== CONTENT ========== */
+    .bp-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* Question */
+    .bp-question {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin-bottom: 1.25rem;
+        transition: border-color 0.2s;
+    }
+
+    .bp-question.answered { border-color: #DC2626; }
+
+    .bp-q-header { margin-bottom: 1rem; }
+
+    .bp-q-num {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: #DC2626;
+        background: #FEE2E2;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+    }
+
+    .bp-q-text {
+        font-size: 1.05rem;
         font-weight: 600;
         color: var(--dark);
-        margin-bottom: 2rem;
-        line-height: 1.6;
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
     }
 
-    .test-question-image {
-        max-width: 100%;
-        max-height: 400px;
-        border-radius: 16px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--gray-200);
+    .bp-q-image {
+        width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 1.25rem;
+        background: var(--gray-50);
     }
 
-    .test-answers { display: grid; gap: 1rem; }
+    /* Answers */
+    .bp-answers { display: flex; flex-direction: column; gap: 0.6rem; }
 
-    .test-answer-option {
-        display: flex; align-items: center; gap: 1.25rem;
-        padding: 1.25rem 1.5rem; background: var(--white);
-        border: 2px solid var(--gray-200); border-radius: 16px;
-        cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative; overflow: hidden;
+    .bp-answer {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
     }
 
-    .test-answer-option:hover {
-        border-color: var(--primary-light);
-        background: rgba(139, 197, 64, 0.05);
-        transform: translateY(-2px);
-    }
+    .bp-answer:hover { border-color: var(--gray-300); background: var(--gray-50); }
 
-    .test-answer-option.selected {
-        border-color: var(--primary);
-        background: rgba(139, 197, 64, 0.1);
-        box-shadow: 0 4px 12px -2px rgba(139, 197, 64, 0.2);
-    }
+    .bp-answer.selected { border-color: #DC2626; background: rgba(220,38,38,0.04); }
 
-    .test-answer-letter {
-        width: 40px; height: 40px;
-        display: flex; align-items: center; justify-content: center;
-        background: var(--gray-100); border-radius: 10px;
-        font-weight: 800; color: var(--dark-600);
-        font-size: 1rem; transition: all 0.2s;
+    .bp-answer-letter {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--gray-400);
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border-radius: 8px;
         flex-shrink: 0;
     }
 
-    .test-answer-option.selected .test-answer-letter {
-        background: var(--primary);
-        color: white;
-        transform: scale(1.1);
+    .bp-answer.selected .bp-answer-letter { background: #DC2626; color: white; }
+
+    .bp-answer-radio {
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
     }
 
-    .test-answer-text { font-size: 1.05rem; font-weight: 500; color: var(--dark); }
+    .bp-answer.selected .bp-answer-radio { border-color: #DC2626; background: #DC2626; }
+    .bp-answer.selected .bp-answer-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
 
-    /* Bottom Bar */
-    .test-bottombar {
-        background: var(--white); border-top: 1px solid var(--gray-200);
-        padding: 1rem 2rem; display: flex;
-        align-items: center; justify-content: space-between;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.02);
+    .bp-answer-text { font-size: 0.95rem; color: var(--dark); line-height: 1.5; flex: 1; }
+
+    /* ========== BOTTOM BAR ========== */
+    .bp-bottombar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border-top: 1px solid var(--gray-200);
+        padding: 0.85rem 0;
+        z-index: 100;
     }
 
-    .test-action-btn {
-        padding: 0.8rem 1.75rem; border-radius: 12px;
-        font-weight: 700; border: none; transition: all 0.2s;
-        display: flex; align-items: center; gap: 0.5rem;
-        font-size: 0.95rem; cursor: pointer;
+    .bp-bottom-inner {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }
 
-    .test-action-btn.primary {
-        background: var(--dark);
-        color: white;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    .bp-qmap {
+        display: flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        flex: 1;
+        max-height: 36px;
+        overflow: hidden;
     }
 
-    .test-action-btn.primary:hover {
-        background: var(--dark-800);
-        transform: translateY(-2px);
-    }
-
-    .test-action-btn.secondary {
+    .bp-qmap-item {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
         background: var(--gray-100);
-        color: var(--dark-600);
+        color: var(--gray-500);
+        border: none;
+        transition: all 0.15s;
     }
 
-    .test-action-btn.secondary:hover { background: var(--gray-200); }
-    .test-action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .bp-qmap-item:hover { background: var(--gray-200); }
+    .bp-qmap-item.answered { background: #DC2626; color: white; }
 
-    /* Finish Button */
-    .sidebar-finish-btn {
-        width: 100%; padding: 1rem;
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    .bp-submit-btn {
+        padding: 0.7rem 1.75rem;
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
         color: white;
-        border: none; border-radius: 14px;
-        font-weight: 800; margin-top: auto;
-        cursor: pointer; transition: all 0.3s;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        border: none;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: all 0.2s;
     }
 
-    .sidebar-finish-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4); }
+    .bp-submit-btn:hover { box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4); }
 
-    /* Helper Classes */
-    .unselectable { user-select: none; -webkit-user-select: none; }
+    /* ========== CONFIRM MODAL ========== */
+    .bp-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 300;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
 
-    /* Responsive */
-    @media (max-width: 992px) {
-        .test-sidebar { display: none; } /* Mobile sidebar alohida qilinishi kerak */
-        .test-question-content { padding: 1.5rem; }
-        .matchup-card { min-width: auto; padding: 0.4rem; }
-        .matchup-status { display: none; }
+    .bp-modal-overlay.show { display: flex; }
+
+    .bp-modal {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .bp-modal-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .bp-modal h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
+    .bp-modal p { font-size: 0.9rem; color: var(--gray-500); margin: 0 0 1.5rem; }
+
+    .bp-modal-stats { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
+    .bp-modal-stat strong { display: block; font-size: 1.25rem; font-weight: 800; color: var(--dark); }
+    .bp-modal-stat span { font-size: 0.78rem; color: var(--gray-500); }
+
+    .bp-modal-btns { display: flex; gap: 0.75rem; }
+
+    .bp-modal-btn {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .bp-modal-btn.cancel { background: var(--gray-100); color: var(--dark); }
+    .bp-modal-btn.cancel:hover { background: var(--gray-200); }
+    .bp-modal-btn.confirm { background: linear-gradient(135deg, #DC2626, #B91C1C); color: white; }
+
+    @media (max-width: 768px) {
+        .bp-vs-name { display: none; }
+        .bp-content { padding: 1.25rem 0.75rem; }
+        .bp-question { padding: 1.25rem; }
+    }
+
+    @media (max-width: 480px) {
+        .bp-submit-top { display: none; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="test-container" id="battleContainer">
-    <!-- TOP BAR (1v1 HUD) -->
-    <div class="test-topbar">
-        <!-- Challenger (Siz) -->
-        <div class="matchup-card {% if is_challenger %}active{% endif %}">
-            <img src="https://ui-avatars.com/api/?name={{ battle.challenger.first_name }}&background=8BC540&color=fff" class="rounded-circle" width="40" alt="Avatar">
-            <div class="matchup-info">
-                <div class="matchup-name">{{ battle.challenger.first_name }}</div>
-                <div class="matchup-status">{% if is_challenger %}Siz{% else %}Challenger{% endif %}</div>
+<!-- Top Bar -->
+<div class="bp-topbar">
+    <div class="container">
+        <div class="bp-topbar-inner">
+            <div class="bp-vs">
+                <div class="bp-vs-player">
+                    <div class="bp-vs-avatar">{% if is_challenger %}👤{% else %}{{ battle.challenger.first_name|default:"?"|slice:":1" }}{% endif %}</div>
+                    <span class="bp-vs-name">{% if is_challenger %}Siz{% else %}{{ battle.challenger.first_name|default:"Noma'lum" }}{% endif %}</span>
+                </div>
+                <span class="bp-vs-badge">VS</span>
+                <div class="bp-vs-player">
+                    <div class="bp-vs-avatar">
+                        {% if battle.opponent_type == 'bot' %}🤖
+                        {% elif is_challenger %}{{ battle.opponent.first_name|default:"?"|slice:":1" }}
+                        {% else %}👤
+                        {% endif %}
+                    </div>
+                    <span class="bp-vs-name">
+                        {% if battle.opponent_type == 'bot' %}Bot
+                        {% elif is_challenger %}{{ battle.opponent.first_name|default:"Raqib" }}
+                        {% else %}Siz
+                        {% endif %}
+                    </span>
+                </div>
             </div>
-        </div>
 
-        <!-- Timer -->
-        <div class="test-timer" id="testTimer">
-            <i class="bi bi-stopwatch me-2" style="font-size: 1rem; opacity: 0.7;"></i>
-            <span id="timerDisplay">00:00</span>
-        </div>
-
-        <!-- Opponent (Raqib) -->
-        <div class="matchup-card text-end {% if not is_challenger %}active{% endif %}">
-            <div class="matchup-info">
-                <div class="matchup-name">{% if battle.opponent %}{{ battle.opponent.first_name }}{% else %}Bot{% endif %}</div>
-                <div class="matchup-status">Raqib</div>
+            <div class="bp-center">
+                <div class="bp-timer" id="timer">
+                    <i class="bi bi-clock-fill"></i>
+                    <span id="timerText">00:00</span>
+                </div>
+                <div class="bp-prog">
+                    <strong id="answeredCount">0</strong> / {{ battle.question_count }}
+                </div>
             </div>
-            <img src="https://ui-avatars.com/api/?name={% if battle.opponent %}{{ battle.opponent.first_name }}{% else %}Bot{% endif %}&background=1E293B&color=fff" class="rounded-circle" width="40" alt="Avatar">
+
+            <button type="button" class="bp-submit-top" onclick="showConfirm()">Yakunlash</button>
         </div>
     </div>
+    <div class="bp-progress-bar">
+        <div class="bp-progress-fill" id="progressBar" style="width:0%"></div>
+    </div>
+</div>
 
-    <!-- MAIN CONTENT -->
-    <div class="test-main">
-        <!-- SIDEBAR (Navigator) -->
-        <aside class="test-sidebar">
-            <div class="sidebar-header">
-                <div class="text-uppercase text-muted fw-bold small mb-3" style="letter-spacing: 1px;">
-                    Savollar xaritasi
-                </div>
-                <div class="d-flex align-items-center justify-content-between mb-2 small text-muted">
-                    <span>Jami: {{ questions|length|default:0 }}</span>
-                    <span><i class="bi bi-check-circle-fill text-primary"></i> <span id="answeredCount">0</span></span>
-                </div>
-                <div class="progress mb-4" style="height: 6px;">
-                    <div class="progress-bar bg-primary" id="sidebarProgress" style="width: 0%"></div>
-                </div>
-            </div>
+<div class="bp-page">
+    <div class="bp-content" id="questionsContainer"></div>
+</div>
 
-            <div class="sidebar-questions">
-                <div class="sidebar-question-grid" id="sidebarGrid">
-                    {% for q in questions %}
-                    <button class="sidebar-q-btn" id="nav-btn-{{ forloop.counter0 }}" onclick="jumpTo({{ forloop.counter0 }})">
-                        {{ forloop.counter }}
-                    </button>
-                    {% endfor %}
-                </div>
-            </div>
+<!-- Bottom Bar -->
+<div class="bp-bottombar">
+    <div class="bp-bottom-inner">
+        <div class="bp-qmap" id="questionMap"></div>
+        <button type="button" class="bp-submit-btn" onclick="showConfirm()">
+            <i class="bi bi-send-fill"></i> Yakunlash
+        </button>
+    </div>
+</div>
 
-            <div class="p-3 border-top mt-auto">
-                <button class="sidebar-finish-btn" onclick="confirmFinish()">
-                    <i class="bi bi-flag-fill me-2"></i> Jangni yakunlash
-                </button>
+<!-- Confirm Modal -->
+<div class="bp-modal-overlay" id="confirmModal">
+    <div class="bp-modal">
+        <div class="bp-modal-icon">⚔️</div>
+        <h3>Jangni yakunlaysizmi?</h3>
+        <p>Javoblaringiz yuboriladi va natija aniqlanadi.</p>
+        <div class="bp-modal-stats">
+            <div class="bp-modal-stat">
+                <strong id="modalAnswered">0</strong>
+                <span>Javob berildi</span>
             </div>
-        </aside>
-
-        <!-- QUESTION PANEL -->
-        <div class="test-question-panel">
-            <div class="test-question-content unselectable" id="questionArea">
-                <!-- Content injected by JS -->
-                <div class="d-flex justify-content-center align-items-center h-100">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Yuklanmoqda...</span>
-                    </div>
-                </div>
+            <div class="bp-modal-stat">
+                <strong id="modalSkipped">0</strong>
+                <span>Bo'sh qoldi</span>
             </div>
-
-            <!-- BOTTOM BAR -->
-            <div class="test-bottombar">
-                <div class="test-bottom-left">
-                    <span class="text-muted fw-bold" style="font-size: 0.9rem;">
-                        Savol <span class="text-dark" id="currentNum">1</span> / {{ questions|length|default:0 }}
-                    </span>
-                    <span class="text-muted ms-3 small d-none d-md-inline">
-                        <i class="bi bi-keyboard me-1"></i> 1-5 javob, ← → navigatsiya
-                    </span>
-                </div>
-                <div class="test-bottom-actions d-flex gap-3">
-                    <button class="test-action-btn secondary" id="prevBtn" onclick="prevQ()" disabled>
-                        <i class="bi bi-arrow-left"></i> Oldingi
-                    </button>
-                    <button class="test-action-btn primary" id="nextBtn" onclick="nextQ()">
-                        Keyingi <i class="bi bi-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
+        </div>
+        <div class="bp-modal-btns">
+            <button class="bp-modal-btn cancel" onclick="hideConfirm()">Qaytish</button>
+            <button class="bp-modal-btn confirm" onclick="submitBattle()">Tasdiqlash</button>
         </div>
     </div>
 </div>
 
-<!-- DATA & FORM -->
-<!-- Django ma'lumotlarini xavfsiz JSON script orqali uzatish -->
-{{ questions|json_script:"questions-data" }}
-
-<form id="submitForm" action="{% if battle %}{% url 'competitions:battle_submit' battle.uuid %}{% else %}#{% endif %}" method="POST" style="display:none;">
+<!-- Hidden Form -->
+<form id="submitForm" method="post" action="{% url 'competitions:battle_submit' uuid=battle.uuid %}" style="display:none;">
     {% csrf_token %}
     <input type="hidden" name="answers" id="answersInput">
     <input type="hidden" name="time_spent" id="timeSpentInput">
 </form>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- 1. SETUP VARIABLES ---
-        const questionsScript = document.getElementById('questions-data');
-        const questions = questionsScript ? JSON.parse(questionsScript.textContent) : [];
-        const totalTime = parseInt("{{ total_time|default:600 }}") || 600;
+(function() {
+    var questions = {{ questions|safe }};
+    var totalQ = {{ battle.question_count }};
+    var remaining = {{ total_time }};
+    var answers = {};
+    var startTime = Date.now();
+    var submitted = false;
+    var LETTERS = ['A','B','C','D','E','F','G','H'];
 
-        let timeLeft = totalTime;
-        let currentIdx = 0;
-        let userAnswers = {}; // {question_id: answer_id}
-        const startTime = Date.now();
-        const timerEl = document.getElementById('timerDisplay');
-        const timerBox = document.getElementById('testTimer');
+    function render() {
+        var c = document.getElementById('questionsContainer');
+        var m = document.getElementById('questionMap');
+        var h = '', mh = '';
 
-        // --- 2. DEFINE FUNCTIONS (Available inside this scope) ---
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            var done = answers[q.id] !== undefined;
 
-        // Function to render specific question
-        function renderQuestion(idx) {
-            if (!questions[idx]) return;
-            currentIdx = idx;
-            const q = questions[idx];
-            const area = document.getElementById('questionArea');
-            const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
+            h += '<div class="bp-question' + (done ? ' answered' : '') + '" id="q-' + q.id + '">';
+            h += '<div class="bp-q-header"><span class="bp-q-num">' + (i+1) + '-savol</span></div>';
+            h += '<div class="bp-q-text">' + q.text + '</div>';
+            if (q.image) h += '<img class="bp-q-image" src="' + q.image + '">';
+            h += '<div class="bp-answers">';
 
-            let html = `
-                <div class="animate__animated animate__fadeIn">
-                    <div class="test-question-badge">${idx + 1}</div>
-                    <div class="test-question-text">${q.text}</div>
-                    ${q.image ? `<img src="${q.image}" class="test-question-image" alt="Savol rasmi">` : ''}
-
-                    <div class="test-answers">
-            `;
-
-            if (q.answers && q.answers.length > 0) {
-                q.answers.forEach((ans, i) => {
-                    const isSelected = userAnswers[q.id] === ans.id;
-                    html += `
-                        <div class="test-answer-option ${isSelected ? 'selected' : ''}" onclick="window.pickAnswer(${q.id}, ${ans.id})">
-                            <div class="test-answer-letter">${alphabet[i] || (i+1)}</div>
-                            <div class="test-answer-text">${ans.text}</div>
-                            ${ans.image ? `<img src="${ans.image}" class="ms-auto rounded" style="max-height: 40px;">` : ''}
-                        </div>
-                    `;
-                });
+            for (var j = 0; j < q.answers.length; j++) {
+                var a = q.answers[j];
+                var sel = answers[q.id] === a.id ? ' selected' : '';
+                h += '<div class="bp-answer' + sel + '" onclick="pick(' + q.id + ',' + a.id + ')" data-q="' + q.id + '" data-a="' + a.id + '">';
+                h += '<span class="bp-answer-letter">' + LETTERS[j] + '</span>';
+                h += '<span class="bp-answer-radio"></span>';
+                h += '<span class="bp-answer-text">' + a.text + '</span>';
+                h += '</div>';
             }
+            h += '</div></div>';
 
-            html += `</div></div>`;
-            area.innerHTML = html;
-
-            // Update bottom bar controls
-            document.getElementById('currentNum').innerText = idx + 1;
-            document.getElementById('prevBtn').disabled = (idx === 0);
-
-            const nextBtn = document.getElementById('nextBtn');
-            if (idx === questions.length - 1) {
-                nextBtn.innerHTML = 'Yakunlash <i class="bi bi-check-lg"></i>';
-                // Remove previous event listener to avoid stacking (if using addEventListener)
-                // But here we use onclick property, so it's safe to overwrite
-                nextBtn.onclick = window.confirmFinish;
-            } else {
-                nextBtn.innerHTML = 'Keyingi <i class="bi bi-arrow-right"></i>';
-                nextBtn.onclick = window.nextQ;
-            }
-
-            updateSidebarUI();
+            mh += '<button type="button" class="bp-qmap-item' + (done ? ' answered' : '') + '" onclick="goQ(' + q.id + ')" id="m-' + q.id + '">' + (i+1) + '</button>';
         }
 
-        // Function to update sidebar styles
-        function updateSidebarUI() {
-            document.querySelectorAll('.sidebar-q-btn').forEach(btn => {
-                btn.classList.remove('current');
-            });
+        c.innerHTML = h;
+        m.innerHTML = mh;
+    }
 
-            const currentBtn = document.getElementById(`nav-btn-${currentIdx}`);
-            if (currentBtn) currentBtn.classList.add('current');
+    window.pick = function(qId, aId) {
+        if (submitted) return;
+        if (answers[qId] === aId) delete answers[qId]; else answers[qId] = aId;
 
-            questions.forEach((q, i) => {
-                const btn = document.getElementById(`nav-btn-${i}`);
-                if (btn) {
-                    if (userAnswers[q.id]) {
-                        btn.classList.add('answered');
-                    } else {
-                        btn.classList.remove('answered');
-                    }
-                }
-            });
+        var card = document.getElementById('q-' + qId);
+        var els = card.querySelectorAll('.bp-answer');
+        var done = answers[qId] !== undefined;
+        card.classList.toggle('answered', done);
+
+        for (var i = 0; i < els.length; i++) {
+            els[i].classList.toggle('selected', parseInt(els[i].getAttribute('data-a')) === answers[qId]);
         }
 
-        // Function to update progress bar
-        function updateProgress() {
-            const total = questions.length;
-            const answered = Object.keys(userAnswers).length;
-            const percent = total > 0 ? (answered / total) * 100 : 0;
+        var mi = document.getElementById('m-' + qId);
+        if (mi) mi.classList.toggle('answered', done);
+        updateUI();
+    };
 
-            const progress = document.getElementById('sidebarProgress');
-            if(progress) progress.style.width = `${percent}%`;
+    window.goQ = function(qId) {
+        var el = document.getElementById('q-' + qId);
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+    };
 
-            const count = document.getElementById('answeredCount');
-            if(count) count.innerText = answered;
-        }
+    function updateUI() {
+        var cnt = Object.keys(answers).length;
+        document.getElementById('answeredCount').textContent = cnt;
+        document.getElementById('progressBar').style.width = (totalQ > 0 ? cnt / totalQ * 100 : 0) + '%';
+    }
 
-        // Timer Logic
-        function startCountdown() {
-            const timer = setInterval(() => {
-                timeLeft--;
+    function tick() {
+        if (submitted) return;
+        remaining--;
+        if (remaining <= 0) { submitBattle(); return; }
 
-                const mins = Math.floor(Math.max(0, timeLeft) / 60);
-                const secs = Math.max(0, timeLeft) % 60;
-                if(timerEl) timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        var m = Math.floor(remaining / 60), s = remaining % 60;
+        document.getElementById('timerText').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
 
-                if (timeLeft <= 60 && timerBox) timerBox.classList.add('danger');
+        var t = document.getElementById('timer');
+        t.classList.remove('warning', 'danger');
+        if (remaining <= 30) t.classList.add('danger');
+        else if (remaining <= 120) t.classList.add('warning');
+    }
 
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    alert("Vaqt tugadi! Javoblar avtomatik yuborilmoqda.");
-                    submitBattle();
-                }
-            }, 1000);
-        }
+    window.showConfirm = function() {
+        var a = Object.keys(answers).length;
+        document.getElementById('modalAnswered').textContent = a;
+        document.getElementById('modalSkipped').textContent = totalQ - a;
+        document.getElementById('confirmModal').classList.add('show');
+    };
 
-        // Submit Logic
-        function submitBattle() {
-            const formattedAnswers = Object.keys(userAnswers).map(qId => ({
-                question_id: parseInt(qId),
-                answer_id: userAnswers[qId]
-            }));
+    window.hideConfirm = function() {
+        document.getElementById('confirmModal').classList.remove('show');
+    };
 
-            const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    window.submitBattle = function() {
+        if (submitted) return;
+        submitted = true;
 
-            document.getElementById('answersInput').value = JSON.stringify(formattedAnswers);
-            document.getElementById('timeSpentInput').value = timeSpent;
-
-            window.onbeforeunload = null;
-
-            const finishBtn = document.querySelector('.sidebar-finish-btn');
-            if (finishBtn) {
-                finishBtn.disabled = true;
-                finishBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Yuborilmoqda...';
-            }
-
-            const form = document.getElementById('submitForm');
-            if (form && form.getAttribute('action') && form.getAttribute('action') !== '#') {
-                form.submit();
-            } else {
-                alert("Xatolik: Form action topilmadi. Sahifani yangilang.");
+        var arr = [];
+        for (var qId in answers) {
+            if (answers.hasOwnProperty(qId)) {
+                arr.push({ question_id: parseInt(qId), answer_id: answers[qId] });
             }
         }
 
-        // --- 3. EXPOSE FUNCTIONS TO WINDOW (For HTML onclick) ---
-        // These bridge the gap between HTML onclick attributes and local scope functions
+        document.getElementById('answersInput').value = JSON.stringify(arr);
+        document.getElementById('timeSpentInput').value = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('submitForm').submit();
+    };
 
-        window.pickAnswer = function(qId, ansId) {
-            userAnswers[qId] = ansId;
-            renderQuestion(currentIdx);
-            updateSidebarUI();
-            updateProgress();
-        };
-
-        window.nextQ = function() {
-            if (currentIdx < questions.length - 1) renderQuestion(currentIdx + 1);
-        };
-
-        window.prevQ = function() {
-            if (currentIdx > 0) renderQuestion(currentIdx - 1);
-        };
-
-        window.jumpTo = function(idx) {
-            renderQuestion(idx);
-        };
-
-        window.confirmFinish = function() {
-            const unanswered = questions.length - Object.keys(userAnswers).length;
-            let msg = "Jangni yakunlamoqchimisiz?";
-            if (unanswered > 0) {
-                msg += `\nDiqqat: ${unanswered} ta savolga javob berilmadi!`;
-            }
-            if (confirm(msg)) {
-                submitBattle();
-            }
-        };
-
-        // --- 4. INITIALIZATION ---
-        if (questions.length > 0) {
-            renderQuestion(0);
-            startCountdown();
-            updateProgress();
-        } else {
-            const area = document.getElementById('questionArea');
-            if(area) area.innerHTML = `
-                <div class="text-center mt-5">
-                    <i class="bi bi-exclamation-circle display-1 text-muted"></i>
-                    <h3 class="mt-3 text-muted">Savollar topilmadi</h3>
-                    <p>Iltimos, sahifani yangilab ko'ring yoki administratorga bog'laning.</p>
-                </div>`;
-        }
-
-        // --- 5. GLOBAL EVENT LISTENERS ---
-        window.onbeforeunload = () => "Jang davom etmoqda. Chiqib ketsangiz natija saqlanmaydi.";
-        document.addEventListener('contextmenu', e => e.preventDefault());
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowRight') window.nextQ();
-            if (e.key === 'ArrowLeft') window.prevQ();
-            if (['1', '2', '3', '4', '5'].includes(e.key)) {
-                const i = parseInt(e.key) - 1;
-                const opts = document.querySelectorAll('.test-answer-option');
-                if (opts[i]) opts[i].click();
-            }
-        });
+    window.addEventListener('beforeunload', function(e) {
+        if (!submitted) { e.preventDefault(); e.returnValue = ''; }
     });
+
+    render();
+    updateUI();
+    tick();
+    setInterval(tick, 1000);
+})();
 </script>
 {% endblock %}

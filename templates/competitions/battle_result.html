@@ -5,665 +5,370 @@
 
 {% block extra_css %}
 <style>
-    /* ========== RESULT HEADER ========== */
-    .br-header {
-        padding: 3rem 0;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
+    .br-page { padding: 2rem 0 4rem; }
 
-    .br-header.win {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    }
-
-    .br-header.lose {
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-    }
-
-    .br-header.draw {
-        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-    }
-
-    .br-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-
-    .br-header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .br-result-icon {
-        font-size: 5rem;
-        margin-bottom: 1rem;
-        animation: bounceIn 0.6s ease;
-    }
-
-    @keyframes bounceIn {
-        0% { transform: scale(0); opacity: 0; }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); opacity: 1; }
-    }
-
-    .br-result-title {
-        font-size: 2rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .br-result-subtitle {
-        font-size: 1.1rem;
-        color: rgba(255,255,255,0.9);
-    }
-
-    .br-xp-badge {
-        display: inline-flex;
+    .br-bread {
+        display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(255,255,255,0.2);
-        padding: 0.75rem 1.5rem;
-        border-radius: 30px;
-        margin-top: 1.5rem;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: white;
+        font-size: 0.85rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
     }
 
-    /* ========== CONTENT ========== */
-    .br-content {
-        padding: 2.5rem 0;
-        background: var(--gray-100);
-    }
+    .br-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .br-bread a:hover { text-decoration: underline; }
 
-    .br-container {
-        max-width: 800px;
+    .br-layout {
+        max-width: 640px;
         margin: 0 auto;
     }
 
-    /* ========== VS COMPARISON ========== */
-    .br-comparison {
-        background: var(--white);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-
-    .br-players {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        padding: 2rem;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    @media (max-width: 600px) {
-        .br-players {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-    }
-
-    .br-player {
+    /* ========== WINNER ANNOUNCEMENT ========== */
+    .br-hero {
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
     }
 
-    .br-player-avatar {
-        width: 80px;
-        height: 80px;
+    .br-hero.won { background: linear-gradient(135deg, #10B981, #059669); color: white; }
+    .br-hero.lost { background: linear-gradient(135deg, #EF4444, #B91C1C); color: white; }
+    .br-hero.draw { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; }
+
+    .br-hero::after {
+        content: '';
+        position: absolute;
+        right: -30px;
+        top: -30px;
+        width: 180px;
+        height: 180px;
+        background: rgba(255,255,255,0.08);
         border-radius: 50%;
-        background: var(--gray-100);
+        pointer-events: none;
+    }
+
+    .br-hero-inner { position: relative; z-index: 1; }
+    .br-hero-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+
+    .br-hero h2 {
+        font-size: 1.65rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 0 0.35rem;
+    }
+
+    .br-hero-sub {
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.85);
+        margin: 0;
+    }
+
+    /* ========== VS COMPARISON ========== */
+    .br-vs {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .br-vs-header {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--dark-600);
-        overflow: hidden;
-        position: relative;
-        border: 4px solid var(--gray-200);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
-    .br-player-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+    .br-vs-player { text-align: center; flex: 1; }
 
-    .br-player-avatar.winner {
-        border-color: #10B981;
-    }
-
-    .br-player-avatar.winner::before {
-        content: '👑';
-        position: absolute;
-        top: -15px;
+    .br-vs-avatar {
+        width: 60px;
+        height: 60px;
+        background: var(--gray-200);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 0.5rem;
     }
 
-    .br-player-avatar.loser {
-        border-color: #EF4444;
-        opacity: 0.8;
+    .br-vs-avatar.winner {
+        border: 3px solid #10B981;
+        box-shadow: 0 0 0 4px rgba(16,185,129,0.15);
     }
 
-    .br-player-avatar.bot {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        color: white;
-    }
-
-    .br-player-name {
-        font-size: 1.1rem;
+    .br-vs-name {
+        font-size: 0.95rem;
         font-weight: 700;
         color: var(--dark);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.15rem;
     }
 
-    .br-player-name.you {
-        color: var(--primary);
-    }
-
-    .br-player-result {
-        display: inline-block;
-        padding: 0.35rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
+    .br-vs-tag {
+        font-size: 0.72rem;
         font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 50px;
     }
 
-    .br-player-result.winner {
-        background: #D1FAE5;
-        color: #059669;
-    }
+    .br-vs-tag.win { background: #D1FAE5; color: #059669; }
+    .br-vs-tag.lose { background: #FEE2E2; color: #DC2626; }
+    .br-vs-tag.tie { background: #FEF3C7; color: #D97706; }
 
-    .br-player-result.loser {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .br-player-result.draw {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .br-vs-center {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    @media (max-width: 600px) {
-        .br-vs-center {
-            order: -1;
-        }
-    }
-
-    .br-vs-text {
-        font-size: 2rem;
-        font-weight: 800;
+    .br-vs-divider {
+        font-size: 1.15rem;
+        font-weight: 900;
         color: var(--gray-300);
+        flex-shrink: 0;
     }
 
-    /* ========== STATS COMPARISON ========== */
-    .br-stats {
-        padding: 0 2rem 2rem;
-    }
-
+    /* Stat rows */
     .br-stat-row {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        gap: 1rem;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--gray-100);
+        display: flex;
         align-items: center;
+        padding: 0.75rem 0;
     }
 
-    .br-stat-row:last-child {
-        border-bottom: none;
-    }
+    .br-stat-row + .br-stat-row { border-top: 1px solid var(--gray-100); }
 
-    .br-stat-value {
-        font-size: 1.5rem;
+    .br-stat-left {
+        flex: 1;
+        text-align: center;
+        font-size: 1.15rem;
         font-weight: 800;
+        color: var(--dark);
     }
 
-    .br-stat-value.left {
-        text-align: right;
-    }
-
-    .br-stat-value.right {
-        text-align: left;
-    }
-
-    .br-stat-value.winner {
-        color: #10B981;
-    }
-
-    .br-stat-value.loser {
-        color: var(--gray-400);
-    }
+    .br-stat-left.better { color: #059669; }
 
     .br-stat-label {
+        flex: 1;
         text-align: center;
         font-size: 0.85rem;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--gray-500);
-        padding: 0 1rem;
     }
 
-    /* ========== PROGRESS BARS ========== */
-    .br-progress-row {
-        padding: 1rem 0;
-    }
-
-    .br-progress-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--gray-500);
+    .br-stat-right {
+        flex: 1;
         text-align: center;
-        margin-bottom: 0.75rem;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--dark);
     }
 
-    .br-progress-bar {
-        display: flex;
-        height: 8px;
-        border-radius: 4px;
-        overflow: hidden;
-        background: var(--gray-200);
+    .br-stat-right.better { color: #059669; }
+
+    /* ========== XP EARNED ========== */
+    .br-xp {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
     }
 
-    .br-progress-left {
-        background: var(--primary);
-        transition: width 1s ease;
-    }
-
-    .br-progress-right {
-        background: #8B5CF6;
-        transition: width 1s ease;
-    }
-
-    .br-progress-values {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .br-progress-values .left {
+    .br-xp-val {
+        font-size: 1.5rem;
+        font-weight: 900;
         color: var(--primary);
     }
 
-    .br-progress-values .right {
-        color: #8B5CF6;
+    .br-xp-label {
+        font-size: 0.82rem;
+        color: var(--gray-500);
+        font-weight: 600;
     }
 
     /* ========== ACTIONS ========== */
     .br-actions {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    @media (max-width: 500px) {
-        .br-actions {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .br-action-btn {
-        padding: 1rem 1.5rem;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-
-    .br-action-btn.primary {
-        background: var(--gradient-primary);
-        color: white;
-        border: none;
-    }
-
-    .br-action-btn.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
-        color: white;
-    }
-
-    .br-action-btn.outline {
-        background: var(--white);
-        color: var(--dark-600);
-        border: 2px solid var(--gray-300);
-    }
-
-    .br-action-btn.outline:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-
-    /* ========== REMATCH CARD ========== */
-    .br-rematch-card {
-        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        text-align: center;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .br-rematch-card::before {
-        content: '⚔️';
-        position: absolute;
-        top: -20px;
-        right: -20px;
-        font-size: 6rem;
-        opacity: 0.1;
-    }
-
-    .br-rematch-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .br-rematch-card h3 {
-        font-size: 1.25rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .br-rematch-card p {
-        color: rgba(255,255,255,0.9);
-        margin-bottom: 1.5rem;
-    }
-
-    .br-rematch-btn {
-        padding: 0.875rem 2rem;
-        background: white;
-        color: #1D4ED8;
-        border: none;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
-    }
-
-    .br-rematch-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        color: #1D4ED8;
-    }
-
-    /* ========== SHARE SECTION ========== */
-    .br-share {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        text-align: center;
-        margin-top: 2rem;
-    }
-
-    .br-share-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 1rem;
-    }
-
-    .br-share-buttons {
-        display: flex;
-        justify-content: center;
         gap: 0.75rem;
     }
 
-    .br-share-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
+    .br-btn {
+        flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
-        color: white;
+        gap: 0.5rem;
+        padding: 0.85rem;
+        border-radius: 14px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        text-decoration: none;
         transition: all 0.2s;
+        border: none;
+        cursor: pointer;
     }
 
-    .br-share-btn.telegram { background: #0088cc; }
-    .br-share-btn.instagram { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
-    .br-share-btn.copy { background: var(--gray-600); }
-
-    .br-share-btn:hover {
-        transform: scale(1.1);
+    .br-btn.primary {
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
         color: white;
+    }
+
+    .br-btn.primary:hover { box-shadow: 0 4px 14px -3px rgba(220,38,38,0.4); color: white; }
+
+    .br-btn.outline {
+        background: transparent;
+        border: 2px solid var(--gray-200);
+        color: var(--dark);
+    }
+
+    .br-btn.outline:hover { border-color: var(--gray-300); color: var(--dark); }
+
+    @media (max-width: 575px) {
+        .br-hero { padding: 1.75rem 1.25rem; }
+        .br-hero h2 { font-size: 1.35rem; }
+        .br-vs-avatar { width: 48px; height: 48px; font-size: 1.15rem; }
+        .br-actions { flex-direction: column; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="br-header {% if user_won %}win{% elif user_lost %}lose{% else %}draw{% endif %}">
+<div class="br-page">
     <div class="container">
-        <div class="br-header-content">
-            <div class="br-result-icon">
-                {% if is_draw %}
-                🤝
-                {% elif user_won %}
-                🏆
-                {% else %}
-                😔
-                {% endif %}
-            </div>
 
-            <h1 class="br-result-title">
-                {% if is_draw %}
-                Durrang!
-                {% elif user_won %}
-                Siz yutdingiz!
-                {% else %}
-                Siz yutqazdingiz
-                {% endif %}
-            </h1>
-
-            <p class="br-result-subtitle">
-                {% if is_draw %}
-                Ikkalangiz ham teng kuchsiz!
-                {% elif user_won %}
-                Ajoyib natija! Davom eting!
-                {% else %}
-                Keyingi safar omad kulasin!
-                {% endif %}
-            </p>
-
-            <div class="br-xp-badge">
-                <i class="bi bi-lightning-fill"></i>
-                +{% if user_won %}{{ battle.winner_xp }}{% elif is_draw %}{{ battle.winner_xp|add:battle.loser_xp|divisibleby:2 }}{% else %}{{ battle.loser_xp }}{% endif %} XP
-            </div>
+        <div class="br-bread">
+            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="{% url 'competitions:battles_list' %}">Janglar</a>
+            <i class="bi bi-chevron-right"></i>
+            <span>Natija</span>
         </div>
-    </div>
-</div>
 
-<!-- Content -->
-<div class="br-content">
-    <div class="container">
-        <div class="br-container">
+        <div class="br-layout">
+
+            <!-- Winner Announcement -->
+            <div class="br-hero {% if user_won %}won{% elif is_draw %}draw{% else %}lost{% endif %}">
+                <div class="br-hero-inner">
+                    <div class="br-hero-emoji">
+                        {% if user_won %}🏆{% elif is_draw %}🤝{% else %}😤{% endif %}
+                    </div>
+                    <h2>
+                        {% if user_won %}Siz yutdingiz!
+                        {% elif is_draw %}Durrang!
+                        {% else %}Yutqazdingiz
+                        {% endif %}
+                    </h2>
+                    <p class="br-hero-sub">
+                        {{ battle.subject.name|default:"Umumiy" }} — {{ total_questions }} savol
+                    </p>
+                </div>
+            </div>
+
             <!-- VS Comparison -->
-            <div class="br-comparison">
-                <div class="br-players">
-                    <!-- Player 1 (Challenger) -->
-                    <div class="br-player">
-                        <div class="br-player-avatar {% if battle.winner == battle.challenger %}winner{% elif not is_draw %}loser{% endif %} {% if is_challenger %}{% endif %}">
-                            {% if battle.challenger.avatar %}
-                            <img src="{{ battle.challenger.avatar.url }}" alt="">
-                            {% else %}
-                            {{ battle.challenger.first_name|slice:":1" }}
-                            {% endif %}
+            <div class="br-vs">
+                <div class="br-vs-header">
+                    <!-- Player 1 (me) -->
+                    <div class="br-vs-player">
+                        <div class="br-vs-avatar {% if user_won %}winner{% endif %}">
+                            {% if is_challenger %}👤{% else %}👤{% endif %}
                         </div>
-                        <div class="br-player-name {% if is_challenger %}you{% endif %}">
-                            {% if is_challenger %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}
-                        </div>
-                        <span class="br-player-result {% if battle.winner == battle.challenger %}winner{% elif is_draw %}draw{% else %}loser{% endif %}">
-                            {% if battle.winner == battle.challenger %}G'olib
-                            {% elif is_draw %}Durrang
-                            {% else %}Yutqazdi{% endif %}
-                        </span>
+                        <div class="br-vs-name">Siz</div>
+                        {% if user_won %}
+                            <span class="br-vs-tag win">G'olib ✓</span>
+                        {% elif is_draw %}
+                            <span class="br-vs-tag tie">Durrang</span>
+                        {% else %}
+                            <span class="br-vs-tag lose">Yutqazdi</span>
+                        {% endif %}
                     </div>
 
-                    <!-- VS -->
-                    <div class="br-vs-center">
-                        <div class="br-vs-text">VS</div>
-                    </div>
+                    <div class="br-vs-divider">VS</div>
 
-                    <!-- Player 2 (Opponent) -->
-                    <div class="br-player">
-                        <div class="br-player-avatar {% if battle.winner == battle.opponent or battle.winner_is_bot %}winner{% elif not is_draw %}loser{% endif %} {% if battle.opponent_type == 'bot' %}bot{% endif %}">
-                            {% if battle.opponent_type == 'bot' %}
-                            🤖
-                            {% elif battle.opponent and battle.opponent.avatar %}
-                            <img src="{{ battle.opponent.avatar.url }}" alt="">
-                            {% else %}
-                            {{ battle.opponent.first_name|slice:":1"|default:"?" }}
-                            {% endif %}
+                    <!-- Player 2 (opponent) -->
+                    <div class="br-vs-player">
+                        <div class="br-vs-avatar {% if user_lost %}winner{% endif %}">
+                            {% if battle.opponent_type == 'bot' %}🤖{% else %}{{ battle.opponent.first_name|default:"?"|slice:":1" }}{% endif %}
                         </div>
-                        <div class="br-player-name {% if not is_challenger and battle.opponent_type != 'bot' %}you{% endif %}">
+                        <div class="br-vs-name">
                             {% if battle.opponent_type == 'bot' %}Bot ({{ battle.get_bot_difficulty_display }})
-                            {% elif not is_challenger %}Siz
-                            {% else %}{{ battle.opponent.first_name|default:"Raqib" }}{% endif %}
+                            {% elif is_challenger %}{{ battle.opponent.first_name|default:"Raqib" }}
+                            {% else %}{{ battle.challenger.first_name|default:"Raqib" }}
+                            {% endif %}
                         </div>
-                        <span class="br-player-result {% if battle.winner == battle.opponent or battle.winner_is_bot %}winner{% elif is_draw %}draw{% else %}loser{% endif %}">
-                            {% if battle.winner == battle.opponent or battle.winner_is_bot %}G'olib
-                            {% elif is_draw %}Durrang
-                            {% else %}Yutqazdi{% endif %}
-                        </span>
+                        {% if user_lost %}
+                            <span class="br-vs-tag win">G'olib ✓</span>
+                        {% elif is_draw %}
+                            <span class="br-vs-tag tie">Durrang</span>
+                        {% else %}
+                            <span class="br-vs-tag lose">Yutqazdi</span>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- Stats -->
-                <div class="br-stats">
-                    <!-- Score -->
-                    <div class="br-stat-row">
-                        <div class="br-stat-value left {% if battle.challenger_correct > battle.opponent_correct %}winner{% elif battle.challenger_correct < battle.opponent_correct %}loser{% endif %}">
-                            {{ battle.challenger_correct }}/{{ total_questions }}
-                        </div>
-                        <div class="br-stat-label">To'g'ri javoblar</div>
-                        <div class="br-stat-value right {% if battle.opponent_correct > battle.challenger_correct %}winner{% elif battle.opponent_correct < battle.challenger_correct %}loser{% endif %}">
-                            {{ battle.opponent_correct }}/{{ total_questions }}
-                        </div>
+                <!-- Stats comparison -->
+                <div class="br-stat-row">
+                    <div class="br-stat-left {% if user_correct > opponent_correct %}better{% endif %}">
+                        {{ user_correct }} / {{ total_questions }}
                     </div>
-
-                    <!-- Time -->
-                    <div class="br-stat-row">
-                        <div class="br-stat-value left {% if battle.challenger_time < battle.opponent_time %}winner{% elif battle.challenger_time > battle.opponent_time %}loser{% endif %}">
-                            {{ battle.challenger_time }}s
-                        </div>
-                        <div class="br-stat-label">Sarflangan vaqt</div>
-                        <div class="br-stat-value right {% if battle.opponent_time < battle.challenger_time %}winner{% elif battle.opponent_time > battle.challenger_time %}loser{% endif %}">
-                            {{ battle.opponent_time }}s
-                        </div>
+                    <div class="br-stat-label">To'g'ri javoblar</div>
+                    <div class="br-stat-right {% if opponent_correct > user_correct %}better{% endif %}">
+                        {{ opponent_correct }} / {{ total_questions }}
                     </div>
+                </div>
 
-                    <!-- Progress bar -->
-                    <div class="br-progress-row">
-                        <div class="br-progress-label">To'g'ri javoblar taqqoslash</div>
-                        <div class="br-progress-bar">
-                            <div class="br-progress-left" style="width: {% widthratio battle.challenger_correct total_questions 100 %}%"></div>
-                            <div class="br-progress-right" style="width: {% widthratio battle.opponent_correct total_questions 100 %}%; margin-left: auto;"></div>
-                        </div>
-                        <div class="br-progress-values">
-                            <span class="left">{% if is_challenger %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}: {{ battle.challenger_correct }}</span>
-                            <span class="right">{% if battle.opponent_type == 'bot' %}Bot{% elif not is_challenger %}Siz{% else %}{{ battle.opponent.first_name }}{% endif %}: {{ battle.opponent_correct }}</span>
-                        </div>
+                <div class="br-stat-row">
+                    <div class="br-stat-left {% if user_correct > opponent_correct %}better{% endif %}">
+                        {{ user_correct }}0
+                    </div>
+                    <div class="br-stat-label">Ball</div>
+                    <div class="br-stat-right {% if opponent_correct > user_correct %}better{% endif %}">
+                        {{ opponent_correct }}0
+                    </div>
+                </div>
+
+                <div class="br-stat-row">
+                    <div class="br-stat-left {% if user_time < opponent_time %}better{% endif %}">
+                        {{ user_time }}s
+                    </div>
+                    <div class="br-stat-label">Sarflangan vaqt</div>
+                    <div class="br-stat-right {% if opponent_time < user_time %}better{% endif %}">
+                        {{ opponent_time }}s
+                    </div>
+                </div>
+
+                <div class="br-stat-row">
+                    <div class="br-stat-left">
+                        {% if total_questions > 0 %}{% widthratio user_correct total_questions 100 %}%{% else %}0%{% endif %}
+                    </div>
+                    <div class="br-stat-label">Foiz</div>
+                    <div class="br-stat-right">
+                        {% if total_questions > 0 %}{% widthratio opponent_correct total_questions 100 %}%{% else %}0%{% endif %}
                     </div>
                 </div>
             </div>
 
-            <!-- Actions -->
-            <div class="br-actions">
-                <a href="{% url 'competitions:battle_create' %}" class="br-action-btn primary">
-                    <i class="bi bi-plus-lg"></i>
-                    Yangi jang
-                </a>
-                <a href="{% url 'competitions:battles_list' %}" class="br-action-btn outline">
-                    <i class="bi bi-list-ul"></i>
-                    Janglar ro'yxati
-                </a>
-            </div>
-
-            <!-- Rematch Card -->
-            {% if battle.opponent_type != 'bot' and battle.opponent %}
-            <div class="br-rematch-card">
-                <div class="br-rematch-content">
-                    <h3>Qayta o'ynaysizmi?</h3>
-                    <p>{{ battle.opponent.first_name }}{% if is_challenger %}{% else %}{{ battle.challenger.first_name }}{% endif %} bilan yana bellashing!</p>
-                    <a href="{% url 'competitions:battle_create' %}?type=friend&opponent={{ battle.opponent.id|default:battle.challenger.id }}" class="br-rematch-btn">
-                        <i class="bi bi-arrow-repeat"></i>
-                        Qayta jang
-                    </a>
+            <!-- XP -->
+            {% if battle.xp_awarded %}
+            <div class="br-xp">
+                <div class="br-xp-val">
+                    {% if user_won %}+{{ battle.winner_xp }}{% elif is_draw %}+{{ battle.winner_xp|add:battle.loser_xp|divisibleby:2 }}{% else %}+{{ battle.loser_xp }}{% endif %} XP
                 </div>
-            </div>
-            {% else %}
-            <div class="br-rematch-card">
-                <div class="br-rematch-content">
-                    <h3>Bot bilan yana sinab ko'ring!</h3>
-                    <p>Turli qiyinlik darajalarida mashq qiling</p>
-                    <a href="{% url 'competitions:battle_create' %}?type=bot" class="br-rematch-btn">
-                        <i class="bi bi-robot"></i>
-                        Bot bilan jang
-                    </a>
-                </div>
+                <div class="br-xp-label">Olingan tajriba</div>
             </div>
             {% endif %}
 
-            <!-- Share -->
-            <div class="br-share">
-                <div class="br-share-title">Natijani ulashing</div>
-                <div class="br-share-buttons">
-                    <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text=Men TestMakon'da jangda {% if user_won %}yutdim{% elif is_draw %}durrang qildim{% else %}yutqazdim{% endif %}! 🎮" target="_blank" class="br-share-btn telegram">
-                        <i class="bi bi-telegram"></i>
-                    </a>
-                    <button class="br-share-btn copy" onclick="copyLink()">
-                        <i class="bi bi-link-45deg"></i>
-                    </button>
-                </div>
+            <!-- Actions -->
+            <div class="br-actions">
+                <a href="{% url 'competitions:battle_create' %}" class="br-btn primary">
+                    <i class="bi bi-lightning-fill"></i> Yana jang
+                </a>
+                <a href="{% url 'competitions:battles_list' %}" class="br-btn outline">
+                    <i class="bi bi-list-ul"></i> Janglar
+                </a>
             </div>
+
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function copyLink() {
-    navigator.clipboard.writeText(window.location.href);
-    alert('Havola nusxalandi!');
-}
-
-// Animate progress bars on load
-document.addEventListener('DOMContentLoaded', function() {
-    const progressBars = document.querySelectorAll('.br-progress-left, .br-progress-right');
-    progressBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => {
-            bar.style.width = width;
-        }, 500);
-    });
-});
-</script>
 {% endblock %}

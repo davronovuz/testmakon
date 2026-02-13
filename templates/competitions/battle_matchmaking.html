@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Raqib qidirilmoqda... | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bm-page {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+
+    .bm-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* ========== ANIMATION ========== */
+    .bm-anim {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 2rem;
+    }
+
+    .bm-anim-ring {
+        position: absolute;
+        inset: 0;
+        border: 3px solid var(--gray-200);
+        border-top-color: #DC2626;
+        border-radius: 50%;
+        animation: bm-spin 1.2s linear infinite;
+    }
+
+    .bm-anim-ring2 {
+        position: absolute;
+        inset: 12px;
+        border: 3px solid var(--gray-100);
+        border-bottom-color: #EF4444;
+        border-radius: 50%;
+        animation: bm-spin 1.8s linear infinite reverse;
+    }
+
+    .bm-anim-center {
+        position: absolute;
+        inset: 28px;
+        background: var(--gray-50);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    @keyframes bm-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ========== VS PLAYERS ========== */
+    .bm-vs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .bm-player { text-align: center; }
+
+    .bm-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 auto 0.5rem;
+    }
+
+    .bm-avatar.me {
+        background: rgba(139,197,64,0.15);
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+
+    .bm-avatar.opponent {
+        background: var(--gray-100);
+        color: var(--gray-400);
+        border: 2px dashed var(--gray-300);
+        animation: bm-blink 1.5s ease infinite;
+    }
+
+    @keyframes bm-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+
+    .bm-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .bm-vs-text {
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: var(--gray-300);
+    }
+
+    /* ========== TEXT ========== */
+    .bm-title {
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin: 0 0 0.5rem;
+    }
+
+    .bm-desc {
+        font-size: 0.92rem;
+        color: var(--gray-500);
+        margin: 0 0 0.5rem;
+        line-height: 1.6;
+    }
+
+    /* Subject badge */
+    .bm-subject {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--gray-50);
+        padding: 0.45rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Timer */
+    .bm-wait {
+        font-size: 0.85rem;
+        color: var(--gray-400);
+        margin-bottom: 2rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .bm-wait strong {
+        color: var(--gray-600);
+        font-weight: 800;
+    }
+
+    /* Status messages */
+    .bm-status {
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding: 0.65rem 1rem;
+        border-radius: 10px;
+        display: none;
+    }
+
+    .bm-status.searching {
+        display: block;
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    .bm-status.found {
+        display: block;
+        background: #D1FAE5;
+        color: #059669;
+        animation: bm-pop 0.3s ease;
+    }
+
+    .bm-status.timeout {
+        display: block;
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    @keyframes bm-pop {
+        0% { transform: scale(0.95); }
+        50% { transform: scale(1.03); }
+        100% { transform: scale(1); }
+    }
+
+    /* ========== BUTTONS ========== */
+    .bm-cancel {
+        padding: 0.75rem 2rem;
+        background: transparent;
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bm-cancel:hover { border-color: #DC2626; color: #DC2626; }
+
+    .bm-found-btn {
+        display: none;
+        padding: 0.85rem 2.5rem;
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        margin: 0 auto;
+    }
+
+    .bm-found-btn.show {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: bm-pop 0.3s ease;
+    }
+
+    .bm-found-btn:hover { box-shadow: 0 6px 20px -4px rgba(220,38,38,0.4); color: white; }
+
+    .bm-retry {
+        display: none;
+        padding: 0.75rem 2rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .bm-retry.show {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bm-retry:hover { color: white; }
+
+    /* ========== TIPS ========== */
+    .bm-tips {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-100);
+    }
+
+    .bm-tip {
+        font-size: 0.82rem;
+        color: var(--gray-400);
+        font-style: italic;
+    }
+
+    @media (max-width: 480px) {
+        .bm-card { padding: 2rem 1.5rem; }
+        .bm-anim { width: 110px; height: 110px; }
+        .bm-anim-center { font-size: 2rem; }
+        .bm-title { font-size: 1.15rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bm-page">
+    <div class="bm-card">
+
+        <!-- Spinner -->
+        <div class="bm-anim" id="spinner">
+            <div class="bm-anim-ring"></div>
+            <div class="bm-anim-ring2"></div>
+            <div class="bm-anim-center">⚔️</div>
+        </div>
+
+        <!-- VS -->
+        <div class="bm-vs">
+            <div class="bm-player">
+                <div class="bm-avatar me">{{ request.user.first_name|default:"?"|slice:":1" }}</div>
+                <div class="bm-name">{{ request.user.first_name|default:"Siz" }}</div>
+            </div>
+            <div class="bm-vs-text">VS</div>
+            <div class="bm-player">
+                <div class="bm-avatar opponent" id="opponentAvatar">?</div>
+                <div class="bm-name" id="opponentName">Qidirilmoqda...</div>
+            </div>
+        </div>
+
+        <h2 class="bm-title" id="mainTitle">Raqib qidirilmoqda</h2>
+        <p class="bm-desc">Sizga mos raqib topilishi kutilmoqda</p>
+
+        {% if subject %}
+        <div class="bm-subject">
+            <i class="bi bi-book-fill"></i> {{ subject.name }}
+        </div>
+        {% endif %}
+
+        <!-- Wait timer -->
+        <div class="bm-wait" id="waitTimer">
+            Kutish vaqti: <strong id="waitTime">0:00</strong>
+        </div>
+
+        <!-- Status -->
+        <div class="bm-status searching" id="statusSearching">
+            <i class="bi bi-search"></i> Qidiruv davom etmoqda...
+        </div>
+
+        <div class="bm-status found" id="statusFound">
+            <i class="bi bi-check-circle-fill"></i> Raqib topildi!
+        </div>
+
+        <div class="bm-status timeout" id="statusTimeout">
+            <i class="bi bi-exclamation-circle-fill"></i> Raqib topilmadi. Keyinroq urinib ko'ring.
+        </div>
+
+        <!-- Buttons -->
+        <div>
+            <button type="button" class="bm-cancel" id="cancelBtn" onclick="cancelMatch()">
+                <i class="bi bi-x-lg"></i> Bekor qilish
+            </button>
+
+            <a href="#" class="bm-found-btn" id="startBattleBtn">
+                <i class="bi bi-lightning-fill"></i> Jangga kirish!
+            </a>
+
+            <a href="{% url 'competitions:battle_create' %}" class="bm-retry" id="retryBtn">
+                <i class="bi bi-arrow-clockwise"></i> Qayta urinish
+            </a>
+        </div>
+
+        <!-- Tips -->
+        <div class="bm-tips">
+            <div class="bm-tip" id="tipText">💡 Bilasizmi? Eng tez javob bergan o'yinchi teng ball bo'lsa g'olib bo'ladi.</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var queueId = '{{ queue_entry.id }}';
+    var pollInterval = null;
+    var waitSeconds = 0;
+    var waitTimerInterval = null;
+    var maxWait = 120; // 2 daqiqa
+    var found = false;
+
+    var tips = [
+        '💡 Bilasizmi? Eng tez javob bergan o\'yinchi teng ball bo\'lsa g\'olib bo\'ladi.',
+        '💡 Har kuni challenge yechsangiz bonus XP olasiz.',
+        '💡 Bot bilan mashq qilish ham XP beradi.',
+        '💡 Haftalik ligada top 3 ga kirganlar maxsus mukofot oladi.',
+        '💡 Sertifikat olish uchun musobaqada 70% dan yuqori to\'plang.'
+    ];
+
+    // Wait timer
+    waitTimerInterval = setInterval(function() {
+        if (found) return;
+        waitSeconds++;
+
+        var m = Math.floor(waitSeconds / 60);
+        var s = waitSeconds % 60;
+        document.getElementById('waitTime').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+
+        // Rotate tips every 10s
+        if (waitSeconds % 10 === 0) {
+            var idx = Math.floor(waitSeconds / 10) % tips.length;
+            document.getElementById('tipText').textContent = tips[idx];
+        }
+
+        // Timeout
+        if (waitSeconds >= maxWait) {
+            clearInterval(waitTimerInterval);
+            clearInterval(pollInterval);
+            showTimeout();
+        }
+    }, 1000);
+
+    // Poll for match
+    function pollStatus() {
+        if (found) return;
+
+        fetch("{% url 'competitions:api_matchmaking_status' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ queue_id: queueId })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.status === 'matched' && data.battle_uuid) {
+                found = true;
+                clearInterval(pollInterval);
+                clearInterval(waitTimerInterval);
+                showFound(data.battle_uuid, data.opponent_name || 'Raqib');
+            }
+        })
+        .catch(function(err) {
+            console.error('Poll error:', err);
+        });
+    }
+
+    pollInterval = setInterval(pollStatus, 3000);
+    // Birinchi poll 1s da
+    setTimeout(pollStatus, 1000);
+
+    // Found
+    function showFound(battleUuid, opponentName) {
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('mainTitle').textContent = 'Raqib topildi!';
+        document.getElementById('statusSearching').classList.remove('searching');
+        document.getElementById('statusSearching').style.display = 'none';
+        document.getElementById('statusFound').style.display = 'block';
+        document.getElementById('cancelBtn').style.display = 'none';
+        document.getElementById('waitTimer').style.display = 'none';
+
+        // Opponent avatar
+        var avatarEl = document.getElementById('opponentAvatar');
+        avatarEl.textContent = opponentName.charAt(0);
+        avatarEl.classList.remove('opponent');
+        avatarEl.style.background = '#FEE2E2';
+        avatarEl.style.color = '#DC2626';
+        avatarEl.style.borderStyle = 'solid';
+        avatarEl.style.borderColor = '#DC2626';
+        avatarEl.style.animation = 'none';
+
+        document.getElementById('opponentName').textContent = opponentName;
+
+        // Show battle button
+        var btn = document.getElementById('startBattleBtn');
+        btn.href = '/competitions/battle/' + battleUuid + '/play/';
+        btn.classList.add('show');
+    }
+
+    // Timeout
+    function showTimeout() {
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('mainTitle').textContent = 'Raqib topilmadi';
+        document.getElementById('statusSearching').style.display = 'none';
+        document.getElementById('statusTimeout').style.display = 'block';
+        document.getElementById('cancelBtn').style.display = 'none';
+        document.getElementById('waitTimer').style.display = 'none';
+        document.getElementById('retryBtn').classList.add('show');
+    }
+
+    // Cancel
+    window.cancelMatch = function() {
+        found = true;
+        clearInterval(pollInterval);
+        clearInterval(waitTimerInterval);
+
+        fetch("{% url 'competitions:api_matchmaking_cancel' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ queue_id: queueId })
+        })
+        .then(function() {
+            window.location.href = "{% url 'competitions:battle_create' %}";
+        })
+        .catch(function() {
+            window.location.href = "{% url 'competitions:battle_create' %}";
+        });
+    };
+
+})();
+</script>
+{% endblock %}
