@@ -361,11 +361,9 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Ma'lumotlarni xavfsiz o'qish
+        // --- 1. SETUP VARIABLES ---
         const questionsScript = document.getElementById('questions-data');
         const questions = questionsScript ? JSON.parse(questionsScript.textContent) : [];
-
-        // Agar total_time bo'lmasa 600 (10 daqiqa) default
         const totalTime = parseInt("{{ total_time|default:600 }}") || 600;
 
         let timeLeft = totalTime;
@@ -375,21 +373,9 @@
         const timerEl = document.getElementById('timerDisplay');
         const timerBox = document.getElementById('testTimer');
 
-        // 2. Initializatsiya
-        if (questions.length > 0) {
-            renderQuestion(0);
-            startCountdown();
-            updateProgress();
-        } else {
-            document.getElementById('questionArea').innerHTML = `
-                <div class="text-center mt-5">
-                    <i class="bi bi-exclamation-circle display-1 text-muted"></i>
-                    <h3 class="mt-3 text-muted">Savollar topilmadi</h3>
-                    <p>Iltimos, sahifani yangilab ko'ring yoki administratorga bog'laning.</p>
-                </div>`;
-        }
+        // --- 2. DEFINE FUNCTIONS (Available inside this scope) ---
 
-        // 3. Savolni render qilish
+        // Function to render specific question
         function renderQuestion(idx) {
             if (!questions[idx]) return;
             currentIdx = idx;
@@ -410,7 +396,7 @@
                 q.answers.forEach((ans, i) => {
                     const isSelected = userAnswers[q.id] === ans.id;
                     html += `
-                        <div class="test-answer-option ${isSelected ? 'selected' : ''}" onclick="pickAnswer(${q.id}, ${ans.id})">
+                        <div class="test-answer-option ${isSelected ? 'selected' : ''}" onclick="window.pickAnswer(${q.id}, ${ans.id})">
                             <div class="test-answer-letter">${alphabet[i] || (i+1)}</div>
                             <div class="test-answer-text">${ans.text}</div>
                             ${ans.image ? `<img src="${ans.image}" class="ms-auto rounded" style="max-height: 40px;">` : ''}
@@ -422,42 +408,33 @@
             html += `</div></div>`;
             area.innerHTML = html;
 
-            // Button states
+            // Update bottom bar controls
             document.getElementById('currentNum').innerText = idx + 1;
             document.getElementById('prevBtn').disabled = (idx === 0);
 
             const nextBtn = document.getElementById('nextBtn');
             if (idx === questions.length - 1) {
                 nextBtn.innerHTML = 'Yakunlash <i class="bi bi-check-lg"></i>';
-                nextBtn.onclick = confirmFinish;
+                // Remove previous event listener to avoid stacking (if using addEventListener)
+                // But here we use onclick property, so it's safe to overwrite
+                nextBtn.onclick = window.confirmFinish;
             } else {
                 nextBtn.innerHTML = 'Keyingi <i class="bi bi-arrow-right"></i>';
-                nextBtn.onclick = nextQ;
+                nextBtn.onclick = window.nextQ;
             }
 
             updateSidebarUI();
         }
 
-        // 4. Javob tanlash
-        window.pickAnswer = function(qId, ansId) {
-            userAnswers[qId] = ansId;
-            renderQuestion(currentIdx); // Re-render to show selection
-            updateSidebarUI();
-            updateProgress();
-        };
-
-        // 5. Sidebar UI update
+        // Function to update sidebar styles
         function updateSidebarUI() {
-            // Reset all
             document.querySelectorAll('.sidebar-q-btn').forEach(btn => {
                 btn.classList.remove('current');
             });
 
-            // Set current
             const currentBtn = document.getElementById(`nav-btn-${currentIdx}`);
             if (currentBtn) currentBtn.classList.add('current');
 
-            // Set answered
             questions.forEach((q, i) => {
                 const btn = document.getElementById(`nav-btn-${i}`);
                 if (btn) {
@@ -470,17 +447,76 @@
             });
         }
 
-        // 6. Progress bar update
+        // Function to update progress bar
         function updateProgress() {
             const total = questions.length;
             const answered = Object.keys(userAnswers).length;
-            const percent = (answered / total) * 100;
+            const percent = total > 0 ? (answered / total) * 100 : 0;
 
-            document.getElementById('sidebarProgress').style.width = `${percent}%`;
-            document.getElementById('answeredCount').innerText = answered;
+            const progress = document.getElementById('sidebarProgress');
+            if(progress) progress.style.width = `${percent}%`;
+
+            const count = document.getElementById('answeredCount');
+            if(count) count.innerText = answered;
         }
 
-        // 7. Navigation funksiyalari
+        // Timer Logic
+        function startCountdown() {
+            const timer = setInterval(() => {
+                timeLeft--;
+
+                const mins = Math.floor(Math.max(0, timeLeft) / 60);
+                const secs = Math.max(0, timeLeft) % 60;
+                if(timerEl) timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 60 && timerBox) timerBox.classList.add('danger');
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    alert("Vaqt tugadi! Javoblar avtomatik yuborilmoqda.");
+                    submitBattle();
+                }
+            }, 1000);
+        }
+
+        // Submit Logic
+        function submitBattle() {
+            const formattedAnswers = Object.keys(userAnswers).map(qId => ({
+                question_id: parseInt(qId),
+                answer_id: userAnswers[qId]
+            }));
+
+            const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+            document.getElementById('answersInput').value = JSON.stringify(formattedAnswers);
+            document.getElementById('timeSpentInput').value = timeSpent;
+
+            window.onbeforeunload = null;
+
+            const finishBtn = document.querySelector('.sidebar-finish-btn');
+            if (finishBtn) {
+                finishBtn.disabled = true;
+                finishBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Yuborilmoqda...';
+            }
+
+            const form = document.getElementById('submitForm');
+            if (form && form.getAttribute('action') && form.getAttribute('action') !== '#') {
+                form.submit();
+            } else {
+                alert("Xatolik: Form action topilmadi. Sahifani yangilang.");
+            }
+        }
+
+        // --- 3. EXPOSE FUNCTIONS TO WINDOW (For HTML onclick) ---
+        // These bridge the gap between HTML onclick attributes and local scope functions
+
+        window.pickAnswer = function(qId, ansId) {
+            userAnswers[qId] = ansId;
+            renderQuestion(currentIdx);
+            updateSidebarUI();
+            updateProgress();
+        };
+
         window.nextQ = function() {
             if (currentIdx < questions.length - 1) renderQuestion(currentIdx + 1);
         };
@@ -493,29 +529,6 @@
             renderQuestion(idx);
         };
 
-        // 8. Timer logic
-        function startCountdown() {
-            const timer = setInterval(() => {
-                timeLeft--;
-
-                // Format MM:SS
-                const mins = Math.floor(Math.max(0, timeLeft) / 60);
-                const secs = Math.max(0, timeLeft) % 60;
-                timerEl.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-                // Warning states
-                if (timeLeft <= 60) timerBox.classList.add('danger');
-
-                // Time up
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    alert("Vaqt tugadi! Javoblar avtomatik yuborilmoqda.");
-                    submitBattle();
-                }
-            }, 1000);
-        }
-
-        // 9. Finish logic
         window.confirmFinish = function() {
             const unanswered = questions.length - Object.keys(userAnswers).length;
             let msg = "Jangni yakunlamoqchimisiz?";
@@ -527,51 +540,30 @@
             }
         };
 
-        function submitBattle() {
-            // Format data for Django backend
-            const formattedAnswers = Object.keys(userAnswers).map(qId => ({
-                question_id: parseInt(qId),
-                answer_id: userAnswers[qId]
-            }));
-
-            const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-
-            document.getElementById('answersInput').value = JSON.stringify(formattedAnswers);
-            document.getElementById('timeSpentInput').value = timeSpent;
-
-            // Disable unload warning
-            window.onbeforeunload = null;
-
-            // Show loading state
-            const finishBtn = document.querySelector('.sidebar-finish-btn');
-            if (finishBtn) {
-                finishBtn.disabled = true;
-                finishBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Yuborilmoqda...';
-            }
-
-            const form = document.getElementById('submitForm');
-            if (form.getAttribute('action') && form.getAttribute('action') !== '#') {
-                form.submit();
-            } else {
-                alert("Xatolik: Form action topilmadi. Sahifani yangilang.");
-            }
+        // --- 4. INITIALIZATION ---
+        if (questions.length > 0) {
+            renderQuestion(0);
+            startCountdown();
+            updateProgress();
+        } else {
+            const area = document.getElementById('questionArea');
+            if(area) area.innerHTML = `
+                <div class="text-center mt-5">
+                    <i class="bi bi-exclamation-circle display-1 text-muted"></i>
+                    <h3 class="mt-3 text-muted">Savollar topilmadi</h3>
+                    <p>Iltimos, sahifani yangilab ko'ring yoki administratorga bog'laning.</p>
+                </div>`;
         }
 
-        // 10. Event Listeners
-        // Prevent accidental leave
+        // --- 5. GLOBAL EVENT LISTENERS ---
         window.onbeforeunload = () => "Jang davom etmoqda. Chiqib ketsangiz natija saqlanmaydi.";
-
-        // Disable right click
         document.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Keyboard navigation
         document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowRight') nextQ();
-            if (e.key === 'ArrowLeft') prevQ();
-            // Number keys 1-5 for options
+            if (e.key === 'ArrowRight') window.nextQ();
+            if (e.key === 'ArrowLeft') window.prevQ();
             if (['1', '2', '3', '4', '5'].includes(e.key)) {
                 const i = parseInt(e.key) - 1;
-                // Select options in current render
                 const opts = document.querySelectorAll('.test-answer-option');
                 if (opts[i]) opts[i].click();
             }
