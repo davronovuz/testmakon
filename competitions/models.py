@@ -641,26 +641,30 @@ class Battle(models.Model):
         from django.db.models import F
 
         if self.is_draw:
-            # Durrang - ikkalasiga teng XP
             draw_xp = (self.winner_xp + self.loser_xp) // 2
             self.challenger.xp_points = F('xp_points') + draw_xp
             self.challenger.save(update_fields=['xp_points'])
             if self.opponent:
                 self.opponent.xp_points = F('xp_points') + draw_xp
                 self.opponent.save(update_fields=['xp_points'])
+
+        elif self.winner_is_bot:
+            # Bot yutdi - challenger faqat loser XP oladi
+            self.challenger.xp_points = F('xp_points') + self.loser_xp
+            self.challenger.save(update_fields=['xp_points'])
+
         elif self.winner == self.challenger:
+            # Challenger yutdi
             self.challenger.xp_points = F('xp_points') + self.winner_xp
             self.challenger.save(update_fields=['xp_points'])
             if self.opponent:
                 self.opponent.xp_points = F('xp_points') + self.loser_xp
                 self.opponent.save(update_fields=['xp_points'])
-        elif self.winner == self.opponent:
-            self.challenger.xp_points = F('xp_points') + self.loser_xp
-            self.challenger.save(update_fields=['xp_points'])
+
+        elif self.opponent and self.winner == self.opponent:
+            # Opponent (real user) yutdi
             self.opponent.xp_points = F('xp_points') + self.winner_xp
             self.opponent.save(update_fields=['xp_points'])
-        elif self.winner_is_bot:
-            # Bot yutdi - challenger loser XP oladi
             self.challenger.xp_points = F('xp_points') + self.loser_xp
             self.challenger.save(update_fields=['xp_points'])
 
