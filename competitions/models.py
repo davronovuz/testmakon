@@ -531,6 +531,27 @@ class Battle(models.Model):
     started_at = models.DateTimeField('Boshlangan', null=True, blank=True)
     completed_at = models.DateTimeField('Yakunlangan', null=True, blank=True)
     expires_at = models.DateTimeField('Amal qilish muddati')
+    # Invite link orqali taklif
+    invite_code = models.CharField(
+        'Taklif kodi',
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text='Havola orqali taklif uchun unikal kod'
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.invite_code and self.opponent_type == 'friend':
+            self.invite_code = uuid.uuid4().hex[:10].upper()
+        super().save(*args, **kwargs)
+
+    @property
+    def invite_url(self):
+        """Taklif havolasini qaytarish"""
+        if self.invite_code:
+            return f"/competitions/battles/join/{self.invite_code}/"
+        return None
 
     class Meta:
         verbose_name = 'Jang'
@@ -766,6 +787,25 @@ class BattleInvitation(models.Model):
 
     # Notification
     notification_sent = models.BooleanField('Xabar yuborildi', default=False)
+    invited_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='battle_invitations_received',
+        verbose_name='Taklif qilingan',
+        null=True,
+        blank=True
+    )
+    status = models.CharField(
+        'Holat',
+        max_length=10,
+        choices=[
+            ('pending', 'Kutilmoqda'),
+            ('accepted', 'Qabul qilingan'),
+            ('declined', 'Rad etilgan'),
+            ('expired', 'Muddati o\'tgan'),
+        ],
+        default='pending'
+    )
 
     class Meta:
         verbose_name = 'Jang taklifi'
@@ -924,3 +964,122 @@ class WeeklyLeagueParticipant(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.league}"
+
+
+
+
+
+# ============================================================
+# 3. YANGI MODEL - WeeklyLeagueParticipant dan KEYIN qo'shing:
+# ============================================================
+
+class Friendship(models.Model):
+    """Do'stlik tizimi"""
+
+    STATUS_CHOICES = [
+        ('pending', 'Kutilmoqda'),
+        ('accepted', 'Qabul qilingan'),
+        ('declined', 'Rad etilgan'),
+        ('blocked', 'Bloklangan'),
+    ]
+
+    from_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='sent_friendships',
+        verbose_name='Yuboruvchi'
+    )
+    to_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='received_friendships',
+        verbose_name='Qabul qiluvchi'
+    )
+    status = models.CharField(
+        'Holat',
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+
+    created_at = models.DateTimeField('Yaratilgan', auto_now_add=True)
+    updated_at = models.DateTimeField('Yangilangan', auto_now=True)
+
+    class Meta:
+        verbose_name = 'Do\'stlik'
+        verbose_name_plural = 'Do\'stliklar'
+        unique_together = ['from_user', 'to_user']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.from_user} → {self.to_user} ({self.get_status_display()})"
+
+    @classmethod
+    def are_friends(cls, user1, user2):
+        """Ikki foydalanuvchi do'stmi tekshirish"""
+        return cls.objects.filter(
+            models.Q(from_user=user1, to_user=user2, status='accepted') |
+            models.Q(from_user=user2, to_user=user1, status='accepted')
+        ).exists()
+
+    @classmethod
+    def get_friends(cls, user):
+        """Foydalanuvchining barcha do'stlarini olish"""
+        from django.db.models import Q
+        friendships = cls.objects.filter(
+            Q(from_user=user, status='accepted') |
+            Q(to_user=user, status='accepted')
+        )
+        friend_ids = set()
+        for f in friendships:
+            if f.from_user == user:
+                friend_ids.add(f.to_user_id)
+            else:
+                friend_ids.add(f.from_user_id)
+
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        return User.objects.filter(id__in=friend_ids)
+
+    @classmethod
+    def get_pending_requests(cls, user):
+        """Kutilayotgan do'stlik so'rovlari"""
+        return cls.objects.filter(to_user=user, status='pending')
+
+    @classmethod
+    def send_request(cls, from_user, to_user):
+        """Do'stlik so'rovi yuborish"""
+        if from_user == to_user:
+            return None, "O'zingizga so'rov yubora olmaysiz"
+
+        # Allaqachon do'stmi?
+        if cls.are_friends(from_user, to_user):
+            return None, "Allaqachon do'stsiz"
+
+        # Allaqachon so'rov bormi?
+        existing = cls.objects.filter(
+            models.Q(from_user=from_user, to_user=to_user) |
+            models.Q(from_user=to_user, to_user=from_user)
+        ).first()
+
+        if existing:
+            if existing.status == 'pending':
+                # Agar raqib yuborgan bo'lsa, avtomatik qabul
+                if existing.from_user == to_user:
+                    existing.status = 'accepted'
+                    existing.save()
+                    return existing, "Do'stlik qabul qilindi!"
+                return None, "So'rov allaqachon yuborilgan"
+            elif existing.status == 'declined':
+                existing.status = 'pending'
+                existing.from_user = from_user
+                existing.to_user = to_user
+                existing.save()
+                return existing, "So'rov qayta yuborildi"
+
+        friendship = cls.objects.create(
+            from_user=from_user,
+            to_user=to_user,
+            status='pending'
+        )
+        return friendship, "Do'stlik so'rovi yuborildi!"
