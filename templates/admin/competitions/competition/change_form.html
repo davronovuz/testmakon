@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if original %}
+    <li>
+        <a href="{% url 'admin:competition-import-questions' original.pk %}"
+           style="background:#10B981; color:white; padding:6px 14px; border-radius:6px; text-decoration:none; font-weight:600; font-size:13px;">
+            CSV/Excel dan import
+        </a>
+    </li>
+    {% endif %}
+{% endblock %}

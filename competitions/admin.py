@@ -9,12 +9,16 @@ from django.utils import timezone
 from django.db.models import Count, Avg
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.text import slugify
+import uuid as uuid_lib
 
 from .models import (
     Competition, CompetitionParticipant, CompetitionPayment,
     Certificate, Battle, BattleInvitation, MatchmakingQueue,
     DailyChallenge, DailyChallengeParticipant,
-    WeeklyLeague, WeeklyLeagueParticipant
+    WeeklyLeague, WeeklyLeagueParticipant,
+    CompetitionQuestion
 )
 
 
@@ -71,6 +75,28 @@ class WeeklyLeagueParticipantInline(admin.TabularInline):
         return False
 
 
+class CompetitionQuestionInline(admin.TabularInline):
+    model = CompetitionQuestion
+    extra = 1
+    autocomplete_fields = ['question']
+    fields = ('order', 'question', 'question_preview')
+    readonly_fields = ('question_preview',)
+    ordering = ['order']
+
+    def question_preview(self, obj):
+        if obj.question_id:
+            q = obj.question
+            correct = q.answers.filter(is_correct=True).first()
+            return format_html(
+                '<small><b>Fan:</b> {} | <b>Qiyinlik:</b> {} | <b>Javob:</b> {}</small>',
+                q.subject.name if q.subject else '-',
+                q.get_difficulty_display(),
+                correct.text[:40] if correct else '-'
+            )
+        return '-'
+    question_preview.short_description = "Ma'lumot"
+
+
 # ============================================================
 # COMPETITION ADMIN
 # ============================================================
@@ -79,12 +105,13 @@ class WeeklyLeagueParticipantInline(admin.TabularInline):
 class CompetitionAdmin(admin.ModelAdmin):
     list_display = [
         'title', 'competition_type_badge', 'status_badge', 'entry_type_badge',
-        'participants_display', 'prize_display', 'start_time', 'is_active'
+        'questions_count_display', 'participants_display', 'prize_display', 'start_time', 'is_active'
     ]
     list_filter = [
-        'status', 'competition_type', 'entry_type', 'test_format',
+        'status', 'competition_type', 'entry_type', 'test_format', 'question_source',
         'is_active', 'is_featured', 'certificate_enabled', 'subject'
     ]
+    change_form_template = 'admin/competitions/competition/change_form.html'
     search_fields = ['title', 'slug', 'description']
     prepopulated_fields = {'slug': ('title',)}
     date_hierarchy = 'start_time'
@@ -103,9 +130,9 @@ class CompetitionAdmin(admin.ModelAdmin):
             'fields': ('competition_type', 'status', 'entry_type', 'entry_fee', 'test_format')
         }),
         ('Fan va test', {
-            'fields': ('subject', 'subjects', 'test', 'questions_per_subject', 'total_questions',
+            'fields': ('subject', 'subjects', 'test', 'question_source',
+                       'questions_per_subject', 'total_questions',
                        'difficulty_distribution'),
-            'classes': ('collapse',)
         }),
         ('Vaqt sozlamalari', {
             'fields': ('registration_start', 'registration_end', 'start_time', 'end_time', 'duration_minutes')
@@ -138,9 +165,125 @@ class CompetitionAdmin(admin.ModelAdmin):
     )
 
     filter_horizontal = ['subjects']
-    inlines = [CompetitionParticipantInline, CertificateInline]
+    inlines = [CompetitionQuestionInline, CompetitionParticipantInline, CertificateInline]
 
     actions = ['make_active', 'make_finished', 'calculate_ranks', 'generate_certificates']
+
+    def questions_count_display(self, obj):
+        count = obj.competition_questions.count()
+        if count > 0:
+            return format_html(
+                '<span style="color:#10B981; font-weight:600;">{} ta savol</span>', count
+            )
+        if obj.question_source == 'auto':
+            return format_html(
+                '<span style="color:#6B7280;">Avtomatik ({})</span>', obj.total_questions
+            )
+        return format_html('<span style="color:#EF4444;">Savol yo\'q!</span>')
+    questions_count_display.short_description = 'Savollar'
+
+    def get_urls(self):
+        from django.urls import path
+        custom_urls = [
+            path(
+                '<int:competition_id>/import-questions/',
+                self.admin_site.admin_view(self.import_questions_view),
+                name='competition-import-questions',
+            ),
+        ]
+        return custom_urls + super().get_urls()
+
+    def import_questions_view(self, request, competition_id):
+        """Musobaqaga CSV/Excel dan savollar import qilish"""
+        from tests_app.models import Subject, Topic, Question, Answer
+
+        competition = get_object_or_404(Competition, pk=competition_id)
+
+        if request.method == 'POST' and request.FILES.get('file'):
+            file = request.FILES['file']
+            import openpyxl
+            import csv
+            import io
+
+            rows = []
+            if file.name.endswith('.xlsx'):
+                wb = openpyxl.load_workbook(file, read_only=True)
+                ws = wb.active
+                headers = [cell.value for cell in next(ws.iter_rows(min_row=1, max_row=1))]
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    rows.append(dict(zip(headers, row)))
+                wb.close()
+            else:
+                content = file.read().decode('utf-8-sig')
+                reader = csv.DictReader(io.StringIO(content))
+                rows = list(reader)
+
+            created_count = 0
+            for row in rows:
+                savol_text = str(row.get('Savol', '')).strip()
+                if not savol_text:
+                    continue
+
+                sub_name = str(row.get('Fan', 'Umumiy Fan')).strip()
+                sub_slug = slugify(sub_name) or str(uuid_lib.uuid4())[:8]
+                subject_obj, _ = Subject.objects.get_or_create(
+                    name=sub_name,
+                    defaults={'slug': sub_slug, 'is_active': True}
+                )
+
+                top_name = str(row.get('Mavzu', 'Umumiy Mavzu')).strip()
+                top_slug = slugify(top_name) or str(uuid_lib.uuid4())[:8]
+                topic_obj, _ = Topic.objects.get_or_create(
+                    name=top_name, subject=subject_obj,
+                    defaults={'slug': top_slug, 'is_active': True}
+                )
+
+                difficulty = str(row.get('Qiyinlik', 'medium')).strip().lower()
+                if difficulty not in ('easy', 'medium', 'hard', 'expert'):
+                    difficulty = 'medium'
+
+                question = Question.objects.create(
+                    text=savol_text,
+                    subject=subject_obj,
+                    topic=topic_obj,
+                    difficulty=difficulty,
+                    question_type='single',
+                )
+
+                correct_key = str(row.get('Togri_javob', '')).strip().upper()
+                for idx, key in enumerate(['A', 'B', 'C', 'D']):
+                    text = row.get(key)
+                    if text and str(text).strip():
+                        Answer.objects.create(
+                            question=question,
+                            text=str(text).strip(),
+                            is_correct=(key == correct_key),
+                            order=idx
+                        )
+
+                CompetitionQuestion.objects.create(
+                    competition=competition,
+                    question=question,
+                    order=created_count
+                )
+                created_count += 1
+
+            if competition.question_source == 'auto' and created_count > 0:
+                competition.question_source = 'manual'
+                competition.total_questions = created_count
+                competition.save(update_fields=['question_source', 'total_questions'])
+
+            self.message_user(request, f'{created_count} ta savol muvaffaqiyatli import qilindi!')
+            return redirect(reverse('admin:competitions_competition_change', args=[competition_id]))
+
+        context = {
+            **self.admin_site.each_context(request),
+            'competition': competition,
+            'title': f'Savollarni import qilish: {competition.title}',
+            'opts': self.model._meta,
+            'existing_count': competition.competition_questions.count(),
+        }
+        return render(request, 'admin/competitions/import_questions.html', context)
 
     def competition_type_badge(self, obj):
         colors = {

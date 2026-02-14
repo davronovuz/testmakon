@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 20px auto;">
+
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h2 style="margin-top:0; color: #1F2937;">Savollarni import qilish</h2>
+
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="margin:0; font-weight:600; color:#166534;">Musobaqa: {{ competition.title }}</p>
+            {% if existing_count > 0 %}
+            <p style="margin:5px 0 0; color:#15803D; font-size:14px;">Hozirda {{ existing_count }} ta savol biriktirilgan</p>
+            {% endif %}
+        </div>
+
+        <div style="background: #F0F9FF; border: 1px solid #BAE6FD; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="margin:0 0 8px; font-weight:600; color:#1E40AF;">CSV/Excel fayl formati:</p>
+            <div style="background: #1E293B; color: #E2E8F0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; overflow-x: auto;">
+                Fan | Mavzu | Savol | Qiyinlik | A | B | C | D | Togri_javob
+            </div>
+            <div style="margin-top: 10px; font-size: 13px; color: #475569;">
+                <p style="margin: 4px 0;"><b>Qiyinlik:</b> easy, medium, hard, expert</p>
+                <p style="margin: 4px 0;"><b>Togri_javob:</b> A, B, C yoki D</p>
+                <p style="margin: 4px 0;"><b>Fayl formati:</b> .csv yoki .xlsx</p>
+            </div>
+        </div>
+
+        <div style="background: #FFFBEB; border: 1px solid #FDE68A; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="margin:0; font-size:13px; color:#92400E;">
+                Import qilingan savollar savollar bankiga ham qo'shiladi, ham shu musobaqaga biriktiriladi.
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label for="file" style="display:block; margin-bottom:8px; font-weight:600; color:#374151;">
+                    Faylni tanlang:
+                </label>
+                <input type="file" name="file" id="file" accept=".csv,.xlsx" required
+                       style="padding: 10px; border: 2px dashed #D1D5DB; border-radius: 8px; width: 100%; cursor: pointer; background: #F9FAFB;">
+            </div>
+
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button type="submit" style="background:#3B82F6; color:white; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:15px; transition: background 0.2s;"
+                        onmouseover="this.style.background='#2563EB'" onmouseout="this.style.background='#3B82F6'">
+                    Import qilish
+                </button>
+                <a href="{% url 'admin:competitions_competition_change' competition.pk %}"
+                   style="color:#6B7280; text-decoration:none; font-weight:500;">
+                    Bekor qilish
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

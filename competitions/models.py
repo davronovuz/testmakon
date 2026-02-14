@@ -171,6 +171,20 @@ class Competition(models.Model):
         help_text='[{"name": "...", "logo": "...", "url": "..."}]'
     )
 
+    # Savol manbasi
+    QUESTION_SOURCE_CHOICES = [
+        ('auto', 'Avtomatik (bankdan)'),
+        ('manual', 'Qo\'lda tanlangan'),
+        ('mixed', 'Aralash'),
+    ]
+    question_source = models.CharField(
+        'Savol manbasi',
+        max_length=10,
+        choices=QUESTION_SOURCE_CHOICES,
+        default='auto',
+        help_text='Avtomatik = bankdan tasodifiy. Qo\'lda = faqat tanlangan savollar.'
+    )
+
     is_active = models.BooleanField('Faol', default=True)
     is_featured = models.BooleanField('Tanlanganlar', default=False)
     created_by = models.ForeignKey(
@@ -230,6 +244,46 @@ class Competition(models.Model):
             if prize.get('place') == rank:
                 return prize
         return None
+
+    def has_manual_questions(self):
+        """Qo'lda biriktirilgan savollar bormi?"""
+        return self.competition_questions.exists()
+
+    def get_manual_questions(self):
+        """Qo'lda biriktirilgan savollar ro'yxati"""
+        return [
+            cq.question for cq in
+            self.competition_questions.select_related(
+                'question__subject', 'question__topic'
+            ).prefetch_related('question__answers').order_by('order')
+        ]
+
+
+class CompetitionQuestion(models.Model):
+    """Musobaqaga biriktirilgan savol"""
+
+    competition = models.ForeignKey(
+        Competition,
+        on_delete=models.CASCADE,
+        related_name='competition_questions',
+        verbose_name='Musobaqa'
+    )
+    question = models.ForeignKey(
+        'tests_app.Question',
+        on_delete=models.CASCADE,
+        related_name='competition_assignments',
+        verbose_name='Savol'
+    )
+    order = models.PositiveIntegerField('Tartib', default=0)
+
+    class Meta:
+        verbose_name = 'Musobaqa savoli'
+        verbose_name_plural = 'Musobaqa savollari'
+        ordering = ['order']
+        unique_together = ['competition', 'question']
+
+    def __str__(self):
+        return f"{self.competition.title} - #{self.order}"
 
 
 class CompetitionParticipant(models.Model):
@@ -552,6 +606,8 @@ class Battle(models.Model):
         if self.invite_code:
             return f"/competitions/battles/join/{self.invite_code}/"
         return None
+
+
 
     class Meta:
         verbose_name = 'Jang'

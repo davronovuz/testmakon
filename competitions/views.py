@@ -471,7 +471,24 @@ def competition_start(request, slug):
 
     # Savollar generatsiya qilish (session'da saqlash)
     if 'competition_questions' not in request.session or request.session.get('competition_id') != competition.id:
-        if competition.test_format == 'dtm_block' and competition.subjects.exists():
+        # Qo'lda biriktirilgan savollar bormi?
+        if competition.question_source in ('manual', 'mixed') and competition.has_manual_questions():
+            manual_questions = competition.get_manual_questions()
+            questions_data = format_questions(manual_questions)
+
+            # Aralash rejim — bankdan to'ldirish
+            if competition.question_source == 'mixed':
+                remaining = competition.total_questions - len(questions_data)
+                if remaining > 0:
+                    existing_ids = [q.id for q in manual_questions]
+                    extra = generate_questions(
+                        subject=competition.subject,
+                        count=remaining,
+                        difficulty_dist=competition.difficulty_distribution or None
+                    )
+                    extra = [q for q in extra if q['id'] not in existing_ids]
+                    questions_data.extend(extra[:remaining])
+        elif competition.test_format == 'dtm_block' and competition.subjects.exists():
             questions_data = generate_questions(
                 subjects=competition.subjects.all(),
                 count=competition.total_questions,
