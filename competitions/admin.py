@@ -179,7 +179,7 @@ class CompetitionAdmin(admin.ModelAdmin):
             return format_html(
                 '<span style="color:#6B7280;">Avtomatik ({})</span>', obj.total_questions
             )
-        return format_html('<span style="color:#EF4444;">Savol yo\'q!</span>')
+        return format_html('<span style="color:#EF4444;">Savol yoq!</span>')
     questions_count_display.short_description = 'Savollar'
 
     def get_urls(self):
@@ -325,7 +325,7 @@ class CompetitionAdmin(admin.ModelAdmin):
         elif obj.entry_type == 'premium_only':
             return format_html('<span style="color:#F59E0B; font-weight:600;">👑 Premium</span>')
         else:
-            return format_html('<span style="color:#EF4444; font-weight:600;">💰 {} so\'m</span>', obj.entry_fee)
+            return format_html('<span style="color:#EF4444; font-weight:600;">{} som</span>', obj.entry_fee)
 
     entry_type_badge.short_description = 'Kirish'
 
@@ -342,8 +342,8 @@ class CompetitionAdmin(admin.ModelAdmin):
     def prize_display(self, obj):
         if obj.prize_pool > 0:
             return format_html(
-                '<span style="color:#10B981; font-weight:600;">{:,} so\'m</span>',
-                obj.prize_pool
+                '<span style="color:#10B981; font-weight:600;">{} som</span>',
+                f'{obj.prize_pool:,}'
             )
         return '-'
 
@@ -540,7 +540,7 @@ class CompetitionPaymentAdmin(admin.ModelAdmin):
     participant_competition.short_description = 'Musobaqa'
 
     def amount_display(self, obj):
-        return format_html('<span style="font-weight:600;">{:,} so\'m</span>', obj.amount)
+        return format_html('<span style="font-weight:600;">{} som</span>', f'{obj.amount:,}')
 
     amount_display.short_description = 'Summa'
 
@@ -829,7 +829,7 @@ class WeeklyLeagueParticipantAdmin(admin.ModelAdmin):
 
     def status_display(self, obj):
         if obj.is_promoted:
-            return format_html('<span style="color:#10B981;">⬆️ Ko\'tarildi</span>')
+            return format_html('<span style="color:#10B981;">Kotarildi</span>')
         elif obj.is_demoted:
             return format_html('<span style="color:#EF4444;">⬇️ Tushdi</span>')
         return format_html('<span style="color:#6B7280;">➡️ Qoldi</span>')
