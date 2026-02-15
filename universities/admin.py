@@ -1,7 +1,13 @@
 """
 TestMakon.uz - Universities Admin Configuration
 """
+import csv
+import io
 from django.contrib import admin
+from django.shortcuts import render, redirect
+from django.urls import path
+from django.contrib import messages
+from django.utils.text import slugify
 from django.utils.html import format_html
 from .models import (
     University, Faculty, Direction,
@@ -9,14 +15,23 @@ from .models import (
 )
 
 
+class FacultyInline(admin.TabularInline):
+    model = Faculty
+    extra = 0
+    fields = ['name', 'slug', 'is_active']
+    show_change_link = True
+    prepopulated_fields = {'slug': ('name',)}
+
+
 @admin.register(University)
 class UniversityAdmin(admin.ModelAdmin):
     list_display = ['name', 'short_name', 'university_type', 'region',
-                    'student_count', 'rating', 'is_partner', 'is_featured', 'is_active']
+                    'directions_count', 'student_count', 'is_partner', 'is_featured', 'is_active']
     list_filter = ['university_type', 'region', 'is_partner', 'is_featured', 'is_active']
     search_fields = ['name', 'short_name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ['uuid', 'created_at', 'updated_at', 'logo_preview']
+    inlines = [FacultyInline]
 
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
@@ -50,6 +65,146 @@ class UniversityAdmin(admin.ModelAdmin):
         return 'Logo yuklanmagan'
 
     logo_preview.short_description = 'Logo ko\'rinishi'
+
+    def directions_count(self, obj):
+        count = obj.directions.count()
+        return format_html(
+            '<span style="background:#3B82F6;color:white;padding:2px 8px;border-radius:10px;font-size:12px;">{}</span>',
+            count
+        )
+
+    directions_count.short_description = "Yo'nalishlar"
+
+    def get_urls(self):
+        custom_urls = [
+            path(
+                'import-data/',
+                self.admin_site.admin_view(self.import_data_view),
+                name='university-import-data',
+            ),
+        ]
+        return custom_urls + super().get_urls()
+
+    def import_data_view(self, request):
+        if request.method == 'POST':
+            import_type = request.POST.get('import_type')
+            file = request.FILES.get('file')
+
+            if not file:
+                messages.error(request, 'Fayl tanlanmadi!')
+                return redirect('admin:university-import-data')
+
+            try:
+                if file.name.endswith('.xlsx'):
+                    import openpyxl
+                    wb = openpyxl.load_workbook(file)
+                    ws = wb.active
+                    rows = []
+                    for row in ws.iter_rows(min_row=2, values_only=True):
+                        rows.append([str(cell) if cell is not None else '' for cell in row])
+                elif file.name.endswith('.csv'):
+                    content = file.read().decode('utf-8-sig')
+                    reader = csv.reader(io.StringIO(content))
+                    next(reader, None)  # skip header
+                    rows = list(reader)
+                else:
+                    messages.error(request, 'Faqat .csv yoki .xlsx fayllar qabul qilinadi!')
+                    return redirect('admin:university-import-data')
+
+                if import_type == 'scores':
+                    count = self._import_scores(rows)
+                    messages.success(request, f'{count} ta o\'tish bali import qilindi!')
+                elif import_type == 'universities':
+                    count = self._import_universities(rows)
+                    messages.success(request, f'{count} ta universitet import qilindi!')
+
+            except Exception as e:
+                messages.error(request, f'Xatolik: {str(e)}')
+
+            return redirect('admin:university-import-data')
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Ma\'lumotlarni import qilish',
+            'uni_count': University.objects.count(),
+            'dir_count': Direction.objects.count(),
+            'score_count': PassingScore.objects.count(),
+        }
+        return render(request, 'admin/universities/import_data.html', context)
+
+    def _import_scores(self, rows):
+        """Import o'tish ballari: Universitet | Kod | Yo'nalish | Yil | Grant | Kontrakt | Arizalar | Tanlov"""
+        count = 0
+        for row in rows:
+            if len(row) < 6:
+                continue
+            uni_name = row[0].strip()
+            code = row[1].strip()
+            year = int(float(row[3])) if row[3] else 2024
+            grant_score = float(row[4]) if row[4] else None
+            contract_score = float(row[5]) if row[5] else None
+            applications = int(float(row[6])) if len(row) > 6 and row[6] else None
+            ratio = float(row[7]) if len(row) > 7 and row[7] else None
+
+            # Find direction by code or by university+name
+            direction = None
+            if code:
+                direction = Direction.objects.filter(code=code).first()
+            if not direction:
+                direction = Direction.objects.filter(
+                    university__name__icontains=uni_name
+                ).first()
+
+            if direction:
+                PassingScore.objects.update_or_create(
+                    direction=direction,
+                    year=year,
+                    defaults={
+                        'grant_score': grant_score,
+                        'contract_score': contract_score,
+                        'total_applications': applications,
+                        'competition_ratio': ratio,
+                    }
+                )
+                count += 1
+        return count
+
+    def _import_universities(self, rows):
+        """Import universitetlar: Nomi | Qisqa_nomi | Turi | Viloyat | Shahar | Tashkil_yili | Veb_sayt"""
+        count = 0
+        for row in rows:
+            if len(row) < 4:
+                continue
+            name = row[0].strip()
+            short_name = row[1].strip() if len(row) > 1 else ''
+            uni_type = row[2].strip() if len(row) > 2 else 'state'
+            region = row[3].strip() if len(row) > 3 else ''
+            city = row[4].strip() if len(row) > 4 else region
+            est_year = int(float(row[5])) if len(row) > 5 and row[5] else None
+            website = row[6].strip() if len(row) > 6 else ''
+
+            slug = slugify(name)
+
+            University.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'short_name': short_name,
+                    'university_type': uni_type if uni_type in ('state', 'private', 'foreign', 'joint') else 'state',
+                    'region': region,
+                    'city': city,
+                    'established_year': est_year,
+                    'website': website,
+                    'is_active': True,
+                }
+            )
+            count += 1
+        return count
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['import_url'] = 'import-data/'
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 class DirectionInline(admin.TabularInline):

@@ -1,0 +1,117 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 20px auto;">
+
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h2 style="margin-top:0; color: #1F2937;">Universitet ma'lumotlarini import qilish</h2>
+
+        {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div style="background: {% if message.tags == 'success' %}#F0FDF4; border-color:#BBF7D0; color:#166534;{% elif message.tags == 'error' %}#FEF2F2; border-color:#FECACA; color:#991B1B;{% else %}#FFF7ED; border-color:#FED7AA; color:#9A3412;{% endif %} border: 1px solid; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="margin:0; font-weight:600; color:#166534;">Hozirgi holat:</p>
+            <p style="margin:5px 0 0; color:#15803D; font-size:14px;">
+                {{ uni_count }} ta universitet | {{ dir_count }} ta yo'nalish | {{ score_count }} ta o'tish bali
+            </p>
+        </div>
+
+        <!-- Import turi tanlash -->
+        <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <button onclick="showTab('scores')" id="btn-scores"
+                    style="flex:1; padding:14px; border:2px solid #3B82F6; background:#EFF6FF; color:#1D4ED8; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px;">
+                O'tish ballarini import
+            </button>
+            <button onclick="showTab('universities')" id="btn-universities"
+                    style="flex:1; padding:14px; border:2px solid #D1D5DB; background:white; color:#6B7280; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px;">
+                Universitetlarni import
+            </button>
+        </div>
+
+        <!-- O'tish ballari import -->
+        <div id="tab-scores">
+            <div style="background: #F0F9FF; border: 1px solid #BAE6FD; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin:0 0 8px; font-weight:600; color:#1E40AF;">O'tish ballari fayl formati (CSV/Excel):</p>
+                <div style="background: #1E293B; color: #E2E8F0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 12px; overflow-x: auto;">
+                    Universitet | Yo'nalish_kodi | Yo'nalish | Yil | Grant_bal | Kontrakt_bal | Arizalar | Tanlov
+                </div>
+                <div style="margin-top: 10px; font-size: 13px; color: #475569;">
+                    <p style="margin: 4px 0;"><b>Universitet:</b> Universitet nomi yoki qisqa nomi</p>
+                    <p style="margin: 4px 0;"><b>Grant_bal / Kontrakt_bal:</b> Raqam (masalan: 185.5)</p>
+                    <p style="margin: 4px 0;"><b>Yil:</b> 2024 yoki 2025</p>
+                    <p style="margin: 4px 0;"><b>Tanlov:</b> Tanlov nisbati (masalan: 4.5)</p>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="import_type" value="scores">
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600; color:#374151;">Faylni tanlang:</label>
+                    <input type="file" name="file" accept=".csv,.xlsx" required
+                           style="padding: 10px; border: 2px dashed #D1D5DB; border-radius: 8px; width: 100%; cursor: pointer; background: #F9FAFB;">
+                </div>
+                <button type="submit" style="background:#3B82F6; color:white; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:15px;">
+                    Import qilish
+                </button>
+            </form>
+        </div>
+
+        <!-- Universitetlar import -->
+        <div id="tab-universities" style="display:none;">
+            <div style="background: #F0F9FF; border: 1px solid #BAE6FD; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin:0 0 8px; font-weight:600; color:#1E40AF;">Universitetlar fayl formati (CSV/Excel):</p>
+                <div style="background: #1E293B; color: #E2E8F0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 12px; overflow-x: auto;">
+                    Nomi | Qisqa_nomi | Turi | Viloyat | Shahar | Tashkil_yili | Veb_sayt
+                </div>
+                <div style="margin-top: 10px; font-size: 13px; color: #475569;">
+                    <p style="margin: 4px 0;"><b>Turi:</b> state, private, foreign, joint</p>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="import_type" value="universities">
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600; color:#374151;">Faylni tanlang:</label>
+                    <input type="file" name="file" accept=".csv,.xlsx" required
+                           style="padding: 10px; border: 2px dashed #D1D5DB; border-radius: 8px; width: 100%; cursor: pointer; background: #F9FAFB;">
+                </div>
+                <button type="submit" style="background:#3B82F6; color:white; padding:12px 28px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:15px;">
+                    Import qilish
+                </button>
+            </form>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <a href="{% url 'admin:universities_university_changelist' %}" style="color:#6B7280; text-decoration:none; font-weight:500;">
+                Orqaga qaytish
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showTab(tab) {
+    document.getElementById('tab-scores').style.display = tab === 'scores' ? 'block' : 'none';
+    document.getElementById('tab-universities').style.display = tab === 'universities' ? 'block' : 'none';
+
+    document.getElementById('btn-scores').style.borderColor = tab === 'scores' ? '#3B82F6' : '#D1D5DB';
+    document.getElementById('btn-scores').style.background = tab === 'scores' ? '#EFF6FF' : 'white';
+    document.getElementById('btn-scores').style.color = tab === 'scores' ? '#1D4ED8' : '#6B7280';
+
+    document.getElementById('btn-universities').style.borderColor = tab === 'universities' ? '#3B82F6' : '#D1D5DB';
+    document.getElementById('btn-universities').style.background = tab === 'universities' ? '#EFF6FF' : 'white';
+    document.getElementById('btn-universities').style.color = tab === 'universities' ? '#1D4ED8' : '#6B7280';
+}
+</script>
+{% endblock %}
