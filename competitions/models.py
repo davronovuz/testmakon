@@ -607,8 +607,6 @@ class Battle(models.Model):
             return f"/competitions/battles/join/{self.invite_code}/"
         return None
 
-
-
     class Meta:
         verbose_name = 'Jang'
         verbose_name_plural = 'Janglar'
