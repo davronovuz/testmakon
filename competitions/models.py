@@ -609,6 +609,7 @@ class Battle(models.Model):
 
     class Meta:
         verbose_name = 'Jang'
+
         verbose_name_plural = 'Janglar'
         ordering = ['-created_at']
 
