@@ -5,28 +5,11 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .saved-header {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 2.5rem 0;
-    }
+    {% include 'tests_app/_sidebar_css.html' %}
 
-    .saved-header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .saved-header h1 i {
-        color: var(--primary);
-    }
-
-    .saved-header p {
-        color: var(--gray-500);
-        margin: 0;
+    /* ========== CONTENT ========== */
+    .saved-content {
+        padding: 0;
     }
 
     .saved-count {
@@ -39,12 +22,7 @@
         font-size: 0.9rem;
         font-weight: 600;
         color: var(--primary-dark);
-        margin-top: 1rem;
-    }
-
-    /* ========== CONTENT ========== */
-    .saved-content {
-        padding: 2.5rem 0;
+        margin-bottom: 1.5rem;
     }
 
     /* ========== FILTERS ========== */
@@ -297,116 +275,105 @@
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="saved-header">
-    <div class="container">
-        <h1>
-            <i class="bi bi-bookmark-fill"></i>
-            Saqlangan savollar
-        </h1>
-        <p>Test paytida belgilangan savollaringiz</p>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='saved' %}
+        <main>
+            {% if saved %}
+            <div class="saved-count">
+                <i class="bi bi-bookmark-check"></i>
+                {{ saved|length }} ta savol saqlangan
+            </div>
 
-        {% if saved %}
-        <div class="saved-count">
-            <i class="bi bi-bookmark-check"></i>
-            {{ saved|length }} ta savol saqlangan
-        </div>
-        {% endif %}
-    </div>
-</div>
+            <!-- Filters -->
+            <div class="saved-filters">
+                <div class="saved-filter-group">
+                    <button class="saved-filter-btn active" data-filter="all">Barchasi</button>
+                    {% regroup saved by question.subject as subject_list %}
+                    {% for subject in subject_list %}
+                    <button class="saved-filter-btn" data-filter="{{ subject.grouper.slug }}">
+                        {{ subject.grouper.icon }} {{ subject.grouper.name }}
+                    </button>
+                    {% endfor %}
+                </div>
 
-<!-- Content -->
-<div class="saved-content">
-    <div class="container">
-        {% if saved %}
-        <!-- Filters -->
-        <div class="saved-filters">
-            <div class="saved-filter-group">
-                <button class="saved-filter-btn active" data-filter="all">Barchasi</button>
-                {% regroup saved by question.subject as subject_list %}
-                {% for subject in subject_list %}
-                <button class="saved-filter-btn" data-filter="{{ subject.grouper.slug }}">
-                    {{ subject.grouper.icon }} {{ subject.grouper.name }}
-                </button>
+                <div class="saved-actions">
+                    <a href="{% url 'tests_app:practice_select' %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-play-fill me-1"></i>Mashq qilish
+                    </a>
+                </div>
+            </div>
+
+            <!-- Questions List -->
+            <div class="saved-list">
+                {% for item in saved %}
+                <div class="saved-item" data-subject="{{ item.question.subject.slug }}">
+                    <div class="saved-item-header">
+                        <div class="saved-item-meta">
+                            <span class="saved-item-subject">
+                                {{ item.question.subject.icon }}
+                                {{ item.question.subject.name }}
+                            </span>
+                            {% if item.question.topic %}
+                            <span class="saved-item-topic">{{ item.question.topic.name }}</span>
+                            {% endif %}
+                            <span class="saved-item-difficulty {{ item.question.difficulty }}">
+                                {% if item.question.difficulty == 'easy' %}Oson
+                                {% elif item.question.difficulty == 'medium' %}O'rta
+                                {% elif item.question.difficulty == 'hard' %}Qiyin
+                                {% else %}Ekspert{% endif %}
+                            </span>
+                        </div>
+                        <span class="saved-item-date">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            {{ item.created_at|date:"d.m.Y" }}
+                        </span>
+                    </div>
+
+                    <div class="saved-item-body">
+                        <div class="saved-item-question">
+                            {{ item.question.text }}
+                        </div>
+
+                        <div class="saved-item-answers">
+                            {% for answer in item.question.answers.all %}
+                            <div class="saved-answer {% if answer.is_correct %}correct{% endif %}">
+                                <span class="saved-answer-letter">
+                                    {% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}
+                                </span>
+                                {{ answer.text }}
+                                {% if answer.is_correct %}
+                                <i class="bi bi-check-circle-fill ms-auto"></i>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="saved-item-footer">
+                            <a href="{% url 'tests_app:unsave_question' question_id=item.question.id %}" class="saved-btn danger">
+                                <i class="bi bi-bookmark-x"></i>
+                                O'chirish
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
 
-            <div class="saved-actions">
-                <a href="{% url 'tests_app:practice_select' %}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-play-fill me-1"></i>Mashq qilish
+            {% else %}
+            <!-- Empty State -->
+            <div class="saved-empty">
+                <div class="saved-empty-icon">
+                    <i class="bi bi-bookmark"></i>
+                </div>
+                <h3>Saqlangan savollar yo'q</h3>
+                <p>Test paytida savollarni belgilab saqlab qo'yishingiz mumkin</p>
+                <a href="{% url 'tests_app:question_bank' %}" class="btn btn-primary">
+                    <i class="bi bi-play-fill me-2"></i>Test boshlash
                 </a>
             </div>
-        </div>
-
-        <!-- Questions List -->
-        <div class="saved-list">
-            {% for item in saved %}
-            <div class="saved-item" data-subject="{{ item.question.subject.slug }}">
-                <div class="saved-item-header">
-                    <div class="saved-item-meta">
-                        <span class="saved-item-subject">
-                            {{ item.question.subject.icon }}
-                            {{ item.question.subject.name }}
-                        </span>
-                        {% if item.question.topic %}
-                        <span class="saved-item-topic">{{ item.question.topic.name }}</span>
-                        {% endif %}
-                        <span class="saved-item-difficulty {{ item.question.difficulty }}">
-                            {% if item.question.difficulty == 'easy' %}Oson
-                            {% elif item.question.difficulty == 'medium' %}O'rta
-                            {% elif item.question.difficulty == 'hard' %}Qiyin
-                            {% else %}Ekspert{% endif %}
-                        </span>
-                    </div>
-                    <span class="saved-item-date">
-                        <i class="bi bi-calendar3 me-1"></i>
-                        {{ item.created_at|date:"d.m.Y" }}
-                    </span>
-                </div>
-
-                <div class="saved-item-body">
-                    <div class="saved-item-question">
-                        {{ item.question.text }}
-                    </div>
-
-                    <div class="saved-item-answers">
-                        {% for answer in item.question.answers.all %}
-                        <div class="saved-answer {% if answer.is_correct %}correct{% endif %}">
-                            <span class="saved-answer-letter">
-                                {% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% else %}D{% endif %}
-                            </span>
-                            {{ answer.text }}
-                            {% if answer.is_correct %}
-                            <i class="bi bi-check-circle-fill ms-auto"></i>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="saved-item-footer">
-                        <a href="{% url 'tests_app:unsave_question' question_id=item.question.id %}" class="saved-btn danger">
-                            <i class="bi bi-bookmark-x"></i>
-                            O'chirish
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        {% else %}
-        <!-- Empty State -->
-        <div class="saved-empty">
-            <div class="saved-empty-icon">
-                <i class="bi bi-bookmark"></i>
-            </div>
-            <h3>Saqlangan savollar yo'q</h3>
-            <p>Test paytida savollarni belgilab saqlab qo'yishingiz mumkin</p>
-            <a href="{% url 'tests_app:question_bank' %}" class="btn btn-primary">
-                <i class="bi bi-play-fill me-2"></i>Test boshlash
-            </a>
-        </div>
-        {% endif %}
+            {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}

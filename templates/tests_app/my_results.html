@@ -5,29 +5,14 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .results-header {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 2.5rem 0;
-    }
-
-    .results-header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .results-header p {
-        color: var(--gray-500);
-        margin: 0;
-    }
+    {% include 'tests_app/_sidebar_css.html' %}
 
     /* ========== STATS CARDS ========== */
     .results-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1.25rem;
-        margin-top: 2rem;
+        margin-bottom: 2rem;
     }
 
     @media (max-width: 992px) {
@@ -98,7 +83,7 @@
 
     /* ========== CONTENT ========== */
     .results-content {
-        padding: 2.5rem 0;
+        padding: 0;
     }
 
     /* ========== FILTERS ========== */
@@ -389,165 +374,159 @@
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="results-header">
-    <div class="container">
-        <h1>Mening natijalarim</h1>
-        <p>Barcha test natijalari va statistika</p>
-
-        <div class="results-stats">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="bi bi-journal-check"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ stats.total }}</div>
-                    <div class="stat-label">Jami testlar</div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ stats.avg_score }}%</div>
-                    <div class="stat-label">O'rtacha ball</div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon yellow">
-                    <i class="bi bi-bullseye"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ stats.total_correct }}</div>
-                    <div class="stat-label">To'g'ri javoblar</div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i class="bi bi-lightning"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ stats.total_xp }}</div>
-                    <div class="stat-label">Jami XP</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Content -->
-<div class="results-content">
-    <div class="container">
-        <!-- Filters -->
-        <div class="results-filters">
-            <div class="results-tabs">
-                <button class="results-tab active" data-filter="all">Barchasi</button>
-                <button class="results-tab" data-filter="practice">Mashqlar</button>
-                <button class="results-tab" data-filter="exam">Imtihonlar</button>
-            </div>
-
-            <div class="results-sort">
-                <select>
-                    <option value="date">Sana bo'yicha</option>
-                    <option value="score">Ball bo'yicha</option>
-                    <option value="subject">Fan bo'yicha</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Results List -->
-        {% if attempts %}
-        <div class="results-list">
-            {% for attempt in attempts %}
-            <div class="result-item" data-type="{{ attempt.test.test_type }}">
-                <div class="result-score {% if attempt.percentage >= 90 %}excellent{% elif attempt.percentage >= 70 %}good{% elif attempt.percentage >= 50 %}average{% else %}poor{% endif %}">
-                    {{ attempt.percentage|floatformat:0 }}%
-                    <span>ball</span>
-                </div>
-
-                <div class="result-info">
-                    <div class="result-title">{{ attempt.test.title }}</div>
-                    <div class="result-meta">
-                        {% if attempt.test.subject %}
-                        <span class="result-subject">{{ attempt.test.subject.icon }} {{ attempt.test.subject.name }}</span>
-                        {% endif %}
-                        <span>
-                            <i class="bi bi-calendar3"></i>
-                            {{ attempt.completed_at|date:"d.m.Y" }}
-                        </span>
-                        <span>
-                            <i class="bi bi-clock"></i>
-                            {{ attempt.time_spent|floatformat:0 }}s
-                        </span>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='my_results' %}
+        <main>
+            <div class="results-stats">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ stats.total }}</div>
+                        <div class="stat-label">Jami testlar</div>
                     </div>
                 </div>
 
-                <div class="result-stats">
-                    <div class="result-stat">
-                        <div class="result-stat-value green">{{ attempt.correct_answers }}</div>
-                        <div class="result-stat-label">To'g'ri</div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="bi bi-check-circle"></i>
                     </div>
-                    <div class="result-stat">
-                        <div class="result-stat-value red">{{ attempt.wrong_answers }}</div>
-                        <div class="result-stat-label">Xato</div>
-                    </div>
-                    <div class="result-stat">
-                        <div class="result-stat-value">+{{ attempt.xp_earned }}</div>
-                        <div class="result-stat-label">XP</div>
+                    <div>
+                        <div class="stat-value">{{ stats.avg_score }}%</div>
+                        <div class="stat-label">O'rtacha ball</div>
                     </div>
                 </div>
 
-                <div class="result-actions">
-                    <a href="{% url 'tests_app:test_play_result' uuid=attempt.uuid %}" class="result-btn primary">
-                        Batafsil
-                    </a>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ stats.total_correct }}</div>
+                        <div class="stat-label">To'g'ri javoblar</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="bi bi-lightning"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ stats.total_xp }}</div>
+                        <div class="stat-label">Jami XP</div>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
-        </div>
 
-        <!-- Pagination -->
-        {% if attempts.has_other_pages %}
-        <div class="results-pagination">
-            {% if attempts.has_previous %}
-            <a href="?page={{ attempts.previous_page_number }}" class="page-btn">
-                <i class="bi bi-chevron-left"></i>
-            </a>
-            {% endif %}
+            <!-- Filters -->
+            <div class="results-filters">
+                <div class="results-tabs">
+                    <button class="results-tab active" data-filter="all">Barchasi</button>
+                    <button class="results-tab" data-filter="practice">Mashqlar</button>
+                    <button class="results-tab" data-filter="exam">Imtihonlar</button>
+                </div>
 
-            {% for num in attempts.paginator.page_range %}
-                {% if attempts.number == num %}
-                <span class="page-btn active">{{ num }}</span>
-                {% elif num > attempts.number|add:'-3' and num < attempts.number|add:'3' %}
-                <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+                <div class="results-sort">
+                    <select>
+                        <option value="date">Sana bo'yicha</option>
+                        <option value="score">Ball bo'yicha</option>
+                        <option value="subject">Fan bo'yicha</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Results List -->
+            {% if attempts %}
+            <div class="results-list">
+                {% for attempt in attempts %}
+                <div class="result-item" data-type="{{ attempt.test.test_type }}">
+                    <div class="result-score {% if attempt.percentage >= 90 %}excellent{% elif attempt.percentage >= 70 %}good{% elif attempt.percentage >= 50 %}average{% else %}poor{% endif %}">
+                        {{ attempt.percentage|floatformat:0 }}%
+                        <span>ball</span>
+                    </div>
+
+                    <div class="result-info">
+                        <div class="result-title">{{ attempt.test.title }}</div>
+                        <div class="result-meta">
+                            {% if attempt.test.subject %}
+                            <span class="result-subject">{{ attempt.test.subject.icon }} {{ attempt.test.subject.name }}</span>
+                            {% endif %}
+                            <span>
+                                <i class="bi bi-calendar3"></i>
+                                {{ attempt.completed_at|date:"d.m.Y" }}
+                            </span>
+                            <span>
+                                <i class="bi bi-clock"></i>
+                                {{ attempt.time_spent|floatformat:0 }}s
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="result-stats">
+                        <div class="result-stat">
+                            <div class="result-stat-value green">{{ attempt.correct_answers }}</div>
+                            <div class="result-stat-label">To'g'ri</div>
+                        </div>
+                        <div class="result-stat">
+                            <div class="result-stat-value red">{{ attempt.wrong_answers }}</div>
+                            <div class="result-stat-label">Xato</div>
+                        </div>
+                        <div class="result-stat">
+                            <div class="result-stat-value">+{{ attempt.xp_earned }}</div>
+                            <div class="result-stat-label">XP</div>
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <a href="{% url 'tests_app:test_play_result' uuid=attempt.uuid %}" class="result-btn primary">
+                            Batafsil
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if attempts.has_other_pages %}
+            <div class="results-pagination">
+                {% if attempts.has_previous %}
+                <a href="?page={{ attempts.previous_page_number }}" class="page-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
                 {% endif %}
-            {% endfor %}
 
-            {% if attempts.has_next %}
-            <a href="?page={{ attempts.next_page_number }}" class="page-btn">
-                <i class="bi bi-chevron-right"></i>
-            </a>
-            {% endif %}
-        </div>
-        {% endif %}
+                {% for num in attempts.paginator.page_range %}
+                    {% if attempts.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                    {% elif num > attempts.number|add:'-3' and num < attempts.number|add:'3' %}
+                    <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
-        {% else %}
-        <!-- Empty State -->
-        <div class="results-empty">
-            <div class="results-empty-icon">
-                <i class="bi bi-journal-x"></i>
+                {% if attempts.has_next %}
+                <a href="?page={{ attempts.next_page_number }}" class="page-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                {% endif %}
             </div>
-            <h3>Natijalar yo'q</h3>
-            <p>Siz hali hech qanday test yechmagansiz</p>
-            <a href="{% url 'tests_app:question_bank' %}" class="btn btn-primary">
-                <i class="bi bi-play-fill me-2"></i>Birinchi testni boshlang
-            </a>
-        </div>
-        {% endif %}
+            {% endif %}
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="results-empty">
+                <div class="results-empty-icon">
+                    <i class="bi bi-journal-x"></i>
+                </div>
+                <h3>Natijalar yo'q</h3>
+                <p>Siz hali hech qanday test yechmagansiz</p>
+                <a href="{% url 'tests_app:question_bank' %}" class="btn btn-primary">
+                    <i class="bi bi-play-fill me-2"></i>Birinchi testni boshlang
+                </a>
+            </div>
+            {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}

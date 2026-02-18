@@ -5,143 +5,15 @@
 
 {% block extra_css %}
 <style>
-    .tl-page {
-        padding: 1.5rem 0 4rem;
-    }
+    {% include 'tests_app/_sidebar_css.html' %}
 
-    /* ========== TWO COLUMN LAYOUT ========== */
-    .tl-layout {
-        display: grid;
-        grid-template-columns: 250px 1fr;
-        gap: 1.5rem;
-        align-items: start;
-    }
-
-    /* ========== SIDEBAR ========== */
-    .tl-sidebar {
-        position: sticky;
-        top: 90px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .tl-sidebar-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-    }
-
-    .tl-sidebar-title {
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: var(--gray-400);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 1rem 1rem 0.5rem;
-    }
-
-    /* Sidebar Nav Items */
-    .tl-nav {
-        padding: 0 0.4rem 0.4rem;
-    }
-
-    .tl-nav-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.6rem 0.75rem;
-        border-radius: 10px;
-        text-decoration: none;
-        color: var(--dark-600);
-        font-size: 0.85rem;
-        font-weight: 600;
-        transition: all 0.15s ease;
-    }
-
-    .tl-nav-item:hover {
-        background: var(--gray-50);
-        color: var(--dark);
-    }
-
-    .tl-nav-item.active {
-        background: rgba(139, 197, 64, 0.1);
-        color: var(--primary-dark);
-        font-weight: 700;
-    }
-
-    .tl-nav-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    .tl-nav-icon.green { background: rgba(139, 197, 64, 0.12); color: var(--primary-dark); }
-    .tl-nav-icon.dark { background: var(--gray-100); color: var(--dark); }
-    .tl-nav-icon.purple { background: rgba(139, 92, 246, 0.1); color: #7C3AED; }
-    .tl-nav-icon.blue { background: rgba(59, 130, 246, 0.1); color: #2563EB; }
-    .tl-nav-icon.amber { background: rgba(245, 158, 11, 0.1); color: #D97706; }
-    .tl-nav-icon.red { background: rgba(239, 68, 68, 0.1); color: #DC2626; }
-    .tl-nav-icon.teal { background: rgba(20, 184, 166, 0.1); color: #0D9488; }
-
-    .tl-nav-label {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .tl-nav-badge {
-        font-size: 0.68rem;
-        font-weight: 800;
-        color: var(--gray-400);
-        background: var(--gray-100);
-        padding: 0.1rem 0.4rem;
-        border-radius: 5px;
-        flex-shrink: 0;
-    }
-
-    .tl-nav-item.active .tl-nav-badge {
-        background: rgba(139, 197, 64, 0.15);
-        color: var(--primary-dark);
-    }
-
-    /* ========== MAIN CONTENT ========== */
-    .tl-main-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.15rem;
-    }
-
-    .tl-main-title {
-        font-size: 1.25rem;
-        font-weight: 900;
-        color: var(--dark);
-        margin: 0;
-    }
-
-    .tl-main-count {
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: var(--gray-400);
-    }
-
-    /* ========== TESTS GRID ========== */
+    /* ========== TEST CARD ========== */
     .tl-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 0.85rem;
     }
 
-    /* ========== TEST CARD ========== */
     .tl-card {
         background: var(--white);
         border: 1px solid var(--gray-200);
@@ -228,16 +100,8 @@
         margin-bottom: 0.85rem;
     }
 
-    .tl-card-info span {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-    }
-
-    .tl-card-info i {
-        font-size: 0.78rem;
-        color: var(--gray-400);
-    }
+    .tl-card-info span { display: inline-flex; align-items: center; gap: 0.2rem; }
+    .tl-card-info i { font-size: 0.78rem; color: var(--gray-400); }
 
     .tl-card-bottom {
         margin-top: auto;
@@ -271,11 +135,8 @@
         transition: all 0.15s ease;
     }
 
-    .tl-card:hover .tl-card-btn {
-        box-shadow: var(--shadow-primary);
-    }
+    .tl-card:hover .tl-card-btn { box-shadow: var(--shadow-primary); }
 
-    /* ========== EMPTY STATE ========== */
     .tl-empty {
         grid-column: 1 / -1;
         text-align: center;
@@ -286,224 +147,94 @@
     }
 
     .tl-empty-icon {
-        width: 64px;
-        height: 64px;
+        width: 64px; height: 64px;
         background: var(--gray-50);
         border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
         margin: 0 auto 1rem;
     }
 
     .tl-empty-icon i { font-size: 1.5rem; color: var(--gray-400); }
-
     .tl-empty h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.3rem; }
-
-    .tl-empty p {
-        font-size: 0.82rem; color: var(--gray-500);
-        max-width: 280px; margin: 0 auto 1.25rem;
-    }
+    .tl-empty p { font-size: 0.82rem; color: var(--gray-500); max-width: 280px; margin: 0 auto 1.25rem; }
 
     .tl-empty-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
+        display: inline-flex; align-items: center; gap: 0.35rem;
         padding: 0.6rem 1.25rem;
-        background: var(--gradient-primary);
-        color: var(--white);
-        border-radius: var(--radius);
-        font-size: 0.82rem;
-        font-weight: 700;
-        text-decoration: none;
-        box-shadow: var(--shadow-primary);
-        transition: all 0.2s ease;
+        background: var(--gradient-primary); color: var(--white);
+        border-radius: var(--radius); font-size: 0.82rem; font-weight: 700;
+        text-decoration: none; box-shadow: var(--shadow-primary); transition: all 0.2s ease;
     }
 
     .tl-empty-btn:hover { transform: translateY(-1px); color: var(--white); }
 
-    /* ========== MOBILE SIDEBAR ========== */
-    @media (max-width: 991px) {
-        .tl-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .tl-sidebar {
-            position: static;
-            flex-direction: row;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.25rem;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .tl-sidebar::-webkit-scrollbar { display: none; }
-
-        .tl-sidebar-card {
-            flex-shrink: 0;
-            min-width: max-content;
-        }
-
-        .tl-sidebar-title { display: none; }
-
-        .tl-nav {
-            display: flex;
-            gap: 0.2rem;
-            padding: 0.35rem;
-        }
-
-        .tl-nav-item {
-            padding: 0.5rem 0.7rem;
-            white-space: nowrap;
-            font-size: 0.8rem;
-        }
-
-        .tl-nav-icon {
-            width: 26px;
-            height: 26px;
-            font-size: 0.8rem;
-            border-radius: 7px;
-        }
+    .tl-main-head {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.15rem;
     }
 
+    .tl-main-title { font-size: 1.25rem; font-weight: 900; color: var(--dark); margin: 0; }
+    .tl-main-count { font-size: 0.82rem; font-weight: 600; color: var(--gray-400); }
+
     @media (max-width: 768px) {
-        .tl-grid {
-            grid-template-columns: 1fr;
-        }
+        .tl-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="tl-page">
-    <div class="container">
-        <div class="tl-layout">
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='tests_list' %}
 
-            <!-- ===== SIDEBAR ===== -->
-            <aside class="tl-sidebar">
+        <main>
+            <div class="tl-main-head">
+                <h1 class="tl-main-title">Barcha testlar</h1>
+                <span class="tl-main-count">{{ tests|length }} ta</span>
+            </div>
 
-                <!-- Asosiy bo'limlar -->
-                <div class="tl-sidebar-card">
-                    <div class="tl-sidebar-title">Asosiy</div>
-                    <div class="tl-nav">
-                        <a href="{% url 'tests_app:tests_list' %}" class="tl-nav-item active">
-                            <div class="tl-nav-icon green"><i class="bi bi-grid-fill"></i></div>
-                            <span class="tl-nav-label">Barcha testlar</span>
-                            <span class="tl-nav-badge">{{ tests|length }}</span>
-                        </a>
-                        <a href="{% url 'tests_app:question_bank' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon purple"><i class="bi bi-collection-fill"></i></div>
-                            <span class="tl-nav-label">Savol banki</span>
-                        </a>
-                        <a href="{% url 'tests_app:practice_select' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon blue"><i class="bi bi-lightning-charge-fill"></i></div>
-                            <span class="tl-nav-label">Mashq qilish</span>
-                        </a>
-                        <a href="{% url 'tests_app:dtm_simulation' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon dark"><i class="bi bi-mortarboard-fill"></i></div>
-                            <span class="tl-nav-label">DTM Simulyatsiya</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tezkor testlar -->
-                <div class="tl-sidebar-card">
-                    <div class="tl-sidebar-title">Tezkor</div>
-                    <div class="tl-nav">
-                        <a href="{% url 'tests_app:quick_test' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon amber"><i class="bi bi-stopwatch-fill"></i></div>
-                            <span class="tl-nav-label">Tezkor test</span>
-                        </a>
-                        <a href="{% url 'tests_app:block_test' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon teal"><i class="bi bi-stack"></i></div>
-                            <span class="tl-nav-label">Blok test</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Natijalar -->
-                {% if user.is_authenticated %}
-                <div class="tl-sidebar-card">
-                    <div class="tl-sidebar-title">Mening</div>
-                    <div class="tl-nav">
-                        <a href="{% url 'tests_app:my_results' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon green"><i class="bi bi-graph-up"></i></div>
-                            <span class="tl-nav-label">Natijalarim</span>
-                        </a>
-                        <a href="{% url 'tests_app:saved_questions' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon amber"><i class="bi bi-bookmark-fill"></i></div>
-                            <span class="tl-nav-label">Saqlangan</span>
-                        </a>
-                        <a href="{% url 'tests_app:wrong_answers' %}" class="tl-nav-item">
-                            <div class="tl-nav-icon red"><i class="bi bi-x-circle-fill"></i></div>
-                            <span class="tl-nav-label">Xatolarim</span>
-                        </a>
-                    </div>
-                </div>
-                {% endif %}
-
-            </aside>
-
-            <!-- ===== MAIN CONTENT ===== -->
-            <main>
-                <div class="tl-main-head">
-                    <h1 class="tl-main-title">Barcha testlar</h1>
-                    <span class="tl-main-count">{{ tests|length }} ta</span>
-                </div>
-
-                <div class="tl-grid">
-                    {% if tests %}
-                        {% for test in tests %}
-                        <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-card {% if test.test_type == 'exam' %}type-exam{% elif test.test_type == 'block' %}type-block{% endif %}">
-                            <div class="tl-card-top">
-                                <div class="tl-card-subj">
-                                    <span>{{ test.subject.icon|default:"📚" }}</span>
-                                    {{ test.subject.name|default:"Umumiy" }}
-                                </div>
-                                <span class="tl-badge {{ test.test_type }}">
-                                    {% if test.test_type == 'practice' %}Mashq
-                                    {% elif test.test_type == 'exam' %}Imtihon
-                                    {% elif test.test_type == 'block' %}Blok
-                                    {% else %}Test{% endif %}
-                                </span>
+            <div class="tl-grid">
+                {% if tests %}
+                    {% for test in tests %}
+                    <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-card {% if test.test_type == 'exam' %}type-exam{% elif test.test_type == 'block' %}type-block{% endif %}">
+                        <div class="tl-card-top">
+                            <div class="tl-card-subj">
+                                <span>{{ test.subject.icon|default:"📚" }}</span>
+                                {{ test.subject.name|default:"Umumiy" }}
                             </div>
-
-                            <h3 class="tl-card-title">{{ test.title }}</h3>
-
-                            <div class="tl-card-info">
-                                <span><i class="bi bi-journal-text"></i> {{ test.question_count }} savol</span>
-                                {% if test.time_limit %}
-                                <span><i class="bi bi-clock"></i> {{ test.time_limit }} daq</span>
-                                {% endif %}
-                            </div>
-
-                            <div class="tl-card-bottom">
-                                <span class="tl-card-attempts">
-                                    <i class="bi bi-people-fill"></i> {{ test.total_attempts|default:"0" }}
-                                </span>
-                                <span class="tl-card-btn">
-                                    Boshlash <i class="bi bi-arrow-right"></i>
-                                </span>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    {% else %}
-                        <div class="tl-empty">
-                            <div class="tl-empty-icon">
-                                <i class="bi bi-journal-bookmark"></i>
-                            </div>
-                            <h3>Testlar topilmadi</h3>
-                            <p>Mashq rejimida istalgan fan bo'yicha test yechishingiz mumkin.</p>
-                            <a href="{% url 'tests_app:practice_select' %}" class="tl-empty-btn">
-                                <i class="bi bi-lightning-charge-fill"></i> Mashq boshlash
-                            </a>
+                            <span class="tl-badge {{ test.test_type }}">
+                                {% if test.test_type == 'practice' %}Mashq
+                                {% elif test.test_type == 'exam' %}Imtihon
+                                {% elif test.test_type == 'block' %}Blok
+                                {% else %}Test{% endif %}
+                            </span>
                         </div>
-                    {% endif %}
-                </div>
-            </main>
-
-        </div>
+                        <h3 class="tl-card-title">{{ test.title }}</h3>
+                        <div class="tl-card-info">
+                            <span><i class="bi bi-journal-text"></i> {{ test.question_count }} savol</span>
+                            {% if test.time_limit %}
+                            <span><i class="bi bi-clock"></i> {{ test.time_limit }} daq</span>
+                            {% endif %}
+                        </div>
+                        <div class="tl-card-bottom">
+                            <span class="tl-card-attempts">
+                                <i class="bi bi-people-fill"></i> {{ test.total_attempts|default:"0" }}
+                            </span>
+                            <span class="tl-card-btn">Boshlash <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="tl-empty">
+                        <div class="tl-empty-icon"><i class="bi bi-journal-bookmark"></i></div>
+                        <h3>Testlar topilmadi</h3>
+                        <p>Mashq rejimida istalgan fan bo'yicha test yechishingiz mumkin.</p>
+                        <a href="{% url 'tests_app:practice_select' %}" class="tl-empty-btn">
+                            <i class="bi bi-lightning-charge-fill"></i> Mashq boshlash
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}

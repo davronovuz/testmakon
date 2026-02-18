@@ -6,75 +6,7 @@
 
 {% block extra_css %}
 <style>
-    /* ========== PAGE HEADER ========== */
-    .qb-header {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 2.5rem 0;
-    }
-
-    .qb-header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .qb-header-desc {
-        font-size: 1.05rem;
-        color: var(--gray-500);
-        margin: 0;
-    }
-
-    /* ========== STATS ROW ========== */
-    .qb-stats-row {
-        display: flex;
-        gap: 2rem;
-        margin-top: 1.5rem;
-        flex-wrap: wrap;
-    }
-
-    .qb-stat-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .qb-stat-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-    }
-
-    .qb-stat-icon.green {
-        background: var(--primary-glow);
-        color: var(--primary-dark);
-    }
-
-    .qb-stat-icon.blue {
-        background: rgba(59, 130, 246, 0.15);
-        color: #2563EB;
-    }
-
-    .qb-stat-icon.yellow {
-        background: rgba(251, 191, 36, 0.15);
-        color: #D97706;
-    }
-
-    .qb-stat-value {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--dark);
-        line-height: 1.2;
-    }
-
-    .qb-stat-label {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-        font-weight: 500;
-    }
+    {% include 'tests_app/_sidebar_css.html' %}
 
     /* ========== MAIN CONTENT ========== */
     .qb-content {
@@ -383,168 +315,123 @@
 {% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="qb-header">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1>Savol Banki</h1>
-                <p class="qb-header-desc">Barcha fanlar bo'yicha savollarni o'rganing va mashq qiling</p>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='question_bank' %}
 
-                {% if user.is_authenticated %}
-                <div class="qb-stats-row">
-                    <div class="qb-stat-item">
-                        <div class="qb-stat-icon green">
-                            <i class="bi bi-check-circle-fill"></i>
+        <main class="qb-content">
+            {% if user.is_authenticated %}
+            <!-- Quick Actions -->
+            <div class="qb-quick-actions">
+                <div class="qb-quick-title">Tez harakatlar</div>
+                <div class="qb-quick-grid">
+                    <a href="{% url 'tests_app:wrong_answers' %}" class="qb-quick-item">
+                        <div class="qb-quick-icon red">
+                            <i class="bi bi-x-circle"></i>
                         </div>
-                        <div>
-                            <div class="qb-stat-value">{{ user.total_correct_answers|default:0 }}</div>
-                            <div class="qb-stat-label">To'g'ri javoblar</div>
+                        <div class="qb-quick-text">
+                            <h4>Xatolar ustida ishlash</h4>
+                            <span>Noto'g'ri javoblarni takrorlang</span>
                         </div>
-                    </div>
-                    <div class="qb-stat-item">
-                        <div class="qb-stat-icon blue">
-                            <i class="bi bi-journal-check"></i>
+                    </a>
+                    <a href="{% url 'tests_app:saved_questions' %}" class="qb-quick-item">
+                        <div class="qb-quick-icon blue">
+                            <i class="bi bi-bookmark-fill"></i>
                         </div>
-                        <div>
-                            <div class="qb-stat-value">{{ user.total_tests_taken|default:0 }}</div>
-                            <div class="qb-stat-label">Yechilgan testlar</div>
+                        <div class="qb-quick-text">
+                            <h4>Saqlangan savollar</h4>
+                            <span>Belgilangan savollar</span>
                         </div>
-                    </div>
-                    <div class="qb-stat-item">
-                        <div class="qb-stat-icon yellow">
-                            <i class="bi bi-lightning-fill"></i>
+                    </a>
+                    <a href="{% url 'tests_app:dtm_simulation' %}" class="qb-quick-item">
+                        <div class="qb-quick-icon green">
+                            <i class="bi bi-mortarboard-fill"></i>
                         </div>
-                        <div>
-                            <div class="qb-stat-value">{{ user.current_streak|default:0 }}</div>
-                            <div class="qb-stat-label">Kunlik streak</div>
+                        <div class="qb-quick-text">
+                            <h4>DTM Simulyatsiya</h4>
+                            <span>Haqiqiy imtihon formati</span>
                         </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                <a href="{% url 'tests_app:practice_select' %}" class="btn btn-primary btn-lg">
-                    <i class="bi bi-play-fill me-2"></i>Mashq boshlash
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="qb-content">
-    <div class="container">
-        {% if user.is_authenticated %}
-        <!-- Quick Actions -->
-        <div class="qb-quick-actions">
-            <div class="qb-quick-title">Tez harakatlar</div>
-            <div class="qb-quick-grid">
-                <a href="{% url 'tests_app:wrong_answers' %}" class="qb-quick-item">
-                    <div class="qb-quick-icon red">
-                        <i class="bi bi-x-circle"></i>
-                    </div>
-                    <div class="qb-quick-text">
-                        <h4>Xatolar ustida ishlash</h4>
-                        <span>Noto'g'ri javoblarni takrorlang</span>
-                    </div>
-                </a>
-                <a href="{% url 'tests_app:saved_questions' %}" class="qb-quick-item">
-                    <div class="qb-quick-icon blue">
-                        <i class="bi bi-bookmark-fill"></i>
-                    </div>
-                    <div class="qb-quick-text">
-                        <h4>Saqlangan savollar</h4>
-                        <span>Belgilangan savollar</span>
-                    </div>
-                </a>
-                <a href="{% url 'tests_app:dtm_simulation' %}" class="qb-quick-item">
-                    <div class="qb-quick-icon green">
-                        <i class="bi bi-mortarboard-fill"></i>
-                    </div>
-                    <div class="qb-quick-text">
-                        <h4>DTM Simulyatsiya</h4>
-                        <span>Haqiqiy imtihon formati</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Subjects Grid -->
-        {% if subjects_data %}
-        <div class="qb-subjects-grid">
-            {% for item in subjects_data %}
-            <div class="qb-subject-card">
-                <div class="qb-subject-header {{ item.subject.slug|default:'default' }}">
-                    <div>
-                        <h3>{{ item.subject.icon }} {{ item.subject.name }}</h3>
-                        <span>{{ item.questions_count }} ta savol</span>
-                    </div>
-                    <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="btn">
-                        Barcha mavzular
                     </a>
                 </div>
+            </div>
+            {% endif %}
 
-                <div class="qb-subject-body">
-                    {% if item.topics %}
-                        {% for topic in item.topics|slice:":6" %}
-                        <div class="qb-topic-item">
-                            <a href="{% url 'tests_app:practice_topic' subject_slug=item.subject.slug topic_slug=topic.slug %}" class="qb-topic-link">
-                                {{ topic.name }}
-                            </a>
-                            <div class="qb-topic-progress">
-                                {% if user.is_authenticated and topic.id in topic_performances %}
-                                    {% with perf=topic_performances|get_item:topic.id %}
-                                        {% if perf.is_weak %}
-                                        <span class="qb-progress-badge weak">Kuchsiz</span>
-                                        {% elif perf.is_strong %}
-                                        <span class="qb-progress-badge strong">Kuchli</span>
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endif %}
-                                <span class="qb-topic-count">{{ topic.questions_count }} savol</span>
+            <!-- Subjects Grid -->
+            {% if subjects_data %}
+            <div class="qb-subjects-grid">
+                {% for item in subjects_data %}
+                <div class="qb-subject-card">
+                    <div class="qb-subject-header {{ item.subject.slug|default:'default' }}">
+                        <div>
+                            <h3>{{ item.subject.icon }} {{ item.subject.name }}</h3>
+                            <span>{{ item.questions_count }} ta savol</span>
+                        </div>
+                        <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="btn">
+                            Barcha mavzular
+                        </a>
+                    </div>
+
+                    <div class="qb-subject-body">
+                        {% if item.topics %}
+                            {% for topic in item.topics|slice:":6" %}
+                            <div class="qb-topic-item">
+                                <a href="{% url 'tests_app:practice_topic' subject_slug=item.subject.slug topic_slug=topic.slug %}" class="qb-topic-link">
+                                    {{ topic.name }}
+                                </a>
+                                <div class="qb-topic-progress">
+                                    {% if user.is_authenticated and topic.id in topic_performances %}
+                                        {% with perf=topic_performances|get_item:topic.id %}
+                                            {% if perf.is_weak %}
+                                            <span class="qb-progress-badge weak">Kuchsiz</span>
+                                            {% elif perf.is_strong %}
+                                            <span class="qb-progress-badge strong">Kuchli</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                    <span class="qb-topic-count">{{ topic.questions_count }} savol</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                            {% if item.topics.count > 6 %}
+                            <div class="text-center mt-3">
+                                <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="btn btn-light btn-sm">
+                                    Yana {{ item.topics.count|add:"-6" }} ta mavzu <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-3">
+                                <p class="text-muted mb-0">Mavzular qo'shilmoqda...</p>
+                            </div>
+                        {% endif %}
+
+                        {% if item.user_progress %}
+                        <div class="qb-user-progress">
+                            <div class="qb-progress-header">
+                                <span class="qb-progress-label">Sizning progressingiz</span>
+                                <span class="qb-progress-value">{{ item.user_progress.accuracy }}% aniqlik</span>
+                            </div>
+                            <div class="qb-progress-bar">
+                                <div class="qb-progress-fill" style="width: {{ item.user_progress.accuracy }}%"></div>
                             </div>
                         </div>
-                        {% endfor %}
-
-                        {% if item.topics.count > 6 %}
-                        <div class="text-center mt-3">
-                            <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="btn btn-light btn-sm">
-                                Yana {{ item.topics.count|add:"-6" }} ta mavzu <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
                         {% endif %}
-                    {% else %}
-                        <div class="text-center py-3">
-                            <p class="text-muted mb-0">Mavzular qo'shilmoqda...</p>
-                        </div>
-                    {% endif %}
-
-                    {% if item.user_progress %}
-                    <div class="qb-user-progress">
-                        <div class="qb-progress-header">
-                            <span class="qb-progress-label">Sizning progressingiz</span>
-                            <span class="qb-progress-value">{{ item.user_progress.accuracy }}% aniqlik</span>
-                        </div>
-                        <div class="qb-progress-bar">
-                            <div class="qb-progress-fill" style="width: {{ item.user_progress.accuracy }}%"></div>
-                        </div>
                     </div>
-                    {% endif %}
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <!-- Empty State -->
-        <div class="qb-empty">
-            <div class="qb-empty-icon">
-                <i class="bi bi-journal-x"></i>
+            {% else %}
+            <!-- Empty State -->
+            <div class="qb-empty">
+                <div class="qb-empty-icon">
+                    <i class="bi bi-journal-x"></i>
+                </div>
+                <h3>Fanlar topilmadi</h3>
+                <p>Hozircha fanlar qo'shilmagan. Tez orada yangi fanlar qo'shiladi.</p>
             </div>
-            <h3>Fanlar topilmadi</h3>
-            <p>Hozircha fanlar qo'shilmagan. Tez orada yangi fanlar qo'shiladi.</p>
-        </div>
-        {% endif %}
+            {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}

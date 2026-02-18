@@ -5,38 +5,7 @@
 
 {% block extra_css %}
 <style>
-    /* ========== HEADER ========== */
-    .quick-header {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        padding: 3rem 0;
-        color: white;
-        text-align: center;
-    }
-
-    .quick-header-icon {
-        width: 80px;
-        height: 80px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2rem;
-    }
-
-    .quick-header h1 {
-        font-size: 2.25rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .quick-header p {
-        font-size: 1.1rem;
-        color: rgba(255,255,255,0.9);
-        max-width: 500px;
-        margin: 0 auto;
-    }
+    {% include 'tests_app/_sidebar_css.html' %}
 
     /* ========== CONTENT ========== */
     .quick-content {
@@ -44,7 +13,7 @@
     }
 
     .quick-form-card {
-        max-width: 600px;
+        max-width: 100%;
         margin: 0 auto;
         background: var(--white);
         border-radius: var(--radius-xl);
@@ -232,87 +201,78 @@
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="quick-header">
-    <div class="container">
-        <div class="quick-header-icon">
-            <i class="bi bi-lightning-fill"></i>
-        </div>
-        <h1>Tezkor test</h1>
-        <p>Fan tanlang va darhol boshlang</p>
-    </div>
-</div>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='quick_test' %}
+        <main>
+            <div class="quick-form-card">
+                <form action="{% url 'tests_app:practice_start' %}" method="post" id="quickForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="subject_id" id="subjectInput" value="">
+                    <input type="hidden" name="question_count" id="countInput" value="10">
+                    <input type="hidden" name="difficulty" id="difficultyInput" value="all">
+                    <input type="hidden" name="mode" id="modeInput" value="practice">
 
-<!-- Content -->
-<div class="quick-content">
-    <div class="container">
-        <div class="quick-form-card">
-            <form action="{% url 'tests_app:practice_start' %}" method="post" id="quickForm">
-                {% csrf_token %}
-                <input type="hidden" name="subject_id" id="subjectInput" value="">
-                <input type="hidden" name="question_count" id="countInput" value="10">
-                <input type="hidden" name="difficulty" id="difficultyInput" value="all">
-                <input type="hidden" name="mode" id="modeInput" value="practice">
+                    <div class="quick-form-body">
+                        <!-- Subject Selection -->
+                        <div class="quick-form-group">
+                            <label class="quick-form-label">Fan tanlang</label>
+                            <div class="quick-subjects">
+                                {% for subject in subjects %}
+                                <label class="quick-subject" data-id="{{ subject.id }}">
+                                    <input type="radio" name="subject_select" value="{{ subject.id }}">
+                                    <div class="quick-subject-radio"></div>
+                                    <span class="quick-subject-icon">{{ subject.icon }}</span>
+                                    <div class="quick-subject-info">
+                                        <h4>{{ subject.name }}</h4>
+                                        <span>{{ subject.questions_count }} savol</span>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
 
-                <div class="quick-form-body">
-                    <!-- Subject Selection -->
-                    <div class="quick-form-group">
-                        <label class="quick-form-label">Fan tanlang</label>
-                        <div class="quick-subjects">
-                            {% for subject in subjects %}
-                            <label class="quick-subject" data-id="{{ subject.id }}">
-                                <input type="radio" name="subject_select" value="{{ subject.id }}">
-                                <div class="quick-subject-radio"></div>
-                                <span class="quick-subject-icon">{{ subject.icon }}</span>
-                                <div class="quick-subject-info">
-                                    <h4>{{ subject.name }}</h4>
-                                    <span>{{ subject.questions_count }} savol</span>
-                                </div>
-                            </label>
-                            {% endfor %}
+                        <!-- Question Count -->
+                        <div class="quick-form-group">
+                            <label class="quick-form-label">Savollar soni</label>
+                            <div class="quick-options">
+                                <div class="quick-option selected" data-name="count" data-value="10">10 ta</div>
+                                <div class="quick-option" data-name="count" data-value="20">20 ta</div>
+                                <div class="quick-option" data-name="count" data-value="30">30 ta</div>
+                                <div class="quick-option" data-name="count" data-value="50">50 ta</div>
+                            </div>
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div class="quick-form-group">
+                            <label class="quick-form-label">Qiyinlik</label>
+                            <div class="quick-options">
+                                <div class="quick-option selected" data-name="difficulty" data-value="all">Barchasi</div>
+                                <div class="quick-option" data-name="difficulty" data-value="easy">🟢 Oson</div>
+                                <div class="quick-option" data-name="difficulty" data-value="medium">🟡 O'rta</div>
+                                <div class="quick-option" data-name="difficulty" data-value="hard">🔴 Qiyin</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Question Count -->
-                    <div class="quick-form-group">
-                        <label class="quick-form-label">Savollar soni</label>
-                        <div class="quick-options">
-                            <div class="quick-option selected" data-name="count" data-value="10">10 ta</div>
-                            <div class="quick-option" data-name="count" data-value="20">20 ta</div>
-                            <div class="quick-option" data-name="count" data-value="30">30 ta</div>
-                            <div class="quick-option" data-name="count" data-value="50">50 ta</div>
+                    <div class="quick-form-footer">
+                        <div class="quick-summary">
+                            <span class="quick-summary-label">Tanlangan fan:</span>
+                            <span class="quick-summary-value" id="summarySubject">Tanlanmagan</span>
                         </div>
-                    </div>
-
-                    <!-- Difficulty -->
-                    <div class="quick-form-group">
-                        <label class="quick-form-label">Qiyinlik</label>
-                        <div class="quick-options">
-                            <div class="quick-option selected" data-name="difficulty" data-value="all">Barchasi</div>
-                            <div class="quick-option" data-name="difficulty" data-value="easy">🟢 Oson</div>
-                            <div class="quick-option" data-name="difficulty" data-value="medium">🟡 O'rta</div>
-                            <div class="quick-option" data-name="difficulty" data-value="hard">🔴 Qiyin</div>
+                        <div class="quick-summary">
+                            <span class="quick-summary-label">Savollar:</span>
+                            <span class="quick-summary-value" id="summaryCount">10 ta</span>
                         </div>
-                    </div>
-                </div>
 
-                <div class="quick-form-footer">
-                    <div class="quick-summary">
-                        <span class="quick-summary-label">Tanlangan fan:</span>
-                        <span class="quick-summary-value" id="summarySubject">Tanlanmagan</span>
+                        <button type="submit" class="quick-start-btn" id="startBtn" disabled>
+                            <i class="bi bi-lightning-fill"></i>
+                            Boshlash
+                        </button>
                     </div>
-                    <div class="quick-summary">
-                        <span class="quick-summary-label">Savollar:</span>
-                        <span class="quick-summary-value" id="summaryCount">10 ta</span>
-                    </div>
-
-                    <button type="submit" class="quick-start-btn" id="startBtn" disabled>
-                        <i class="bi bi-lightning-fill"></i>
-                        Boshlash
-                    </button>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}

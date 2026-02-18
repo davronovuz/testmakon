@@ -5,45 +5,20 @@
 
 {% block extra_css %}
 <style>
+    {% include 'tests_app/_sidebar_css.html' %}
+
     .dtm-page { padding-bottom: 4rem; }
 
-    .dtm-hero {
-        background: var(--gradient-dark);
-        padding: 2.5rem 0;
-        color: white;
-        position: relative;
-        overflow: hidden;
+    .page-header-simple h1 {
+        font-size: 1.75rem; font-weight: 900; color: var(--dark); margin-bottom: 0.25rem;
     }
-
-    .dtm-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        pointer-events: none;
+    .page-header-simple p {
+        font-size: 0.95rem; color: var(--gray-500); margin: 0 0 1.5rem 0;
     }
-
-    .dtm-hero-inner {
-        position: relative; z-index: 1;
-        display: flex; align-items: center; justify-content: space-between; gap: 2rem;
-    }
-
-    .dtm-hero-text h1 { font-size: 2rem; font-weight: 900; color: white; margin-bottom: 0.4rem; }
-    .dtm-hero-text p { font-size: 0.95rem; color: var(--gray-400); margin: 0; }
-
-    .dtm-hero-nums { display: flex; gap: 1rem; flex-shrink: 0; }
-
-    .dtm-hero-num {
-        text-align: center; padding: 0.75rem 1.15rem;
-        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
-    }
-
-    .dtm-hero-num strong { display: block; font-size: 1.4rem; font-weight: 900; color: white; line-height: 1; }
-    .dtm-hero-num span { font-size: 0.7rem; color: var(--gray-400); font-weight: 600; }
 
     /* Card */
     .dtm-card {
-        max-width: 600px; margin: 2.5rem auto 0;
+        max-width: 100%;
         background: var(--white); border: 1px solid var(--gray-200);
         border-radius: 24px; overflow: hidden;
         box-shadow: 0 20px 50px -15px rgba(0,0,0,0.08);
@@ -158,9 +133,6 @@
     .dtm-start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
     @media (max-width: 768px) {
-        .dtm-hero-nums { display: none; }
-        .dtm-hero-text h1 { font-size: 1.65rem; }
-        .dtm-card { margin: 1.5rem auto 0; }
         .dtm-card-body { padding: 1.5rem; }
         .dtm-card-footer { flex-direction: column; gap: 1rem; padding: 1.25rem 1.5rem; }
         .dtm-start-btn { width: 100%; justify-content: center; }
@@ -170,86 +142,80 @@
 
 {% block content %}
 <div class="dtm-page">
-    <div class="dtm-hero">
-        <div class="container">
-            <div class="dtm-hero-inner">
-                <div class="dtm-hero-text">
-                    <h1>🎓 DTM Simulyatsiya</h1>
+    <div class="container">
+        <div class="tl-layout">
+            {% include 'tests_app/_sidebar.html' with active='dtm' %}
+            <main>
+                <div class="page-header-simple">
+                    <h1>DTM Simulyatsiya</h1>
                     <p>Haqiqiy imtihon formati — 5 fan, 90 savol, 3 soat</p>
                 </div>
-                <div class="dtm-hero-nums">
-                    <div class="dtm-hero-num"><strong>90</strong><span>savol</span></div>
-                    <div class="dtm-hero-num"><strong>3</strong><span>soat</span></div>
-                    <div class="dtm-hero-num"><strong>189</strong><span>maks. ball</span></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="container">
-        <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
-            {% csrf_token %}
+                <form action="{% url 'tests_app:dtm_simulation_start' %}" method="post" id="dtmForm">
+                    {% csrf_token %}
 
-            <div class="dtm-card">
-                <div class="dtm-card-body">
+                    <div class="dtm-card">
+                        <div class="dtm-card-body">
 
-                    <!-- Yo'nalish fanlari -->
-                    <div class="dtm-section">
-                        <div class="dtm-section-label">Yo'nalish fanlari · 60 savol · 156 ball</div>
+                            <!-- Yo'nalish fanlari -->
+                            <div class="dtm-section">
+                                <div class="dtm-section-label">Yo'nalish fanlari · 60 savol · 156 ball</div>
 
-                        <div class="dtm-select-group">
-                            <label class="dtm-select-label">1-fan (30 savol · 93 ball)</label>
-                            <select class="dtm-select" name="fan1" id="fan1" required>
-                                <option value="">Fan tanlang...</option>
-                                {% for subject in subjects %}
-                                <option value="{{ subject.id }}" data-slug="{{ subject.slug }}" data-icon="{{ subject.icon }}">
-                                    {{ subject.icon }} {{ subject.name }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                            <div class="dtm-error-msg" id="fan1Error">Fan tanlang</div>
-                        </div>
+                                <div class="dtm-select-group">
+                                    <label class="dtm-select-label">1-fan (30 savol · 93 ball)</label>
+                                    <select class="dtm-select" name="fan1" id="fan1" required>
+                                        <option value="">Fan tanlang...</option>
+                                        {% for subject in subjects %}
+                                        <option value="{{ subject.id }}" data-slug="{{ subject.slug }}" data-icon="{{ subject.icon }}">
+                                            {{ subject.icon }} {{ subject.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="dtm-error-msg" id="fan1Error">Fan tanlang</div>
+                                </div>
 
-                        <div class="dtm-select-group">
-                            <label class="dtm-select-label">2-fan (30 savol · 63 ball)</label>
-                            <select class="dtm-select" name="fan2" id="fan2" required disabled>
-                                <option value="">Avval 1-fanni tanlang...</option>
-                            </select>
-                            <div class="dtm-error-msg" id="fan2Error">Fan tanlang</div>
-                            <div class="dtm-match-hint" id="matchHint">
-                                <i class="bi bi-info-circle-fill"></i>
-                                <span id="matchHintText"></span>
+                                <div class="dtm-select-group">
+                                    <label class="dtm-select-label">2-fan (30 savol · 63 ball)</label>
+                                    <select class="dtm-select" name="fan2" id="fan2" required disabled>
+                                        <option value="">Avval 1-fanni tanlang...</option>
+                                    </select>
+                                    <div class="dtm-error-msg" id="fan2Error">Fan tanlang</div>
+                                    <div class="dtm-match-hint" id="matchHint">
+                                        <i class="bi bi-info-circle-fill"></i>
+                                        <span id="matchHintText"></span>
+                                    </div>
+                                </div>
                             </div>
+
+                            <div class="dtm-divider"></div>
+
+                            <!-- Majburiy fanlar (kompakt) -->
+                            <div class="mandatory-compact">
+                                <div class="mandatory-compact-title">
+                                    <i class="bi bi-lock-fill"></i> Majburiy fanlar · 30 savol
+                                </div>
+                                <div class="mandatory-compact-list">
+                                    <div class="mandatory-tag"><span>📝</span> Ona tili <small>10</small></div>
+                                    <div class="mandatory-tag"><span>➗</span> Matematika <small>10</small></div>
+                                    <div class="mandatory-tag"><span>📜</span> O'zb. tarixi <small>10</small></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="dtm-card-footer">
+                            <div class="dtm-footer-info">
+                                <strong>90</strong> savol · <strong>3</strong> soat · <strong>189</strong> maks. ball
+                            </div>
+                            <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
+                                <i class="bi bi-play-fill"></i>
+                                Boshlash
+                            </button>
                         </div>
                     </div>
-
-                    <div class="dtm-divider"></div>
-
-                    <!-- Majburiy fanlar (kompakt) -->
-                    <div class="mandatory-compact">
-                        <div class="mandatory-compact-title">
-                            <i class="bi bi-lock-fill"></i> Majburiy fanlar · 30 savol
-                        </div>
-                        <div class="mandatory-compact-list">
-                            <div class="mandatory-tag"><span>📝</span> Ona tili <small>10</small></div>
-                            <div class="mandatory-tag"><span>➗</span> Matematika <small>10</small></div>
-                            <div class="mandatory-tag"><span>📜</span> O'zb. tarixi <small>10</small></div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="dtm-card-footer">
-                    <div class="dtm-footer-info">
-                        <strong>90</strong> savol · <strong>3</strong> soat · <strong>189</strong> maks. ball
-                    </div>
-                    <button type="submit" class="dtm-start-btn" id="startBtn" disabled>
-                        <i class="bi bi-play-fill"></i>
-                        Boshlash
-                    </button>
-                </div>
-            </div>
-        </form>
+                </form>
+            </main>
+        </div>
     </div>
 </div>
 {% endblock %}

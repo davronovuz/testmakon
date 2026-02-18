@@ -5,23 +5,7 @@
 
 {% block extra_css %}
 <style>
-    /* ========== PAGE HEADER ========== */
-    .practice-header {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 2.5rem 0;
-    }
-
-    .practice-header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .practice-header p {
-        font-size: 1.05rem;
-        color: var(--gray-500);
-        margin: 0;
-    }
+    {% include 'tests_app/_sidebar_css.html' %}
 
     /* ========== CONTENT ========== */
     .practice-content {
@@ -225,139 +209,74 @@
         margin-top: 1rem;
         width: 100%;
     }
-
-    /* ========== QUICK START ========== */
-    .quick-start-card {
-        background: var(--gradient-dark);
-        border-radius: var(--radius-xl);
-        padding: 2.5rem;
-        color: white;
-        margin-top: 3rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .quick-start-content h3 {
-        font-size: 1.5rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .quick-start-content p {
-        color: var(--gray-400);
-        margin: 0;
-        font-size: 1rem;
-    }
-
-    .quick-start-btn {
-        padding: 1rem 2rem;
-        background: var(--gradient-primary);
-        color: white;
-        border: none;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
-        white-space: nowrap;
-    }
-
-    .quick-start-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
-        color: white;
-    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="practice-header">
-    <div class="container">
-        <h1>Mashq qilish</h1>
-        <p>Fan tanlang va bilimingizni sinab ko'ring</p>
-    </div>
-</div>
-
-<!-- Content -->
-<div class="practice-content">
-    <div class="container">
-        <!-- Practice Modes -->
-        <div class="section-title">
-            <i class="bi bi-lightning-charge-fill"></i>
-            Mashq turi
-        </div>
-
-        <div class="practice-modes">
-            <div class="practice-mode-card popular" data-mode="practice">
-                <div class="practice-mode-icon">
-                    <i class="bi bi-journal-check"></i>
-                </div>
-                <h3>Oddiy mashq</h3>
-                <p>Vaqt chegarasisiz, o'z tezligingizda</p>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='practice' %}
+        <main>
+            <!-- Practice Modes -->
+            <div class="section-title">
+                <i class="bi bi-lightning-charge-fill"></i>
+                Mashq turi
             </div>
 
-            <div class="practice-mode-card" data-mode="timed">
-                <div class="practice-mode-icon">
-                    <i class="bi bi-stopwatch"></i>
+            <div class="practice-modes">
+                <div class="practice-mode-card popular" data-mode="practice">
+                    <div class="practice-mode-icon">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <h3>Oddiy mashq</h3>
+                    <p>Vaqt chegarasisiz, o'z tezligingizda</p>
                 </div>
-                <h3>Vaqt bilan</h3>
-                <p>Har bir savol uchun 2 daqiqa</p>
-            </div>
 
-            <div class="practice-mode-card" data-mode="exam">
-                <div class="practice-mode-icon">
-                    <i class="bi bi-mortarboard"></i>
+                <div class="practice-mode-card" data-mode="timed">
+                    <div class="practice-mode-icon">
+                        <i class="bi bi-stopwatch"></i>
+                    </div>
+                    <h3>Vaqt bilan</h3>
+                    <p>Har bir savol uchun 2 daqiqa</p>
                 </div>
-                <h3>Imtihon rejimi</h3>
-                <p>DTM formatida, qattiq vaqt</p>
-            </div>
-        </div>
 
-        <!-- Subjects -->
-        <div class="section-title">
-            <i class="bi bi-book-fill"></i>
-            Fan tanlang
-        </div>
-
-        <div class="subjects-grid">
-            {% for subject in subjects %}
-            <div class="subject-card {{ subject.slug }}">
-                <span class="subject-icon">{{ subject.icon }}</span>
-                <h4>{{ subject.name }}</h4>
-                <div class="subject-meta">
-                    <span><i class="bi bi-journal-text"></i> {{ subject.questions_count }} savol</span>
-                </div>
-                <a href="{% url 'tests_app:practice_subject' subject_slug=subject.slug %}" class="btn btn-primary btn-sm">
-                    Tanlash
-                </a>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="bi bi-journal-x fs-1 text-muted"></i>
-                    <p class="mt-3 text-muted">Hozircha fanlar qo'shilmagan</p>
+                <div class="practice-mode-card" data-mode="exam">
+                    <div class="practice-mode-icon">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                    <h3>Imtihon rejimi</h3>
+                    <p>DTM formatida, qattiq vaqt</p>
                 </div>
             </div>
-            {% endfor %}
-        </div>
 
-        <!-- Quick Start -->
-        <div class="quick-start-card">
-            <div class="quick-start-content">
-                <h3>🎯 DTM Simulyatsiya</h3>
-                <p>Haqiqiy imtihon formatida blok test yeching</p>
+            <!-- Subjects -->
+            <div class="section-title">
+                <i class="bi bi-book-fill"></i>
+                Fan tanlang
             </div>
-            <a href="{% url 'tests_app:dtm_simulation' %}" class="quick-start-btn">
-                <i class="bi bi-play-fill"></i>
-                Boshlash
-            </a>
-        </div>
+
+            <div class="subjects-grid">
+                {% for subject in subjects %}
+                <div class="subject-card {{ subject.slug }}">
+                    <span class="subject-icon">{{ subject.icon }}</span>
+                    <h4>{{ subject.name }}</h4>
+                    <div class="subject-meta">
+                        <span><i class="bi bi-journal-text"></i> {{ subject.questions_count }} savol</span>
+                    </div>
+                    <a href="{% url 'tests_app:practice_subject' subject_slug=subject.slug %}" class="btn btn-primary btn-sm">
+                        Tanlash
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="bi bi-journal-x fs-1 text-muted"></i>
+                        <p class="mt-3 text-muted">Hozircha fanlar qo'shilmagan</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}
