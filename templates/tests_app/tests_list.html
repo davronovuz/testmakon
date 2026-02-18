@@ -66,41 +66,6 @@
     .tl-quick .q-dark i { color: var(--dark); }
     .tl-quick .q-purple i { color: #7C3AED; }
 
-    /* ========== SUBJECT TABS ========== */
-    .tl-tabs {
-        display: flex;
-        gap: 0.35rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-    }
-
-    .tl-tab {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem 1rem;
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        cursor: pointer;
-        transition: all 0.15s ease;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .tl-tab:hover {
-        border-color: var(--gray-300);
-        color: var(--dark);
-    }
-
-    .tl-tab.active {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: var(--white);
-    }
-
     /* ========== TESTS GRID ========== */
     .tl-grid {
         display: grid;
@@ -117,12 +82,15 @@
         display: flex;
         flex-direction: column;
         transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
     }
 
     .tl-card:hover {
         border-color: var(--gray-300);
         box-shadow: var(--shadow);
         transform: translateY(-2px);
+        color: inherit;
     }
 
     .tl-card-top {
@@ -165,15 +133,6 @@
         color: var(--dark);
         margin-bottom: 0.75rem;
         line-height: 1.4;
-    }
-
-    .tl-card-title a {
-        color: inherit;
-        text-decoration: none;
-    }
-
-    .tl-card-title a:hover {
-        color: var(--primary-dark);
     }
 
     .tl-card-info {
@@ -296,7 +255,7 @@
         <!-- Header -->
         <div class="tl-header">
             <h1>Testlar</h1>
-            <p>Fan tanlang va bilimingizni sinab ko'ring</p>
+            <p>Bilimingizni sinab ko'ring</p>
         </div>
 
         <!-- Quick Links -->
@@ -312,21 +271,11 @@
             </a>
         </div>
 
-        <!-- Subject Tabs -->
-        <div class="tl-tabs">
-            <button class="tl-tab active" data-filter="all">Barchasi</button>
-            {% for subject in subjects %}
-            <button class="tl-tab" data-filter="{{ subject.slug }}">
-                {{ subject.icon }} {{ subject.name }}
-            </button>
-            {% endfor %}
-        </div>
-
         <!-- Tests Grid -->
-        <div class="tl-grid" id="testsGrid">
+        <div class="tl-grid">
             {% if tests %}
                 {% for test in tests %}
-                <div class="tl-card" data-subject="{{ test.subject.slug|default:'all' }}">
+                <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-card">
                     <div class="tl-card-top">
                         <div class="tl-card-subj">
                             <span>{{ test.subject.icon|default:"📚" }}</span>
@@ -340,9 +289,7 @@
                         </span>
                     </div>
 
-                    <h3 class="tl-card-title">
-                        <a href="{% url 'tests_app:test_detail' slug=test.slug %}">{{ test.title }}</a>
-                    </h3>
+                    <h3 class="tl-card-title">{{ test.title }}</h3>
 
                     <div class="tl-card-info">
                         <span><i class="bi bi-journal-text"></i> {{ test.question_count }} savol</span>
@@ -353,11 +300,11 @@
 
                     <div class="tl-card-bottom">
                         <span class="tl-card-attempts">{{ test.total_attempts|default:"0" }} urinish</span>
-                        <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-btn">
+                        <span class="tl-btn">
                             Boshlash <i class="bi bi-arrow-right"></i>
-                        </a>
+                        </span>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
             {% else %}
                 <div class="tl-empty">
@@ -373,27 +320,4 @@
 
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-(function() {
-    var cards = document.querySelectorAll('.tl-card');
-
-    document.querySelectorAll('.tl-tab').forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            var filter = this.dataset.filter;
-
-            document.querySelectorAll('.tl-tab').forEach(function(t) {
-                t.classList.remove('active');
-            });
-            this.classList.add('active');
-
-            cards.forEach(function(card) {
-                card.style.display = (filter === 'all' || card.dataset.subject === filter) ? '' : 'none';
-            });
-        });
-    });
-})();
-</script>
 {% endblock %}
