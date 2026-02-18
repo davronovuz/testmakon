@@ -11,6 +11,9 @@
 
     /* ========== PAGE HEADER ========== */
     .tl-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: 2rem;
     }
 
@@ -18,53 +21,107 @@
         font-size: 1.75rem;
         font-weight: 900;
         color: var(--dark);
-        margin-bottom: 0.25rem;
+        margin: 0;
     }
 
-    .tl-header p {
+    .tl-header-count {
+        font-size: 0.82rem;
+        font-weight: 600;
         color: var(--gray-500);
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin: 0;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        padding: 0.4rem 0.85rem;
+        border-radius: 50px;
     }
 
     /* ========== QUICK LINKS ========== */
     .tl-quick {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 0.75rem;
         margin-bottom: 2.25rem;
     }
 
     .tl-quick a {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.65rem 1.15rem;
+        gap: 0.85rem;
+        padding: 1rem 1.15rem;
         background: var(--white);
         border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--dark);
+        border-radius: var(--radius-lg);
         text-decoration: none;
+        color: var(--dark);
         transition: all 0.2s ease;
     }
 
     .tl-quick a:hover {
         border-color: var(--primary);
-        color: var(--primary-dark);
-        background: rgba(139, 197, 64, 0.04);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow);
+        transform: translateY(-2px);
+        color: var(--dark);
     }
 
-    .tl-quick a i {
+    .tl-quick-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+        color: white;
+    }
+
+    .tl-quick-icon.green {
+        background: var(--gradient-primary);
+        box-shadow: 0 4px 12px rgba(139, 197, 64, 0.3);
+    }
+
+    .tl-quick-icon.dark {
+        background: var(--gradient-dark);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .tl-quick-icon.purple {
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .tl-quick-text h3 {
+        font-size: 0.88rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0 0 0.1rem;
+    }
+
+    .tl-quick-text p {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin: 0;
+        font-weight: 500;
+    }
+
+    /* ========== SECTION TITLE ========== */
+    .tl-section-title {
         font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    .tl-quick .q-green i { color: var(--primary); }
-    .tl-quick .q-dark i { color: var(--dark); }
-    .tl-quick .q-purple i { color: #7C3AED; }
+    .tl-section-title::before {
+        content: '';
+        width: 4px;
+        height: 18px;
+        background: var(--gradient-primary);
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
 
     /* ========== TESTS GRID ========== */
     .tl-grid {
@@ -84,13 +141,34 @@
         transition: all 0.2s ease;
         text-decoration: none;
         color: inherit;
+        position: relative;
+        overflow: hidden;
     }
+
+    .tl-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .tl-card.exam-card::before { background: linear-gradient(135deg, #EF4444, #DC2626); }
+    .tl-card.block-card::before { background: linear-gradient(135deg, #3B82F6, #2563EB); }
 
     .tl-card:hover {
         border-color: var(--gray-300);
         box-shadow: var(--shadow);
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         color: inherit;
+    }
+
+    .tl-card:hover::before {
+        opacity: 1;
     }
 
     .tl-card-top {
@@ -169,45 +247,53 @@
         font-size: 0.75rem;
         font-weight: 600;
         color: var(--gray-400);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 
-    .tl-btn {
+    .tl-card-btn {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
         padding: 0.5rem 1.1rem;
         background: var(--gradient-primary);
         color: var(--white);
-        border: none;
         border-radius: var(--radius);
         font-size: 0.8rem;
         font-weight: 700;
-        text-decoration: none;
-        transition: all 0.2s ease;
         box-shadow: 0 2px 8px rgba(139, 197, 64, 0.2);
+        transition: all 0.15s ease;
     }
 
-    .tl-btn:hover {
-        transform: translateY(-1px);
+    .tl-card:hover .tl-card-btn {
         box-shadow: var(--shadow-primary);
-        color: var(--white);
     }
 
-    /* ========== EMPTY ========== */
+    /* ========== EMPTY STATE ========== */
     .tl-empty {
         grid-column: 1 / -1;
         text-align: center;
         padding: 4rem 2rem;
         background: var(--white);
-        border: 1px dashed var(--gray-300);
+        border: 1px solid var(--gray-200);
         border-radius: var(--radius-lg);
     }
 
-    .tl-empty i {
-        font-size: 2.5rem;
-        color: var(--gray-300);
-        display: block;
-        margin-bottom: 1rem;
+    .tl-empty-icon {
+        width: 72px;
+        height: 72px;
+        background: var(--gray-50);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem;
+    }
+
+    .tl-empty-icon i {
+        font-size: 1.75rem;
+        color: var(--gray-400);
     }
 
     .tl-empty h3 {
@@ -223,18 +309,31 @@
         margin: 0 auto 1.5rem;
     }
 
+    .tl-empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.5rem;
+        background: var(--gradient-primary);
+        color: var(--white);
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: var(--shadow-primary);
+        transition: all 0.2s ease;
+    }
+
+    .tl-empty-btn:hover {
+        transform: translateY(-2px);
+        color: var(--white);
+    }
+
     /* ========== RESPONSIVE ========== */
     @media (max-width: 768px) {
         .tl-quick {
-            flex-wrap: wrap;
-        }
-
-        .tl-quick a {
-            flex: 1;
-            min-width: 0;
-            justify-content: center;
-            font-size: 0.8rem;
-            padding: 0.6rem 0.75rem;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
         }
 
         .tl-grid {
@@ -243,6 +342,12 @@
 
         .tl-header h1 {
             font-size: 1.5rem;
+        }
+
+        .tl-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
     }
 </style>
@@ -255,27 +360,49 @@
         <!-- Header -->
         <div class="tl-header">
             <h1>Testlar</h1>
-            <p>Bilimingizni sinab ko'ring</p>
+            {% if tests %}
+            <span class="tl-header-count">{{ tests|length }} ta test</span>
+            {% endif %}
         </div>
 
         <!-- Quick Links -->
         <div class="tl-quick">
-            <a href="{% url 'tests_app:practice_select' %}" class="q-green">
-                <i class="bi bi-lightning-charge-fill"></i> Mashq qilish
+            <a href="{% url 'tests_app:practice_select' %}">
+                <div class="tl-quick-icon green">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <div class="tl-quick-text">
+                    <h3>Mashq qilish</h3>
+                    <p>Fan va mavzuni tanlang</p>
+                </div>
             </a>
-            <a href="{% url 'tests_app:dtm_simulation' %}" class="q-dark">
-                <i class="bi bi-mortarboard-fill"></i> DTM Simulyatsiya
+            <a href="{% url 'tests_app:dtm_simulation' %}">
+                <div class="tl-quick-icon dark">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div class="tl-quick-text">
+                    <h3>DTM Simulyatsiya</h3>
+                    <p>Haqiqiy imtihon formati</p>
+                </div>
             </a>
-            <a href="{% url 'tests_app:question_bank' %}" class="q-purple">
-                <i class="bi bi-collection-fill"></i> Savol banki
+            <a href="{% url 'tests_app:question_bank' %}">
+                <div class="tl-quick-icon purple">
+                    <i class="bi bi-collection-fill"></i>
+                </div>
+                <div class="tl-quick-text">
+                    <h3>Savol banki</h3>
+                    <p>Barcha savollar bir joyda</p>
+                </div>
             </a>
         </div>
 
-        <!-- Tests Grid -->
+        <!-- Tests Section -->
+        <h2 class="tl-section-title">Tayyor testlar</h2>
+
         <div class="tl-grid">
             {% if tests %}
                 {% for test in tests %}
-                <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-card">
+                <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-card {% if test.test_type == 'exam' %}exam-card{% elif test.test_type == 'block' %}block-card{% endif %}">
                     <div class="tl-card-top">
                         <div class="tl-card-subj">
                             <span>{{ test.subject.icon|default:"📚" }}</span>
@@ -299,8 +426,10 @@
                     </div>
 
                     <div class="tl-card-bottom">
-                        <span class="tl-card-attempts">{{ test.total_attempts|default:"0" }} urinish</span>
-                        <span class="tl-btn">
+                        <span class="tl-card-attempts">
+                            <i class="bi bi-people-fill"></i> {{ test.total_attempts|default:"0" }} urinish
+                        </span>
+                        <span class="tl-card-btn">
                             Boshlash <i class="bi bi-arrow-right"></i>
                         </span>
                     </div>
@@ -308,10 +437,12 @@
                 {% endfor %}
             {% else %}
                 <div class="tl-empty">
-                    <i class="bi bi-journal-x"></i>
+                    <div class="tl-empty-icon">
+                        <i class="bi bi-journal-bookmark"></i>
+                    </div>
                     <h3>Testlar hali qo'shilmagan</h3>
                     <p>Mashq rejimida istalgan fan bo'yicha test yechishingiz mumkin.</p>
-                    <a href="{% url 'tests_app:practice_select' %}" class="tl-btn" style="padding: 0.65rem 1.5rem;">
+                    <a href="{% url 'tests_app:practice_select' %}" class="tl-empty-btn">
                         <i class="bi bi-lightning-charge-fill"></i> Mashq boshlash
                     </a>
                 </div>
