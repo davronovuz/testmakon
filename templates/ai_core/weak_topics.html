@@ -3,63 +3,225 @@
 
 {% block title %}Sust Mavzular | TestMakon{% endblock %}
 
-{% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Sust Mavzular</h2>
-            <p class="text-muted">Ushbu mavzularni kuchaytirish orqali ballingizni oshiring.</p>
-        </div>
+{% block extra_css %}
+<style>
+    {% include 'ai_core/_sidebar_css.html' %}
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold mb-0">Mavzular Ro'yxati</h6>
-                <span class="badge bg-danger bg-opacity-10 text-danger">{{ weak_topics.count }} ta mavzu</span>
+    .wt-count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(239, 68, 68, 0.08);
+        color: #DC2626;
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-lg);
+        margin-bottom: 1.25rem;
+    }
+
+    .wt-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-left: 4px solid #DC2626;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.15s ease;
+    }
+
+    .wt-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .wt-card-top {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .wt-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(239, 68, 68, 0.1);
+        color: #DC2626;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .wt-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .wt-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.25rem;
+    }
+
+    .wt-subject {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6B7280;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        padding: 0.15rem 0.6rem;
+        border-radius: 20px;
+    }
+
+    .wt-progress-wrap {
+        flex: 0 0 160px;
+    }
+
+    .wt-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.3rem;
+        font-size: 0.78rem;
+    }
+
+    .wt-progress-label {
+        color: #6B7280;
+    }
+
+    .wt-progress-value {
+        font-weight: 700;
+        color: #DC2626;
+    }
+
+    .wt-progress-bar {
+        width: 100%;
+        height: 6px;
+        background: var(--gray-200);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .wt-progress-fill {
+        height: 100%;
+        background: #DC2626;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .wt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #DC2626;
+        border: 1.5px solid #DC2626;
+        border-radius: 20px;
+        background: transparent;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    .wt-btn:hover {
+        background: #DC2626;
+        color: var(--white);
+    }
+
+    .wt-ai-tip {
+        margin-top: 0.85rem;
+        padding: 0.75rem 1rem;
+        background: var(--gray-50);
+        border-radius: 8px;
+        font-size: 0.82rem;
+        color: #6B7280;
+        line-height: 1.5;
+    }
+
+    .wt-ai-tip i {
+        margin-right: 0.4rem;
+    }
+
+    .wt-ai-tip strong {
+        color: var(--dark);
+    }
+
+    .wt-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #6B7280;
+    }
+
+    .wt-empty i {
+        font-size: 3rem;
+        color: #F59E0B;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 767px) {
+        .wt-card-top {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .wt-progress-wrap {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='weak_topics' %}
+        <main>
+            <div class="wt-count-badge">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {{ weak_topics.count }} ta sust mavzu
             </div>
-            <div class="list-group list-group-flush">
-                {% for item in weak_topics %}
-                <div class="list-group-item p-4 border-light">
-                    <div class="row align-items-center g-3">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="icon-box bg-danger bg-opacity-10 text-danger rounded-circle flex-shrink-0">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-1">{{ item.topic.name }}</h6>
-                                    <span class="badge bg-light text-muted border">{{ item.subject.name }}</span>
-                                </div>
-                            </div>
+
+            {% for item in weak_topics %}
+            <div class="wt-card">
+                <div class="wt-card-top">
+                    <div class="wt-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="wt-info">
+                        <div class="wt-name">{{ item.topic.name }}</div>
+                        <span class="wt-subject">{{ item.subject.name }}</span>
+                    </div>
+                    <div class="wt-progress-wrap">
+                        <div class="wt-progress-header">
+                            <span class="wt-progress-label">O'zlashtirish</span>
+                            <span class="wt-progress-value">{{ item.accuracy_rate }}%</span>
                         </div>
-                        <div class="col-md-3">
-                            <div class="d-flex justify-content-between mb-1 small">
-                                <span class="text-muted">O'zlashtirish</span>
-                                <span class="fw-bold text-danger">{{ item.accuracy_rate }}%</span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" style="width: {{ item.accuracy_rate }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-md-end">
-                            <a href="#" class="btn btn-outline-danger btn-sm fw-bold rounded-pill px-3">
-                                Mashq qilish
-                            </a>
+                        <div class="wt-progress-bar">
+                            <div class="wt-progress-fill" style="width: {{ item.accuracy_rate }}%"></div>
                         </div>
                     </div>
-                    {% if item.recommendation %}
-                    <div class="mt-3 bg-light p-3 rounded-3 small text-muted">
-                        <i class="bi bi-robot me-2"></i> <strong>AI Tavsiyasi:</strong> {{ item.recommendation }}
-                    </div>
-                    {% endif %}
+                    <a href="#" class="wt-btn">Mashq qilish</a>
                 </div>
-                {% empty %}
-                <div class="p-5 text-center text-muted">
-                    <i class="bi bi-stars display-4 text-warning mb-3 d-block"></i>
-                    Sizda sust mavzular aniqlanmadi.
+                {% if item.recommendation %}
+                <div class="wt-ai-tip">
+                    <i class="bi bi-robot"></i> <strong>AI Tavsiyasi:</strong> {{ item.recommendation }}
                 </div>
-                {% endfor %}
+                {% endif %}
             </div>
-        </div>
+            {% empty %}
+            <div class="wt-empty">
+                <i class="bi bi-stars"></i>
+                Sizda sust mavzular aniqlanmadi.
+            </div>
+            {% endfor %}
+        </main>
     </div>
 </div>
 {% endblock %}

@@ -3,66 +3,218 @@
 
 {% block title %}Batafsil Tahlil | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    {% include 'ai_core/_sidebar_css.html' %}
+
+    .da-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.15s ease;
+    }
+
+    .da-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .da-card.correct {
+        border-left: 4px solid #16A34A;
+    }
+
+    .da-card.wrong {
+        border-left: 4px solid #DC2626;
+    }
+
+    .da-card-head {
+        padding: 0.85rem 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .da-q-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.3rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .da-q-badge.correct {
+        background: rgba(22, 163, 74, 0.08);
+        color: #16A34A;
+    }
+
+    .da-q-badge.wrong {
+        background: rgba(220, 38, 38, 0.08);
+        color: #DC2626;
+    }
+
+    .da-topic {
+        font-size: 0.8rem;
+        color: #9CA3AF;
+    }
+
+    .da-card-body {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .da-question-text {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .da-ai-box {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+        background: rgba(59, 130, 246, 0.05);
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .da-ai-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        color: #2563EB;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .da-ai-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .da-ai-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #2563EB;
+        margin-bottom: 0.2rem;
+    }
+
+    .da-ai-text {
+        font-size: 0.82rem;
+        color: #4B5563;
+        line-height: 1.55;
+    }
+
+    .da-answers {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .da-answer-box {
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 10px;
+    }
+
+    .da-answer-box.correct-bg {
+        border-color: rgba(22, 163, 74, 0.3);
+        background: rgba(22, 163, 74, 0.04);
+    }
+
+    .da-answer-box.wrong-bg {
+        border-color: rgba(220, 38, 38, 0.3);
+        background: rgba(220, 38, 38, 0.04);
+    }
+
+    .da-answer-label {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.3rem;
+        opacity: 0.5;
+    }
+
+    .da-answer-label.success { color: #16A34A; }
+    .da-answer-label.danger { color: #DC2626; }
+
+    .da-answer-text {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    @media (max-width: 575px) {
+        .da-answers {
+            grid-template-columns: 1fr;
+        }
+
+        .da-card-head {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold mb-0">Batafsil Tahlil</h3>
-            <a href="{% url 'tests_app:result_detail' uuid=attempt.uuid %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Ortga
-            </a>
-        </div>
-
-        <div class="row g-4">
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='mentor' %}
+        <main>
             {% for ans in answers %}
-            <div class="col-12">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
-                        <span class="badge {% if ans.is_correct %}bg-success{% else %}bg-danger{% endif %} bg-opacity-10 text-dark border px-3 py-2">
-                            Savol #{{ forloop.counter }}
-                        </span>
-                        <span class="text-muted small">Mavzu: {{ ans.question.topic.name|default:"Umumiy" }}</span>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="lh-base mb-4">{{ ans.question.text|linebreaksbr }}</h5>
+            <div class="da-card {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
+                <div class="da-card-head">
+                    <span class="da-q-badge {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
+                        Savol #{{ forloop.counter }}
+                    </span>
+                    <span class="da-topic">Mavzu: {{ ans.question.topic.name|default:"Umumiy" }}</span>
+                </div>
+                <div class="da-card-body">
+                    <div class="da-question-text">{{ ans.question.text|linebreaksbr }}</div>
 
-                        {% if not ans.is_correct %}
-                        <div class="alert alert-info border-0 bg-info bg-opacity-10 d-flex gap-3 mb-4">
-                            <div class="icon-box bg-white text-info rounded-circle flex-shrink-0 shadow-sm">
-                                <i class="bi bi-robot"></i>
-                            </div>
-                            <div>
-                                <h6 class="fw-bold text-info mb-1">AI Tahlili</h6>
-                                <p class="mb-0 small text-dark opacity-75">
-                                    {{ ans.question.explanation|default:"Bu savolda ko'pchilik chalg'iydi. Asosiy e'tiborni savolning ikkinchi qismiga qaratish kerak." }}
-                                </p>
+                    {% if not ans.is_correct %}
+                    <div class="da-ai-box">
+                        <div class="da-ai-icon">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="da-ai-content">
+                            <div class="da-ai-label">AI Tahlili</div>
+                            <div class="da-ai-text">
+                                {{ ans.question.explanation|default:"Bu savolda ko'pchilik chalg'iydi. Asosiy e'tiborni savolning ikkinchi qismiga qaratish kerak." }}
                             </div>
                         </div>
-                        {% endif %}
+                    </div>
+                    {% endif %}
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="p-3 border rounded-3 {% if ans.is_correct %}border-success bg-success bg-opacity-10{% else %}border-danger bg-danger bg-opacity-10{% endif %}">
-                                    <small class="text-uppercase fw-bold opacity-50 mb-1 d-block">Sizning javobingiz</small>
-                                    <span class="fw-bold">{{ ans.selected_answer.text|default:"Belgilanmagan" }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3 border border-success bg-success bg-opacity-10 rounded-3">
-                                    <small class="text-uppercase fw-bold text-success opacity-50 mb-1 d-block">To'g'ri javob</small>
-                                    <span class="fw-bold text-dark">
-                                        {% for opt in ans.question.answers.all %}
-                                            {% if opt.is_correct %}{{ opt.text }}{% endif %}
-                                        {% endfor %}
-                                    </span>
-                                </div>
-                            </div>
+                    <div class="da-answers">
+                        <div class="da-answer-box {% if ans.is_correct %}correct-bg{% else %}wrong-bg{% endif %}">
+                            <small class="da-answer-label {% if ans.is_correct %}success{% else %}danger{% endif %}">Sizning javobingiz</small>
+                            <span class="da-answer-text">{{ ans.selected_answer.text|default:"Belgilanmagan" }}</span>
+                        </div>
+                        <div class="da-answer-box correct-bg">
+                            <small class="da-answer-label success">To'g'ri javob</small>
+                            <span class="da-answer-text">
+                                {% for opt in ans.question.answers.all %}
+                                    {% if opt.is_correct %}{{ opt.text }}{% endif %}
+                                {% endfor %}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

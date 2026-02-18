@@ -3,53 +3,200 @@
 
 {% block title %}Tavsiyalar | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    {% include 'ai_core/_sidebar_css.html' %}
+
+    .rec-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+
+    .rec-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.15s ease;
+    }
+
+    .rec-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .rec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.85rem;
+    }
+
+    .rec-priority-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .rec-priority-icon.high {
+        background: rgba(239, 68, 68, 0.1);
+        color: #DC2626;
+    }
+
+    .rec-priority-icon.medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: #D97706;
+    }
+
+    .rec-priority-icon.low {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563EB;
+    }
+
+    .rec-dismiss {
+        color: #9CA3AF;
+        text-decoration: none;
+        font-size: 1.1rem;
+        line-height: 1;
+        transition: color 0.15s ease;
+    }
+
+    .rec-dismiss:hover {
+        color: var(--dark);
+    }
+
+    .rec-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.4rem;
+    }
+
+    .rec-content {
+        font-size: 0.85rem;
+        color: #6B7280;
+        line-height: 1.55;
+        margin-bottom: 1rem;
+        flex: 1;
+    }
+
+    .rec-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--dark);
+        border: 1.5px solid var(--gray-200);
+        border-radius: 20px;
+        background: transparent;
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+
+    .rec-action-btn:hover {
+        background: var(--dark);
+        color: var(--white);
+        border-color: var(--dark);
+    }
+
+    .rec-time {
+        margin-top: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--gray-200);
+        font-size: 0.78rem;
+        color: #9CA3AF;
+    }
+
+    .rec-time i {
+        margin-right: 0.3rem;
+    }
+
+    .rec-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 1rem;
+    }
+
+    .rec-empty-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--gray-50);
+        color: #22C55E;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .rec-empty h5 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.3rem;
+    }
+
+    .rec-empty p {
+        font-size: 0.85rem;
+        color: #6B7280;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <h3 class="fw-bold mb-4">AI Tavsiyalari</h3>
-
-        <div class="row g-4">
-            {% for rec in recommendations %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 position-relative">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div class="icon-box
-                                {% if rec.priority == 'high' or rec.priority == 'critical' %}bg-danger text-danger
-                                {% elif rec.priority == 'medium' %}bg-warning text-warning
-                                {% else %}bg-info text-info{% endif %}
-                                bg-opacity-10 rounded-circle">
-                                <i class="bi bi-lightbulb-fill"></i>
-                            </div>
-                            <a href="{% url 'ai_core:recommendation_dismiss' id=rec.id %}" class="btn btn-link text-muted p-0" title="Yopish">
-                                <i class="bi bi-x-lg"></i>
-                            </a>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='recommendations' %}
+        <main>
+            <div class="rec-grid">
+                {% for rec in recommendations %}
+                <div class="rec-card">
+                    <div class="rec-header">
+                        <div class="rec-priority-icon {% if rec.priority == 'high' or rec.priority == 'critical' %}high{% elif rec.priority == 'medium' %}medium{% else %}low{% endif %}">
+                            <i class="bi bi-lightbulb-fill"></i>
                         </div>
-
-                        <h5 class="fw-bold mb-2">{{ rec.title }}</h5>
-                        <p class="text-muted small mb-4">{{ rec.content|truncatechars:100 }}</p>
-
-                        {% if rec.action_url %}
-                        <a href="{{ rec.action_url }}" class="btn btn-sm btn-outline-dark fw-bold rounded-pill px-3">
-                            {{ rec.action_text|default:"Ko'rish" }} <i class="bi bi-arrow-right ms-1"></i>
+                        <a href="{% url 'ai_core:recommendation_dismiss' id=rec.id %}" class="rec-dismiss" title="Yopish">
+                            <i class="bi bi-x-lg"></i>
                         </a>
-                        {% endif %}
                     </div>
-                    <div class="card-footer bg-white border-0 text-muted small pt-0 pb-3">
-                        <i class="bi bi-clock me-1"></i> {{ rec.created_at|timesince }} oldin
+
+                    <h4 class="rec-title">{{ rec.title }}</h4>
+                    <div class="rec-content">{{ rec.content|truncatechars:100 }}</div>
+
+                    {% if rec.action_url %}
+                    <div>
+                        <a href="{{ rec.action_url }}" class="rec-action-btn">
+                            {{ rec.action_text|default:"Ko'rish" }} <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="rec-time">
+                        <i class="bi bi-clock"></i> {{ rec.created_at|timesince }} oldin
                     </div>
                 </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <div class="icon-box-lg bg-light rounded-circle mx-auto mb-3 text-success">
-                    <i class="bi bi-check-lg"></i>
+                {% empty %}
+                <div class="rec-empty">
+                    <div class="rec-empty-icon">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h5>Tavsiyalar yo'q</h5>
+                    <p>Siz ajoyib ketayapsiz!</p>
                 </div>
-                <h5>Tavsiyalar yo'q</h5>
-                <p class="text-muted">Siz ajoyib ketayapsiz!</p>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

@@ -5,73 +5,28 @@
 
 {% block extra_css %}
 <style>
-    /* Hero Card - base.html ranglarida */
-    .ai-hero-card {
-        background: var(--gradient-dark);
-        position: relative;
-        overflow: hidden;
-        border: none;
-        border-radius: var(--radius-xl);
+    {% include 'ai_core/_sidebar_css.html' %}
+
+    /* Feature Cards Grid */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
 
-    .ai-hero-card::before {
-        content: '';
-        position: absolute;
-        top: -100px;
-        right: -100px;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-        border-radius: 50%;
+    @media (max-width: 991px) {
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 
-    .ai-hero-card::after {
-        content: '';
-        position: absolute;
-        bottom: -150px;
-        left: -100px;
-        width: 350px;
-        height: 350px;
-        background: radial-gradient(circle, rgba(139, 197, 64, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
+    @media (max-width: 575px) {
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
-    /* Robot icon decoration */
-    .hero-decoration {
-        position: absolute;
-        top: 20px;
-        right: 30px;
-        font-size: 12rem;
-        opacity: 0.05;
-        color: white;
-        transform: rotate(10deg);
-        pointer-events: none;
-    }
-
-    /* Status card */
-    .status-card {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-    }
-
-    .status-indicator {
-        width: 10px;
-        height: 10px;
-        background: #22C55E;
-        border-radius: 50%;
-        display: inline-block;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-
-    /* Feature Cards */
     .feature-card {
         background: var(--white);
         border: 1px solid var(--gray-200);
@@ -80,7 +35,6 @@
         transition: all 0.3s ease;
         text-decoration: none;
         display: block;
-        height: 100%;
     }
 
     .feature-card:hover {
@@ -140,6 +94,13 @@
     }
 
     /* Activity List */
+    .activity-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
     .activity-item {
         display: flex;
         align-items: center;
@@ -171,6 +132,11 @@
         flex-shrink: 0;
     }
 
+    .activity-info {
+        flex: 1;
+        min-width: 0;
+    }
+
     .activity-title {
         font-weight: 600;
         color: var(--dark);
@@ -181,6 +147,10 @@
     .activity-time {
         font-size: 0.8rem;
         color: var(--gray-500);
+    }
+
+    .activity-arrow {
+        color: var(--gray-400);
     }
 
     /* Section header */
@@ -202,73 +172,43 @@
         font-size: 0.875rem;
         font-weight: 600;
         color: var(--primary);
+        text-decoration: none;
     }
 
     .section-link:hover {
         color: var(--primary-dark);
     }
+
+    /* Empty state */
+    .empty-state {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        padding: 3rem 1.5rem;
+    }
+
+    .empty-state-title {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-desc {
+        color: var(--gray-500);
+        max-width: 300px;
+        margin: 0 auto 1.5rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="section-sm" style="background: var(--gray-50); min-height: calc(100vh - 200px);">
-    <div class="container">
-
-        <!-- Hero Card -->
-        <div class="ai-hero-card card shadow-lg mb-5">
-            <i class="bi bi-robot hero-decoration"></i>
-
-            <div class="card-body p-4 p-lg-5 position-relative" style="z-index: 1;">
-                <div class="row align-items-center g-4">
-                    <div class="col-lg-7">
-                        <span class="badge badge-primary mb-3" style="background: rgba(139, 197, 64, 0.2); color: var(--primary-light);">
-                            <i class="bi bi-stars me-1"></i> AI Mentor 2.0
-                        </span>
-                        <h1 class="text-white mb-3" style="font-size: 2.5rem; font-weight: 800;">
-                            Shaxsiy AI Mentoringiz
-                        </h1>
-                        <p class="mb-4" style="color: rgba(255,255,255,0.7); font-size: 1.1rem; line-height: 1.7;">
-                            Savollaringizga soniyalar ichida javob oling, o'quv reja tuzing va bilimingizdagi bo'shliqlarni aniqlang.
-                        </p>
-
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="{% url 'ai_core:ai_chat' %}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-chat-dots-fill me-2"></i> Suhbatni boshlash
-                            </a>
-                            <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-lg" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
-                                <i class="bi bi-calendar-plus me-2"></i> Reja tuzish
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-5 d-none d-lg-block">
-                        <div class="status-card">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div style="width: 40px; height: 40px; background: rgba(34, 197, 94, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="bi bi-check-lg" style="color: #22C55E;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Holat</div>
-                                    <div style="font-weight: 600; color: white;">
-                                        <span class="status-indicator me-2"></span>Faol
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.1); border-radius: 6px; height: 6px; overflow: hidden;">
-                                <div style="width: 75%; height: 100%; background: var(--primary); border-radius: 6px;"></div>
-                            </div>
-                            <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 0.75rem;">
-                                <i class="bi bi-lightning-charge me-1"></i> AI tahlilingiz tayyor
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Feature Cards -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-6 col-lg-3">
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='mentor' %}
+        <main>
+            <!-- Feature Cards -->
+            <div class="feature-grid">
                 <a href="{% url 'ai_core:ai_tutor' %}" class="feature-card">
                     <div class="feature-icon primary">
                         <i class="bi bi-book-half"></i>
@@ -276,9 +216,7 @@
                     <h5 class="feature-title">Mavzu Tushuntirish</h5>
                     <p class="feature-desc">Murakkab mavzularni sodda tilda va misollar bilan o'rganing.</p>
                 </a>
-            </div>
 
-            <div class="col-md-6 col-lg-3">
                 <a href="{% url 'ai_core:ai_advisor' %}" class="feature-card">
                     <div class="feature-icon warning">
                         <i class="bi bi-bank2"></i>
@@ -286,9 +224,7 @@
                     <h5 class="feature-title">Universitet Maslahati</h5>
                     <p class="feature-desc">Ballingizga mos keladigan eng yaxshi OTMlarni aniqlang.</p>
                 </a>
-            </div>
 
-            <div class="col-md-6 col-lg-3">
                 <a href="{% url 'ai_core:study_plan_list' %}" class="feature-card">
                     <div class="feature-icon success">
                         <i class="bi bi-calendar-check"></i>
@@ -296,9 +232,7 @@
                     <h5 class="feature-title">O'quv Rejalar</h5>
                     <p class="feature-desc">Maqsadingizga erishish uchun shaxsiy jadval tuzing.</p>
                 </a>
-            </div>
 
-            <div class="col-md-6 col-lg-3">
                 <a href="{% url 'ai_core:weak_topics' %}" class="feature-card">
                     <div class="feature-icon danger">
                         <i class="bi bi-activity"></i>
@@ -307,47 +241,46 @@
                     <p class="feature-desc">Xatolaringiz ustida ishlab, natijangizni oshiring.</p>
                 </a>
             </div>
-        </div>
 
-        <!-- Recent Activity -->
-        {% if conversations %}
-        <div class="section-header">
-            <h5 class="section-title">So'nggi suhbatlar</h5>
-            <a href="{% url 'ai_core:conversations_list' %}" class="section-link">
-                Barchasini ko'rish <i class="bi bi-arrow-right ms-1"></i>
-            </a>
-        </div>
-
-        <div class="card" style="border-radius: var(--radius-lg); overflow: hidden;">
-            {% for chat in conversations %}
-            <a href="{% url 'ai_core:conversation_detail' uuid=chat.uuid %}" class="activity-item">
-                <div class="activity-icon">
-                    <i class="bi bi-chat-left-text"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="activity-title">{{ chat.title|default:"Yangi suhbat" }}</div>
-                    <div class="activity-time">{{ chat.updated_at|timesince }} oldin</div>
-                </div>
-                <i class="bi bi-chevron-right" style="color: var(--gray-400);"></i>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <!-- Empty State -->
-        <div class="card text-center p-5" style="border-radius: var(--radius-lg);">
-            <div class="icon-box-gradient icon-box-lg mx-auto mb-4">
-                <i class="bi bi-chat-dots"></i>
+            <!-- Recent Activity -->
+            {% if conversations %}
+            <div class="section-header">
+                <h5 class="section-title">So'nggi suhbatlar</h5>
+                <a href="{% url 'ai_core:conversations_list' %}" class="section-link">
+                    Barchasini ko'rish <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
-            <h5 class="fw-bold mb-2">Hali suhbat yo'q</h5>
-            <p style="color: var(--gray-500); max-width: 300px; margin: 0 auto 1.5rem;">
-                AI Mentor bilan birinchi suhbatingizni boshlang va savollarga javob oling.
-            </p>
-            <a href="{% url 'ai_core:ai_chat' %}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-2"></i> Suhbat boshlash
-            </a>
-        </div>
-        {% endif %}
 
+            <div class="activity-card">
+                {% for chat in conversations %}
+                <a href="{% url 'ai_core:conversation_detail' uuid=chat.uuid %}" class="activity-item">
+                    <div class="activity-icon">
+                        <i class="bi bi-chat-left-text"></i>
+                    </div>
+                    <div class="activity-info">
+                        <div class="activity-title">{{ chat.title|default:"Yangi suhbat" }}</div>
+                        <div class="activity-time">{{ chat.updated_at|timesince }} oldin</div>
+                    </div>
+                    <i class="bi bi-chevron-right activity-arrow"></i>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="icon-box-gradient icon-box-lg" style="margin: 0 auto 1rem;">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <h5 class="empty-state-title">Hali suhbat yo'q</h5>
+                <p class="empty-state-desc">
+                    AI Mentor bilan birinchi suhbatingizni boshlang va savollarga javob oling.
+                </p>
+                <a href="{% url 'ai_core:ai_chat' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Suhbat boshlash
+                </a>
+            </div>
+            {% endif %}
+        </main>
     </div>
-</section>
+</div>
 {% endblock %}

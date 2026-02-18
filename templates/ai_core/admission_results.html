@@ -3,69 +3,217 @@
 
 {% block title %}Qabul Ehtimolligi | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    {% include 'ai_core/_sidebar_css.html' %}
+
+    .ar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.3rem;
+    }
+
+    .ar-subtitle {
+        font-size: 0.85rem;
+        color: #6B7280;
+        margin: 0 0 1.5rem;
+    }
+
+    .ar-subtitle strong {
+        color: var(--primary);
+    }
+
+    .ar-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.15s ease;
+    }
+
+    .ar-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .ar-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .ar-uni-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-50);
+        color: var(--primary);
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .ar-uni-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .ar-uni-dir {
+        font-size: 0.8rem;
+        color: #6B7280;
+    }
+
+    .ar-chances {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .ar-chance-block {
+        position: relative;
+    }
+
+    .ar-chance-block + .ar-chance-block::before {
+        content: '';
+        position: absolute;
+        left: -0.625rem;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--gray-200);
+    }
+
+    .ar-chance-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.35rem;
+    }
+
+    .ar-chance-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #9CA3AF;
+    }
+
+    .ar-chance-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .ar-chance-value.green { color: #16A34A; }
+    .ar-chance-value.yellow { color: #D97706; }
+    .ar-chance-value.blue { color: #2563EB; }
+
+    .ar-progress {
+        width: 100%;
+        height: 7px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .ar-progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .ar-progress-fill.green { background: #16A34A; }
+    .ar-progress-fill.yellow { background: #D97706; }
+    .ar-progress-fill.red { background: #DC2626; }
+    .ar-progress-fill.blue { background: #2563EB; }
+    .ar-progress-fill.cyan { background: #06B6D4; }
+
+    .ar-last-score {
+        margin-top: 0.5rem;
+        font-size: 0.78rem;
+        color: #9CA3AF;
+    }
+
+    .ar-empty {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #6B7280;
+        font-size: 0.92rem;
+    }
+
+    @media (max-width: 575px) {
+        .ar-chances {
+            grid-template-columns: 1fr;
+        }
+
+        .ar-chance-block + .ar-chance-block::before {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Sizning Imkoniyatlaringiz</h2>
-            <p class="text-muted">
-                Kiritilgan <strong>{{ total_score }} ball</strong> asosida AI tahlili.
-            </p>
-        </div>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='advisor' %}
+        <main>
+            <h1 class="ar-title">Sizning Imkoniyatlaringiz</h1>
+            <p class="ar-subtitle">Kiritilgan <strong>{{ total_score }} ball</strong> asosida AI tahlili</p>
 
-        <div class="row g-4 justify-content-center">
             {% for rec in recommendations %}
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="icon-box bg-light text-primary rounded-3">
-                                <i class="bi bi-building"></i>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-0 text-dark">{{ rec.university.name }}</h5>
-                                <small class="text-muted">{{ rec.direction.name }}</small>
-                            </div>
-                        </div>
+            <div class="ar-card">
+                <div class="ar-card-header">
+                    <div class="ar-uni-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <div class="ar-uni-name">{{ rec.university.name }}</div>
+                        <div class="ar-uni-dir">{{ rec.direction.name }}</div>
+                    </div>
+                </div>
 
-                        <div class="row g-4">
-                            <div class="col-md-6 border-end-md">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="small fw-bold text-uppercase text-muted">Grant</span>
-                                    <span class="fw-bold {% if rec.grant_chance > 50 %}text-success{% else %}text-warning{% endif %}">
-                                        {{ rec.grant_chance }}%
-                                    </span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar {% if rec.grant_chance > 80 %}bg-success{% elif rec.grant_chance > 40 %}bg-warning{% else %}bg-danger{% endif %}"
-                                         role="progressbar" style="width: {{ rec.grant_chance }}%"></div>
-                                </div>
-                                <small class="text-muted mt-2 d-block">O'tgan yilgi ball: {{ rec.last_grant_score }}</small>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="small fw-bold text-uppercase text-muted">Kontrakt</span>
-                                    <span class="fw-bold {% if rec.contract_chance > 50 %}text-primary{% else %}text-warning{% endif %}">
-                                        {{ rec.contract_chance }}%
-                                    </span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar {% if rec.contract_chance > 80 %}bg-primary{% elif rec.contract_chance > 40 %}bg-info{% else %}bg-warning{% endif %}"
-                                         role="progressbar" style="width: {{ rec.contract_chance }}%"></div>
-                                </div>
-                                <small class="text-muted mt-2 d-block">O'tgan yilgi ball: {{ rec.last_contract_score }}</small>
-                            </div>
+                <div class="ar-chances">
+                    <div class="ar-chance-block">
+                        <div class="ar-chance-top">
+                            <span class="ar-chance-label">Grant</span>
+                            <span class="ar-chance-value {% if rec.grant_chance > 50 %}green{% else %}yellow{% endif %}">
+                                {{ rec.grant_chance }}%
+                            </span>
                         </div>
+                        <div class="ar-progress">
+                            <div class="ar-progress-fill {% if rec.grant_chance > 80 %}green{% elif rec.grant_chance > 40 %}yellow{% else %}red{% endif %}"
+                                 style="width: {{ rec.grant_chance }}%"></div>
+                        </div>
+                        <div class="ar-last-score">O'tgan yilgi ball: {{ rec.last_grant_score }}</div>
+                    </div>
+
+                    <div class="ar-chance-block">
+                        <div class="ar-chance-top">
+                            <span class="ar-chance-label">Kontrakt</span>
+                            <span class="ar-chance-value {% if rec.contract_chance > 50 %}blue{% else %}yellow{% endif %}">
+                                {{ rec.contract_chance }}%
+                            </span>
+                        </div>
+                        <div class="ar-progress">
+                            <div class="ar-progress-fill {% if rec.contract_chance > 80 %}blue{% elif rec.contract_chance > 40 %}cyan{% else %}yellow{% endif %}"
+                                 style="width: {{ rec.contract_chance }}%"></div>
+                        </div>
+                        <div class="ar-last-score">O'tgan yilgi ball: {{ rec.last_contract_score }}</div>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="text-center text-muted">
+            <div class="ar-empty">
                 Afsuski, ushbu ball bilan tavsiyalar topilmadi.
             </div>
             {% endfor %}
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

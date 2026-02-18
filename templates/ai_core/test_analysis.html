@@ -3,110 +3,289 @@
 
 {% block title %}AI Tahlil | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    {% include 'ai_core/_sidebar_css.html' %}
+
+    .ta-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .ta-header-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .ta-header-title span {
+        font-weight: 400;
+        color: #6B7280;
+    }
+
+    .ta-score {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 1rem;
+        background: rgba(139, 92, 246, 0.08);
+        color: #6D28D9;
+        font-size: 0.9rem;
+        font-weight: 700;
+        border-radius: var(--radius-lg);
+    }
+
+    .ta-two-col {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .ta-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+
+    .ta-card-head {
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--gray-200);
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .ta-card-head.primary {
+        color: var(--primary);
+    }
+
+    .ta-card-head.danger {
+        color: #DC2626;
+    }
+
+    .ta-card-head.success {
+        color: #16A34A;
+    }
+
+    .ta-card-head i {
+        margin-right: 0.5rem;
+    }
+
+    .ta-card-body {
+        padding: 1.25rem;
+    }
+
+    .ta-analysis-wrap {
+        display: flex;
+        gap: 0.85rem;
+    }
+
+    .ta-quote-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-50);
+        color: var(--primary);
+        flex-shrink: 0;
+        font-size: 0.9rem;
+    }
+
+    .ta-analysis-text {
+        color: var(--dark);
+        line-height: 1.7;
+        font-size: 0.92rem;
+    }
+
+    .ta-recs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .ta-rec-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+        background: rgba(245, 158, 11, 0.06);
+        border-radius: 10px;
+    }
+
+    .ta-rec-item i {
+        color: #D97706;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+
+    .ta-rec-item span {
+        font-size: 0.85rem;
+        color: var(--dark);
+        line-height: 1.45;
+    }
+
+    .ta-recs-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0 0 0.85rem;
+    }
+
+    .ta-topic-item {
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .ta-topic-item:last-child {
+        border-bottom: none;
+    }
+
+    .ta-topic-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.35rem;
+    }
+
+    .ta-topic-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .ta-topic-pct {
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .ta-topic-pct.danger { color: #DC2626; }
+    .ta-topic-pct.success { color: #16A34A; }
+
+    .ta-progress {
+        width: 100%;
+        height: 5px;
+        background: var(--gray-200);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .ta-progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .ta-progress-fill.danger { background: #DC2626; }
+    .ta-progress-fill.success { background: #16A34A; }
+
+    .ta-topic-empty {
+        padding: 1.25rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #9CA3AF;
+    }
+
+    @media (max-width: 991px) {
+        .ta-two-col {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .ta-recs-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="card border-0 bg-gradient-primary text-white shadow-lg rounded-4 mb-4 overflow-hidden">
-            <div class="card-body p-4 p-lg-5 position-relative">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <h2 class="fw-bold mb-2">Test Tahlili</h2>
-                        <p class="mb-0 opacity-75">
-                            AI tomonidan <strong>{{ attempt.test.title }}</strong> testi bo'yicha tayyorlangan shaxsiy hisobot.
-                        </p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                        <div class="d-inline-flex align-items-center gap-3 bg-white bg-opacity-10 p-3 rounded-3 border border-white border-opacity-25">
-                            <i class="bi bi-robot fs-1"></i>
-                            <div class="text-start">
-                                <div class="small opacity-75">Natija</div>
-                                <div class="fw-bold fs-4">{{ attempt.percentage }}%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white py-3 border-bottom">
-                        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-stars me-2"></i>AI Xulosasi</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="d-flex gap-3">
-                            <div class="icon-box bg-light text-primary rounded-circle flex-shrink-0">
-                                <i class="bi bi-quote"></i>
-                            </div>
-                            <div class="text-dark lh-lg">
-                                {{ analysis|linebreaks }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h5 class="fw-bold mb-3">Tavsiyalar</h5>
-                <div class="row g-3">
-                    {% for rec in recommendations %}
-                    <div class="col-md-6">
-                        <div class="alert alert-warning border-0 bg-warning bg-opacity-10 d-flex gap-3 h-100 align-items-center">
-                            <i class="bi bi-lightbulb-fill text-warning fs-4"></i>
-                            <div class="text-dark">{{ rec }}</div>
-                        </div>
-                    </div>
-                    {% endfor %}
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='mentor' %}
+        <main>
+            <div class="ta-header">
+                <h1 class="ta-header-title">{{ attempt.test.title }} <span>- AI Tahlili</span></h1>
+                <div class="ta-score">
+                    <i class="bi bi-robot"></i> Natija: {{ attempt.percentage }}%
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="fw-bold mb-0 text-danger">Kuchaytirish kerak</h6>
+            <div class="ta-two-col">
+                <div>
+                    <div class="ta-card">
+                        <div class="ta-card-head primary">
+                            <i class="bi bi-stars"></i>AI Xulosasi
+                        </div>
+                        <div class="ta-card-body">
+                            <div class="ta-analysis-wrap">
+                                <div class="ta-quote-icon">
+                                    <i class="bi bi-quote"></i>
+                                </div>
+                                <div class="ta-analysis-text">
+                                    {{ analysis|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            {% for topic in weak_topics %}
-                            <li class="list-group-item py-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="fw-medium">{{ topic.topic }}</span>
-                                    <span class="text-danger fw-bold">{{ topic.percentage|floatformat:0 }}%</span>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-danger" style="width: {{ topic.percentage }}%"></div>
-                                </div>
-                            </li>
-                            {% empty %}
-                            <li class="list-group-item py-3 text-center text-muted">Sust mavzular aniqlanmadi.</li>
-                            {% endfor %}
-                        </ul>
+
+                    <div class="ta-recs-title">Tavsiyalar</div>
+                    <div class="ta-recs-grid">
+                        {% for rec in recommendations %}
+                        <div class="ta-rec-item">
+                            <i class="bi bi-lightbulb-fill"></i>
+                            <span>{{ rec }}</span>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="fw-bold mb-0 text-success">Kuchli tomonlaringiz</h6>
+                <div>
+                    <div class="ta-card">
+                        <div class="ta-card-head danger">Kuchaytirish kerak</div>
+                        {% for topic in weak_topics %}
+                        <div class="ta-topic-item">
+                            <div class="ta-topic-row">
+                                <span class="ta-topic-name">{{ topic.topic }}</span>
+                                <span class="ta-topic-pct danger">{{ topic.percentage|floatformat:0 }}%</span>
+                            </div>
+                            <div class="ta-progress">
+                                <div class="ta-progress-fill danger" style="width: {{ topic.percentage }}%"></div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="ta-topic-empty">Sust mavzular aniqlanmadi.</div>
+                        {% endfor %}
                     </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            {% for topic in strong_topics %}
-                            <li class="list-group-item py-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="fw-medium">{{ topic.topic }}</span>
-                                    <span class="text-success fw-bold">{{ topic.percentage|floatformat:0 }}%</span>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: {{ topic.percentage }}%"></div>
-                                </div>
-                            </li>
-                            {% empty %}
-                            <li class="list-group-item py-3 text-center text-muted">Hozircha ma'lumot yo'q.</li>
-                            {% endfor %}
-                        </ul>
+
+                    <div class="ta-card">
+                        <div class="ta-card-head success">Kuchli tomonlaringiz</div>
+                        {% for topic in strong_topics %}
+                        <div class="ta-topic-item">
+                            <div class="ta-topic-row">
+                                <span class="ta-topic-name">{{ topic.topic }}</span>
+                                <span class="ta-topic-pct success">{{ topic.percentage|floatformat:0 }}%</span>
+                            </div>
+                            <div class="ta-progress">
+                                <div class="ta-progress-fill success" style="width: {{ topic.percentage }}%"></div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="ta-topic-empty">Hozircha ma'lumot yo'q.</div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

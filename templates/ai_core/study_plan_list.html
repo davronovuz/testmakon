@@ -3,67 +3,208 @@
 
 {% block title %}O'quv Rejalar | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+{% include 'ai_core/_sidebar_css.html' %}
+
+.plan-top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.btn-new-plan {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.btn-new-plan:hover {
+    opacity: 0.85;
+    color: var(--white);
+}
+
+.plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+}
+
+.plan-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.plan-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    color: inherit;
+}
+
+.plan-card-header {
+    margin-bottom: 1rem;
+}
+
+.plan-status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid var(--gray-200);
+    color: var(--dark);
+    background: var(--gray-50);
+}
+
+.plan-status-badge.active {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.25);
+    color: #16a34a;
+}
+
+.plan-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin: 0.75rem 0;
+}
+
+.plan-progress {
+    margin-bottom: 1.25rem;
+}
+
+.plan-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 0.35rem;
+}
+
+.plan-progress-labels span:first-child {
+    color: var(--gray-400);
+}
+
+.plan-progress-labels span:last-child {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.plan-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--gray-100);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.plan-progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.plan-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    border-top: 1px solid var(--gray-100);
+    padding-top: 1rem;
+    margin-top: auto;
+}
+
+.plan-card-meta i {
+    margin-right: 0.25rem;
+}
+
+.plan-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.plan-empty img {
+    width: 150px;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+.plan-empty h5 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.plan-empty p {
+    color: var(--gray-400);
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <div>
-                <h2 class="fw-bold mb-1">Mening Rejalarim</h2>
-                <p class="text-muted mb-0">Maqsad sari qadam-baqadam.</p>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='plans' %}
+        <main>
+            <div class="plan-top-bar">
+                <a href="{% url 'ai_core:study_plan_create' %}" class="btn-new-plan">
+                    <i class="bi bi-plus-lg"></i> Yangi reja
+                </a>
             </div>
-            <a href="{% url 'ai_core:study_plan_create' %}" class="btn btn-primary fw-bold shadow-primary px-4">
-                <i class="bi bi-plus-lg me-2"></i> Yangi Reja
-            </a>
-        </div>
 
-        <div class="row g-4">
-            {% for plan in plans %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 position-relative overflow-hidden hover-lift">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge {% if plan.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} bg-opacity-10 text-dark border px-2 py-1">
-                                {{ plan.get_status_display }}
-                            </span>
-                            <div class="dropdown">
-                                <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}">Ko'rish</a></li>
-                                </ul>
-                            </div>
+            <div class="plan-grid">
+                {% for plan in plans %}
+                <a href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}" class="plan-card">
+                    <div class="plan-card-header">
+                        <span class="plan-status-badge {% if plan.status == 'active' %}active{% endif %}">
+                            {{ plan.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="plan-card-title">{{ plan.title }}</div>
+
+                    <div class="plan-progress">
+                        <div class="plan-progress-labels">
+                            <span>Progress</span>
+                            <span>{{ plan.progress_percentage }}%</span>
                         </div>
-
-                        <h5 class="fw-bold mb-2">
-                            <a href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}" class="text-dark text-decoration-none stretched-link">
-                                {{ plan.title }}
-                            </a>
-                        </h5>
-
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between small mb-1">
-                                <span class="text-muted">Progress</span>
-                                <span class="fw-bold text-primary">{{ plan.progress_percentage }}%</span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-primary" style="width: {{ plan.progress_percentage }}%"></div>
-                            </div>
-                        </div>
-
-                        <div class="mt-auto d-flex align-items-center gap-3 text-muted small border-top pt-3">
-                            <span><i class="bi bi-list-check me-1"></i> {{ plan.completed_tasks }}/{{ plan.total_tasks }}</span>
-                            <span><i class="bi bi-clock me-1"></i> {{ plan.daily_hours }} soat/kun</span>
+                        <div class="plan-progress-bar">
+                            <div class="plan-progress-fill" style="width: {{ plan.progress_percentage }}%"></div>
                         </div>
                     </div>
+
+                    <div class="plan-card-meta">
+                        <span><i class="bi bi-list-check"></i> {{ plan.completed_tasks }}/{{ plan.total_tasks }}</span>
+                        <span><i class="bi bi-clock"></i> {{ plan.daily_hours }} soat/kun</span>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="plan-empty">
+                    <img src="{% static 'img/empty-plan.svg' %}" alt="No plans">
+                    <h5>Hozircha rejalar yo'q</h5>
+                    <p>O'z maqsadingizga erishish uchun birinchi rejani tuzing.</p>
                 </div>
+                {% endfor %}
             </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <img src="{% static 'img/empty-plan.svg' %}" alt="No plans" style="width: 150px; opacity: 0.5;" class="mb-3">
-                <h5>Hozircha rejalar yo'q</h5>
-                <p class="text-muted">O'z maqsadingizga erishish uchun birinchi rejani tuzing.</p>
-            </div>
-            {% endfor %}
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

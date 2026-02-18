@@ -3,197 +3,343 @@
 
 {% block title %}DTM Blok Test | TestMakon{% endblock %}
 
-{% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill mb-3">
-                <i class="bi bi-mortarboard-fill me-1"></i> DTM Standarti
-            </span>
-            <h1 class="fw-bold display-5 mb-3">Blok Test Simulyatori</h1>
-            <p class="text-muted lead mx-auto" style="max-width: 700px;">
-                Haqiqiy kirish imtihonidagi kabi 5 ta fandan iborat kompleks test.
-                O'z yo'nalishingizni tanlang va bilimingizni sinovdan o'tkazing.
-            </p>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <form method="post" action="{% url 'tests_app:block_test_start' %}" id="blockTestForm">
-                    {% csrf_token %}
-
-                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
-                        <div class="card-header bg-white py-4 border-bottom">
-                            <h5 class="fw-bold mb-0 text-center">Imtihon konfiguratsiyasi</h5>
-                        </div>
-                        <div class="card-body p-4 p-md-5">
-
-                            <div class="mb-5">
-                                <h6 class="fw-bold text-uppercase text-muted small mb-3">
-                                    <i class="bi bi-lock-fill me-1"></i> Majburiy Fanlar (Har biri 10 tadan)
-                                </h6>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 opacity-75">
-                                            <div class="icon-box bg-white text-primary shadow-sm rounded-circle">
-                                                <i class="bi bi-translate"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark">Ona tili</div>
-                                                <div class="small text-muted">10 ta savol</div>
-                                            </div>
-                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
-                                        </div>
-                                        <input type="hidden" name="subjects" value="1"> </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 opacity-75">
-                                            <div class="icon-box bg-white text-primary shadow-sm rounded-circle">
-                                                <i class="bi bi-hourglass-split"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark">O'zb. Tarixi</div>
-                                                <div class="small text-muted">10 ta savol</div>
-                                            </div>
-                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
-                                        </div>
-                                        <input type="hidden" name="subjects" value="2">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3 opacity-75">
-                                            <div class="icon-box bg-white text-primary shadow-sm rounded-circle">
-                                                <i class="bi bi-calculator"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark">Matematika</div>
-                                                <div class="small text-muted">10 ta savol</div>
-                                            </div>
-                                            <i class="bi bi-check-circle-fill text-success ms-auto"></i>
-                                        </div>
-                                        <input type="hidden" name="subjects" value="3">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-5">
-                                <h6 class="fw-bold text-uppercase text-muted small mb-3">
-                                    <i class="bi bi-pencil-fill me-1"></i> Mutaxassislik Fanlari (Har biri 30 tadan)
-                                </h6>
-                                <div class="alert alert-info border-0 bg-info bg-opacity-10 mb-4">
-                                    <i class="bi bi-info-circle-fill me-2"></i>
-                                    Yo'nalishingizga mos 2 ta asosiy fanni tanlang.
-                                </div>
-
-                                <div class="row g-3">
-                                    {% for subject in subjects %}
-                                        {% if subject.id > 3 %}
-                                        <div class="col-md-6 col-lg-4">
-                                            <input type="checkbox" class="btn-check subject-checkbox"
-                                                   name="subjects" id="sub{{ subject.id }}"
-                                                   value="{{ subject.id }}" autocomplete="off">
-                                            <label class="btn btn-outline-light text-dark border w-100 p-3 d-flex align-items-center gap-3 text-start hover-shadow position-relative" for="sub{{ subject.id }}">
-                                                <div class="icon-box shadow-sm rounded-circle" style="background: {{ subject.color }}20; color: {{ subject.color }};">
-                                                    {{ subject.icon|safe }}
-                                                </div>
-                                                <div>
-                                                    <div class="fw-bold">{{ subject.name }}</div>
-                                                    <div class="small text-muted">3.1 ball</div>
-                                                </div>
-                                                <div class="position-absolute top-0 end-0 m-3 check-icon opacity-0 transition-all">
-                                                    <i class="bi bi-check-circle-fill text-primary fs-5"></i>
-                                                </div>
-                                            </label>
-                                        </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="bg-light p-4 rounded-3 border">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8 mb-3 mb-md-0">
-                                        <div class="d-flex align-items-center gap-4">
-                                            <div>
-                                                <small class="text-muted d-block text-uppercase fw-bold">Jami Savollar</small>
-                                                <span class="h4 fw-bold mb-0">90 ta</span>
-                                            </div>
-                                            <div class="vr"></div>
-                                            <div>
-                                                <small class="text-muted d-block text-uppercase fw-bold">Ajratilgan Vaqt</small>
-                                                <span class="h4 fw-bold mb-0">3 soat</span>
-                                            </div>
-                                            <div class="vr"></div>
-                                            <div>
-                                                <small class="text-muted d-block text-uppercase fw-bold">Maksimal Ball</small>
-                                                <span class="h4 fw-bold text-primary mb-0">189.0</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 text-md-end">
-                                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-primary px-5 pulse-animation" id="startBtn" disabled>
-                                            Boshlash <i class="bi bi-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% block extra_js %}
-<script>
-    // Checkbox logic: Max 2 subjects
-    const checkboxes = document.querySelectorAll('.subject-checkbox');
-    const startBtn = document.getElementById('startBtn');
-
-    checkboxes.forEach(chk => {
-        chk.addEventListener('change', () => {
-            const checked = document.querySelectorAll('.subject-checkbox:checked');
-
-            // Limit to 2
-            if (checked.length > 2) {
-                chk.checked = false;
-                alert("Faqat 2 ta mutaxassislik fanini tanlash mumkin!");
-                return;
-            }
-
-            // Visual active state
-            document.querySelectorAll('label[for^="sub"]').forEach(lbl => {
-                lbl.classList.remove('border-primary', 'bg-primary', 'bg-opacity-5');
-                lbl.querySelector('.check-icon').classList.add('opacity-0');
-            });
-            checked.forEach(c => {
-                const label = document.querySelector(`label[for="${c.id}"]`);
-                label.classList.add('border-primary', 'bg-primary', 'bg-opacity-5');
-                label.querySelector('.check-icon').classList.remove('opacity-0');
-            });
-
-            // Enable button
-            if (checked.length === 2) {
-                startBtn.disabled = false;
-            } else {
-                startBtn.disabled = true;
-            }
-        });
-    });
-</script>
-
+{% block extra_css %}
 <style>
-    .hover-shadow:hover {
+    {% include 'tests_app/_sidebar_css.html' %}
+
+    /* ========== BLOCK TEST FORM ========== */
+    .bt-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .bt-card-head {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .bt-card-head h2 {
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .bt-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Section Label */
+    .bt-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .bt-label i {
+        font-size: 0.78rem;
+        color: var(--gray-400);
+    }
+
+    /* Mandatory Tags */
+    .bt-mandatory {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .bt-mandatory-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.85rem;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--dark-600);
+    }
+
+    .bt-mandatory-tag span { font-size: 1rem; }
+    .bt-mandatory-tag small { font-size: 0.7rem; color: var(--gray-400); font-weight: 600; }
+    .bt-mandatory-tag i { font-size: 0.75rem; color: var(--primary); }
+
+    /* Info Alert */
+    .bt-info {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem 1rem;
+        background: rgba(59, 130, 246, 0.06);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #2563EB;
+        margin-bottom: 1rem;
+    }
+
+    .bt-info i { font-size: 0.9rem; }
+
+    /* Subject Grid */
+    .bt-subjects {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.6rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bt-subject {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.85rem 1rem;
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .bt-subject:hover {
+        border-color: var(--gray-300);
+        background: var(--gray-50);
+    }
+
+    .bt-subject.selected {
+        border-color: var(--primary);
+        background: rgba(139, 197, 64, 0.06);
+    }
+
+    .bt-subject input { display: none; }
+
+    .bt-subject-icon { font-size: 1.25rem; }
+
+    .bt-subject-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .bt-subject-check {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 1rem;
+        color: var(--primary);
+        opacity: 0;
+        transition: opacity 0.15s;
+    }
+
+    .bt-subject.selected .bt-subject-check { opacity: 1; }
+
+    /* Divider */
+    .bt-divider {
+        height: 1px;
+        background: var(--gray-200);
+        margin: 1.25rem 0;
+    }
+
+    /* Footer */
+    .bt-card-footer {
+        padding: 1.25rem 1.5rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .bt-stats {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .bt-stat-item small {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        display: block;
+    }
+
+    .bt-stat-item strong {
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: var(--dark);
+    }
+
+    .bt-start-btn {
+        padding: 0.75rem 2rem;
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 6px 20px -6px rgba(139, 197, 64, 0.4);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .bt-start-btn:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-primary);
     }
-    .subject-checkbox:checked + label {
-        border-color: var(--primary) !important;
-        background-color: var(--primary-glow);
+
+    .bt-start-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
     }
-    .pulse-animation {
-        animation: pulse-soft 2s infinite;
+
+    @media (max-width: 768px) {
+        .bt-card-footer {
+            flex-direction: column;
+        }
+
+        .bt-start-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .bt-subjects {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tl-layout">
+        {% include 'tests_app/_sidebar.html' with active='block_test' %}
+
+        <main>
+            <form method="post" action="{% url 'tests_app:block_test_start' %}" id="blockTestForm">
+                {% csrf_token %}
+
+                <div class="bt-card">
+                    <div class="bt-card-head">
+                        <h2>Blok Test Simulyatori</h2>
+                    </div>
+
+                    <div class="bt-card-body">
+                        <!-- Majburiy fanlar -->
+                        <div class="bt-label">
+                            <i class="bi bi-lock-fill"></i> Majburiy fanlar · har biri 10 savol
+                        </div>
+                        <div class="bt-mandatory">
+                            <div class="bt-mandatory-tag">
+                                <span>📝</span> Ona tili <small>10</small> <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="bt-mandatory-tag">
+                                <span>📜</span> O'zb. tarixi <small>10</small> <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="bt-mandatory-tag">
+                                <span>➗</span> Matematika <small>10</small> <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        </div>
+                        <input type="hidden" name="subjects" value="1">
+                        <input type="hidden" name="subjects" value="2">
+                        <input type="hidden" name="subjects" value="3">
+
+                        <div class="bt-divider"></div>
+
+                        <!-- Mutaxassislik fanlari -->
+                        <div class="bt-label">
+                            <i class="bi bi-pencil-fill"></i> Mutaxassislik fanlari · har biri 30 savol
+                        </div>
+                        <div class="bt-info">
+                            <i class="bi bi-info-circle-fill"></i>
+                            Yo'nalishingizga mos 2 ta fanni tanlang
+                        </div>
+                        <div class="bt-subjects">
+                            {% for subject in subjects %}
+                                {% if subject.id > 3 %}
+                                <label class="bt-subject" for="sub{{ subject.id }}">
+                                    <input type="checkbox" class="subject-checkbox"
+                                           name="subjects" id="sub{{ subject.id }}"
+                                           value="{{ subject.id }}" autocomplete="off">
+                                    <span class="bt-subject-icon">{{ subject.icon }}</span>
+                                    <span class="bt-subject-name">{{ subject.name }}</span>
+                                    <i class="bi bi-check-circle-fill bt-subject-check"></i>
+                                </label>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="bt-card-footer">
+                        <div class="bt-stats">
+                            <div class="bt-stat-item">
+                                <small>Jami savollar</small>
+                                <strong>90 ta</strong>
+                            </div>
+                            <div class="bt-stat-item">
+                                <small>Vaqt</small>
+                                <strong>3 soat</strong>
+                            </div>
+                            <div class="bt-stat-item">
+                                <small>Maks. ball</small>
+                                <strong>189</strong>
+                            </div>
+                        </div>
+                        <button type="submit" class="bt-start-btn" id="startBtn" disabled>
+                            Boshlash <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var checkboxes = document.querySelectorAll('.subject-checkbox');
+    var startBtn = document.getElementById('startBtn');
+
+    checkboxes.forEach(function(chk) {
+        chk.addEventListener('change', function() {
+            var checked = document.querySelectorAll('.subject-checkbox:checked');
+
+            if (checked.length > 2) {
+                chk.checked = false;
+                return;
+            }
+
+            // Visual state
+            document.querySelectorAll('.bt-subject').forEach(function(s) {
+                s.classList.remove('selected');
+            });
+            checked.forEach(function(c) {
+                c.closest('.bt-subject').classList.add('selected');
+            });
+
+            startBtn.disabled = checked.length !== 2;
+        });
+    });
+})();
+</script>
 {% endblock %}

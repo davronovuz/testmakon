@@ -1,0 +1,54 @@
+{% load static %}
+{# AI Core sidebar - include with: {% include 'ai_core/_sidebar.html' with active='page_name' %} #}
+
+<aside class="tl-sidebar">
+    <div class="tl-sidebar-card">
+        <div class="tl-sidebar-title">AI Yordamchi</div>
+        <div class="tl-nav">
+            <a href="{% url 'ai_core:ai_mentor' %}" class="tl-nav-item {% if active == 'mentor' %}active{% endif %}">
+                <div class="tl-nav-icon purple"><i class="bi bi-robot"></i></div>
+                <span class="tl-nav-label">AI Mentor</span>
+            </a>
+            <a href="{% url 'ai_core:conversations_list' %}" class="tl-nav-item {% if active == 'conversations' %}active{% endif %}">
+                <div class="tl-nav-icon blue"><i class="bi bi-chat-dots-fill"></i></div>
+                <span class="tl-nav-label">Suhbatlar</span>
+            </a>
+            <a href="{% url 'ai_core:ai_tutor' %}" class="tl-nav-item {% if active == 'tutor' %}active{% endif %}">
+                <div class="tl-nav-icon green"><i class="bi bi-book-half"></i></div>
+                <span class="tl-nav-label">AI Repetitor</span>
+            </a>
+            <a href="{% url 'ai_core:ai_advisor' %}" class="tl-nav-item {% if active == 'advisor' %}active{% endif %}">
+                <div class="tl-nav-icon amber"><i class="bi bi-bank2"></i></div>
+                <span class="tl-nav-label">OTM Maslahatchi</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="tl-sidebar-card">
+        <div class="tl-sidebar-title">Rejalashtirish</div>
+        <div class="tl-nav">
+            <a href="{% url 'ai_core:study_plan_list' %}" class="tl-nav-item {% if active == 'plans' %}active{% endif %}">
+                <div class="tl-nav-icon teal"><i class="bi bi-calendar-check-fill"></i></div>
+                <span class="tl-nav-label">O'quv rejalar</span>
+            </a>
+            <a href="{% url 'ai_core:study_plan_create' %}" class="tl-nav-item {% if active == 'plan_create' %}active{% endif %}">
+                <div class="tl-nav-icon green"><i class="bi bi-plus-circle-fill"></i></div>
+                <span class="tl-nav-label">Yangi reja</span>
+            </a>
+            <a href="{% url 'ai_core:recommendations_list' %}" class="tl-nav-item {% if active == 'recommendations' %}active{% endif %}">
+                <div class="tl-nav-icon amber"><i class="bi bi-lightbulb-fill"></i></div>
+                <span class="tl-nav-label">Tavsiyalar</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="tl-sidebar-card">
+        <div class="tl-sidebar-title">Tahlil</div>
+        <div class="tl-nav">
+            <a href="{% url 'ai_core:weak_topics' %}" class="tl-nav-item {% if active == 'weak_topics' %}active{% endif %}">
+                <div class="tl-nav-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <span class="tl-nav-label">Sust mavzular</span>
+            </a>
+        </div>
+    </div>
+</aside>

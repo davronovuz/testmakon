@@ -3,55 +3,209 @@
 
 {% block title %}Suhbatlar Tarixi | TestMakon{% endblock %}
 
-{% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold mb-0">Suhbatlar Tarixi</h3>
-            <a href="{% url 'ai_core:ai_chat' %}" class="btn btn-primary fw-bold">
-                <i class="bi bi-plus-lg me-1"></i> Yangi Suhbat
-            </a>
-        </div>
+{% block extra_css %}
+<style>
+    {% include 'ai_core/_sidebar_css.html' %}
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-            <div class="list-group list-group-flush">
+    /* Action button */
+    .action-bar {
+        margin-bottom: 1.25rem;
+    }
+
+    .btn-new-chat {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1.1rem;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-lg);
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-new-chat:hover {
+        background: var(--primary-dark);
+        color: var(--white);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Conversation list */
+    .conv-list {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .conv-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-200);
+        text-decoration: none;
+        transition: background 0.2s ease;
+    }
+
+    .conv-item:last-child {
+        border-bottom: none;
+    }
+
+    .conv-item:hover {
+        background: var(--gray-50);
+    }
+
+    .conv-left {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .conv-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .conv-icon.mentor {
+        background: rgba(139, 92, 246, 0.1);
+        color: #7C3AED;
+    }
+
+    .conv-icon.tutor {
+        background: rgba(139, 197, 64, 0.12);
+        color: var(--primary-dark);
+    }
+
+    .conv-icon.default {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563EB;
+    }
+
+    .conv-info {
+        min-width: 0;
+    }
+
+    .conv-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .conv-meta {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+    }
+
+    .conv-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .conv-date {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        display: block;
+    }
+
+    /* Empty state */
+    .empty-state {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        padding: 3rem 1.5rem;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--gray-100);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: var(--gray-400);
+    }
+
+    .empty-state-title {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-desc {
+        color: var(--gray-500);
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='conversations' %}
+        <main>
+            <div class="action-bar">
+                <a href="{% url 'ai_core:ai_chat' %}" class="btn-new-chat">
+                    <i class="bi bi-plus-lg"></i> Yangi Suhbat
+                </a>
+            </div>
+
+            {% if conversations %}
+            <div class="conv-list">
                 {% for chat in conversations %}
-                <a href="{% url 'ai_core:conversation_detail' uuid=chat.uuid %}" class="list-group-item list-group-item-action p-4 border-light hover-bg-light">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="icon-box bg-light text-primary rounded-circle flex-shrink-0">
-                                {% if chat.conversation_type == 'mentor' %}
-                                    <i class="bi bi-robot"></i>
-                                {% elif chat.conversation_type == 'tutor' %}
-                                    <i class="bi bi-book"></i>
-                                {% else %}
-                                    <i class="bi bi-chat-dots"></i>
-                                {% endif %}
-                            </div>
-                            <div>
-                                <h6 class="fw-bold mb-1 text-dark">{{ chat.title|default:"Nomsiz suhbat" }}</h6>
-                                <p class="mb-0 text-muted small">
-                                    {{ chat.get_conversation_type_display }} • {{ chat.message_count }} ta xabar
-                                </p>
-                            </div>
+                <a href="{% url 'ai_core:conversation_detail' uuid=chat.uuid %}" class="conv-item">
+                    <div class="conv-left">
+                        <div class="conv-icon {% if chat.conversation_type == 'mentor' %}mentor{% elif chat.conversation_type == 'tutor' %}tutor{% else %}default{% endif %}">
+                            {% if chat.conversation_type == 'mentor' %}
+                                <i class="bi bi-robot"></i>
+                            {% elif chat.conversation_type == 'tutor' %}
+                                <i class="bi bi-book"></i>
+                            {% else %}
+                                <i class="bi bi-chat-dots"></i>
+                            {% endif %}
                         </div>
-                        <div class="text-end">
-                            <small class="text-muted d-block">{{ chat.updated_at|date:"d.m.Y" }}</small>
-                            <small class="text-muted">{{ chat.updated_at|date:"H:i" }}</small>
+                        <div class="conv-info">
+                            <div class="conv-title">{{ chat.title|default:"Nomsiz suhbat" }}</div>
+                            <div class="conv-meta">{{ chat.get_conversation_type_display }} &middot; {{ chat.message_count }} ta xabar</div>
                         </div>
+                    </div>
+                    <div class="conv-right">
+                        <span class="conv-date">{{ chat.updated_at|date:"d.m.Y" }}</span>
+                        <span class="conv-date">{{ chat.updated_at|date:"H:i" }}</span>
                     </div>
                 </a>
-                {% empty %}
-                <div class="text-center py-5">
-                    <div class="icon-box-lg bg-light rounded-circle mx-auto mb-3 text-muted">
-                        <i class="bi bi-chat-square-quote"></i>
-                    </div>
-                    <h5>Suhbatlar mavjud emas</h5>
-                    <p class="text-muted">AI Mentor bilan birinchi suhbatingizni boshlang.</p>
-                </div>
                 {% endfor %}
             </div>
-        </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-chat-square-quote"></i>
+                </div>
+                <h5 class="empty-state-title">Suhbatlar mavjud emas</h5>
+                <p class="empty-state-desc">AI Mentor bilan birinchi suhbatingizni boshlang.</p>
+            </div>
+            {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}

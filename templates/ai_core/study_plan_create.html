@@ -3,78 +3,245 @@
 
 {% block title %}Yangi Reja | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+{% include 'ai_core/_sidebar_css.html' %}
+
+.create-form-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+}
+
+.form-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    color: var(--dark);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--gray-50);
+    font-size: 0.95rem;
+    color: var(--dark);
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-divider {
+    border: none;
+    border-top: 1px solid var(--gray-100);
+    margin: 2rem 0;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.subject-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.subject-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--dark);
+    background: var(--white);
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.subject-label:hover {
+    border-color: var(--primary);
+}
+
+.subject-checkbox:checked + .subject-label {
+    border-color: var(--primary);
+    background: rgba(139, 197, 64, 0.08);
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    margin-top: 0.35rem;
+}
+
+.range-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.range-header label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--dark);
+}
+
+.range-value {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.form-range-input {
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn-submit {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: opacity 0.15s ease;
+}
+
+.btn-submit:hover {
+    opacity: 0.85;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .subjects-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .create-form-card {
+        padding: 1.25rem;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold">Yangi O'quv Reja</h2>
-                    <p class="text-muted">Sun'iy intellekt yordamida shaxsiy dasturingizni yarating.</p>
-                </div>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'ai_core/_sidebar.html' with active='plan_create' %}
+        <main>
+            <div class="create-form-card">
+                <form method="post">
+                    {% csrf_token %}
 
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-body p-4 p-md-5">
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <h5 class="fw-bold text-primary mb-4"><i class="bi bi-1-circle me-2"></i>Asosiy Ma'lumotlar</h5>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">Reja nomi</label>
-                                <input type="text" name="title" class="form-control form-control-lg bg-light border-0"
-                                       placeholder="Masalan: IELTS 7.0 yoki OTMga tayyorlov" required>
-                            </div>
-
-                            <div class="row g-4 mb-5">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Maqsadli sana</label>
-                                    <input type="date" name="target_date" class="form-control bg-light border-0">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Maqsadli ball</label>
-                                    <input type="number" name="target_score" class="form-control bg-light border-0" placeholder="0">
-                                </div>
-                            </div>
-
-                            <h5 class="fw-bold text-primary mb-4"><i class="bi bi-2-circle me-2"></i>Fanlarni tanlang</h5>
-
-                            <div class="row g-3 mb-5">
-                                {% for subject in subjects %}
-                                <div class="col-6 col-md-4">
-                                    <input type="checkbox" class="btn-check" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}">
-                                    <label class="btn btn-outline-light text-dark border w-100 py-2 d-flex align-items-center gap-2" for="sub{{ subject.id }}">
-                                        {{ subject.icon|safe }} {{ subject.name }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-
-                            <h5 class="fw-bold text-primary mb-4"><i class="bi bi-3-circle me-2"></i>Vaqt taqsimoti</h5>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold d-flex justify-content-between">
-                                    Kunlik shug'ullanish vaqti
-                                    <span class="text-primary fw-bold" id="hoursVal">2 soat</span>
-                                </label>
-                                <input type="range" class="form-range" name="daily_hours" min="0.5" max="8" step="0.5" value="2"
-                                       oninput="document.getElementById('hoursVal').innerText = this.value + ' soat'">
-                                <div class="d-flex justify-content-between text-muted small">
-                                    <span>30 daq</span>
-                                    <span>8 soat</span>
-                                </div>
-                            </div>
-
-                            <div class="d-grid mt-5">
-                                <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-primary py-3">
-                                    Rejani Yaratish <i class="bi bi-check-lg ms-2"></i>
-                                </button>
-                            </div>
-                        </form>
+                    <div class="form-section-title">
+                        <i class="bi bi-1-circle"></i> Asosiy Ma'lumotlar
                     </div>
-                </div>
+
+                    <div class="form-group">
+                        <label for="id_title">Reja nomi</label>
+                        <input type="text" name="title" id="id_title" class="form-input"
+                               placeholder="Masalan: IELTS 7.0 yoki OTMga tayyorlov" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_target_date">Maqsadli sana</label>
+                            <input type="date" name="target_date" id="id_target_date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_target_score">Maqsadli ball</label>
+                            <input type="number" name="target_score" id="id_target_score" class="form-input" placeholder="0">
+                        </div>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-title">
+                        <i class="bi bi-2-circle"></i> Fanlarni tanlang
+                    </div>
+
+                    <div class="subjects-grid">
+                        {% for subject in subjects %}
+                        <div>
+                            <input type="checkbox" class="subject-checkbox" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}">
+                            <label class="subject-label" for="sub{{ subject.id }}">
+                                {{ subject.icon|safe }} {{ subject.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-title">
+                        <i class="bi bi-3-circle"></i> Vaqt taqsimoti
+                    </div>
+
+                    <div class="form-group">
+                        <div class="range-header">
+                            <label>Kunlik shug'ullanish vaqti</label>
+                            <span class="range-value" id="hoursVal">2 soat</span>
+                        </div>
+                        <input type="range" class="form-range-input" name="daily_hours"
+                               min="0.5" max="8" step="0.5" value="2"
+                               oninput="document.getElementById('hoursVal').innerText = this.value + ' soat'">
+                        <div class="range-labels">
+                            <span>30 daq</span>
+                            <span>8 soat</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        Rejani Yaratish <i class="bi bi-check-lg"></i>
+                    </button>
+                </form>
             </div>
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}
