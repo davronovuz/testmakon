@@ -15,6 +15,7 @@ from datetime import timedelta
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,10 @@ class Command(BaseCommand):
         asyncio.run(self.run_bot())
 
     async def run_bot(self):
-        bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
+        bot = Bot(
+            token=settings.TELEGRAM_BOT_TOKEN,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+        )
         dp = Dispatcher()
 
         @dp.message(CommandStart())
