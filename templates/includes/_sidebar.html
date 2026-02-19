@@ -68,6 +68,24 @@
         </div>
     </div>
 
+    <div class="tl-sidebar-card">
+        <div class="tl-sidebar-title">Universitetlar</div>
+        <div class="tl-nav">
+            <a href="{% url 'universities:universities_list' %}" class="tl-nav-item {% if active == 'universities_list' %}active{% endif %}">
+                <div class="tl-nav-icon blue"><i class="bi bi-building"></i></div>
+                <span class="tl-nav-label">Oliygohlar</span>
+            </a>
+            <a href="{% url 'universities:all_directions' %}" class="tl-nav-item {% if active == 'all_directions' %}active{% endif %}">
+                <div class="tl-nav-icon purple"><i class="bi bi-signpost-split-fill"></i></div>
+                <span class="tl-nav-label">Yo'nalishlar</span>
+            </a>
+            <a href="{% url 'universities:compare' %}" class="tl-nav-item {% if active == 'compare' %}active{% endif %}">
+                <div class="tl-nav-icon amber"><i class="bi bi-arrow-left-right"></i></div>
+                <span class="tl-nav-label">Solishtirish</span>
+            </a>
+        </div>
+    </div>
+
     {% if user.is_authenticated %}
     <div class="tl-sidebar-card">
         <div class="tl-sidebar-title">Mening</div>

@@ -5,787 +5,418 @@
 
 {% block extra_css %}
 <style>
-    /* ========== PAGE LAYOUT ========== */
-    .unis-page {
-        padding: 2rem 0 4rem;
-        background: var(--gray-50);
-        min-height: 100vh;
+    {% include 'includes/_sidebar_css.html' %}
+
+    /* ========== FILTER BAR ========== */
+    .unis-filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
     }
 
-    .unis-layout {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 2rem;
-    }
-
-    @media (max-width: 992px) {
-        .unis-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== PAGE HEADER ========== */
-    .unis-page-header {
-        margin-bottom: 2rem;
-    }
-
-    .unis-page-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin: 0;
-    }
-
-    /* ========== SIDEBAR FILTERS ========== */
-    .unis-sidebar {
-        position: sticky;
-        top: 100px;
-        height: fit-content;
-    }
-
-    @media (max-width: 992px) {
-        .unis-sidebar {
-            position: static;
-        }
-    }
-
-    .unis-filter-card {
+    .unis-filter-btn {
+        padding: 0.45rem 0.9rem;
         background: var(--white);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow);
-        margin-bottom: 1.5rem;
-    }
-
-    .unis-filter-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--gray-500);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 1rem;
-    }
-
-    .unis-filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .unis-filter-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        cursor: pointer;
-        padding: 0.5rem 0;
-        transition: all 0.2s;
-    }
-
-    .unis-filter-item:hover {
-        color: var(--primary);
-    }
-
-    .unis-filter-radio {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--gray-300);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all 0.2s;
-    }
-
-    .unis-filter-item.active .unis-filter-radio {
-        border-color: var(--primary);
-    }
-
-    .unis-filter-item.active .unis-filter-radio::after {
-        content: '';
-        width: 10px;
-        height: 10px;
-        background: var(--primary);
-        border-radius: 50%;
-    }
-
-    .unis-filter-label {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: var(--dark-600);
-    }
-
-    .unis-filter-item.active .unis-filter-label {
-        color: var(--primary);
-        font-weight: 600;
-    }
-
-    /* Region list */
-    .unis-region-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .unis-region-item {
-        padding: 0.6rem 0.75rem;
-        font-size: 0.9rem;
-        color: var(--dark-600);
+        border: 1px solid var(--gray-200);
         border-radius: var(--radius);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--dark-600);
         cursor: pointer;
         transition: all 0.2s;
-        border-left: 3px solid transparent;
     }
-
-    .unis-region-item:hover {
-        background: var(--gray-50);
-        color: var(--primary);
-    }
-
-    .unis-region-item.active {
-        background: var(--primary-glow);
-        color: var(--primary);
-        font-weight: 600;
-        border-left-color: var(--primary);
-    }
-
-    /* ========== MAIN CONTENT ========== */
-    .unis-main {
-        min-width: 0;
-    }
-
-    /* Header with search */
-    .unis-main-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-        .unis-main-header {
-            flex-direction: column;
-            align-items: stretch;
-        }
-    }
-
-    .unis-main-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
+    .unis-filter-btn:hover { background: var(--gray-50); border-color: var(--gray-300); }
+    .unis-filter-btn.active {
+        background: var(--gradient-primary);
+        border-color: var(--primary);
+        color: white;
     }
 
     .unis-search {
         position: relative;
-        width: 280px;
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
     }
-
-    @media (max-width: 768px) {
-        .unis-search {
-            width: 100%;
-        }
-    }
-
     .unis-search input {
         width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        padding: 0.5rem 0.75rem 0.5rem 2.25rem;
         border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        font-size: 0.9rem;
+        border-radius: var(--radius);
+        font-size: 0.82rem;
         background: var(--white);
+        color: var(--dark);
         transition: all 0.2s;
     }
-
     .unis-search input:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px var(--primary-glow);
     }
-
     .unis-search i {
         position: absolute;
-        left: 1rem;
+        left: 0.75rem;
         top: 50%;
         transform: translateY(-50%);
         color: var(--gray-400);
+        font-size: 0.85rem;
     }
 
-    /* ========== UNIVERSITY GRID ========== */
-    .unis-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-    }
-
-    @media (max-width: 1200px) {
-        .unis-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 600px) {
-        .unis-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== UNIVERSITY CARD ========== */
-    .uni-card {
-        background: var(--white);
-        border-radius: var(--radius-xl);
-        overflow: hidden;
-        box-shadow: var(--shadow);
-        transition: all 0.3s;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .uni-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Card Image */
-    .uni-card-image {
-        position: relative;
-        height: 160px;
-        overflow: hidden;
-    }
-
-    .uni-card-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s;
-    }
-
-    .uni-card:hover .uni-card-image img {
-        transform: scale(1.05);
-    }
-
-    .uni-card-badge {
-        position: absolute;
-        top: 0.75rem;
-        right: 0.75rem;
-        padding: 0.35rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .uni-card-badge.recommended {
-        background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
-        color: white;
-    }
-
-    .uni-card-badge.top {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        color: white;
-    }
-
-    .uni-card-badge.new {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-    }
-
-    /* Logo overlay */
-    .uni-card-logo {
-        position: absolute;
-        bottom: -24px;
-        right: 1rem;
-        width: 48px;
-        height: 48px;
-        background: var(--white);
+    /* Region select */
+    .unis-region-select {
+        padding: 0.45rem 0.75rem;
+        border: 1px solid var(--gray-200);
         border-radius: var(--radius);
-        padding: 4px;
-        box-shadow: var(--shadow-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2;
-    }
-
-    .uni-card-logo img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 4px;
-    }
-
-    .uni-card-logo-text {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--primary);
-    }
-
-    /* Card Body */
-    .uni-card-body {
-        padding: 1.25rem;
-        padding-top: 0.75rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .uni-card-name {
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: var(--white);
         color: var(--dark);
-        margin-bottom: 0.75rem;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    /* Directions row */
-    .uni-card-directions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-
-    .uni-card-directions-count {
-        font-size: 0.85rem;
-        color: var(--primary);
-        font-weight: 600;
-    }
-
-    .uni-card-type {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.6rem;
-        border-radius: 4px;
-    }
-
-    .uni-card-type.state {
-        background: #DBEAFE;
-        color: #1D4ED8;
-    }
-
-    .uni-card-type.private {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    /* Info rows */
-    .uni-card-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-        margin-top: auto;
-    }
-
-    .uni-card-info-row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
-    }
-
-    .uni-card-info-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        flex-shrink: 0;
-    }
-
-    .uni-card-info-icon.price {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .uni-card-info-icon.date {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .uni-card-info-label {
-        font-size: 0.7rem;
-        color: var(--gray-500);
-    }
-
-    .uni-card-info-value {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--dark-600);
-    }
-
-    /* ========== MOBILE FILTER TOGGLE ========== */
-    .unis-filter-toggle {
-        display: none;
-        padding: 0.75rem 1rem;
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        margin-bottom: 1rem;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    @media (max-width: 992px) {
-        .unis-filter-toggle {
-            display: flex;
-        }
-
-        .unis-sidebar {
-            display: none;
-        }
-
-        .unis-sidebar.show {
-            display: block;
-        }
-    }
-
-    /* ========== EMPTY STATE ========== */
-    .unis-empty {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 4rem 2rem;
-        background: var(--white);
-        border-radius: var(--radius-xl);
-    }
-
-    .unis-empty-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.4;
-    }
-
-    .unis-empty h4 {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .unis-empty p {
-        color: var(--gray-500);
-        margin: 0;
-    }
-
-    /* ========== PAGINATION ========== */
-    .unis-pagination {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 2rem;
-    }
-
-    .unis-page-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        font-weight: 600;
-        background: var(--white);
-        color: var(--dark-600);
-        border: 1px solid var(--gray-200);
-        transition: all 0.2s;
-    }
-
-    .unis-page-btn:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-
-    .unis-page-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
+        cursor: pointer;
     }
 
     /* ========== STATS BAR ========== */
     .unis-stats-bar {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        padding: 1rem 1.5rem;
+        gap: 1.25rem;
+        padding: 0.75rem 1.25rem;
         background: var(--white);
+        border: 1px solid var(--gray-200);
         border-radius: var(--radius-lg);
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow);
+        margin-bottom: 1.25rem;
     }
-
     .unis-stats-item {
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
-
     .unis-stats-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem;
     }
-
-    .unis-stats-icon.blue {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .unis-stats-icon.green {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .unis-stats-icon.orange {
-        background: #FED7AA;
-        color: #EA580C;
-    }
-
-    .unis-stats-value {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--dark);
-    }
-
-    .unis-stats-label {
-        font-size: 0.75rem;
-        color: var(--gray-500);
-    }
+    .unis-stats-icon.blue { background: #DBEAFE; color: #2563EB; }
+    .unis-stats-icon.green { background: #D1FAE5; color: #059669; }
+    .unis-stats-icon.orange { background: #FED7AA; color: #EA580C; }
+    .unis-stats-value { font-size: 1rem; font-weight: 800; color: var(--dark); }
+    .unis-stats-label { font-size: 0.7rem; color: var(--gray-500); }
 
     @media (max-width: 768px) {
-        .unis-stats-bar {
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+        .unis-stats-bar { flex-wrap: wrap; justify-content: center; gap: 1rem; }
     }
+
+    /* ========== UNIVERSITY GRID ========== */
+    .unis-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    @media (max-width: 900px) { .unis-grid { grid-template-columns: 1fr; } }
+
+    /* ========== UNIVERSITY CARD ========== */
+    .uni-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.25s;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+    }
+    .uni-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--gray-300);
+    }
+
+    .uni-card-image {
+        position: relative;
+        height: 140px;
+        overflow: hidden;
+    }
+    .uni-card-image img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+    .uni-card:hover .uni-card-image img { transform: scale(1.05); }
+
+    .uni-card-badge {
+        position: absolute;
+        top: 0.6rem; right: 0.6rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .uni-card-badge.recommended { background: linear-gradient(135deg, #F97316, #EA580C); color: white; }
+    .uni-card-badge.top { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; }
+
+    .uni-card-logo {
+        position: absolute;
+        bottom: -20px; right: 0.75rem;
+        width: 44px; height: 44px;
+        background: var(--white);
+        border-radius: 10px;
+        padding: 3px;
+        box-shadow: var(--shadow-md);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 2;
+    }
+    .uni-card-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
+    .uni-card-logo-text { font-size: 0.95rem; font-weight: 800; color: var(--primary); }
+
+    .uni-card-body {
+        padding: 1rem 1.25rem;
+        padding-top: 0.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .uni-card-name {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .uni-card-directions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+    .uni-card-directions-count {
+        font-size: 0.78rem;
+        color: var(--primary);
+        font-weight: 600;
+    }
+    .uni-card-type {
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+    }
+    .uni-card-type.state { background: #DBEAFE; color: #1D4ED8; }
+    .uni-card-type.private { background: #FEE2E2; color: #DC2626; }
+
+    .uni-card-info { display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; }
+    .uni-card-info-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; }
+    .uni-card-info-icon {
+        width: 24px; height: 24px;
+        border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; flex-shrink: 0;
+    }
+    .uni-card-info-icon.price { background: #D1FAE5; color: #059669; }
+    .uni-card-info-icon.date { background: #FEF3C7; color: #D97706; }
+    .uni-card-info-label { font-size: 0.65rem; color: var(--gray-500); }
+    .uni-card-info-value { font-size: 0.75rem; font-weight: 600; color: var(--dark-600); }
+
+    /* ========== EMPTY STATE ========== */
+    .unis-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-200);
+    }
+    .unis-empty-icon { font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.4; }
+    .unis-empty h4 { font-size: 1rem; margin-bottom: 0.4rem; }
+    .unis-empty p { color: var(--gray-500); margin: 0; font-size: 0.85rem; }
+
+    /* ========== PAGINATION ========== */
+    .unis-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-top: 1.5rem;
+    }
+    .unis-page-btn {
+        width: 36px; height: 36px;
+        border-radius: var(--radius);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; font-weight: 600;
+        background: var(--white);
+        color: var(--dark-600);
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .unis-page-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .unis-page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="unis-page">
-    <div class="container">
-        <!-- Page Header -->
-        <div class="unis-page-header">
-            <h1 class="unis-page-title">Oliygohlar</h1>
-        </div>
-
-        <!-- Mobile Filter Toggle -->
-        <button class="unis-filter-toggle" id="filterToggle">
-            <i class="bi bi-funnel"></i>
-            Filtrlar
-        </button>
-
-        <div class="unis-layout">
-            <!-- Sidebar Filters -->
-            <aside class="unis-sidebar" id="filterSidebar">
-                <!-- University Type Filter -->
-                <div class="unis-filter-card">
-                    <div class="unis-filter-title">Oliy ta'lim</div>
-                    <div class="unis-filter-group">
-                        <div class="unis-filter-item active" data-filter="type" data-value="all">
-                            <div class="unis-filter-radio"></div>
-                            <span class="unis-filter-label">Barchasi</span>
-                        </div>
-                        <div class="unis-filter-item" data-filter="type" data-value="state">
-                            <div class="unis-filter-radio"></div>
-                            <span class="unis-filter-label">Davlat</span>
-                        </div>
-                        <div class="unis-filter-item" data-filter="type" data-value="private">
-                            <div class="unis-filter-radio"></div>
-                            <span class="unis-filter-label">Xususiy</span>
-                        </div>
+<div class="container">
+    <div class="tl-layout">
+        {% include 'includes/_sidebar.html' with active='universities_list' %}
+        <main>
+            <!-- Stats Bar -->
+            <div class="unis-stats-bar">
+                <div class="unis-stats-item">
+                    <div class="unis-stats-icon blue"><i class="bi bi-building"></i></div>
+                    <div>
+                        <div class="unis-stats-value">{{ universities.paginator.count|default:universities.count|default:"0" }}</div>
+                        <div class="unis-stats-label">Oliygohlar</div>
                     </div>
                 </div>
-
-                <!-- Region Filter -->
-                <div class="unis-filter-card">
-                    <div class="unis-filter-title">Hududlar</div>
-                    <div class="unis-region-list">
-                        <div class="unis-region-item active" data-region="all">Barcha hududlar</div>
-                        <div class="unis-region-item" data-region="tashkent">Toshkent shahri</div>
-                        <div class="unis-region-item" data-region="tashkent-region">Toshkent viloyati</div>
-                        <div class="unis-region-item" data-region="samarkand">Samarqand viloyati</div>
-                        <div class="unis-region-item" data-region="bukhara">Buxoro viloyati</div>
-                        <div class="unis-region-item" data-region="fergana">Farg'ona viloyati</div>
-                        <div class="unis-region-item" data-region="andijan">Andijon viloyati</div>
-                        <div class="unis-region-item" data-region="namangan">Namangan viloyati</div>
-                        <div class="unis-region-item" data-region="kashkadarya">Qashqadaryo viloyati</div>
-                        <div class="unis-region-item" data-region="surkhandarya">Surxondaryo viloyati</div>
-                        <div class="unis-region-item" data-region="jizzakh">Jizzax viloyati</div>
-                        <div class="unis-region-item" data-region="syrdarya">Sirdaryo viloyati</div>
-                        <div class="unis-region-item" data-region="khorezm">Xorazm viloyati</div>
-                        <div class="unis-region-item" data-region="navoi">Navoiy viloyati</div>
-                        <div class="unis-region-item" data-region="karakalpakstan">Qoraqalpog'iston Respublikasi</div>
+                <div class="unis-stats-item">
+                    <div class="unis-stats-icon green"><i class="bi bi-bank"></i></div>
+                    <div>
+                        <div class="unis-stats-value">{{ state_count|default:"0" }}</div>
+                        <div class="unis-stats-label">Davlat</div>
                     </div>
                 </div>
-            </aside>
-
-            <!-- Main Content -->
-            <main class="unis-main">
-                <!-- Header with title and search -->
-                <div class="unis-main-header">
-                    <h2 class="unis-main-title">Oliygohlar</h2>
-                    <div class="unis-search">
-                        <i class="bi bi-search"></i>
-                        <input type="text" placeholder="Qidiruv" id="searchInput">
+                <div class="unis-stats-item">
+                    <div class="unis-stats-icon orange"><i class="bi bi-buildings"></i></div>
+                    <div>
+                        <div class="unis-stats-value">{{ private_count|default:"0" }}</div>
+                        <div class="unis-stats-label">Xususiy</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Stats Bar -->
-                <div class="unis-stats-bar">
-                    <div class="unis-stats-item">
-                        <div class="unis-stats-icon blue">
-                            <i class="bi bi-building"></i>
-                        </div>
-                        <div>
-                            <div class="unis-stats-value">{{ universities.count|default:"150" }}</div>
-                            <div class="unis-stats-label">Oliygohlar</div>
-                        </div>
-                    </div>
-                    <div class="unis-stats-item">
-                        <div class="unis-stats-icon green">
-                            <i class="bi bi-bank"></i>
-                        </div>
-                        <div>
-                            <div class="unis-stats-value">{{ state_count|default:"85" }}</div>
-                            <div class="unis-stats-label">Davlat</div>
-                        </div>
-                    </div>
-                    <div class="unis-stats-item">
-                        <div class="unis-stats-icon orange">
-                            <i class="bi bi-buildings"></i>
-                        </div>
-                        <div>
-                            <div class="unis-stats-value">{{ private_count|default:"65" }}</div>
-                            <div class="unis-stats-label">Xususiy</div>
-                        </div>
-                    </div>
+            <!-- Filters -->
+            <div class="unis-filter-bar">
+                <button class="unis-filter-btn active" data-filter="type" data-value="all">Barchasi</button>
+                <button class="unis-filter-btn" data-filter="type" data-value="state">Davlat</button>
+                <button class="unis-filter-btn" data-filter="type" data-value="private">Xususiy</button>
+
+                <select class="unis-region-select" id="regionSelect">
+                    <option value="all">Barcha hududlar</option>
+                    <option value="tashkent">Toshkent shahri</option>
+                    <option value="tashkent-region">Toshkent viloyati</option>
+                    <option value="samarkand">Samarqand</option>
+                    <option value="bukhara">Buxoro</option>
+                    <option value="fergana">Farg'ona</option>
+                    <option value="andijan">Andijon</option>
+                    <option value="namangan">Namangan</option>
+                    <option value="kashkadarya">Qashqadaryo</option>
+                    <option value="surkhandarya">Surxondaryo</option>
+                    <option value="jizzakh">Jizzax</option>
+                    <option value="syrdarya">Sirdaryo</option>
+                    <option value="khorezm">Xorazm</option>
+                    <option value="navoi">Navoiy</option>
+                    <option value="karakalpakstan">Qoraqalpog'iston</option>
+                </select>
+
+                <div class="unis-search ms-auto">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Qidiruv..." id="searchInput">
                 </div>
+            </div>
 
-                <!-- University Grid -->
-                <div class="unis-grid" id="universitiesGrid">
-                    {% for university in universities %}
-                    <a href="{% url 'universities:detail' slug=university.slug %}" class="uni-card" data-type="{{ university.university_type }}" data-region="{{ university.region }}" data-name="{{ university.name|lower }}">
-                        <!-- Card Image -->
-                        <div class="uni-card-image">
-                            {% if university.banner_image %}
-                            <img src="{{ university.banner_image.url }}" alt="{{ university.name }}">
+            <!-- University Grid -->
+            <div class="unis-grid" id="universitiesGrid">
+                {% for university in universities %}
+                <a href="{% url 'universities:detail' slug=university.slug %}" class="uni-card" data-type="{{ university.university_type }}" data-region="{{ university.region }}" data-name="{{ university.name|lower }}">
+                    <div class="uni-card-image">
+                        {% if university.banner_image %}
+                        <img src="{{ university.banner_image.url }}" alt="{{ university.name }}">
+                        {% else %}
+                        <img src="{% static 'images/university-placeholder.jpg' %}" alt="{{ university.name }}">
+                        {% endif %}
+
+                        {% if university.is_recommended %}
+                        <span class="uni-card-badge recommended">
+                            <i class="bi bi-star-fill me-1"></i>Tavsiya
+                        </span>
+                        {% elif university.is_top %}
+                        <span class="uni-card-badge top">
+                            <i class="bi bi-trophy-fill me-1"></i>Top
+                        </span>
+                        {% endif %}
+
+                        <div class="uni-card-logo">
+                            {% if university.logo %}
+                            <img src="{{ university.logo.url }}" alt="">
                             {% else %}
-                            <img src="{% static 'images/university-placeholder.jpg' %}" alt="{{ university.name }}">
+                            <span class="uni-card-logo-text">{{ university.name|slice:":2"|upper }}</span>
                             {% endif %}
-
-                            {% if university.is_recommended %}
-                            <span class="uni-card-badge recommended">
-                                <i class="bi bi-star-fill me-1"></i>Tavsiya etiladi
-                            </span>
-                            {% elif university.is_top %}
-                            <span class="uni-card-badge top">
-                                <i class="bi bi-trophy-fill me-1"></i>Top
-                            </span>
-                            {% endif %}
-
-                            <!-- Logo -->
-                            <div class="uni-card-logo">
-                                {% if university.logo %}
-                                <img src="{{ university.logo.url }}" alt="">
-                                {% else %}
-                                <span class="uni-card-logo-text">{{ university.name|slice:":2"|upper }}</span>
-                                {% endif %}
-                            </div>
                         </div>
-
-                        <!-- Card Body -->
-                        <div class="uni-card-body">
-                            <h3 class="uni-card-name">{{ university.name }}</h3>
-
-                            <div class="uni-card-directions">
-                                <span class="uni-card-directions-count">
-                                    Yo'nalishlar - {{ university.directions_count|default:"20" }}
-                                </span>
-                                <span class="uni-card-type {% if university.university_type == 'state' %}state{% else %}private{% endif %}">
-                                    {% if university.university_type == 'state' %}Davlat{% else %}Xususiy{% endif %}
-                                </span>
-                            </div>
-
-                            <div class="uni-card-info">
-                                <!-- Price -->
-                                <div class="uni-card-info-row">
-                                    <div class="uni-card-info-icon price">
-                                        <i class="bi bi-cash-coin"></i>
-                                    </div>
-                                    <div>
-                                        <div class="uni-card-info-label">Kontrakt to'lovi</div>
-                                        <div class="uni-card-info-value">
-                                            {{ university.min_contract_price|default:"14 000 000" }} - {{ university.max_contract_price|default:"28 000 000" }} UZS
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Admission dates -->
-                                <div class="uni-card-info-row">
-                                    <div class="uni-card-info-icon date">
-                                        <i class="bi bi-calendar-event"></i>
-                                    </div>
-                                    <div>
-                                        <div class="uni-card-info-label">Qabul muddati</div>
-                                        <div class="uni-card-info-value">
-                                            {{ university.admission_start|date:"d.m.Y"|default:"01.05.2025" }} - {{ university.admission_end|date:"d.m.Y"|default:"30.09.2025" }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    {% empty %}
-                    <div class="unis-empty">
-                        <div class="unis-empty-icon">🏫</div>
-                        <h4>Universitetlar topilmadi</h4>
-                        <p>Qidiruv parametrlarini o'zgartiring</p>
                     </div>
-                    {% endfor %}
+
+                    <div class="uni-card-body">
+                        <h3 class="uni-card-name">{{ university.name }}</h3>
+
+                        <div class="uni-card-directions">
+                            <span class="uni-card-directions-count">
+                                Yo'nalishlar - {{ university.directions_count|default:"0" }}
+                            </span>
+                            <span class="uni-card-type {% if university.university_type == 'state' %}state{% else %}private{% endif %}">
+                                {% if university.university_type == 'state' %}Davlat{% else %}Xususiy{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="uni-card-info">
+                            <div class="uni-card-info-row">
+                                <div class="uni-card-info-icon price"><i class="bi bi-cash-coin"></i></div>
+                                <div>
+                                    <div class="uni-card-info-label">Kontrakt</div>
+                                    <div class="uni-card-info-value">
+                                        {{ university.min_contract_price|default:"—" }} - {{ university.max_contract_price|default:"—" }} UZS
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uni-card-info-row">
+                                <div class="uni-card-info-icon date"><i class="bi bi-calendar-event"></i></div>
+                                <div>
+                                    <div class="uni-card-info-label">Qabul muddati</div>
+                                    <div class="uni-card-info-value">
+                                        {{ university.admission_start|date:"d.m.Y"|default:"—" }} - {{ university.admission_end|date:"d.m.Y"|default:"—" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="unis-empty">
+                    <div class="unis-empty-icon">🏫</div>
+                    <h4>Universitetlar topilmadi</h4>
+                    <p>Qidiruv parametrlarini o'zgartiring</p>
                 </div>
+                {% endfor %}
+            </div>
 
-                <!-- Pagination -->
-                {% if universities.has_other_pages %}
-                <div class="unis-pagination">
-                    {% if universities.has_previous %}
-                    <a href="?page={{ universities.previous_page_number }}" class="unis-page-btn">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                    {% endif %}
-
-                    {% for num in universities.paginator.page_range %}
-                    {% if num == universities.number %}
-                    <span class="unis-page-btn active">{{ num }}</span>
-                    {% elif num > universities.number|add:'-3' and num < universities.number|add:'3' %}
-                    <a href="?page={{ num }}" class="unis-page-btn">{{ num }}</a>
-                    {% endif %}
-                    {% endfor %}
-
-                    {% if universities.has_next %}
-                    <a href="?page={{ universities.next_page_number }}" class="unis-page-btn">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                    {% endif %}
-                </div>
+            <!-- Pagination -->
+            {% if universities.has_other_pages %}
+            <div class="unis-pagination">
+                {% if universities.has_previous %}
+                <a href="?page={{ universities.previous_page_number }}" class="unis-page-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
                 {% endif %}
-            </main>
-        </div>
+
+                {% for num in universities.paginator.page_range %}
+                {% if num == universities.number %}
+                <span class="unis-page-btn active">{{ num }}</span>
+                {% elif num > universities.number|add:'-3' and num < universities.number|add:'3' %}
+                <a href="?page={{ num }}" class="unis-page-btn">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+
+                {% if universities.has_next %}
+                <a href="?page={{ universities.next_page_number }}" class="unis-page-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}
@@ -793,74 +424,40 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const filterToggle = document.getElementById('filterToggle');
-    const filterSidebar = document.getElementById('filterSidebar');
     const searchInput = document.getElementById('searchInput');
-    const universitiesGrid = document.getElementById('universitiesGrid');
+    const regionSelect = document.getElementById('regionSelect');
 
-    // Mobile filter toggle
-    if (filterToggle) {
-        filterToggle.addEventListener('click', function() {
-            filterSidebar.classList.toggle('show');
+    // Type filter buttons
+    document.querySelectorAll('.unis-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.unis-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterUniversities();
         });
+    });
+
+    // Region select
+    if (regionSelect) {
+        regionSelect.addEventListener('change', filterUniversities);
     }
-
-    // Type filter
-    document.querySelectorAll('.unis-filter-item').forEach(item => {
-        item.addEventListener('click', function() {
-            // Update active state
-            document.querySelectorAll('.unis-filter-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-
-            filterUniversities();
-        });
-    });
-
-    // Region filter
-    document.querySelectorAll('.unis-region-item').forEach(item => {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('.unis-region-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-
-            filterUniversities();
-        });
-    });
 
     // Search
     if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            filterUniversities();
-        });
+        searchInput.addEventListener('input', filterUniversities);
     }
 
     function filterUniversities() {
-        const typeFilter = document.querySelector('.unis-filter-item.active')?.dataset.value || 'all';
-        const regionFilter = document.querySelector('.unis-region-item.active')?.dataset.region || 'all';
+        const typeFilter = document.querySelector('.unis-filter-btn.active')?.dataset.value || 'all';
+        const regionFilter = regionSelect?.value || 'all';
         const searchQuery = searchInput?.value.toLowerCase() || '';
 
         document.querySelectorAll('.uni-card').forEach(card => {
-            const cardType = card.dataset.type;
-            const cardRegion = card.dataset.region;
-            const cardName = card.dataset.name;
+            const showByType = typeFilter === 'all' || card.dataset.type === typeFilter;
+            const showByRegion = regionFilter === 'all' || card.dataset.region === regionFilter;
+            const showBySearch = !searchQuery || card.dataset.name.includes(searchQuery);
 
-            let showByType = typeFilter === 'all' || cardType === typeFilter;
-            let showByRegion = regionFilter === 'all' || cardRegion === regionFilter;
-            let showBySearch = !searchQuery || cardName.includes(searchQuery);
-
-            if (showByType && showByRegion && showBySearch) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
+            card.style.display = (showByType && showByRegion && showBySearch) ? 'flex' : 'none';
         });
-
-        // Check if any visible
-        const visibleCards = document.querySelectorAll('.uni-card[style="display: flex;"], .uni-card:not([style])');
-        const emptyState = document.querySelector('.unis-empty');
-
-        if (visibleCards.length === 0 && !emptyState) {
-            // Show empty state
-        }
     }
 });
 </script>
