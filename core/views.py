@@ -72,6 +72,43 @@ def home(request):
         'partners': partners,
     }
 
+    # Authenticated user uchun personalized data
+    if request.user.is_authenticated:
+        user = request.user
+        today = timezone.now().date()
+        week_ago = today - timedelta(days=7)
+
+        recent_attempts = TestAttempt.objects.filter(
+            user=user
+        ).select_related('test', 'test__subject').order_by('-started_at')[:5]
+
+        weekly_attempts = TestAttempt.objects.filter(
+            user=user,
+            started_at__date__gte=week_ago,
+            status='completed'
+        )
+
+        # Kunlik challenge
+        from competitions.models import DailyChallenge
+        daily_challenge = DailyChallenge.objects.filter(
+            date=today,
+            is_active=True
+        ).first()
+
+        context.update({
+            'user_stats': {
+                'xp': user.xp_points,
+                'level': user.get_level_display(),
+                'streak': user.current_streak,
+                'tests_taken': user.total_tests_taken,
+                'accuracy': user.accuracy_rate,
+            },
+            'recent_attempts': recent_attempts,
+            'weekly_tests': weekly_attempts.count(),
+            'weekly_xp': weekly_attempts.aggregate(Sum('xp_earned'))['xp_earned__sum'] or 0,
+            'daily_challenge': daily_challenge,
+        })
+
     return render(request, 'core/home.html', context)
 
 

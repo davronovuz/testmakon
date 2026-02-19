@@ -886,12 +886,264 @@
         .pricing-amount { justify-content: center; }
         .features-section, .subjects-section, .steps-section, .pricing-section { padding: 4rem 0; }
     }
+    /* ========== USER DASHBOARD ========== */
+    .user-dash {
+        padding: 2rem 0 1rem;
+        background: var(--gray-50);
+    }
+
+    .dash-greeting {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .dash-subtitle {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin-bottom: 1.5rem;
+    }
+
+    .dash-stat-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .dash-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .dash-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .dash-stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .dash-stat-label {
+        font-size: 0.78rem;
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+
+    .dash-quick-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .dash-quick-link {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 1rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--dark-600);
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dash-quick-link:hover {
+        border-color: var(--primary);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .dash-quick-link i {
+        font-size: 1.5rem;
+    }
+
+    .dash-recent {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-top: 1.5rem;
+    }
+
+    .dash-recent-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-200);
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--dark);
+    }
+
+    .dash-recent-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.2s ease;
+    }
+
+    .dash-recent-item:hover {
+        background: var(--gray-50);
+        color: inherit;
+    }
+
+    .dash-recent-item:last-child {
+        border-bottom: none;
+    }
+
+    .dash-recent-score {
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+    }
+
+    .score-excellent { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .score-good { background: rgba(139, 197, 64, 0.1); color: var(--primary-dark); }
+    .score-average { background: rgba(245, 158, 11, 0.1); color: #D97706; }
+    .score-poor { background: rgba(239, 68, 68, 0.1); color: #DC2626; }
+
+    @media (max-width: 767px) {
+        .dash-greeting { font-size: 1.25rem; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ========== HERO ========== -->
+{% if user.is_authenticated %}
+<!-- ========== USER DASHBOARD ========== -->
+<section class="user-dash">
+    <div class="container">
+        <div class="dash-greeting">Salom, {{ user.first_name }}! <span style="font-size: 1.25rem;">👋</span></div>
+        <div class="dash-subtitle">Bugun ham o'qishni davom ettiramiz</div>
+
+        <!-- Stats -->
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <div>
+                        <div class="dash-stat-value">{{ user_stats.streak }}</div>
+                        <div class="dash-stat-label">Kunlik streak</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon" style="background: rgba(139, 197, 64, 0.1); color: var(--primary-dark);">
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <div>
+                        <div class="dash-stat-value">{{ user_stats.xp }}</div>
+                        <div class="dash-stat-label">XP ball</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #2563EB;">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <div class="dash-stat-value">{{ user_stats.tests_taken }}</div>
+                        <div class="dash-stat-label">Jami testlar</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #7C3AED;">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <div>
+                        <div class="dash-stat-value">{{ user_stats.accuracy|floatformat:0 }}%</div>
+                        <div class="dash-stat-label">Aniqlik</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="dash-quick-links">
+            <a href="{% url 'tests_app:tests_list' %}" class="dash-quick-link">
+                <i class="bi bi-lightning-charge-fill" style="color: var(--primary);"></i>
+                Testlar
+            </a>
+            <a href="{% url 'ai_core:ai_mentor' %}" class="dash-quick-link">
+                <i class="bi bi-robot" style="color: #2563EB;"></i>
+                AI Mentor
+            </a>
+            <a href="{% url 'competitions:competitions_list' %}" class="dash-quick-link">
+                <i class="bi bi-trophy-fill" style="color: #D97706;"></i>
+                Musobaqalar
+            </a>
+            <a href="{% url 'leaderboard:global_leaderboard' %}" class="dash-quick-link">
+                <i class="bi bi-bar-chart-fill" style="color: #7C3AED;"></i>
+                Reyting
+            </a>
+            <a href="{% url 'tests_app:my_results' %}" class="dash-quick-link">
+                <i class="bi bi-clipboard-data" style="color: #0D9488;"></i>
+                Natijalarim
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="dash-quick-link">
+                <i class="bi bi-person-circle" style="color: #64748B;"></i>
+                Profilim
+            </a>
+        </div>
+
+        <!-- Recent Results -->
+        {% if recent_attempts %}
+        <div class="dash-recent">
+            <div class="dash-recent-header">
+                <i class="bi bi-clock-history me-1"></i> So'nggi natijalar
+            </div>
+            {% for attempt in recent_attempts %}
+            <a href="{% url 'tests_app:test_play_result' attempt.uuid %}" class="dash-recent-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--dark);">{{ attempt.test.title }}</div>
+                    <div style="font-size: 0.75rem; color: var(--gray-400);">
+                        {% if attempt.test.subject %}{{ attempt.test.subject.name }} · {% endif %}{{ attempt.started_at|timesince }} oldin
+                    </div>
+                </div>
+                <div class="dash-recent-score {% if attempt.percentage >= 90 %}score-excellent{% elif attempt.percentage >= 70 %}score-good{% elif attempt.percentage >= 50 %}score-average{% else %}score-poor{% endif %}">
+                    {{ attempt.percentage|floatformat:0 }}%
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% else %}
+<!-- ========== HERO (Guests) ========== -->
 <section class="hero">
     <div class="container">
         <div class="row align-items-center g-5">
@@ -1277,6 +1529,7 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 {% endblock %}
 

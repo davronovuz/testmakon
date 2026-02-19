@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +18,10 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
+    <script>
+        // Prevent flash: apply theme before CSS loads
+        (function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
+    </script>
     <style>
         :root {
             --primary: #8BC540;
@@ -56,6 +60,111 @@
             --radius-lg: 16px;
             --radius-xl: 24px;
         }
+
+        /* ========== DARK THEME ========== */
+        [data-theme="dark"] {
+            --dark: #F1F5F9;
+            --dark-800: #E2E8F0;
+            --dark-700: #CBD5E1;
+            --dark-600: #94A3B8;
+
+            --gray-500: #94A3B8;
+            --gray-400: #64748B;
+            --gray-300: #334155;
+            --gray-200: #1E293B;
+            --gray-100: #162032;
+            --gray-50: #0F172A;
+
+            --white: #1A2332;
+
+            --secondary: #E2E8F0;
+
+            --gradient-dark: linear-gradient(135deg, #E2E8F0 0%, #F1F5F9 100%);
+            --gradient-hero: linear-gradient(135deg, #0F172A 0%, #162032 50%, #0F172A 100%);
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+
+            color-scheme: dark;
+        }
+
+        [data-theme="dark"] body {
+            color: #94A3B8;
+        }
+
+        [data-theme="dark"] .navbar {
+            background: rgba(26, 35, 50, 0.97);
+            border-bottom-color: #1E293B;
+        }
+
+        [data-theme="dark"] .footer {
+            background: #0B1120;
+        }
+
+        [data-theme="dark"] .btn-light {
+            background: #1E293B;
+            color: #E2E8F0;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .btn-light:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .input-group-text {
+            background: #162032;
+            border-color: #334155;
+            color: #E2E8F0;
+        }
+
+        [data-theme="dark"] .form-control::placeholder {
+            color: #475569;
+        }
+
+        [data-theme="dark"] .alert-success { background: #064E3B; color: #A7F3D0; border-left-color: #10B981; }
+        [data-theme="dark"] .alert-danger { background: #7F1D1D; color: #FECACA; border-left-color: #EF4444; }
+        [data-theme="dark"] .alert-warning { background: #78350F; color: #FDE68A; border-left-color: #F59E0B; }
+        [data-theme="dark"] .alert-info { background: #1E3A5F; color: #BFDBFE; border-left-color: #3B82F6; }
+
+        [data-theme="dark"] .text-dark,
+        [data-theme="dark"] h1, [data-theme="dark"] h2,
+        [data-theme="dark"] h3, [data-theme="dark"] h4,
+        [data-theme="dark"] h5, [data-theme="dark"] h6 {
+            color: #F1F5F9 !important;
+        }
+
+        [data-theme="dark"] p {
+            color: #94A3B8;
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--dark-600);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-300);
+            color: var(--primary);
+        }
+
+        [data-theme="dark"] .theme-toggle .bi-moon-fill { display: none; }
+        [data-theme="light"] .theme-toggle .bi-sun-fill { display: none; }
 
         * {
             margin: 0;
@@ -758,8 +867,14 @@
                         </a>
                     </div>
 
-                    <!-- Right: Bell + Profile -->
+                    <!-- Right: Theme + Bell + Profile -->
                     <div class="d-flex align-items-center gap-2">
+                        <!-- Dark Mode Toggle -->
+                        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Tungi rejim">
+                            <i class="bi bi-moon-fill"></i>
+                            <i class="bi bi-sun-fill"></i>
+                        </button>
+
                         {% if user.is_authenticated %}
                             <!-- Notification Bell -->
                             <div class="notif-bell-wrapper" id="notifBell">
@@ -926,6 +1041,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+    // Theme toggle
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    }
+    // Apply saved theme immediately
+    (function() {
+        const saved = localStorage.getItem('theme');
+        if (saved) document.documentElement.setAttribute('data-theme', saved);
+    })();
+
     // Banner close
     function closeBanner(id) {
         document.getElementById('banner-' + id).style.display = 'none';
