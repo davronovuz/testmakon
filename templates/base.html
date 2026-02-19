@@ -129,6 +129,39 @@
             box-shadow: var(--shadow-primary);
         }
 
+        /* ========== SIMPLE NAV LINKS ========== */
+        .nav-links-simple {
+            gap: 0.25rem;
+        }
+
+        .nav-link-simple {
+            color: var(--dark-600);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: var(--radius);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .nav-link-simple i {
+            font-size: 0.9rem;
+        }
+
+        .nav-link-simple:hover {
+            color: var(--primary-dark);
+            background: rgba(139, 197, 64, 0.08);
+        }
+
+        .nav-link-simple.active {
+            color: var(--primary-dark);
+            background: rgba(139, 197, 64, 0.1);
+        }
+
         /* ========== NOTIFICATION BELL ========== */
         .notif-bell-wrapper {
             position: relative;
@@ -708,6 +741,22 @@
                         </div>
                         TestMakon
                     </a>
+
+                    <!-- Nav Links -->
+                    <div class="d-none d-md-flex align-items-center gap-1 nav-links-simple">
+                        <a href="{% url 'tests_app:tests_list' %}" class="nav-link-simple {% if 'tests' in request.path %}active{% endif %}">
+                            <i class="bi bi-lightning-charge-fill"></i> Testlar
+                        </a>
+                        <a href="{% url 'competitions:competitions_list' %}" class="nav-link-simple {% if 'competitions' in request.path %}active{% endif %}">
+                            <i class="bi bi-trophy-fill"></i> Musobaqalar
+                        </a>
+                        <a href="{% url 'leaderboard:global_leaderboard' %}" class="nav-link-simple {% if 'leaderboard' in request.path %}active{% endif %}">
+                            <i class="bi bi-bar-chart-fill"></i> Reyting
+                        </a>
+                        <a href="{% url 'news:news_list' %}" class="nav-link-simple {% if 'news' in request.path %}active{% endif %}">
+                            <i class="bi bi-newspaper"></i> Yangiliklar
+                        </a>
+                    </div>
 
                     <!-- Right: Bell + Profile -->
                     <div class="d-flex align-items-center gap-2">
