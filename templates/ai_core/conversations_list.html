@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* Action button */
     .action-bar {
@@ -162,7 +162,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='conversations' %}
+        {% include 'includes/_sidebar.html' with active='conversations' %}
         <main>
             <div class="action-bar">
                 <a href="{% url 'ai_core:ai_chat' %}" class="btn-new-chat">

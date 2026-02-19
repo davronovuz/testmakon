@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'tests_app/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* ========== CONTENT ========== */
     .wrong-content {
@@ -278,7 +278,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'tests_app/_sidebar.html' with active='wrong_answers' %}
+        {% include 'includes/_sidebar.html' with active='wrong_answers' %}
         <main>
             {% if wrong_answers %}
             <!-- Action Card -->

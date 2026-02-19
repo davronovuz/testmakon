@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     .wt-count-badge {
         display: inline-flex;
@@ -181,7 +181,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='weak_topics' %}
+        {% include 'includes/_sidebar.html' with active='weak_topics' %}
         <main>
             <div class="wt-count-badge">
                 <i class="bi bi-exclamation-triangle-fill"></i>

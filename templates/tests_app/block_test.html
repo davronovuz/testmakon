@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'tests_app/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* ========== BLOCK TEST FORM ========== */
     .bt-card {
@@ -231,7 +231,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'tests_app/_sidebar.html' with active='block_test' %}
+        {% include 'includes/_sidebar.html' with active='block_test' %}
 
         <main>
             <form method="post" action="{% url 'tests_app:block_test_start' %}" id="blockTestForm">

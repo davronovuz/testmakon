@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* ========== FORM CARD ========== */
     .tutor-card {
@@ -173,7 +173,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='tutor' %}
+        {% include 'includes/_sidebar.html' with active='tutor' %}
         <main>
             <div class="tutor-card">
                 <div class="section-title">

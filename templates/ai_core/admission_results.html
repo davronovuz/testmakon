@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     .ar-title {
         font-size: 1.1rem;
@@ -161,7 +161,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='advisor' %}
+        {% include 'includes/_sidebar.html' with active='advisor' %}
         <main>
             <h1 class="ar-title">Sizning Imkoniyatlaringiz</h1>
             <p class="ar-subtitle">Kiritilgan <strong>{{ total_score }} ball</strong> asosida AI tahlili</p>

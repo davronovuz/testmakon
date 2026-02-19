@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'tests_app/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     .dtm-page { padding-bottom: 4rem; }
 
@@ -144,7 +144,7 @@
 <div class="dtm-page">
     <div class="container">
         <div class="tl-layout">
-            {% include 'tests_app/_sidebar.html' with active='dtm' %}
+            {% include 'includes/_sidebar.html' with active='dtm' %}
             <main>
                 <div class="page-header-simple">
                     <h1>DTM Simulyatsiya</h1>

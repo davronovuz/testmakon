@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     .da-card {
         background: var(--white);
@@ -170,7 +170,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='mentor' %}
+        {% include 'includes/_sidebar.html' with active='mentor' %}
         <main>
             {% for ans in answers %}
             <div class="da-card {% if ans.is_correct %}correct{% else %}wrong{% endif %}">

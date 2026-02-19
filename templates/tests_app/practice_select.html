@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'tests_app/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* ========== CONTENT ========== */
     .practice-content {
@@ -215,7 +215,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'tests_app/_sidebar.html' with active='practice' %}
+        {% include 'includes/_sidebar.html' with active='practice' %}
         <main>
             <!-- Practice Modes -->
             <div class="section-title">

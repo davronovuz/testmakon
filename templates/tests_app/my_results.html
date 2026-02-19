@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'tests_app/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* ========== STATS CARDS ========== */
     .results-stats {
@@ -376,7 +376,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'tests_app/_sidebar.html' with active='my_results' %}
+        {% include 'includes/_sidebar.html' with active='my_results' %}
         <main>
             <div class="results-stats">
                 <div class="stat-card">

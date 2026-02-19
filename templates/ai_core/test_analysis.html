@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     .ta-header {
         display: flex;
@@ -211,7 +211,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='mentor' %}
+        {% include 'includes/_sidebar.html' with active='mentor' %}
         <main>
             <div class="ta-header">
                 <h1 class="ta-header-title">{{ attempt.test.title }} <span>- AI Tahlili</span></h1>

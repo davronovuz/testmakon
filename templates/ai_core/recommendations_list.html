@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'ai_core/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     .rec-grid {
         display: grid;
@@ -157,7 +157,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='recommendations' %}
+        {% include 'includes/_sidebar.html' with active='recommendations' %}
         <main>
             <div class="rec-grid">
                 {% for rec in recommendations %}

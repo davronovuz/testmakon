@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-{% include 'ai_core/_sidebar_css.html' %}
+{% include 'includes/_sidebar_css.html' %}
 
 .create-form-card {
     background: var(--white);
@@ -172,7 +172,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='plan_create' %}
+        {% include 'includes/_sidebar.html' with active='plan_create' %}
         <main>
             <div class="create-form-card">
                 <form method="post">

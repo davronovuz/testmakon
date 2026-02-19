@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-    {% include 'tests_app/_sidebar_css.html' %}
+    {% include 'includes/_sidebar_css.html' %}
 
     /* ========== CONTENT ========== */
     .saved-content {
@@ -277,7 +277,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'tests_app/_sidebar.html' with active='saved' %}
+        {% include 'includes/_sidebar.html' with active='saved' %}
         <main>
             {% if saved %}
             <div class="saved-count">

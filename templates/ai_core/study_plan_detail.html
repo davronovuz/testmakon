@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <style>
-{% include 'ai_core/_sidebar_css.html' %}
+{% include 'includes/_sidebar_css.html' %}
 
 .detail-header {
     margin-bottom: 1.5rem;
@@ -222,7 +222,7 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'ai_core/_sidebar.html' with active='plans' %}
+        {% include 'includes/_sidebar.html' with active='plans' %}
         <main>
             <div class="detail-header">
                 <h1 class="detail-title">{{ plan.title }}</h1>
