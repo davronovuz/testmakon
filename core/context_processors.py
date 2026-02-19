@@ -29,3 +29,19 @@ def system_banners(request):
     return {
         'system_banners': banners
     }
+
+
+def notifications_count(request):
+    """O'qilmagan bildirishnomalar sonini har sahifaga yuborish"""
+    if request.user.is_authenticated:
+        from news.models import Notification
+        count = Notification.objects.filter(user=request.user, is_read=False).count()
+        recent = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
+        return {
+            'unread_notifications_count': count,
+            'recent_notifications': recent,
+        }
+    return {
+        'unread_notifications_count': 0,
+        'recent_notifications': [],
+    }
