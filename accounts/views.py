@@ -112,9 +112,8 @@ def login_view(request):
         if user is not None:
             login(request, user)
 
-            # Remember me
-            if not remember:
-                request.session.set_expiry(0)
+            # Session 30 kun davom etadi (settings.py dagi SESSION_COOKIE_AGE)
+            request.session.set_expiry(86400 * 30)
 
             # Update streak
             user.update_streak()
@@ -566,6 +565,19 @@ def friend_add(request, user_id):
             to_user=to_user,
             status='pending'
         )
+        # to_user ga bildirishnoma yuborish
+        try:
+            from news.models import Notification
+            Notification.objects.create(
+                user=to_user,
+                notification_type='friend',
+                title=f"{request.user.first_name} sizga do'stlik so'rovi yubordi",
+                message=f"{request.user.full_name} sizni do'stlar ro'yxatiga qo'shmoqchi.",
+                link='/accounts/friends/requests/',
+                related_id=request.user.id,
+            )
+        except Exception:
+            pass
         messages.success(request, f"{to_user.first_name}ga do'stlik so'rovi yuborildi")
 
     return redirect('accounts:friends_list')

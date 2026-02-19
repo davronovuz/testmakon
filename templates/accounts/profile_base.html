@@ -1,0 +1,582 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       PROFILE LAYOUT
+    ============================================ */
+    .profile-page {
+        background: var(--gray-50);
+        min-height: calc(100vh - 80px);
+        padding: 2rem 0 4rem;
+    }
+
+    /* ============================================
+       SIDEBAR
+    ============================================ */
+    .profile-sidebar {
+        position: sticky;
+        top: 88px;
+    }
+
+    /* User Card */
+    .sidebar-user-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+    }
+
+    .sidebar-user-cover {
+        height: 60px;
+        background: var(--gradient-primary);
+        position: relative;
+    }
+
+    .sidebar-user-body {
+        padding: 0 1.25rem 1.25rem;
+        text-align: center;
+    }
+
+    .sidebar-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 3px solid var(--white);
+        box-shadow: var(--shadow-md);
+        margin: -36px auto 0.75rem;
+        position: relative;
+    }
+
+    .sidebar-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .sidebar-name {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--dark);
+        margin-bottom: 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sidebar-level {
+        display: inline-block;
+        background: var(--primary-glow);
+        color: var(--primary-dark);
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.2rem 0.7rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-xp {
+        font-size: 0.82rem;
+        color: var(--gray-500);
+    }
+
+    .sidebar-xp strong {
+        color: var(--primary-dark);
+        font-weight: 700;
+    }
+
+    /* XP Progress Bar */
+    .sidebar-xp-bar {
+        margin-top: 0.6rem;
+        background: var(--gray-100);
+        border-radius: 50px;
+        height: 6px;
+        overflow: hidden;
+    }
+
+    .sidebar-xp-fill {
+        height: 100%;
+        background: var(--gradient-primary);
+        border-radius: 50px;
+        transition: width 0.5s ease;
+    }
+
+    /* Nav Card */
+    .sidebar-nav-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+    }
+
+    .sidebar-nav-section {
+        padding: 0.6rem 0.5rem;
+    }
+
+    .sidebar-nav-section + .sidebar-nav-section {
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .sidebar-section-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--gray-400);
+        padding: 0.35rem 0.75rem 0.2rem;
+    }
+
+    .sidebar-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: var(--radius);
+        color: var(--dark-600);
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .sidebar-nav-item:hover {
+        background: rgba(139, 197, 64, 0.07);
+        color: var(--primary-dark);
+    }
+
+    .sidebar-nav-item.active {
+        background: rgba(139, 197, 64, 0.12);
+        color: var(--primary-dark);
+    }
+
+    .sidebar-nav-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20%;
+        bottom: 20%;
+        width: 3px;
+        background: var(--primary);
+        border-radius: 0 3px 3px 0;
+    }
+
+    .sidebar-nav-item.danger {
+        color: #DC2626;
+    }
+
+    .sidebar-nav-item.danger:hover {
+        background: rgba(239, 68, 68, 0.07);
+        color: #DC2626;
+    }
+
+    .snav-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+        transition: transform 0.2s;
+    }
+
+    .sidebar-nav-item:hover .snav-icon {
+        transform: scale(1.08);
+    }
+
+    .si-green  { background: rgba(139,197,64,0.12);  color: var(--primary-dark); }
+    .si-blue   { background: rgba(59,130,246,0.1);   color: #2563EB; }
+    .si-amber  { background: rgba(245,158,11,0.1);   color: #D97706; }
+    .si-purple { background: rgba(139,92,246,0.1);   color: #7C3AED; }
+    .si-teal   { background: rgba(20,184,166,0.1);   color: #0D9488; }
+    .si-gray   { background: var(--gray-100);         color: var(--gray-500); }
+    .si-red    { background: rgba(239,68,68,0.1);    color: #DC2626; }
+    .si-indigo { background: rgba(99,102,241,0.1);   color: #4F46E5; }
+
+    /* Notification dot badge */
+    .notif-dot {
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        width: 10px;
+        height: 10px;
+        background: #EF4444;
+        border-radius: 50%;
+        border: 2px solid white;
+        animation: notif-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes notif-pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.8; }
+    }
+
+    .snav-label-full {
+        flex: 1;
+    }
+
+    .snav-badge {
+        font-size: 0.65rem;
+        font-weight: 800;
+        background: #EF4444;
+        color: white;
+        padding: 0.15rem 0.45rem;
+        border-radius: 50px;
+        line-height: 1.4;
+        min-width: 18px;
+        text-align: center;
+    }
+
+    /* Dark mode sidebar */
+    [data-theme="dark"] .sidebar-user-card {
+        background: #1A2332;
+        border-color: #1E293B;
+    }
+
+    [data-theme="dark"] .sidebar-nav-card {
+        background: #1A2332;
+        border-color: #1E293B;
+    }
+
+    [data-theme="dark"] .sidebar-nav-section + .sidebar-nav-section {
+        border-top-color: #1E293B;
+    }
+
+    [data-theme="dark"] .sidebar-avatar {
+        border-color: #1A2332;
+    }
+
+    [data-theme="dark"] .sidebar-name { color: #F1F5F9; }
+
+    [data-theme="dark"] .sidebar-nav-item {
+        color: #94A3B8;
+    }
+
+    [data-theme="dark"] .sidebar-nav-item:hover {
+        background: rgba(139, 197, 64, 0.08);
+        color: #8BC540;
+    }
+
+    [data-theme="dark"] .sidebar-nav-item.active {
+        background: rgba(139, 197, 64, 0.1);
+        color: #8BC540;
+    }
+
+    [data-theme="dark"] .sidebar-nav-item.danger { color: #F87171; }
+    [data-theme="dark"] .sidebar-nav-item.danger:hover {
+        background: rgba(239, 68, 68, 0.08);
+        color: #F87171;
+    }
+
+    [data-theme="dark"] .si-gray {
+        background: #1E293B;
+        color: #64748B;
+    }
+
+    [data-theme="dark"] .notif-dot { border-color: #1A2332; }
+
+    /* ============================================
+       PROFILE CONTENT AREA
+    ============================================ */
+    .profile-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+
+    .profile-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .profile-card-header h5 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .profile-card-body {
+        padding: 1.5rem;
+    }
+
+    [data-theme="dark"] .profile-card {
+        background: #1A2332;
+        border-color: #1E293B;
+    }
+
+    [data-theme="dark"] .profile-card-header {
+        border-bottom-color: #1E293B;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 991px) {
+        .profile-sidebar {
+            position: static;
+        }
+
+        /* Compact user card on mobile */
+        .sidebar-user-cover { height: 48px; }
+
+        .sidebar-user-body {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .sidebar-avatar {
+            width: 52px;
+            height: 52px;
+            font-size: 1.25rem;
+            margin: -26px 0 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-info { flex: 1; min-width: 0; }
+
+        .sidebar-xp-bar { display: none; }
+
+        /* Horizontal scrollable nav */
+        .sidebar-nav-card {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .sidebar-nav-card::-webkit-scrollbar { display: none; }
+
+        .sidebar-nav-section {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            white-space: nowrap;
+            padding: 0.5rem 0.35rem;
+            border-top: none !important;
+        }
+
+        .sidebar-section-label { display: none; }
+
+        .sidebar-nav-item {
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.5rem 0.6rem;
+            font-size: 0.72rem;
+            border-radius: 10px;
+            min-width: 60px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .sidebar-nav-item::before { display: none; }
+
+        .snav-icon {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto;
+        }
+
+        .snav-label-full { display: none; }
+        .snav-label-short { display: block; font-size: 0.7rem; }
+
+        .snav-badge { display: none; }
+
+        /* Vertical divider between sections */
+        .sidebar-nav-section + .sidebar-nav-section {
+            border-top: none;
+            border-left: 1px solid var(--gray-200);
+            margin: 0.5rem 0;
+        }
+
+        [data-theme="dark"] .sidebar-nav-section + .sidebar-nav-section {
+            border-left-color: #1E293B;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .snav-label-short { display: none; }
+    }
+
+    @media (max-width: 575px) {
+        .profile-page { padding: 1rem 0 3rem; }
+    }
+</style>
+{% block profile_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="container">
+        <div class="row g-3 g-lg-4">
+
+            <!-- ============ LEFT SIDEBAR ============ -->
+            <div class="col-lg-3 col-md-12">
+                <div class="profile-sidebar">
+
+                    <!-- User Card -->
+                    <div class="sidebar-user-card">
+                        <div class="sidebar-user-cover"></div>
+                        <div class="sidebar-user-body">
+                            <div class="sidebar-avatar">
+                                {% if request.user.avatar %}
+                                    <img src="{{ request.user.avatar.url }}" alt="{{ request.user.first_name }}">
+                                {% else %}
+                                    {{ request.user.first_name|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <div class="sidebar-user-info">
+                                <div class="sidebar-name">{{ request.user.full_name }}</div>
+                                <div class="sidebar-level">{{ request.user.get_level_display }}</div>
+                                <div class="sidebar-xp"><strong>{{ request.user.xp_points }}</strong> XP</div>
+                                <div class="sidebar-xp-bar">
+                                    <div class="sidebar-xp-fill" style="width: {% widthratio request.user.xp_points 1000 100 %}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="sidebar-nav-card">
+
+                        <!-- Asosiy bo'lim -->
+                        <div class="sidebar-nav-section">
+                            <div class="sidebar-section-label">Asosiy</div>
+
+                            <a href="{% url 'accounts:profile' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                                <div class="snav-icon si-green"><i class="bi bi-person-fill"></i></div>
+                                <span class="snav-label-full">Profil</span>
+                                <span class="snav-label-short">Profil</span>
+                            </a>
+
+                            <a href="{% url 'accounts:profile_edit' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
+                                <div class="snav-icon si-blue"><i class="bi bi-pencil-fill"></i></div>
+                                <span class="snav-label-full">Tahrirlash</span>
+                                <span class="snav-label-short">Tahrir</span>
+                            </a>
+
+                            <a href="{% url 'accounts:badges' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'badges' %}active{% endif %}">
+                                <div class="snav-icon si-amber"><i class="bi bi-award-fill"></i></div>
+                                <span class="snav-label-full">Badjelar</span>
+                                <span class="snav-label-short">Badjel</span>
+                            </a>
+
+                            <a href="{% url 'accounts:activity_log' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}">
+                                <div class="snav-icon si-teal"><i class="bi bi-clock-history"></i></div>
+                                <span class="snav-label-full">Faoliyat</span>
+                                <span class="snav-label-short">Faoliyat</span>
+                            </a>
+
+                            <a href="{% url 'accounts:friends_list' %}" class="sidebar-nav-item {% if 'friend' in request.resolver_match.url_name %}active{% endif %}">
+                                <div class="snav-icon si-indigo" style="position:relative;">
+                                    <i class="bi bi-people-fill"></i>
+                                    {% if pending_friend_requests_count > 0 %}
+                                        <span class="notif-dot"></span>
+                                    {% endif %}
+                                </div>
+                                <span class="snav-label-full">
+                                    Do'stlar
+                                    {% if pending_friend_requests_count > 0 %}
+                                        <span class="snav-badge ms-auto">{{ pending_friend_requests_count }}</span>
+                                    {% endif %}
+                                </span>
+                                <span class="snav-label-short">Do'st</span>
+                            </a>
+
+                            <a href="{% url 'news:notifications_list' %}" class="sidebar-nav-item {% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
+                                <div class="snav-icon si-amber" style="position:relative;">
+                                    <i class="bi bi-bell-fill"></i>
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="notif-dot"></span>
+                                    {% endif %}
+                                </div>
+                                <span class="snav-label-full">
+                                    Bildirishnomalar
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="snav-badge ms-auto">{{ unread_notifications_count }}</span>
+                                    {% endif %}
+                                </span>
+                                <span class="snav-label-short">Bildir.</span>
+                            </a>
+                        </div>
+
+                        <!-- Sozlamalar bo'lim -->
+                        <div class="sidebar-nav-section">
+                            <div class="sidebar-section-label">Sozlamalar</div>
+
+                            <a href="{% url 'accounts:settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                                <div class="snav-icon si-gray"><i class="bi bi-shield-lock-fill"></i></div>
+                                <span class="snav-label-full">Xavfsizlik</span>
+                                <span class="snav-label-short">Xavfs.</span>
+                            </a>
+
+                            <a href="{% url 'accounts:notification_settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'notification_settings' %}active{% endif %}">
+                                <div class="snav-icon si-amber"><i class="bi bi-bell-fill"></i></div>
+                                <span class="snav-label-full">Bildirish. soz.</span>
+                                <span class="snav-label-short">Bildir.</span>
+                            </a>
+
+                            <a href="{% url 'accounts:privacy_settings' %}" class="sidebar-nav-item {% if request.resolver_match.url_name == 'privacy_settings' %}active{% endif %}">
+                                <div class="snav-icon si-gray"><i class="bi bi-eye-slash-fill"></i></div>
+                                <span class="snav-label-full">Maxfiylik</span>
+                                <span class="snav-label-short">Maxf.</span>
+                            </a>
+                        </div>
+
+                        <!-- Chiqish -->
+                        <div class="sidebar-nav-section">
+                            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item danger">
+                                <div class="snav-icon si-red"><i class="bi bi-box-arrow-right"></i></div>
+                                <span class="snav-label-full">Chiqish</span>
+                                <span class="snav-label-short">Chiqish</span>
+                            </a>
+                        </div>
+
+                    </div>
+                    <!-- /Navigation -->
+
+                </div>
+            </div>
+            <!-- /LEFT SIDEBAR -->
+
+            <!-- ============ RIGHT CONTENT ============ -->
+            <div class="col-lg-9 col-md-12">
+                <div class="profile-content">
+                    {% block profile_content %}{% endblock %}
+                </div>
+            </div>
+            <!-- /RIGHT CONTENT -->
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% block profile_extra_js %}{% endblock %}
+{% endblock %}

@@ -1,71 +1,107 @@
-{% extends 'base.html' %}
+{% extends 'accounts/profile_base.html' %}
 {% load static %}
 
-{% block title %}Do'st Qidirish | TestMakon{% endblock %}
+{% block title %}Do'stlar | TestMakon{% endblock %}
 
-{% block content %}
-<div class="section-sm bg-light min-vh-100">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold mb-3">Do'stlarni Toping</h2>
-                    <div class="card border-0 shadow-lg rounded-pill overflow-hidden p-1">
-                        <form action="{% url 'accounts:friend_search' %}" method="get" class="d-flex">
-                            <input type="text" name="q" class="form-control border-0 shadow-none form-control-lg ps-4 rounded-pill"
-                                   placeholder="Ism, familiya yoki telefon raqam..." value="{{ query }}" autocomplete="off" autofocus>
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold m-1 shadow-sm">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
+{% block profile_content %}
 
-                {% if query %}
-                    <h6 class="fw-bold text-muted mb-3 ps-2">Qidiruv natijalari:</h6>
-                    <div class="list-group shadow-sm rounded-4 border-0 overflow-hidden">
-                        {% for user in users %}
-                        <div class="list-group-item p-3 border-light d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-3">
-                                {% if user.avatar %}
-                                    <img src="{{ user.avatar.url }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                                {% else %}
-                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">
-                                        {{ user.first_name|first }}
-                                    </div>
-                                {% endif %}
-
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark">{{ user.full_name }}</h6>
-                                    <small class="text-muted">{{ user.get_level_display }} • {{ user.xp_points }} XP</small>
-                                </div>
-                            </div>
-
-                            <div>
-                                <a href="{% url 'accounts:friend_add' user_id=user.id %}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
-                                    <i class="bi bi-person-plus-fill me-1"></i> Qo'shish
-                                </a>
-                                <a href="{% url 'accounts:profile_public' uuid=user.uuid %}" class="btn btn-sm btn-light rounded-circle ms-1" title="Profilni ko'rish">
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="text-center py-5 bg-white">
-                            <i class="bi bi-emoji-frown display-4 text-muted mb-3 d-block"></i>
-                            <h5 class="fw-bold">Hech kim topilmadi</h5>
-                            <p class="text-muted">Boshqa so'z bilan qidirib ko'ring.</p>
-                        </div>
-                        {% endfor %}
-                    </div>
+<!-- Pending Requests -->
+{% if pending_requests %}
+<div class="profile-card mb-3">
+    <div class="profile-card-header">
+        <h5><i class="bi bi-bell-fill text-warning"></i> Kelgan so'rovlar
+            <span class="badge ms-2" style="background:rgba(239,68,68,0.1); color:#DC2626; font-size:0.75rem;">{{ pending_requests|length }}</span>
+        </h5>
+    </div>
+    <div class="profile-card-body p-0">
+        {% for friendship in pending_requests %}
+        <div class="d-flex align-items-center gap-3 p-3" style="border-bottom:1px solid var(--gray-200);">
+            <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; background:var(--gradient-primary); display:flex; align-items:center; justify-content:center; color:white; font-weight:800; flex-shrink:0;">
+                {% if friendship.from_user.avatar %}
+                    <img src="{{ friendship.from_user.avatar.url }}" alt="" style="width:100%; height:100%; object-fit:cover;">
                 {% else %}
-                    <div class="text-center py-5 opacity-50">
-                        <i class="bi bi-search display-1 text-secondary mb-3"></i>
-                        <p>Qidirishni boshlash uchun yuqoridagi maydonga yozing.</p>
-                    </div>
+                    {{ friendship.from_user.first_name|slice:":1"|upper }}
                 {% endif %}
             </div>
+            <div class="flex-grow-1">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--dark);">{{ friendship.from_user.full_name }}</div>
+                <div style="font-size:0.75rem; color:var(--gray-500);">{{ friendship.from_user.get_level_display }} · {{ friendship.from_user.xp_points }} XP</div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'accounts:friend_accept' request_id=friendship.id %}" class="btn btn-sm btn-primary" style="border-radius:50px;">
+                    <i class="bi bi-check-lg me-1"></i>Qabul
+                </a>
+                <a href="{% url 'accounts:friend_reject' request_id=friendship.id %}" class="btn btn-sm btn-light" style="border-radius:50px;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
         </div>
+        {% endfor %}
     </div>
 </div>
+{% endif %}
+
+<!-- Friend Search -->
+<div class="profile-card">
+    <div class="profile-card-header">
+        <h5><i class="bi bi-search text-primary"></i> Do'st qidirish</h5>
+        <a href="{% url 'accounts:friends_list' %}" class="btn btn-sm btn-light">
+            <i class="bi bi-people me-1"></i>Do'stlarim
+        </a>
+    </div>
+    <div class="profile-card-body">
+        <form action="{% url 'accounts:friend_search' %}" method="get">
+            <div class="d-flex gap-2 mb-4">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Ism, familiya yoki telefon..." value="{{ query }}" autocomplete="off" autofocus>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+
+        {% if query %}
+            {% if users %}
+            <div class="d-flex flex-column gap-2">
+                {% for user in users %}
+                <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:var(--gray-50); border:1px solid var(--gray-200);">
+                    <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:var(--gradient-primary); display:flex; align-items:center; justify-content:center; color:white; font-weight:800; flex-shrink:0;">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="" style="width:100%; height:100%; object-fit:cover;">
+                        {% else %}
+                            {{ user.first_name|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div style="font-weight:700; font-size:0.9rem; color:var(--dark);">{{ user.full_name }}</div>
+                        <div style="font-size:0.75rem; color:var(--gray-500);">{{ user.get_level_display }} · {{ user.xp_points }} XP</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'accounts:friend_add' user_id=user.id %}" class="btn btn-sm btn-primary" style="border-radius:50px;">
+                            <i class="bi bi-person-plus-fill me-1"></i>Qo'shish
+                        </a>
+                        <a href="{% url 'accounts:profile_public' uuid=user.uuid %}" class="btn btn-sm btn-light" style="border-radius:50%;">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-emoji-frown d-block mb-2" style="font-size:2rem; color:var(--gray-300);"></i>
+                <p class="text-muted small mb-0">Hech kim topilmadi. Boshqa so'z bilan qidirib ko'ring.</p>
+            </div>
+            {% endif %}
+        {% else %}
+            {% if not pending_requests %}
+            <div class="text-center py-4 opacity-75">
+                <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:var(--gray-400);"></i>
+                <p class="text-muted small mb-0">Qidirishni boshlash uchun yuqoridagi maydonga yozing.</p>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}

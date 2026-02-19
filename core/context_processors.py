@@ -35,13 +35,17 @@ def notifications_count(request):
     """O'qilmagan bildirishnomalar sonini har sahifaga yuborish"""
     if request.user.is_authenticated:
         from news.models import Notification
+        from accounts.models import Friendship
         count = Notification.objects.filter(user=request.user, is_read=False).count()
         recent = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
+        pending_friends = Friendship.objects.filter(to_user=request.user, status='pending').count()
         return {
             'unread_notifications_count': count,
             'recent_notifications': recent,
+            'pending_friend_requests_count': pending_friends,
         }
     return {
         'unread_notifications_count': 0,
         'recent_notifications': [],
+        'pending_friend_requests_count': 0,
     }

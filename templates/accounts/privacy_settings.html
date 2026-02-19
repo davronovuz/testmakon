@@ -1,91 +1,62 @@
-{% extends 'base.html' %}
+{% extends 'accounts/profile_base.html' %}
 {% load static %}
 
 {% block title %}Maxfiylik | TestMakon{% endblock %}
 
-{% block content %}
-<div class="section-sm bg-light min-vh-100">
-    <div class="container">
-        <div class="row g-4">
+{% block profile_content %}
 
-            <div class="col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top: 100px;">
-                    <div class="list-group list-group-flush">
-                        <a href="{% url 'accounts:profile_edit' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
-                            <div class="icon-box bg-light text-primary rounded-circle"><i class="bi bi-person-gear"></i></div>
-                            <span class="fw-medium">Profilni tahrirlash</span>
-                        </a>
-                        <a href="{% url 'accounts:settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
-                            <div class="icon-box bg-light text-primary rounded-circle"><i class="bi bi-shield-lock"></i></div>
-                            <span class="fw-medium">Xavfsizlik</span>
-                        </a>
-                        <a href="{% url 'accounts:notification_settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3">
-                            <div class="icon-box bg-light text-warning rounded-circle"><i class="bi bi-bell"></i></div>
-                            <span class="fw-medium">Bildirishnomalar</span>
-                        </a>
-                        <a href="{% url 'accounts:privacy_settings' %}" class="list-group-item list-group-item-action p-3 border-0 d-flex align-items-center gap-3 active bg-success bg-opacity-10 text-dark border-start border-4 border-success">
-                            <div class="icon-box bg-white text-success rounded-circle"><i class="bi bi-eye-slash"></i></div>
-                            <span class="fw-bold">Maxfiylik</span>
-                        </a>
-                    </div>
+<div class="profile-card mb-3">
+    <div class="profile-card-header">
+        <h5><i class="bi bi-eye-slash-fill text-success"></i> Maxfiylik Sozlamalari</h5>
+    </div>
+    <div class="profile-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="font-size:0.78rem; font-weight:700; text-transform:uppercase; color:var(--gray-400); margin-bottom:0.75rem; letter-spacing:0.06em;">Profil Ko'rinishi</div>
+
+            <div class="d-flex flex-column gap-2 mb-4">
+                <div class="form-check p-3 rounded-3" style="background:var(--gray-50); border:1px solid var(--gray-200);">
+                    <input class="form-check-input" type="radio" name="profile_visibility" id="vis1" value="public" checked>
+                    <label class="form-check-label w-100" for="vis1">
+                        <div style="font-weight:700; font-size:0.88rem; color:var(--dark);">Ommaviy (Public)</div>
+                        <div style="font-size:0.78rem; color:var(--gray-500);">Barcha foydalanuvchilar sizning natijalaringizni ko'ra oladi</div>
+                    </label>
+                </div>
+
+                <div class="form-check p-3 rounded-3" style="background:var(--gray-50); border:1px solid var(--gray-200);">
+                    <input class="form-check-input" type="radio" name="profile_visibility" id="vis2" value="friends">
+                    <label class="form-check-label w-100" for="vis2">
+                        <div style="font-weight:700; font-size:0.88rem; color:var(--dark);">Faqat Do'stlar</div>
+                        <div style="font-size:0.78rem; color:var(--gray-500);">Faqat siz tasdiqlagan do'stlar ma'lumotlaringizni ko'radi</div>
+                    </label>
+                </div>
+
+                <div class="form-check p-3 rounded-3" style="background:var(--gray-50); border:1px solid var(--gray-200);">
+                    <input class="form-check-input" type="radio" name="profile_visibility" id="vis3" value="private">
+                    <label class="form-check-label w-100" for="vis3">
+                        <div style="font-weight:700; font-size:0.88rem; color:var(--dark);">Maxfiy (Private)</div>
+                        <div style="font-size:0.78rem; color:var(--gray-500);">Hech kim sizning profilingizni ko'ra olmaydi</div>
+                    </label>
                 </div>
             </div>
 
-            <div class="col-lg-9">
-                <h3 class="fw-bold mb-4">Maxfiylik Sozlamalari</h3>
-
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <h6 class="fw-bold text-dark mb-4">Profil ko'rinishi</h6>
-
-                            <div class="mb-3">
-                                <div class="form-check p-3 border rounded-3 mb-2 bg-light">
-                                    <input class="form-check-input" type="radio" name="profile_visibility" id="vis1" value="public" checked>
-                                    <label class="form-check-label w-100" for="vis1">
-                                        <div class="fw-bold text-dark">Ommaviy (Public)</div>
-                                        <div class="text-muted small">Barcha foydalanuvchilar sizning natijalaringizni ko'ra oladi.</div>
-                                    </label>
-                                </div>
-
-                                <div class="form-check p-3 border rounded-3 mb-2">
-                                    <input class="form-check-input" type="radio" name="profile_visibility" id="vis2" value="friends">
-                                    <label class="form-check-label w-100" for="vis2">
-                                        <div class="fw-bold text-dark">Faqat Do'stlar</div>
-                                        <div class="text-muted small">Faqat siz tasdiqlagan do'stlar ma'lumotlaringizni ko'radi.</div>
-                                    </label>
-                                </div>
-
-                                <div class="form-check p-3 border rounded-3">
-                                    <input class="form-check-input" type="radio" name="profile_visibility" id="vis3" value="private">
-                                    <label class="form-check-label w-100" for="vis3">
-                                        <div class="fw-bold text-dark">Maxfiy (Private)</div>
-                                        <div class="text-muted small">Hech kim sizning profilingizni ko'ra olmaydi.</div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="text-end mt-4">
-                                <button type="submit" class="btn btn-primary fw-bold px-4 rounded-pill shadow-primary">Saqlash</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0 text-danger">Bloklangan foydalanuvchilar</h6>
-                        <span class="badge bg-light text-muted">0 kishi</span>
-                    </div>
-                    <div class="card-body text-center py-4 text-muted small">
-                        Siz hech kimni bloklamagansiz.
-                    </div>
-                </div>
-
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary px-5">Saqlash</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
+
+<div class="profile-card">
+    <div class="profile-card-header">
+        <h5 style="color:#DC2626;"><i class="bi bi-slash-circle-fill"></i> Bloklangan Foydalanuvchilar</h5>
+        <span class="badge" style="background:var(--gray-100); color:var(--gray-500);">0 kishi</span>
+    </div>
+    <div class="profile-card-body text-center py-4">
+        <i class="bi bi-check-circle-fill d-block mb-2" style="font-size:1.5rem; color:var(--gray-300);"></i>
+        <p class="text-muted small mb-0">Siz hech kimni bloklamagansiz</p>
+    </div>
+</div>
+
 {% endblock %}

@@ -22,6 +22,17 @@
         // Prevent flash: apply theme before CSS loads
         (function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
     </script>
+    <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+          }
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <style>
         :root {
             --primary: #8BC540;
@@ -676,6 +687,229 @@
         [data-theme="dark"] [style*="border-bottom: 1px solid #E2E8F0"],
         [data-theme="dark"] [style*="border-bottom: 2px solid var(--gray-200)"] {
             border-color: #1E293B !important;
+        }
+
+        /* ========== USER DROPDOWN ========== */
+        .user-dropdown-wrapper {
+            position: relative;
+        }
+
+        .user-dropdown-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.65rem 0.3rem 0.3rem;
+            border-radius: 50px;
+            border: 1.5px solid var(--gray-200);
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            user-select: none;
+        }
+
+        .user-dropdown-trigger:hover {
+            border-color: var(--gray-300);
+            background: var(--gray-50);
+            color: inherit;
+        }
+
+        .user-nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 800;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 2px 8px rgba(139,197,64,0.3);
+        }
+
+        .user-nav-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-nav-avatar-lg {
+            width: 44px;
+            height: 44px;
+            font-size: 1.05rem;
+            border: 2px solid var(--gray-200);
+            box-shadow: 0 2px 10px rgba(139,197,64,0.2);
+        }
+
+        .user-trigger-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--dark);
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-trigger-chevron {
+            font-size: 0.6rem;
+            color: var(--gray-400);
+            transition: transform 0.2s ease;
+        }
+
+        .user-dropdown-wrapper.open .user-trigger-chevron {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 250px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(6px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1060;
+            overflow: hidden;
+        }
+
+        .user-dropdown-wrapper.open .user-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 18px;
+            width: 12px;
+            height: 12px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-bottom: none;
+            border-right: none;
+            transform: rotate(45deg);
+            z-index: 1;
+        }
+
+        .ud-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.1rem 0.9rem;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .ud-name {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--dark);
+            line-height: 1.25;
+        }
+
+        .ud-level {
+            font-size: 0.72rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-top: 0.15rem;
+        }
+
+        .ud-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.1rem;
+            text-decoration: none;
+            color: var(--dark-600);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .ud-item:last-child { border-bottom: none; }
+
+        .ud-item:hover {
+            background: var(--gray-50);
+            color: var(--dark);
+        }
+
+        .ud-item-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .ud-item-icon.icon-green {
+            background: rgba(139,197,64,0.12);
+            color: var(--primary-dark);
+        }
+
+        .ud-item-icon.icon-red {
+            background: rgba(239,68,68,0.1);
+            color: #DC2626;
+        }
+
+        .ud-item-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .ud-item-label { font-weight: 700; color: var(--dark); font-size: 0.88rem; }
+        .ud-item-desc  { font-size: 0.72rem; color: var(--gray-500); font-weight: 500; }
+
+        [data-theme="dark"] .user-dropdown-trigger {
+            background: #1E293B;
+            border-color: #334155;
+            color: #E2E8F0;
+        }
+
+        [data-theme="dark"] .user-dropdown-trigger:hover {
+            background: #334155;
+        }
+
+        [data-theme="dark"] .user-trigger-name { color: #E2E8F0; }
+
+        [data-theme="dark"] .user-dropdown-menu {
+            background: #1A2332;
+            border-color: #2D3B4F;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4);
+        }
+
+        [data-theme="dark"] .user-dropdown-menu::before {
+            background: #1A2332;
+            border-color: #2D3B4F;
+        }
+
+        [data-theme="dark"] .ud-header { border-bottom-color: #2D3B4F; }
+        [data-theme="dark"] .ud-item { border-bottom-color: #2D3B4F; }
+        [data-theme="dark"] .ud-item:hover { background: #162032; }
+        [data-theme="dark"] .ud-item-label { color: #E2E8F0; }
+        [data-theme="dark"] .ud-name { color: #F1F5F9; }
+
+        @media (max-width: 576px) {
+            .user-dropdown-menu {
+                width: calc(100vw - 24px);
+                right: -10px;
+            }
         }
 
         /* Dark mode toggle */
@@ -1370,6 +1604,296 @@
             .section { padding: 4rem 0; }
             .btn-lg { padding: 0.875rem 1.5rem; }
         }
+
+        /* ========== HAMBURGER BUTTON ========== */
+        .hamburger-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .hamburger-btn:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-300);
+        }
+
+        .hamburger-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            background: #EF4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 800;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        [data-theme="dark"] .hamburger-btn {
+            background: #1E293B;
+            border-color: #334155;
+            color: #94A3B8;
+        }
+        [data-theme="dark"] .hamburger-btn:hover { background: #334155; }
+        [data-theme="dark"] .hamburger-badge { border-color: #1E293B; }
+
+        /* ========== MOBILE MENU OVERLAY ========== */
+        .mob-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1099;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .mob-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ========== MOBILE MENU PANEL ========== */
+        .mob-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            max-width: 88vw;
+            height: 100dvh;
+            background: var(--white);
+            z-index: 1100;
+            transform: translateX(100%);
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+        }
+
+        .mob-menu.open {
+            transform: translateX(0);
+        }
+
+        [data-theme="dark"] .mob-menu {
+            background: #1A2332;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.4);
+        }
+
+        /* Menu header */
+        .mob-menu-head {
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        [data-theme="dark"] .mob-menu-head { border-bottom-color: #1E293B; }
+
+        .mob-menu-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--dark-600);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .mob-menu-close:hover { background: var(--gray-100); }
+
+        [data-theme="dark"] .mob-menu-close {
+            background: #162032;
+            border-color: #334155;
+            color: #94A3B8;
+        }
+
+        /* Scrollable body */
+        .mob-menu-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem 0;
+            overscroll-behavior: contain;
+        }
+
+        .mob-menu-body::-webkit-scrollbar { display: none; }
+
+        /* Profile card inside menu */
+        .mob-profile-card {
+            margin: 0 0.75rem 0.5rem;
+            padding: 1rem;
+            background: rgba(139,197,64,0.07);
+            border: 1px solid rgba(139,197,64,0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .mob-profile-card:hover { background: rgba(139,197,64,0.12); }
+
+        .mob-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        .mob-avatar img { width:100%; height:100%; object-fit:cover; }
+
+        .mob-profile-name {
+            font-weight: 800;
+            font-size: 0.92rem;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+
+        .mob-profile-level {
+            font-size: 0.72rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        [data-theme="dark"] .mob-profile-name { color: #F1F5F9; }
+
+        /* Section label */
+        .mob-section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gray-400);
+            padding: 0.75rem 1.25rem 0.25rem;
+        }
+
+        /* Menu item */
+        .mob-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.7rem 1.25rem;
+            text-decoration: none;
+            color: var(--dark-600);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.18s ease;
+            position: relative;
+        }
+
+        .mob-item:hover {
+            background: rgba(139,197,64,0.06);
+            color: var(--primary-dark);
+        }
+
+        .mob-item.active {
+            background: rgba(139,197,64,0.1);
+            color: var(--primary-dark);
+        }
+
+        .mob-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 18%;
+            bottom: 18%;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .mob-item.danger { color: #DC2626; }
+        .mob-item.danger:hover { background: rgba(239,68,68,0.06); color: #DC2626; }
+
+        .mob-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .mi-green  { background: rgba(139,197,64,0.12);  color: var(--primary-dark); }
+        .mi-blue   { background: rgba(59,130,246,0.1);   color: #2563EB; }
+        .mi-amber  { background: rgba(245,158,11,0.1);   color: #D97706; }
+        .mi-purple { background: rgba(139,92,246,0.1);   color: #7C3AED; }
+        .mi-teal   { background: rgba(20,184,166,0.1);   color: #0D9488; }
+        .mi-red    { background: rgba(239,68,68,0.1);    color: #DC2626; }
+        .mi-indigo { background: rgba(99,102,241,0.1);   color: #4F46E5; }
+        .mi-gray   { background: var(--gray-100);         color: var(--gray-500); }
+
+        [data-theme="dark"] .mob-item { color: #94A3B8; }
+        [data-theme="dark"] .mob-item:hover { background: rgba(139,197,64,0.07); color: #8BC540; }
+        [data-theme="dark"] .mob-item.active { background: rgba(139,197,64,0.1); color: #8BC540; }
+        [data-theme="dark"] .mob-item.danger { color: #F87171; }
+        [data-theme="dark"] .mob-item.danger:hover { background: rgba(239,68,68,0.07); }
+        [data-theme="dark"] .mi-gray { background: #1E293B; color: #64748B; }
+
+        .mob-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 0.5rem 1.25rem;
+        }
+
+        [data-theme="dark"] .mob-divider { background: #1E293B; }
+
+        .mob-item-badge {
+            margin-left: auto;
+            font-size: 0.62rem;
+            font-weight: 800;
+            background: #EF4444;
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 50px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* Footer of mobile menu */
+        .mob-menu-foot {
+            padding: 0.75rem 1.25rem;
+            border-top: 1px solid var(--gray-200);
+            flex-shrink: 0;
+        }
+
+        [data-theme="dark"] .mob-menu-foot { border-top-color: #1E293B; }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -1404,17 +1928,17 @@
                         </a>
                     </div>
 
-                    <!-- Right: Theme + Bell + Profile -->
+                    <!-- Right: Theme + Bell + Profile (Desktop) + Hamburger (Mobile) -->
                     <div class="d-flex align-items-center gap-2">
-                        <!-- Dark Mode Toggle -->
+                        <!-- Dark Mode Toggle - always visible -->
                         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Tungi rejim">
                             <i class="bi bi-moon-fill"></i>
                             <i class="bi bi-sun-fill"></i>
                         </button>
 
                         {% if user.is_authenticated %}
-                            <!-- Notification Bell -->
-                            <div class="notif-bell-wrapper" id="notifBell">
+                            <!-- Notification Bell - Desktop only -->
+                            <div class="notif-bell-wrapper d-none d-md-block" id="notifBell">
                                 <button class="notif-bell-btn" onclick="toggleNotifDropdown()" aria-label="Bildirishnomalar">
                                     <i class="bi bi-bell"></i>
                                     {% if unread_notifications_count > 0 %}
@@ -1458,18 +1982,197 @@
                                 </div>
                             </div>
 
-                            <!-- Profile -->
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-light btn-sm">
-                                <i class="bi bi-person-circle me-1"></i>{{ user.first_name }}
-                            </a>
+                            <!-- User Dropdown - Desktop only -->
+                            <div class="user-dropdown-wrapper d-none d-md-block" id="userDropdown">
+                                <a class="user-dropdown-trigger" href="javascript:void(0)" onclick="toggleUserDropdown()">
+                                    <div class="user-nav-avatar">
+                                        {% if user.avatar %}
+                                            <img src="{{ user.avatar.url }}" alt="{{ user.first_name }}">
+                                        {% else %}
+                                            {{ user.first_name|slice:":1"|upper }}
+                                        {% endif %}
+                                    </div>
+                                    <span class="user-trigger-name">{{ user.first_name }}</span>
+                                    <i class="bi bi-chevron-down user-trigger-chevron"></i>
+                                </a>
+
+                                <div class="user-dropdown-menu">
+                                    <div class="ud-header">
+                                        <div class="user-nav-avatar user-nav-avatar-lg">
+                                            {% if user.avatar %}
+                                                <img src="{{ user.avatar.url }}" alt="{{ user.first_name }}">
+                                            {% else %}
+                                                {{ user.first_name|slice:":1"|upper }}
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="ud-name">{{ user.first_name }} {{ user.last_name }}</div>
+
+                                        </div>
+                                    </div>
+
+                                    <a href="{% url 'accounts:profile' %}" class="ud-item">
+                                        <div class="ud-item-icon icon-green"><i class="bi bi-person-fill"></i></div>
+                                        <div class="ud-item-text">
+                                            <span class="ud-item-label">Profilim</span>
+
+                                        </div>
+                                    </a>
+
+                                    <a href="{% url 'accounts:logout' %}" class="ud-item">
+                                        <div class="ud-item-icon icon-red"><i class="bi bi-box-arrow-right"></i></div>
+                                        <div class="ud-item-text">
+                                            <span class="ud-item-label">Tizimdan chiqish</span>
+
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Hamburger - Mobile only -->
+                            <button class="hamburger-btn d-md-none" onclick="openMobMenu()" aria-label="Menyu">
+                                <i class="bi bi-list" style="font-size:1.3rem;"></i>
+                                {% if unread_notifications_count > 0 or pending_friend_requests_count > 0 %}
+                                    <span class="hamburger-badge">{{ unread_notifications_count|add:pending_friend_requests_count }}</span>
+                                {% endif %}
+                            </button>
+
                         {% else %}
-                            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-sm">Kirish</a>
-                            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Ro'yxatdan o'tish</a>
+                            <!-- Guest: Kirish/Ro'yxat (desktop) -->
+                            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-sm d-none d-md-inline-flex">Kirish</a>
+                            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm d-none d-md-inline-flex">Ro'yxatdan o'tish</a>
+
+                            <!-- Guest hamburger - mobile -->
+                            <button class="hamburger-btn d-md-none" onclick="openMobMenu()" aria-label="Menyu">
+                                <i class="bi bi-list" style="font-size:1.3rem;"></i>
+                            </button>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </nav>
+
+        <!-- ===== MOBILE MENU ===== -->
+        <div class="mob-overlay" id="mobOverlay" onclick="closeMobMenu()"></div>
+
+        <div class="mob-menu" id="mobMenu">
+            <!-- Header -->
+            <div class="mob-menu-head">
+                <a class="navbar-brand" href="{% url 'core:home' %}" onclick="closeMobMenu()" style="font-size:1.2rem;">
+                    <div class="logo-icon" style="width:32px; height:32px; font-size:1rem;">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    TestMakon
+                </a>
+                <button class="mob-menu-close" onclick="closeMobMenu()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="mob-menu-body">
+
+                {% if user.is_authenticated %}
+                <!-- Profile Card -->
+                <a href="{% url 'accounts:profile' %}" class="mob-profile-card" onclick="closeMobMenu()">
+                    <div class="mob-avatar">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.first_name }}">
+                        {% else %}
+                            {{ user.first_name|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="mob-profile-name">{{ user.first_name }} {{ user.last_name }}</div>
+                        
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto" style="color:var(--gray-400); font-size:0.85rem;"></i>
+                </a>
+                {% endif %}
+
+                <!-- Navigation -->
+                <div class="mob-section-label">Navigatsiya</div>
+
+                <a href="{% url 'tests_app:tests_list' %}" class="mob-item {% if 'tests' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-green"><i class="bi bi-journal-check"></i></div>
+                    Testlar
+                </a>
+                <a href="{% url 'competitions:competitions_list' %}" class="mob-item {% if 'competitions' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-amber"><i class="bi bi-trophy-fill"></i></div>
+                    Musobaqalar
+                </a>
+                <a href="{% url 'leaderboard:global_leaderboard' %}" class="mob-item {% if 'leaderboard' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-purple"><i class="bi bi-bar-chart-fill"></i></div>
+                    Reyting
+                </a>
+                <a href="{% url 'news:news_list' %}" class="mob-item {% if 'news' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-blue"><i class="bi bi-newspaper"></i></div>
+                    Yangiliklar
+                </a>
+
+                {% if user.is_authenticated %}
+                <div class="mob-divider"></div>
+
+                <!-- Notifications -->
+                <div class="mob-section-label">Profil</div>
+
+                <a href="{% url 'news:notifications_list' %}" class="mob-item" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-amber"><i class="bi bi-bell-fill"></i></div>
+                    Bildirishnomalar
+                    {% if unread_notifications_count > 0 %}
+                        <span class="mob-item-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'accounts:friends_list' %}" class="mob-item" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-indigo"><i class="bi bi-people-fill"></i></div>
+                    Do'stlar
+                    {% if pending_friend_requests_count > 0 %}
+                        <span class="mob-item-badge">{{ pending_friend_requests_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'accounts:profile_edit' %}" class="mob-item" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-blue"><i class="bi bi-pencil-fill"></i></div>
+                    Profilni tahrirlash
+                </a>
+
+                <a href="{% url 'accounts:settings' %}" class="mob-item" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-gray"><i class="bi bi-gear-fill"></i></div>
+                    Sozlamalar
+                </a>
+
+                <div class="mob-divider"></div>
+
+                <a href="{% url 'accounts:logout' %}" class="mob-item danger" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-red"><i class="bi bi-box-arrow-right"></i></div>
+                    Chiqish
+                </a>
+
+                {% else %}
+                <div class="mob-divider"></div>
+                <div class="mob-section-label">Hisob</div>
+                <a href="{% url 'accounts:login' %}" class="mob-item" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-green"><i class="bi bi-box-arrow-in-right"></i></div>
+                    Kirish
+                </a>
+                <a href="{% url 'accounts:register' %}" class="mob-item" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-blue"><i class="bi bi-person-plus-fill"></i></div>
+                    Ro'yxatdan o'tish
+                </a>
+                {% endif %}
+
+            </div>
+
+            <!-- Footer: Theme toggle -->
+            <div class="mob-menu-foot">
+                <button onclick="toggleTheme(); return false;" style="width:100%; padding:0.7rem; border-radius:12px; border:1px solid var(--gray-200); background:var(--gray-50); color:var(--dark-600); font-weight:600; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem; transition:all 0.2s;">
+                    <i class="bi bi-moon-fill" style="color:#7C3AED;"></i>
+                    <span id="themeLabel">Tungi rejim</span>
+                </button>
+            </div>
+        </div>
+        <!-- ===== /MOBILE MENU ===== -->
 
         <!-- System Banner -->
         {% if system_banners %}
@@ -1585,6 +2288,16 @@
         const next = current === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
+        // Mobile menu label ni yangilash
+        const lbl = document.getElementById('themeLabel');
+        if (lbl) {
+            lbl.textContent = next === 'dark' ? 'Kunduzgi rejim' : 'Tungi rejim';
+            const icon = lbl.closest('button') && lbl.closest('button').querySelector('i');
+            if (icon) {
+                icon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                icon.style.color = next === 'dark' ? '#F59E0B' : '#7C3AED';
+            }
+        }
     }
     // Apply saved theme immediately
     (function() {
@@ -1602,15 +2315,64 @@
         if (localStorage.getItem('banner_' + id) === 'closed') b.style.display = 'none';
     });
 
-    // Notification bell dropdown
+    // ===== MOBILE MENU =====
+    function openMobMenu() {
+        document.getElementById('mobMenu').classList.add('open');
+        document.getElementById('mobOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        updateThemeLabel();
+    }
+
+    function closeMobMenu() {
+        document.getElementById('mobMenu').classList.remove('open');
+        document.getElementById('mobOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Close mob menu on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeMobMenu();
+    });
+
+    function updateThemeLabel() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const lbl = document.getElementById('themeLabel');
+        const btn = lbl ? lbl.closest('button') : null;
+        if (lbl) lbl.textContent = isDark ? 'Kunduzgi rejim' : 'Tungi rejim';
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                icon.style.color = isDark ? '#F59E0B' : '#7C3AED';
+            }
+        }
+    }
+
+    // Notification dropdown
     function toggleNotifDropdown() {
         const dropdown = document.getElementById('notifDropdown');
         if (dropdown) dropdown.classList.toggle('show');
+        const userDrop = document.getElementById('userDropdown');
+        if (userDrop) userDrop.classList.remove('open');
     }
+
+    // User dropdown
+    function toggleUserDropdown() {
+        const wrapper = document.getElementById('userDropdown');
+        if (wrapper) wrapper.classList.toggle('open');
+        const notifDrop = document.getElementById('notifDropdown');
+        if (notifDrop) notifDrop.classList.remove('show');
+    }
+
+    // Close all dropdowns on outside click
     document.addEventListener('click', function(e) {
         if (!e.target.closest('#notifBell')) {
-            const dropdown = document.getElementById('notifDropdown');
-            if (dropdown) dropdown.classList.remove('show');
+            const notifDrop = document.getElementById('notifDropdown');
+            if (notifDrop) notifDrop.classList.remove('show');
+        }
+        if (!e.target.closest('#userDropdown')) {
+            const userDrop = document.getElementById('userDropdown');
+            if (userDrop) userDrop.classList.remove('open');
         }
     });
     </script>

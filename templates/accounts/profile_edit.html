@@ -1,15 +1,13 @@
-{% extends 'base.html' %}
+{% extends 'accounts/profile_base.html' %}
 {% load static %}
 
 {% block title %}Profilni Tahrirlash | TestMakon{% endblock %}
 
-{% block content %}
-<div class="section-sm bg-light min-vh-100">
-    <div class="container">
-        <div class="row g-4 justify-content-center">
+{% block profile_content %}
+<div class="row g-3">
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="profile-card text-center p-4 h-100">
                     <h5 class="fw-bold mb-4">Profil Rasmi</h5>
 
                     <div class="mb-4 d-inline-block position-relative">
@@ -36,11 +34,11 @@
             </div>
 
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white py-3 border-bottom">
-                        <h5 class="fw-bold mb-0">Shaxsiy Ma'lumotlar</h5>
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h5><i class="bi bi-pencil-fill text-primary"></i> Shaxsiy Ma'lumotlar</h5>
                     </div>
-                    <div class="card-body p-4">
+                    <div class="profile-card-body">
                         <form method="post">
                             {% csrf_token %}
 
@@ -107,6 +105,5 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+
 {% endblock %}

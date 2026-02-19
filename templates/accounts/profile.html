@@ -1,709 +1,276 @@
-{% extends 'base.html' %}
+{% extends 'accounts/profile_base.html' %}
 {% load static %}
 
 {% block title %}{{ profile_user.full_name }} | Profil{% endblock %}
 
-{% block extra_css %}
+{% block profile_extra_css %}
 <style>
-    .profile-hero {
-        background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 2.5rem 0 2rem;
+    .drop-shadow {
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        transition: transform 0.2s;
     }
-    .avatar-ring {
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        padding: 3px;
-        background: var(--gradient-primary);
-        flex-shrink: 0;
-    }
-    .avatar-inner {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        overflow: hidden;
-        background: var(--white);
-        border: 3px solid var(--white);
-    }
-    .avatar-inner img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .avatar-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--gray-100);
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--primary);
-    }
-    .level-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.3rem 0.75rem;
-        background: var(--gradient-primary);
-        color: white;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .profile-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        padding: 0.25rem 0.6rem;
-        background: var(--gray-100);
-        border: 1px solid var(--gray-200);
-        border-radius: 6px;
-        font-size: 0.78rem;
-        color: var(--gray-600);
-        font-weight: 500;
-    }
+    .drop-shadow:hover { transform: scale(1.1) rotate(5deg); }
 
-    /* Stat mini cards */
-    .stat-mini {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
-        transition: all 0.2s ease;
-    }
-    .stat-mini:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-    .stat-mini-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 0.5rem;
-        font-size: 1.1rem;
-    }
-    .stat-mini-value {
-        font-size: 1.35rem;
-        font-weight: 800;
-        color: var(--dark);
-        line-height: 1;
-    }
-    .stat-mini-label {
-        font-size: 0.72rem;
-        color: var(--gray-500);
-        font-weight: 500;
-        margin-top: 0.25rem;
-    }
-
-    /* Section card */
-    .prof-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-    .prof-card-header {
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--gray-100);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .prof-card-header h6 {
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .prof-card-body {
-        padding: 1.25rem;
-    }
-
-    /* Level progress */
-    .level-progress-bar {
-        height: 8px;
-        background: var(--gray-100);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .level-progress-fill {
-        height: 100%;
-        background: var(--gradient-primary);
-        border-radius: 4px;
-        transition: width 1s ease;
-    }
-
-    /* Streak section */
-    .streak-display {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, #FFF7ED, #FFFBEB);
-        border: 1px solid #FED7AA;
-        border-radius: 12px;
-    }
-    .streak-fire {
-        font-size: 2rem;
-        animation: pulse-fire 2s infinite;
-    }
     @keyframes pulse-fire {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.15); }
+        0%   { transform: scale(1);   filter: drop-shadow(0 0 0 rgba(220,53,69,0.4)); }
+        50%  { transform: scale(1.1); filter: drop-shadow(0 0 10px rgba(220,53,69,0.7)); }
+        100% { transform: scale(1);   filter: drop-shadow(0 0 0 rgba(220,53,69,0.4)); }
     }
+    .bi-fire { display: inline-block; animation: pulse-fire 2s infinite; }
 
-    /* Chart containers */
-    .chart-container {
-        position: relative;
-        height: 220px;
-    }
-
-    /* Badge grid */
-    .badge-item {
-        text-align: center;
-        padding: 0.75rem 0.5rem;
-        border-radius: 12px;
-        transition: all 0.2s ease;
-    }
-    .badge-item:hover {
-        background: var(--gray-50);
-        transform: translateY(-2px);
-    }
-    .badge-icon-wrap {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px;
-        background: var(--gray-50);
+    .stat-card {
+        background: var(--white);
         border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        transition: box-shadow 0.2s;
+    }
+
+    .stat-card:hover { box-shadow: var(--shadow-md); }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 0.4rem;
-        overflow: hidden;
-    }
-    .badge-icon-wrap img {
-        width: 36px;
-        height: 36px;
-        object-fit: contain;
-    }
-
-    /* Activity list */
-    .activity-item {
-        display: flex;
-        gap: 0.75rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--gray-100);
-    }
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-    .activity-dot {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 0.85rem;
-    }
-
-    /* Subject stat bars */
-    .subject-bar {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.6rem;
-    }
-    .subject-bar-name {
-        width: 80px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--dark);
-        text-align: right;
-        flex-shrink: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .subject-bar-track {
-        flex: 1;
-        height: 8px;
-        background: var(--gray-100);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .subject-bar-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 1s ease;
-    }
-    .subject-bar-value {
-        width: 40px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--gray-600);
+        font-size: 1.3rem;
         flex-shrink: 0;
     }
 
-    @media (max-width: 768px) {
-        .avatar-ring { width: 90px; height: 90px; }
-        .avatar-placeholder { font-size: 2rem; }
-        .stat-mini { padding: 0.75rem 0.5rem; }
-        .stat-mini-value { font-size: 1.1rem; }
-        .chart-container { height: 180px; }
+    .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--dark); line-height: 1; }
+    .stat-lbl { font-size: 0.78rem; color: var(--gray-500); font-weight: 600; margin-top: 2px; }
+
+    [data-theme="dark"] .stat-card {
+        background: #1E293B;
+        border-color: #334155;
     }
 </style>
 {% endblock %}
 
-{% block content %}
-<!-- Profile Hero -->
-<div class="profile-hero">
-    <div class="container">
-        <div class="d-flex flex-column flex-md-row align-items-center gap-3 gap-md-4">
-            <!-- Avatar -->
-            <div class="avatar-ring">
-                <div class="avatar-inner">
-                    {% if profile_user.avatar %}
-                        <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.first_name }}">
-                    {% else %}
-                        <div class="avatar-placeholder">{{ profile_user.first_name|first }}</div>
-                    {% endif %}
-                </div>
-            </div>
+{% block profile_content %}
 
-            <!-- Info -->
-            <div class="text-center text-md-start flex-grow-1">
-                <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-2 mb-2">
-                    <h4 class="mb-0 fw-bold" style="color: var(--dark);">{{ profile_user.full_name }}</h4>
-                    <div class="level-badge">
-                        <i class="bi bi-star-fill" style="font-size: 0.65rem;"></i> {{ stats.level }}
-                    </div>
-                </div>
-
-                <p class="mb-2" style="color: var(--gray-500); font-size: 0.85rem;">
-                    <i class="bi bi-geo-alt me-1"></i>{{ profile_user.region|default:"O'zbekiston" }}{% if profile_user.school_name %} · {{ profile_user.school_name }}{% endif %}
-                </p>
-
-                <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
-                    {% if profile_user.is_premium %}
-                        <span class="profile-tag" style="background: #FFFBEB; border-color: #FDE68A; color: #92400E;">
-                            <i class="bi bi-gem"></i> Premium
-                        </span>
-                    {% endif %}
-                    <span class="profile-tag">
-                        <i class="bi bi-mortarboard"></i> {{ profile_user.get_education_level_display }}
-                    </span>
-                    {% if profile_user.target_university %}
-                        <span class="profile-tag" style="background: rgba(139, 197, 64, 0.08); border-color: rgba(139, 197, 64, 0.2); color: #4D7C0F;">
-                            <i class="bi bi-bullseye"></i> {{ profile_user.target_university.name|truncatechars:25 }}
-                        </span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="d-flex gap-2 flex-shrink-0">
-                {% if request.user == profile_user %}
-                    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-sm px-3" style="background: var(--gradient-primary); color: white; border-radius: 10px; font-weight: 600; font-size: 0.82rem;">
-                        <i class="bi bi-pencil-square me-1"></i>Tahrirlash
-                    </a>
-                    <a href="{% url 'accounts:settings' %}" class="btn btn-sm px-2" style="background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 10px; color: var(--gray-600);">
-                        <i class="bi bi-gear-fill"></i>
-                    </a>
+<!-- Profile Header Card -->
+<div class="profile-card mb-3">
+    <div style="height:80px; background: var(--gradient-primary); position:relative;">
+        {% if request.user == profile_user %}
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-sm btn-light position-absolute" style="top:12px; right:12px; border-radius:50px;">
+            <i class="bi bi-pencil-fill me-1"></i>Tahrirlash
+        </a>
+        {% endif %}
+    </div>
+    <div class="profile-card-body pt-0">
+        <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-end gap-3" style="margin-top:-40px; margin-bottom:1rem;">
+            <div style="width:80px; height:80px; border-radius:50%; overflow:hidden; border:3px solid var(--white); box-shadow:var(--shadow-md); background:var(--gradient-primary); display:flex; align-items:center; justify-content:center; color:white; font-size:2rem; font-weight:800; flex-shrink:0;">
+                {% if profile_user.avatar %}
+                    <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.first_name }}" style="width:100%; height:100%; object-fit:cover;">
+                {% else %}
+                    {{ profile_user.first_name|slice:":1"|upper }}
                 {% endif %}
             </div>
+            <div class="text-center text-sm-start">
+                <h4 class="mb-1 fw-bold">{{ profile_user.full_name }}</h4>
+                <p class="text-muted mb-0 small">
+                    <i class="bi bi-geo-alt-fill text-primary me-1"></i>
+                    {{ profile_user.region|default:"O'zbekiston" }}
+                    {% if profile_user.school_name %} · {{ profile_user.school_name }}{% endif %}
+                </p>
+            </div>
+            <div class="ms-sm-auto d-flex flex-wrap gap-2 justify-content-center">
+                {% if profile_user.is_premium %}
+                <span class="badge" style="background:rgba(251,191,36,0.15); color:#B45309; border:1px solid rgba(251,191,36,0.3);">
+                    <i class="bi bi-star-fill me-1"></i>PREMIUM
+                </span>
+                {% endif %}
+                <span class="badge" style="background:var(--gray-100); color:var(--dark-600); border:1px solid var(--gray-200);">
+                    {{ profile_user.get_education_level_display }}
+                </span>
+            </div>
         </div>
-    </div>
-</div>
 
-<!-- Stats Row -->
-<div style="background: var(--gray-50); padding-bottom: 2rem;">
-    <div class="container">
-        <div class="row g-2 g-md-3 mt-0" style="margin-top: -0.5rem !important;">
-            <div class="col-4 col-md-2">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(139, 197, 64, 0.1); color: var(--primary);">
+        <!-- Stats Row -->
+        <div class="row g-2">
+            <div class="col-6 col-sm-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(139,197,64,0.12); color:var(--primary-dark);">
                         <i class="bi bi-lightning-charge-fill"></i>
                     </div>
-                    <div class="stat-mini-value">{{ stats.xp|default:"0" }}</div>
-                    <div class="stat-mini-label">XP Ball</div>
+                    <div>
+                        <div class="stat-val">{{ stats.xp }}</div>
+                        <div class="stat-lbl">XP Ball</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-4 col-md-2">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+            <div class="col-6 col-sm-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(59,130,246,0.1); color:#2563EB;">
                         <i class="bi bi-journal-check"></i>
                     </div>
-                    <div class="stat-mini-value">{{ stats.tests|default:"0" }}</div>
-                    <div class="stat-mini-label">Testlar</div>
+                    <div>
+                        <div class="stat-val">{{ stats.tests }}</div>
+                        <div class="stat-lbl">Testlar</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-4 col-md-2">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+            <div class="col-6 col-sm-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(245,158,11,0.1); color:#D97706;">
                         <i class="bi bi-bullseye"></i>
                     </div>
-                    <div class="stat-mini-value">{{ stats.accuracy|default:"0" }}%</div>
-                    <div class="stat-mini-label">Aniqlik</div>
+                    <div>
+                        <div class="stat-val">{{ stats.accuracy }}%</div>
+                        <div class="stat-lbl">Aniqlik</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-4 col-md-2">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+            <div class="col-6 col-sm-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(239,68,68,0.1); color:#DC2626;">
                         <i class="bi bi-fire"></i>
                     </div>
-                    <div class="stat-mini-value">{{ stats.streak|default:"0" }}</div>
-                    <div class="stat-mini-label">Streak</div>
-                </div>
-            </div>
-            <div class="col-4 col-md-2">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
-                        <i class="bi bi-trophy-fill"></i>
-                    </div>
-                    <div class="stat-mini-value">{{ stats.battles_won|default:"0" }}</div>
-                    <div class="stat-mini-label">Yutuqlar</div>
-                </div>
-            </div>
-            <div class="col-4 col-md-2">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(20, 184, 166, 0.1); color: #14B8A6;">
-                        <i class="bi bi-hash"></i>
-                    </div>
-                    <div class="stat-mini-value">#{{ profile_user.global_rank|default:"-" }}</div>
-                    <div class="stat-mini-label">Reyting</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div style="background: var(--gray-50); padding-bottom: 3rem;">
-    <div class="container">
-        <div class="row g-3 g-lg-4">
-            <!-- Left Column -->
-            <div class="col-lg-8">
-                <!-- Level Progress -->
-                <div class="prof-card mb-3">
-                    <div class="prof-card-body">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-trophy-fill" style="color: var(--primary);"></i>
-                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--dark);">{{ stats.level }}</span>
-                            </div>
-                            <span style="font-size: 0.78rem; color: var(--gray-500);">
-                                {% if stats.next_level != "MAX" %}
-                                    {{ stats.xp_remaining }} XP → {{ stats.next_level }}
-                                {% else %}
-                                    Maksimal daraja!
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="level-progress-bar">
-                            <div class="level-progress-fill" style="width: {{ stats.level_progress }}%;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between mt-1">
-                            <small style="font-size: 0.7rem; color: var(--gray-400);">{{ stats.xp }} XP</small>
-                            <small style="font-size: 0.7rem; color: var(--gray-400);">{{ stats.level_progress }}%</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Row -->
-                <div class="row g-3 mb-3">
-                    <!-- Weekly Activity -->
-                    <div class="col-md-6">
-                        <div class="prof-card h-100">
-                            <div class="prof-card-header">
-                                <h6><i class="bi bi-bar-chart-fill" style="color: var(--primary);"></i> Haftalik faoliyat</h6>
-                            </div>
-                            <div class="prof-card-body">
-                                <div class="chart-container">
-                                    <canvas id="weeklyChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Subject Radar -->
-                    <div class="col-md-6">
-                        <div class="prof-card h-100">
-                            <div class="prof-card-header">
-                                <h6><i class="bi bi-diagram-3-fill" style="color: #8B5CF6;"></i> Fan bo'yicha</h6>
-                            </div>
-                            <div class="prof-card-body">
-                                {% if subject_stats %}
-                                    <div class="chart-container">
-                                        <canvas id="radarChart"></canvas>
-                                    </div>
-                                {% else %}
-                                    <div class="text-center py-4">
-                                        <i class="bi bi-pie-chart" style="font-size: 2rem; color: var(--gray-300);"></i>
-                                        <p style="font-size: 0.82rem; color: var(--gray-400); margin: 0.5rem 0 0;">Test ishlang — statistika chiqadi</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Subject Progress Bars -->
-                {% if subject_stats %}
-                <div class="prof-card mb-3">
-                    <div class="prof-card-header">
-                        <h6><i class="bi bi-book-fill" style="color: #F59E0B;"></i> Fan natijalari</h6>
-                    </div>
-                    <div class="prof-card-body">
-                        {% for s in subject_stats %}
-                        <div class="subject-bar">
-                            <div class="subject-bar-name">{{ s.name }}</div>
-                            <div class="subject-bar-track">
-                                <div class="subject-bar-fill" style="width: {{ s.avg_score }}%; background: {{ s.color }};"></div>
-                            </div>
-                            <div class="subject-bar-value">{{ s.avg_score }}%</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Badges -->
-                <div class="prof-card mb-3">
-                    <div class="prof-card-header">
-                        <h6><i class="bi bi-award-fill" style="color: #F59E0B;"></i> Yutuqlar</h6>
-                        <a href="{% url 'accounts:badges' %}" style="font-size: 0.78rem; color: var(--primary); font-weight: 600; text-decoration: none;">
-                            Barchasi <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                    <div class="prof-card-body">
-                        {% if badges %}
-                            <div class="row g-2">
-                                {% for user_badge in badges %}
-                                <div class="col-4 col-sm-3 col-md-2">
-                                    <div class="badge-item" title="{{ user_badge.badge.name }}">
-                                        <div class="badge-icon-wrap">
-                                            <img src="{{ user_badge.badge.icon.url }}" alt="{{ user_badge.badge.name }}">
-                                        </div>
-                                        <div style="font-size: 0.72rem; font-weight: 600; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ user_badge.badge.name }}</div>
-                                        <div style="font-size: 0.65rem; color: var(--gray-400);">+{{ user_badge.badge.xp_reward }} XP</div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="text-center py-3">
-                                <i class="bi bi-award" style="font-size: 2rem; color: var(--gray-300);"></i>
-                                <p style="font-size: 0.82rem; color: var(--gray-400); margin: 0.5rem 0 0;">Testlar ishlang va yutuqlarga ega bo'ling!</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div class="col-lg-4">
-                <!-- Streak -->
-                <div class="prof-card mb-3">
-                    <div class="prof-card-body">
-                        <div class="streak-display">
-                            <div class="streak-fire">🔥</div>
-                            <div>
-                                <div style="font-size: 1.5rem; font-weight: 800; color: #EA580C; line-height: 1;">{{ stats.streak }}</div>
-                                <div style="font-size: 0.78rem; color: #9A3412; font-weight: 500;">kunlik streak</div>
-                            </div>
-                            <div class="ms-auto text-end">
-                                <div style="font-size: 0.7rem; color: var(--gray-400);">Eng yuqori</div>
-                                <div style="font-size: 1rem; font-weight: 700; color: var(--dark);">{{ stats.longest_streak }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bio -->
-                {% if profile_user.bio %}
-                <div class="prof-card mb-3">
-                    <div class="prof-card-header">
-                        <h6><i class="bi bi-person-lines-fill" style="color: var(--primary);"></i> Haqida</h6>
-                    </div>
-                    <div class="prof-card-body">
-                        <p style="font-size: 0.85rem; color: var(--gray-600); margin: 0; line-height: 1.6;">{{ profile_user.bio }}</p>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Recent Activity -->
-                <div class="prof-card mb-3">
-                    <div class="prof-card-header">
-                        <h6><i class="bi bi-clock-history" style="color: #3B82F6;"></i> Faoliyat</h6>
-                        <a href="{% url 'accounts:activity_log' %}" style="font-size: 0.75rem; color: var(--primary); font-weight: 600; text-decoration: none;">Barchasi</a>
-                    </div>
-                    <div class="prof-card-body" style="padding: 0.5rem 1.25rem;">
-                        {% for activity in activities %}
-                        <div class="activity-item">
-                            <div class="activity-dot" style="
-                                {% if activity.activity_type == 'test_complete' %}background: rgba(5, 150, 105, 0.1); color: #059669;
-                                {% elif activity.activity_type == 'badge_earn' %}background: rgba(245, 158, 11, 0.1); color: #F59E0B;
-                                {% elif activity.activity_type == 'level_up' %}background: rgba(139, 197, 64, 0.1); color: var(--primary);
-                                {% elif activity.activity_type == 'login' %}background: rgba(59, 130, 246, 0.1); color: #3B82F6;
-                                {% else %}background: var(--gray-100); color: var(--gray-500);
-                                {% endif %}
-                            ">
-                                {% if activity.activity_type == 'test_complete' %}<i class="bi bi-check-lg"></i>
-                                {% elif activity.activity_type == 'badge_earn' %}<i class="bi bi-award-fill"></i>
-                                {% elif activity.activity_type == 'level_up' %}<i class="bi bi-arrow-up"></i>
-                                {% elif activity.activity_type == 'login' %}<i class="bi bi-box-arrow-in-right"></i>
-                                {% else %}<i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
-                                {% endif %}
-                            </div>
-                            <div class="flex-grow-1 min-width-0">
-                                <div style="font-size: 0.82rem; color: var(--dark); font-weight: 500;">{{ activity.description }}</div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <small style="font-size: 0.7rem; color: var(--gray-400);">{{ activity.created_at|timesince }} oldin</small>
-                                    {% if activity.xp_earned > 0 %}
-                                        <span style="font-size: 0.65rem; font-weight: 700; color: #059669;">+{{ activity.xp_earned }} XP</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="text-center py-3">
-                            <p style="font-size: 0.82rem; color: var(--gray-400); margin: 0;">Faoliyat tarixi topilmadi</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Friends -->
-                <div class="prof-card">
-                    <div class="prof-card-header">
-                        <h6><i class="bi bi-people-fill" style="color: #14B8A6;"></i> Do'stlar <span style="font-size: 0.72rem; font-weight: 600; color: var(--gray-400); margin-left: 0.25rem;">{{ friends_count }}</span></h6>
-                        <a href="{% url 'accounts:friends_list' %}" style="font-size: 0.75rem; color: var(--primary); font-weight: 600; text-decoration: none;">
-                            <i class="bi bi-plus-lg"></i>
-                        </a>
-                    </div>
-                    <div class="prof-card-body text-center">
-                        {% if friends_count == 0 %}
-                            <p style="font-size: 0.82rem; color: var(--gray-400); margin: 0;">Hali do'stlar qo'shilmagan</p>
-                        {% else %}
-                            <a href="{% url 'accounts:friends_list' %}" style="font-size: 0.82rem; color: var(--primary); font-weight: 600; text-decoration: none;">
-                                {{ friends_count }} ta do'st <i class="bi bi-arrow-right"></i>
-                            </a>
-                        {% endif %}
+                    <div>
+                        <div class="stat-val">{{ stats.streak }}</div>
+                        <div class="stat-lbl">Streak</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script>
-// Theme-aware colors
-const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.06)';
-const textColor = isDark ? '#94A3B8' : '#64748B';
-
-// Weekly Activity Bar Chart
-const weeklyCtx = document.getElementById('weeklyChart');
-if (weeklyCtx) {
-    new Chart(weeklyCtx, {
-        type: 'bar',
-        data: {
-            labels: [{% for d in weekly_data %}'{{ d.day }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-            datasets: [{
-                data: [{% for d in weekly_data %}{{ d.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                backgroundColor: [{% for d in weekly_data %}{% if forloop.last %}'#8BC540'{% else %}'rgba(139, 197, 64, 0.3)'{% endif %}{% if not forloop.last %},{% endif %}{% endfor %}],
-                borderRadius: 6,
-                borderSkipped: false,
-                barThickness: 28,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, color: textColor, font: { size: 11 } },
-                    grid: { color: gridColor },
-                    border: { display: false }
-                },
-                x: {
-                    ticks: { color: textColor, font: { size: 11, weight: 600 } },
-                    grid: { display: false },
-                    border: { display: false }
-                }
-            }
-        }
-    });
-}
-
-// Radar Chart — Subject scores
-{% if subject_stats %}
-const radarCtx = document.getElementById('radarChart');
-if (radarCtx) {
-    new Chart(radarCtx, {
-        type: 'radar',
-        data: {
-            labels: [{% for s in subject_stats %}'{{ s.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-            datasets: [{
-                data: [{% for s in subject_stats %}{{ s.avg_score }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                backgroundColor: 'rgba(139, 197, 64, 0.15)',
-                borderColor: '#8BC540',
-                borderWidth: 2,
-                pointBackgroundColor: '#8BC540',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                r: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { stepSize: 25, display: false },
-                    grid: { color: gridColor },
-                    angleLines: { color: gridColor },
-                    pointLabels: {
-                        color: textColor,
-                        font: { size: 11, weight: 600 }
-                    }
-                }
-            }
-        }
-    });
-}
+<!-- Bio / Target -->
+{% if profile_user.bio or profile_user.target_university %}
+<div class="profile-card mb-3">
+    <div class="profile-card-body">
+        {% if profile_user.bio %}
+        <p class="text-muted mb-{% if profile_user.target_university %}3{% else %}0{% endif %} small">{{ profile_user.bio }}</p>
+        {% endif %}
+        {% if profile_user.target_university %}
+        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:rgba(139,197,64,0.07); border:1px solid rgba(139,197,64,0.15);">
+            <div class="stat-icon" style="background:var(--gradient-primary); color:white; flex-shrink:0;">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div>
+                <div class="fw-bold" style="font-size:0.9rem; color:var(--dark);">{{ profile_user.target_university.name }}</div>
+                <div class="text-primary small">{{ profile_user.target_direction.name }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endif %}
 
-// Animate level progress bar
-document.addEventListener('DOMContentLoaded', () => {
-    const bar = document.querySelector('.level-progress-fill');
-    if (bar) {
-        const w = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => { bar.style.width = w; }, 100);
-    }
-});
-</script>
+<!-- Badges -->
+<div class="profile-card mb-3">
+    <div class="profile-card-header">
+        <h5><i class="bi bi-award-fill text-warning"></i> Yutuqlar</h5>
+        <a href="{% url 'accounts:badges' %}" class="btn btn-sm btn-light" style="font-size:0.8rem;">Barchasi <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="profile-card-body">
+        {% if badges %}
+        <div class="row g-3">
+            {% for user_badge in badges %}
+            <div class="col-4 col-sm-3 col-md-2 text-center">
+                <div class="mb-2 position-relative" title="{{ user_badge.badge.name }}">
+                    {% if user_badge.badge.icon %}
+                    <img src="{{ user_badge.badge.icon.url }}" alt="{{ user_badge.badge.name }}" class="drop-shadow" style="max-height:56px;">
+                    {% else %}
+                    <div style="width:56px; height:56px; background:rgba(245,158,11,0.1); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto; font-size:1.5rem; color:#D97706;">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+                    {% endif %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success border border-white" style="font-size:0.6rem;">
+                        +{{ user_badge.badge.xp_reward }}
+                    </span>
+                </div>
+                <small class="d-block text-truncate fw-semibold" style="color:var(--dark); font-size:0.75rem;">{{ user_badge.badge.name }}</small>
+                <small class="text-muted" style="font-size:0.68rem;">{{ user_badge.earned_at|date:"d.m" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <div style="width:56px; height:56px; background:var(--gray-100); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:1.5rem; color:var(--gray-400);">
+                <i class="bi bi-award"></i>
+            </div>
+            <p class="text-muted mb-0 small">Hozircha yutuqlar mavjud emas. Testlarni ishlang va yutuqlarga ega bo'ling!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- XP Progress -->
+<div class="profile-card mb-3">
+    <div class="profile-card-body">
+        <div style="background:var(--gradient-dark); border-radius:var(--radius-lg); padding:1.25rem; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:0; right:0; padding:1rem; opacity:0.1; font-size:3rem; color:white; line-height:1;">
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+            <div class="text-white-50 small fw-bold mb-2">Keyingi daraja sari</div>
+            <div class="d-flex justify-content-between mb-2 small" style="color:rgba(255,255,255,0.6);">
+                <span>{{ stats.level|title }}</span>
+                <span>Master</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.1); border-radius:50px; height:8px; overflow:hidden;">
+                <div style="width:{% widthratio stats.xp 1000 100 %}%; background:var(--gradient-primary); height:100%; border-radius:50px;"></div>
+            </div>
+            <div class="mt-2 text-end small">
+                <span style="color:#8BC540; font-weight:700;">{{ stats.xp }} XP</span>
+                <span style="color:rgba(255,255,255,0.5);"> to'plandi</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- So'nggi faoliyat -->
+<div class="profile-card">
+    <div class="profile-card-header">
+        <h5><i class="bi bi-clock-history text-primary"></i> So'nggi faoliyat</h5>
+        <a href="{% url 'accounts:activity_log' %}" class="btn btn-sm btn-light" style="font-size:0.8rem;">Barchasi <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="profile-card-body p-0">
+        {% if activities %}
+        <ul class="list-group list-group-flush">
+            {% for activity in activities %}
+            <li class="list-group-item px-4 py-3" style="background:transparent; border-color:var(--gray-200);">
+                <div class="d-flex gap-3 align-items-start">
+                    <div class="mt-1" style="font-size:1rem;">
+                        {% if activity.activity_type == 'login' %}
+                            <i class="bi bi-box-arrow-in-right text-info"></i>
+                        {% elif activity.activity_type == 'test_complete' %}
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                        {% elif activity.activity_type == 'badge_earn' %}
+                            <i class="bi bi-award-fill text-warning"></i>
+                        {% elif activity.activity_type == 'level_up' %}
+                            <i class="bi bi-arrow-up-circle-fill text-primary"></i>
+                        {% else %}
+                            <i class="bi bi-circle-fill text-muted small"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="mb-1 small fw-medium" style="color:var(--dark);">{{ activity.description }}</p>
+                        <div class="d-flex align-items-center gap-2">
+                            <small class="text-muted" style="font-size:0.72rem;">{{ activity.created_at|timesince }} oldin</small>
+                            {% if activity.xp_earned > 0 %}
+                            <span class="badge rounded-pill" style="background:rgba(139,197,64,0.1); color:var(--primary-dark); font-size:0.62rem;">+{{ activity.xp_earned }} XP</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-clock-history d-block mb-2" style="font-size:1.5rem; opacity:0.4;"></i>
+            <small>Faoliyat tarixi topilmadi</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}
