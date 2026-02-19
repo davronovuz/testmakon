@@ -135,6 +135,10 @@ LOGOUT_REDIRECT_URL = 'core:home'
 # AI Settings (Anthropic Claude API)
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
+# Telegram Bot
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8205738917:AAHIVL5FvDqOg-AM_6Qwe22_ey1JAcG_h78')
+TELEGRAM_BOT_USERNAME = os.environ.get('TELEGRAM_BOT_USERNAME', 'testmakonaibot')
+
 # Session settings
 SESSION_COOKIE_AGE = 86400 * 30  # 30 days
 SESSION_SAVE_EVERY_REQUEST = True

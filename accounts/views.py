@@ -17,13 +17,15 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import User, Friendship, UserActivity, PhoneVerification, Badge, UserBadge
+from django.conf import settings as django_settings
+
+from .models import User, Friendship, UserActivity, PhoneVerification, Badge, UserBadge, TelegramAuthCode
 
 # ====================
 # TELEGRAM SETTINGS
 # ====================
-TELEGRAM_BOT_TOKEN = '8205738917:AAHIVL5FvDqOg-AM_6Qwe22_ey1JAcG_h78'
-TELEGRAM_BOT_USERNAME = 'testmakonaibot'
+TELEGRAM_BOT_TOKEN = django_settings.TELEGRAM_BOT_TOKEN
+TELEGRAM_BOT_USERNAME = django_settings.TELEGRAM_BOT_USERNAME
 
 
 # ====================
@@ -738,6 +740,78 @@ def telegram_callback(request):
     messages.success(request, f'Xush kelibsiz, {user.first_name}!')
     return redirect('core:dashboard')
 
+
+def telegram_code_login(request):
+    """Telegram bot kodi orqali kirish/ro'yxatdan o'tish"""
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+
+        if not code or len(code) != 6:
+            messages.error(request, "6 xonali kodni kiriting")
+            return render(request, 'accounts/login.html', {'show_code_form': True})
+
+        # Kodni tekshirish
+        try:
+            auth_code = TelegramAuthCode.objects.get(
+                code=code,
+                is_used=False,
+                expires_at__gt=timezone.now(),
+            )
+        except TelegramAuthCode.DoesNotExist:
+            messages.error(request, "Kod noto'g'ri yoki muddati o'tgan. Botdan yangi kod oling.")
+            return render(request, 'accounts/login.html', {'show_code_form': True})
+
+        # Kodni ishlatilgan deb belgilash
+        auth_code.is_used = True
+        auth_code.save()
+
+        # User ni topish yoki yaratish
+        try:
+            user = User.objects.get(telegram_id=auth_code.telegram_id)
+            # Username va ism yangilash
+            if auth_code.telegram_username:
+                user.telegram_username = auth_code.telegram_username
+            if auth_code.telegram_first_name:
+                user.first_name = auth_code.telegram_first_name
+            user.save()
+        except User.DoesNotExist:
+            # Yangi user yaratish
+            base_phone = f'+998{str(auth_code.telegram_id)[-9:].zfill(9)}'
+            phone_number = base_phone
+            counter = 0
+            while User.objects.filter(phone_number=phone_number).exists():
+                counter += 1
+                phone_number = f'+998{str(auth_code.telegram_id + counter)[-9:].zfill(9)}'
+                if counter > 10:
+                    phone_number = f'+998{str(auth_code.telegram_id)[:9].zfill(9)}'
+                    break
+
+            user = User.objects.create(
+                phone_number=phone_number,
+                first_name=auth_code.telegram_first_name or 'User',
+                telegram_id=auth_code.telegram_id,
+                telegram_username=auth_code.telegram_username,
+                is_phone_verified=True,
+            )
+
+        # Login
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        user.update_streak()
+
+        UserActivity.objects.create(
+            user=user,
+            activity_type='login',
+            description='Telegram bot orqali kirdi'
+        )
+
+        messages.success(request, f'Xush kelibsiz, {user.first_name}!')
+        next_url = request.GET.get('next', 'core:dashboard')
+        return redirect(next_url)
+
+    return render(request, 'accounts/login.html')
 
 
 def api_telegram_check(request):

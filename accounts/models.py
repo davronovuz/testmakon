@@ -378,3 +378,31 @@ class PhoneVerification(models.Model):
     @property
     def is_valid(self):
         return not self.is_used and not self.is_expired
+
+
+class TelegramAuthCode(models.Model):
+    """Telegram bot orqali autentifikatsiya kodlari"""
+
+    telegram_id = models.BigIntegerField('Telegram ID')
+    telegram_username = models.CharField('Username', max_length=100, blank=True, default='')
+    telegram_first_name = models.CharField('Ism', max_length=100, blank=True, default='')
+    code = models.CharField('Kod', max_length=6)
+    is_used = models.BooleanField('Ishlatilgan', default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField('Amal qilish muddati')
+
+    class Meta:
+        verbose_name = 'Telegram auth kod'
+        verbose_name_plural = 'Telegram auth kodlar'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"@{self.telegram_username or self.telegram_id} - {self.code}"
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_valid(self):
+        return not self.is_used and not self.is_expired

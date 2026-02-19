@@ -17,6 +17,20 @@ services:
     expose:
       - 8000
 
+  bot:
+    build: .
+    container_name: testmakon_bot
+    restart: always
+    environment:
+      - DEBUG=False
+      - ALLOWED_HOSTS=testmakon.uz,www.testmakon.uz,localhost,127.0.0.1
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+    command: python manage.py run_bot
+    depends_on:
+      - web
+
   nginx:
     image: nginx:alpine
     container_name: testmakon_nginx

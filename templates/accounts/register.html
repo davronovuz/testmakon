@@ -2,139 +2,268 @@
 
 {% block title %}Ro'yxatdan o'tish - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    .auth-wrapper {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+        background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%);
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 440px;
+        background: var(--white);
+        border-radius: 24px;
+        border: 2px solid var(--gray-200);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .auth-card-body {
+        padding: 2rem 2.25rem;
+    }
+
+    .tg-section {
+        background: #F0F9FF;
+        border: 2px solid #BAE6FD;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .tg-bot-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.25rem;
+        background: #0088cc;
+        color: white;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+    }
+
+    .tg-bot-link:hover {
+        background: #006da3;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+    }
+
+    .code-input-wrapper {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin: 1rem 0;
+    }
+
+    .code-digit {
+        width: 48px;
+        height: 56px;
+        text-align: center;
+        font-size: 1.4rem;
+        font-weight: 800;
+        border: 2px solid var(--gray-300);
+        border-radius: 12px;
+        outline: none;
+        transition: all 0.2s ease;
+        color: var(--dark);
+    }
+
+    .code-digit:focus {
+        border-color: #0088cc;
+        box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.15);
+    }
+
+    .code-digit.filled {
+        border-color: #0088cc;
+        background: #F0F9FF;
+    }
+
+    .tg-submit-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: #0088cc;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .tg-submit-btn:hover { background: #006da3; }
+    .tg-submit-btn:disabled { background: var(--gray-300); cursor: not-allowed; }
+
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+    }
+
+    .auth-divider hr {
+        flex: 1;
+        border: none;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .auth-divider span {
+        padding: 0 1rem;
+        color: var(--gray-400);
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+
+    .phone-section {
+        background: var(--gray-50);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .phone-section .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-600);
+    }
+
+    @media (max-width: 480px) {
+        .auth-card-body { padding: 1.5rem; }
+        .code-digit { width: 42px; height: 50px; font-size: 1.2rem; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%);">
+<div class="auth-wrapper">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card" style="border-radius: 24px; border: 2px solid var(--gray-200); box-shadow: var(--shadow-lg);">
-                    <div class="card-body p-4 p-md-5">
+                <div class="auth-card">
+                    <div class="auth-card-body">
                         <!-- Logo -->
-                        <div class="text-center mb-4">
+                        <div class="text-center mb-3">
                             <a href="{% url 'core:home' %}" class="text-decoration-none">
-                                <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background: var(--gradient-primary); border-radius: 16px; box-shadow: var(--shadow-primary);">
-                                    <i class="bi bi-mortarboard-fill text-white fs-3"></i>
+                                <div class="d-inline-flex align-items-center justify-content-center mb-2" style="width: 56px; height: 56px; background: var(--gradient-primary); border-radius: 14px; box-shadow: var(--shadow-primary);">
+                                    <i class="bi bi-mortarboard-fill text-white fs-4"></i>
                                 </div>
-                                <h4 class="fw-bold" style="color: var(--dark);">TestMakon</h4>
+                                <h5 class="fw-bold mb-1" style="color: var(--dark);">TestMakon</h5>
                             </a>
-                            <p style="color: var(--gray-500);">Bepul ro'yxatdan o'ting</p>
+                            <p style="color: var(--gray-500); font-size: 0.9rem; margin: 0;">Bepul ro'yxatdan o'ting</p>
                         </div>
 
                         <!-- Benefits -->
-                        <div class="d-flex justify-content-center gap-3 mb-4">
+                        <div class="d-flex justify-content-center gap-3 mb-3">
                             <div class="d-flex align-items-center gap-1">
-                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 0.8rem;"></i>
                                 <small style="color: var(--gray-500);">Bepul</small>
                             </div>
                             <div class="d-flex align-items-center gap-1">
-                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 0.8rem;"></i>
                                 <small style="color: var(--gray-500);">AI Mentor</small>
                             </div>
                             <div class="d-flex align-items-center gap-1">
-                                <i class="bi bi-check-circle-fill text-primary"></i>
+                                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 0.8rem;"></i>
                                 <small style="color: var(--gray-500);">10K+ testlar</small>
                             </div>
                         </div>
 
-                        <!-- Register Form -->
-                        <form method="post" action="{% url 'accounts:register' %}">
-                            {% csrf_token %}
+                        <!-- Telegram Code Section -->
+                        <div class="tg-section">
+                            <div class="mb-3">
+                                <i class="bi bi-telegram" style="font-size: 1.5rem; color: #0088cc;"></i>
+                                <p style="font-size: 0.85rem; color: #1E293B; margin: 0.5rem 0 0; font-weight: 500;">
+                                    Telegram bot orqali tezkor ro'yxatdan o'ting
+                                </p>
+                            </div>
 
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="form-label">Ism</label>
-                                    <input type="text"
-                                           name="first_name"
-                                           class="form-control"
-                                           placeholder="Ism"
-                                           style="border-radius: 10px;"
-                                           required>
+                            <a href="https://t.me/testmakonaibot" target="_blank" class="tg-bot-link mb-3">
+                                <i class="bi bi-send-fill"></i> @testmakonaibot
+                            </a>
+
+                            <form method="post" action="{% url 'accounts:telegram_code_login' %}" id="codeForm" class="mt-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="code" id="codeHidden">
+
+                                <div class="code-input-wrapper">
+                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="0">
+                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="1">
+                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="2">
+                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="3">
+                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="4">
+                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="5">
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label">Familiya</label>
-                                    <input type="text"
-                                           name="last_name"
-                                           class="form-control"
-                                           placeholder="Familiya"
-                                           style="border-radius: 10px;"
-                                           required>
-                                </div>
-                            </div>
 
-                            <div class="mt-3">
-                                <label class="form-label">Telefon raqam</label>
-                                <div class="input-group">
-                                    <span class="input-group-text" style="border-radius: 10px 0 0 10px;">+998</span>
-                                    <input type="tel"
-                                           name="phone_number"
-                                           class="form-control"
-                                           placeholder="90 123 45 67"
-                                           maxlength="9"
-                                           style="border-radius: 0 10px 10px 0; border-left: none;"
-                                           required>
-                                </div>
-                            </div>
-
-                            <div class="mt-3">
-                                <label class="form-label">Parol</label>
-                                <input type="password"
-                                       name="password"
-                                       class="form-control"
-                                       placeholder="Kamida 6 ta belgi"
-                                       minlength="6"
-                                       style="border-radius: 10px;"
-                                       required>
-                            </div>
-
-                            <div class="mt-3">
-                                <label class="form-label">Parolni tasdiqlang</label>
-                                <input type="password"
-                                       name="password_confirm"
-                                       class="form-control"
-                                       placeholder="Parolni qayta kiriting"
-                                       minlength="6"
-                                       style="border-radius: 10px;"
-                                       required>
-                            </div>
-
-                            <div class="mt-4">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="terms" style="border-radius: 4px;" required>
-                                    <label class="form-check-label" for="terms" style="color: var(--gray-500); font-size: 0.9rem;">
-                                        <a href="#" style="color: var(--primary);">Foydalanish shartlari</a> va
-                                        <a href="#" style="color: var(--primary);">Maxfiylik siyosati</a>ga roziman
-                                    </label>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 py-3 mt-4" style="border-radius: 12px; font-size: 1rem;">
-                                <i class="bi bi-person-plus me-2"></i> Ro'yxatdan o'tish
-                            </button>
-                        </form>
-
-                        <!-- Divider -->
-                        <div class="d-flex align-items-center my-4">
-                            <hr class="flex-grow-1" style="border-color: var(--gray-300);">
-                            <span class="px-3" style="color: var(--gray-400); font-size: 0.85rem;">yoki</span>
-                            <hr class="flex-grow-1" style="border-color: var(--gray-300);">
+                                <button type="submit" class="tg-submit-btn" id="codeSubmitBtn" disabled>
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Kirish
+                                </button>
+                            </form>
                         </div>
 
-                        <!-- Telegram Register -->
-                        <a href="{% url 'accounts:telegram_login' %}" class="btn btn-light w-100 py-3" style="border-radius: 12px; border: 2px solid var(--gray-200);">
-                            <i class="bi bi-telegram me-2" style="color: #0088cc;"></i> Telegram orqali ro'yxatdan o'tish
-                        </a>
+                        <!-- Divider -->
+                        <div class="auth-divider">
+                            <hr>
+                            <span>yoki telefon bilan</span>
+                            <hr>
+                        </div>
+
+                        <!-- Phone Register -->
+                        <div class="phone-section">
+                            <form method="post" action="{% url 'accounts:register' %}">
+                                {% csrf_token %}
+
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label">Ism</label>
+                                        <input type="text" name="first_name" class="form-control" placeholder="Ism" style="border-radius: 10px;" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">Familiya</label>
+                                        <input type="text" name="last_name" class="form-control" placeholder="Familiya" style="border-radius: 10px;" required>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <label class="form-label">Telefon raqam</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="border-radius: 10px 0 0 10px; font-size: 0.9rem;">+998</span>
+                                        <input type="tel" name="phone_number" class="form-control" placeholder="90 123 45 67" maxlength="9" style="border-radius: 0 10px 10px 0; border-left: none;" required>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <label class="form-label">Parol</label>
+                                    <input type="password" name="password" class="form-control" placeholder="Kamida 6 ta belgi" minlength="6" style="border-radius: 10px;" required>
+                                </div>
+
+                                <div class="mt-2">
+                                    <label class="form-label">Parolni tasdiqlang</label>
+                                    <input type="password" name="password_confirm" class="form-control" placeholder="Parolni qayta kiriting" minlength="6" style="border-radius: 10px;" required>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 mt-3" style="border-radius: 12px; padding: 0.7rem;">
+                                    <i class="bi bi-person-plus me-1"></i> Ro'yxatdan o'tish
+                                </button>
+                            </form>
+                        </div>
 
                         <!-- Login Link -->
-                        <div class="text-center mt-4">
-                            <span style="color: var(--gray-500);">Akkountingiz bormi?</span>
-                            <a href="{% url 'accounts:login' %}" class="fw-bold" style="color: var(--primary);">Kirish</a>
+                        <div class="text-center mt-3">
+                            <span style="color: var(--gray-500); font-size: 0.9rem;">Akkountingiz bormi?</span>
+                            <a href="{% url 'accounts:login' %}" class="fw-bold" style="color: var(--primary); font-size: 0.9rem;">Kirish</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Back to home -->
-                <div class="text-center mt-4">
-                    <a href="{% url 'core:home' %}" style="color: var(--gray-500);">
+                <div class="text-center mt-3">
+                    <a href="{% url 'core:home' %}" style="color: var(--gray-500); font-size: 0.85rem;">
                         <i class="bi bi-arrow-left me-1"></i> Bosh sahifaga qaytish
                     </a>
                 </div>
@@ -142,4 +271,56 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const digits = document.querySelectorAll('.code-digit');
+const codeHidden = document.getElementById('codeHidden');
+const submitBtn = document.getElementById('codeSubmitBtn');
+const codeForm = document.getElementById('codeForm');
+
+function updateCode() {
+    let code = '';
+    digits.forEach(d => {
+        code += d.value;
+        d.classList.toggle('filled', d.value !== '');
+    });
+    codeHidden.value = code;
+    submitBtn.disabled = code.length !== 6;
+}
+
+digits.forEach((digit, i) => {
+    digit.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 1);
+        updateCode();
+        if (this.value && i < 5) digits[i + 1].focus();
+    });
+
+    digit.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !this.value && i > 0) {
+            digits[i - 1].focus();
+            digits[i - 1].value = '';
+            updateCode();
+        }
+    });
+
+    digit.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        paste.split('').forEach((char, idx) => {
+            if (digits[idx]) digits[idx].value = char;
+        });
+        updateCode();
+        if (paste.length >= 6) {
+            digits[5].focus();
+            setTimeout(() => codeForm.submit(), 300);
+        } else if (digits[paste.length]) {
+            digits[paste.length].focus();
+        }
+    });
+});
+
+digits[0].focus();
+</script>
 {% endblock %}

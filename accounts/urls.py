@@ -56,5 +56,6 @@ urlpatterns = [
     # Telegram Auth
     path('telegram/login/', views.telegram_login, name='telegram_login'),
     path('telegram/callback/', views.telegram_callback, name='telegram_callback'),
+    path('telegram/code/', views.telegram_code_login, name='telegram_code_login'),
     path('api/telegram-check/', views.api_telegram_check, name='api_telegram_check'),
 ]
