@@ -129,7 +129,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # Login/Logout URLs
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'core:dashboard'
+LOGIN_REDIRECT_URL = 'tests_app:tests_list'
 LOGOUT_REDIRECT_URL = 'core:home'
 
 # AI Settings (Anthropic Claude API)

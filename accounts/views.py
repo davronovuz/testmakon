@@ -35,7 +35,7 @@ TELEGRAM_BOT_USERNAME = django_settings.TELEGRAM_BOT_USERNAME
 def register(request):
     """Ro'yxatdan o'tish"""
     if request.user.is_authenticated:
-        return redirect('core:dashboard')
+        return redirect('tests_app:tests_list')
 
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number', '')
@@ -88,7 +88,7 @@ def register(request):
         )
 
         messages.success(request, f"Xush kelibsiz, {first_name}!")
-        return redirect('core:dashboard')
+        return redirect('tests_app:tests_list')
 
     return render(request, 'accounts/register.html')
 
@@ -96,7 +96,7 @@ def register(request):
 def login_view(request):
     """Kirish"""
     if request.user.is_authenticated:
-        return redirect('core:dashboard')
+        return redirect('tests_app:tests_list')
 
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number', '')
@@ -129,7 +129,7 @@ def login_view(request):
             messages.success(request, f"Xush kelibsiz, {user.first_name}!")
 
             # Redirect to next or dashboard
-            next_url = request.GET.get('next', 'core:dashboard')
+            next_url = request.GET.get('next', 'tests_app:tests_list')
             return redirect(next_url)
         else:
             messages.error(request, "Telefon raqam yoki parol noto'g'ri")
@@ -169,7 +169,7 @@ def verify_phone(request):
                 request.user.is_phone_verified = True
                 request.user.save()
                 messages.success(request, "Telefon raqamingiz tasdiqlandi!")
-                return redirect('core:dashboard')
+                return redirect('tests_app:tests_list')
         else:
             messages.error(request, "Kod noto'g'ri yoki muddati o'tgan")
 
@@ -669,7 +669,7 @@ def verify_telegram_auth(auth_data):
 def telegram_login(request):
     """Telegram login sahifasi"""
     if request.user.is_authenticated:
-        return redirect('core:dashboard')
+        return redirect('tests_app:tests_list')
 
     context = {'bot_username': TELEGRAM_BOT_USERNAME}
     return render(request, 'accounts/telegram_login.html', context)
@@ -738,13 +738,13 @@ def telegram_callback(request):
     user.update_streak()
 
     messages.success(request, f'Xush kelibsiz, {user.first_name}!')
-    return redirect('core:dashboard')
+    return redirect('tests_app:tests_list')
 
 
 def telegram_code_login(request):
     """Telegram bot kodi orqali kirish/ro'yxatdan o'tish"""
     if request.user.is_authenticated:
-        return redirect('core:dashboard')
+        return redirect('tests_app:tests_list')
 
     if request.method == 'POST':
         code = request.POST.get('code', '').strip()
@@ -808,7 +808,7 @@ def telegram_code_login(request):
         )
 
         messages.success(request, f'Xush kelibsiz, {user.first_name}!')
-        next_url = request.GET.get('next', 'core:dashboard')
+        next_url = request.GET.get('next', 'tests_app:tests_list')
         return redirect(next_url)
 
     return render(request, 'accounts/login.html')

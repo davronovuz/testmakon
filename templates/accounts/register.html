@@ -10,27 +10,27 @@
         align-items: center;
         justify-content: center;
         padding: 2rem 0;
-        background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%);
+        background: var(--gradient-hero);
     }
 
     .auth-card {
         width: 100%;
-        max-width: 440px;
+        max-width: 420px;
         background: var(--white);
-        border-radius: 24px;
-        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--gray-200);
         box-shadow: var(--shadow-lg);
         overflow: hidden;
     }
 
     .auth-card-body {
-        padding: 2rem 2.25rem;
+        padding: 2rem;
     }
 
     .tg-section {
-        background: #F0F9FF;
-        border: 2px solid #BAE6FD;
-        border-radius: 16px;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
         padding: 1.5rem;
         text-align: center;
     }
@@ -39,22 +39,21 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.65rem 1.25rem;
-        background: #0088cc;
+        padding: 0.6rem 1.25rem;
+        background: var(--gradient-primary);
         color: white;
-        border-radius: 12px;
+        border-radius: var(--radius);
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         text-decoration: none;
         transition: all 0.25s ease;
-        box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+        box-shadow: var(--shadow-primary);
     }
 
     .tg-bot-link:hover {
-        background: #006da3;
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+        box-shadow: 0 15px 40px -10px rgba(139, 197, 64, 0.5);
     }
 
     .code-input-wrapper {
@@ -65,78 +64,86 @@
     }
 
     .code-digit {
-        width: 48px;
-        height: 56px;
+        width: 46px;
+        height: 54px;
         text-align: center;
         font-size: 1.4rem;
         font-weight: 800;
         border: 2px solid var(--gray-300);
-        border-radius: 12px;
+        border-radius: var(--radius);
         outline: none;
         transition: all 0.2s ease;
         color: var(--dark);
+        background: var(--white);
     }
 
     .code-digit:focus {
-        border-color: #0088cc;
-        box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.15);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
     .code-digit.filled {
-        border-color: #0088cc;
-        background: #F0F9FF;
+        border-color: var(--primary);
+        background: rgba(139, 197, 64, 0.05);
     }
 
     .tg-submit-btn {
         width: 100%;
         padding: 0.75rem;
-        background: #0088cc;
+        background: var(--gradient-primary);
         color: white;
         border: none;
-        border-radius: 12px;
+        border-radius: var(--radius);
         font-weight: 700;
         font-size: 0.95rem;
         cursor: pointer;
         transition: all 0.25s ease;
+        box-shadow: var(--shadow-primary);
     }
 
-    .tg-submit-btn:hover { background: #006da3; }
-    .tg-submit-btn:disabled { background: var(--gray-300); cursor: not-allowed; }
+    .tg-submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 15px 40px -10px rgba(139, 197, 64, 0.5);
+    }
 
-    .auth-divider {
+    .tg-submit-btn:disabled {
+        background: var(--gray-300);
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        text-align: left;
+    }
+
+    .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 800;
         display: flex;
         align-items: center;
-        margin: 1.5rem 0;
+        justify-content: center;
+        flex-shrink: 0;
     }
 
-    .auth-divider hr {
-        flex: 1;
-        border: none;
-        border-top: 1px solid var(--gray-200);
-    }
-
-    .auth-divider span {
-        padding: 0 1rem;
-        color: var(--gray-400);
+    .step-text {
         font-size: 0.82rem;
-        font-weight: 500;
-    }
-
-    .phone-section {
-        background: var(--gray-50);
-        border-radius: 16px;
-        padding: 1.25rem;
-    }
-
-    .phone-section .form-label {
-        font-size: 0.85rem;
-        font-weight: 600;
         color: var(--dark-600);
+        font-weight: 500;
+        line-height: 1.4;
     }
 
     @media (max-width: 480px) {
         .auth-card-body { padding: 1.5rem; }
-        .code-digit { width: 42px; height: 50px; font-size: 1.2rem; }
+        .code-digit { width: 42px; height: 48px; font-size: 1.2rem; }
     }
 </style>
 {% endblock %}
@@ -177,15 +184,24 @@
 
                         <!-- Telegram Code Section -->
                         <div class="tg-section">
-                            <div class="mb-3">
-                                <i class="bi bi-telegram" style="font-size: 1.5rem; color: #0088cc;"></i>
-                                <p style="font-size: 0.85rem; color: #1E293B; margin: 0.5rem 0 0; font-weight: 500;">
-                                    Telegram bot orqali tezkor ro'yxatdan o'ting
-                                </p>
+                            <!-- Steps -->
+                            <div class="d-flex flex-column gap-2 mb-3">
+                                <div class="step-item">
+                                    <div class="step-num">1</div>
+                                    <div class="step-text">Telegram botga kiring</div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-num">2</div>
+                                    <div class="step-text">Kod oling (1 daqiqa amal qiladi)</div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-num">3</div>
+                                    <div class="step-text">Kodni pastga kiriting — tayyor!</div>
+                                </div>
                             </div>
 
-                            <a href="https://t.me/testmakonaibot" target="_blank" class="tg-bot-link mb-3">
-                                <i class="bi bi-send-fill"></i> @testmakonaibot
+                            <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="tg-bot-link mb-3">
+                                <i class="bi bi-telegram"></i> @testmakonaibot
                             </a>
 
                             <form method="post" action="{% url 'accounts:telegram_code_login' %}" id="codeForm" class="mt-3">
@@ -202,60 +218,13 @@
                                 </div>
 
                                 <button type="submit" class="tg-submit-btn" id="codeSubmitBtn" disabled>
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> Kirish
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="auth-divider">
-                            <hr>
-                            <span>yoki telefon bilan</span>
-                            <hr>
-                        </div>
-
-                        <!-- Phone Register -->
-                        <div class="phone-section">
-                            <form method="post" action="{% url 'accounts:register' %}">
-                                {% csrf_token %}
-
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <label class="form-label">Ism</label>
-                                        <input type="text" name="first_name" class="form-control" placeholder="Ism" style="border-radius: 10px;" required>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">Familiya</label>
-                                        <input type="text" name="last_name" class="form-control" placeholder="Familiya" style="border-radius: 10px;" required>
-                                    </div>
-                                </div>
-
-                                <div class="mt-2">
-                                    <label class="form-label">Telefon raqam</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="border-radius: 10px 0 0 10px; font-size: 0.9rem;">+998</span>
-                                        <input type="tel" name="phone_number" class="form-control" placeholder="90 123 45 67" maxlength="9" style="border-radius: 0 10px 10px 0; border-left: none;" required>
-                                    </div>
-                                </div>
-
-                                <div class="mt-2">
-                                    <label class="form-label">Parol</label>
-                                    <input type="password" name="password" class="form-control" placeholder="Kamida 6 ta belgi" minlength="6" style="border-radius: 10px;" required>
-                                </div>
-
-                                <div class="mt-2">
-                                    <label class="form-label">Parolni tasdiqlang</label>
-                                    <input type="password" name="password_confirm" class="form-control" placeholder="Parolni qayta kiriting" minlength="6" style="border-radius: 10px;" required>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 mt-3" style="border-radius: 12px; padding: 0.7rem;">
                                     <i class="bi bi-person-plus me-1"></i> Ro'yxatdan o'tish
                                 </button>
                             </form>
                         </div>
 
                         <!-- Login Link -->
-                        <div class="text-center mt-3">
+                        <div class="text-center mt-4">
                             <span style="color: var(--gray-500); font-size: 0.9rem;">Akkountingiz bormi?</span>
                             <a href="{% url 'accounts:login' %}" class="fw-bold" style="color: var(--primary); font-size: 0.9rem;">Kirish</a>
                         </div>
