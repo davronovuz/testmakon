@@ -1255,12 +1255,60 @@ def my_results(request):
     ).select_related('test', 'test__subject').order_by('-completed_at')
 
     # Statistika
+    agg = attempts.aggregate(
+        avg_score=Avg('percentage'),
+        total_correct=Sum('correct_answers'),
+        total_xp=Sum('xp_earned'),
+    )
     stats = {
         'total': attempts.count(),
-        'avg_score': round(attempts.aggregate(Avg('percentage'))['percentage__avg'] or 0, 1),
-        'total_correct': sum(a.correct_answers for a in attempts[:100]),
-        'total_xp': sum(a.xp_earned for a in attempts[:100]),
+        'avg_score': round(agg['avg_score'] or 0, 1),
+        'total_correct': agg['total_correct'] or 0,
+        'total_xp': agg['total_xp'] or 0,
     }
+
+    # Oxirgi 30 kun progress (line chart)
+    today = timezone.now().date()
+    daily_scores = []
+    daily_labels = []
+    for i in range(29, -1, -1):
+        day = today - timedelta(days=i)
+        day_attempts = attempts.filter(completed_at__date=day)
+        avg = day_attempts.aggregate(Avg('percentage'))['percentage__avg']
+        if avg is not None:
+            daily_scores.append(round(avg, 1))
+            daily_labels.append(day.strftime('%d.%m'))
+        elif daily_scores:
+            daily_scores.append(None)
+            daily_labels.append(day.strftime('%d.%m'))
+
+    # Haftalik test soni (bar chart — 8 hafta)
+    weekly_counts = []
+    weekly_labels = []
+    for i in range(7, -1, -1):
+        week_start = today - timedelta(days=today.weekday() + 7 * i)
+        week_end = week_start + timedelta(days=6)
+        count = attempts.filter(completed_at__date__gte=week_start, completed_at__date__lte=week_end).count()
+        weekly_counts.append(count)
+        weekly_labels.append(f"{week_start.strftime('%d.%m')}")
+
+    # Fan bo'yicha statistika (donut chart)
+    subject_data = attempts.values(
+        'test__subject__name', 'test__subject__color'
+    ).annotate(
+        count=Count('id'),
+        avg_pct=Avg('percentage')
+    ).order_by('-count')[:8]
+
+    subject_names = [s['test__subject__name'] or 'Boshqa' for s in subject_data]
+    subject_counts = [s['count'] for s in subject_data]
+    subject_colors = [s['test__subject__color'] or '#8BC540' for s in subject_data]
+    subject_avgs = [round(s['avg_pct'] or 0, 1) for s in subject_data]
+    # Template legend uchun combined list
+    subject_legend = [
+        {'name': subject_names[i], 'color': subject_colors[i], 'avg': subject_avgs[i], 'count': subject_counts[i]}
+        for i in range(len(subject_names))
+    ]
 
     # Paginator
     paginator = Paginator(attempts, 20)
@@ -1270,6 +1318,15 @@ def my_results(request):
     context = {
         'attempts': attempts_page,
         'stats': stats,
+        'daily_scores': daily_scores,
+        'daily_labels': daily_labels,
+        'weekly_counts': weekly_counts,
+        'weekly_labels': weekly_labels,
+        'subject_names': subject_names,
+        'subject_counts': subject_counts,
+        'subject_colors': subject_colors,
+        'subject_avgs': subject_avgs,
+        'subject_legend': subject_legend,
     }
 
     return render(request, 'tests_app/my_results.html', context)

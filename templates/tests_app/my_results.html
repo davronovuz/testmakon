@@ -11,79 +11,125 @@
     .results-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 2rem;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     @media (max-width: 992px) {
-        .results-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .results-stats { grid-template-columns: repeat(2, 1fr); }
     }
-
     @media (max-width: 480px) {
-        .results-stats {
-            grid-template-columns: 1fr;
-        }
+        .results-stats { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
     }
 
     .stat-card {
         background: var(--white);
         border-radius: var(--radius-lg);
-        padding: 1.5rem;
+        padding: 1.25rem;
         border: 1px solid var(--gray-200);
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
     }
 
     .stat-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: var(--radius-lg);
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         flex-shrink: 0;
     }
 
-    .stat-icon.green {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .stat-icon.blue {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .stat-icon.yellow {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .stat-icon.purple {
-        background: #EDE9FE;
-        color: #7C3AED;
-    }
+    .stat-icon.green { background: #D1FAE5; color: #059669; }
+    .stat-icon.blue { background: #DBEAFE; color: #2563EB; }
+    .stat-icon.yellow { background: #FEF3C7; color: #D97706; }
+    .stat-icon.purple { background: #EDE9FE; color: #7C3AED; }
 
     .stat-value {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 800;
         color: var(--dark);
         line-height: 1;
     }
 
     .stat-label {
-        font-size: 0.85rem;
+        font-size: 0.78rem;
         color: var(--gray-500);
-        margin-top: 0.25rem;
+        margin-top: 0.15rem;
     }
 
-    /* ========== CONTENT ========== */
-    .results-content {
-        padding: 0;
+    /* ========== CHARTS SECTION ========== */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .charts-row { grid-template-columns: 1fr; }
+    }
+
+    .chart-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+    .chart-card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chart-card-header h6 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .chart-card-body {
+        padding: 1rem 1.25rem 1.25rem;
+    }
+    .chart-container {
+        position: relative;
+        height: 200px;
+    }
+
+    /* Full width chart */
+    .chart-full {
+        margin-bottom: 1.5rem;
+    }
+    .chart-full .chart-container {
+        height: 180px;
+    }
+
+    /* Subject legend */
+    .subject-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    .subject-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+    .subject-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex-shrink: 0;
     }
 
     /* ========== FILTERS ========== */
@@ -91,31 +137,29 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem;
     }
 
     .results-tabs {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.4rem;
     }
 
     .results-tab {
-        padding: 0.6rem 1.25rem;
+        padding: 0.5rem 1rem;
         background: var(--gray-100);
         border: 1px solid var(--gray-200);
         border-radius: var(--radius);
-        font-size: 0.9rem;
+        font-size: 0.82rem;
         font-weight: 600;
         color: var(--dark-600);
         cursor: pointer;
         transition: all 0.2s;
     }
 
-    .results-tab:hover {
-        background: var(--gray-200);
-    }
+    .results-tab:hover { background: var(--gray-200); }
 
     .results-tab.active {
         background: var(--dark);
@@ -124,30 +168,31 @@
     }
 
     .results-sort select {
-        padding: 0.6rem 2rem 0.6rem 1rem;
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
         border: 1px solid var(--gray-200);
         border-radius: var(--radius);
-        font-size: 0.9rem;
+        font-size: 0.82rem;
         font-weight: 500;
         background: var(--white);
         cursor: pointer;
+        color: var(--dark);
     }
 
     /* ========== RESULTS LIST ========== */
     .results-list {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
     }
 
     .result-item {
         background: var(--white);
         border: 1px solid var(--gray-200);
         border-radius: var(--radius-lg);
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.25rem;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 1.25rem;
         transition: all 0.2s;
     }
 
@@ -156,10 +201,9 @@
         border-color: var(--gray-300);
     }
 
-    /* Score circle */
     .result-score {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
         display: flex;
         flex-direction: column;
@@ -167,51 +211,28 @@
         justify-content: center;
         flex-shrink: 0;
         font-weight: 800;
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         line-height: 1;
     }
 
-    .result-score.excellent {
-        background: #D1FAE5;
-        color: #059669;
-        border: 3px solid #10B981;
-    }
-
-    .result-score.good {
-        background: var(--primary-glow);
-        color: var(--primary-dark);
-        border: 3px solid var(--primary);
-    }
-
-    .result-score.average {
-        background: #FEF3C7;
-        color: #D97706;
-        border: 3px solid #F59E0B;
-    }
-
-    .result-score.poor {
-        background: #FEE2E2;
-        color: #DC2626;
-        border: 3px solid #EF4444;
-    }
+    .result-score.excellent { background: #D1FAE5; color: #059669; border: 3px solid #10B981; }
+    .result-score.good { background: var(--primary-glow); color: var(--primary-dark); border: 3px solid var(--primary); }
+    .result-score.average { background: #FEF3C7; color: #D97706; border: 3px solid #F59E0B; }
+    .result-score.poor { background: #FEE2E2; color: #DC2626; border: 3px solid #EF4444; }
 
     .result-score span {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 600;
         opacity: 0.8;
     }
 
-    /* Info */
-    .result-info {
-        flex: 1;
-        min-width: 0;
-    }
+    .result-info { flex: 1; min-width: 0; }
 
     .result-title {
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 700;
         color: var(--dark);
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.25rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -220,155 +241,96 @@
     .result-meta {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        font-size: 0.85rem;
+        gap: 0.75rem;
+        font-size: 0.78rem;
         color: var(--gray-500);
         flex-wrap: wrap;
     }
-
-    .result-meta span {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
+    .result-meta span { display: flex; align-items: center; gap: 0.3rem; }
 
     .result-subject {
-        padding: 0.25rem 0.6rem;
+        padding: 0.2rem 0.5rem;
         background: var(--gray-100);
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 0.72rem;
         font-weight: 600;
         color: var(--dark-600);
     }
 
-    /* Stats */
     .result-stats {
         display: flex;
-        gap: 1.5rem;
+        gap: 1.25rem;
         flex-shrink: 0;
     }
-
-    .result-stat {
-        text-align: center;
-    }
-
-    .result-stat-value {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
+    .result-stat { text-align: center; }
+    .result-stat-value { font-size: 1rem; font-weight: 700; color: var(--dark); }
     .result-stat-value.green { color: #059669; }
     .result-stat-value.red { color: #DC2626; }
+    .result-stat-label { font-size: 0.65rem; color: var(--gray-500); text-transform: uppercase; }
 
-    .result-stat-label {
-        font-size: 0.7rem;
-        color: var(--gray-500);
-        text-transform: uppercase;
-    }
-
-    /* Actions */
-    .result-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-shrink: 0;
-    }
-
+    .result-actions { flex-shrink: 0; }
     .result-btn {
-        padding: 0.5rem 1rem;
+        padding: 0.45rem 0.9rem;
         border-radius: var(--radius);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        transition: all 0.2s;
-    }
-
-    .result-btn.primary {
         background: var(--gradient-primary);
         color: white;
         border: none;
+        text-decoration: none;
+        transition: all 0.2s;
     }
-
-    .result-btn.primary:hover {
-        box-shadow: var(--shadow-primary);
-    }
-
-    .result-btn.outline {
-        background: transparent;
-        color: var(--dark-600);
-        border: 1px solid var(--gray-300);
-    }
-
-    .result-btn.outline:hover {
-        background: var(--gray-100);
-    }
+    .result-btn:hover { box-shadow: var(--shadow-primary); color: white; }
 
     /* ========== EMPTY STATE ========== */
     .results-empty {
         text-align: center;
-        padding: 4rem 2rem;
+        padding: 3rem 2rem;
         background: var(--white);
         border-radius: var(--radius-lg);
         border: 1px solid var(--gray-200);
     }
-
     .results-empty-icon {
-        width: 80px;
-        height: 80px;
+        width: 72px; height: 72px;
         background: var(--gray-100);
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2rem;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.25rem;
+        font-size: 1.75rem;
         color: var(--gray-400);
     }
-
-    .results-empty h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .results-empty p {
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
+    .results-empty h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .results-empty p { color: var(--gray-500); margin-bottom: 1.25rem; font-size: 0.88rem; }
 
     /* ========== PAGINATION ========== */
     .results-pagination {
         display: flex;
         justify-content: center;
-        gap: 0.5rem;
-        margin-top: 2rem;
+        gap: 0.4rem;
+        margin-top: 1.5rem;
     }
-
     .page-btn {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 36px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
         background: var(--white);
         border: 1px solid var(--gray-200);
         border-radius: var(--radius);
         font-weight: 600;
+        font-size: 0.85rem;
         color: var(--dark-600);
         transition: all 0.2s;
+        text-decoration: none;
     }
+    .page-btn:hover { background: var(--gray-100); }
+    .page-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+    .page-btn.disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .page-btn:hover {
-        background: var(--gray-100);
-    }
-
-    .page-btn.active {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: white;
-    }
-
-    .page-btn.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    /* Mobile */
+    @media (max-width: 768px) {
+        .result-stats { display: none; }
+        .result-item { gap: 0.75rem; padding: 0.75rem 1rem; }
+        .result-score { width: 48px; height: 48px; font-size: 1rem; }
+        .result-title { font-size: 0.85rem; }
     }
 </style>
 {% endblock %}
@@ -378,47 +340,95 @@
     <div class="tl-layout">
         {% include 'includes/_sidebar.html' with active='my_results' %}
         <main>
+            <!-- Stats -->
             <div class="results-stats">
                 <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="bi bi-journal-check"></i>
-                    </div>
+                    <div class="stat-icon blue"><i class="bi bi-journal-check"></i></div>
                     <div>
                         <div class="stat-value">{{ stats.total }}</div>
                         <div class="stat-label">Jami testlar</div>
                     </div>
                 </div>
-
                 <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
+                    <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
                     <div>
                         <div class="stat-value">{{ stats.avg_score }}%</div>
                         <div class="stat-label">O'rtacha ball</div>
                     </div>
                 </div>
-
                 <div class="stat-card">
-                    <div class="stat-icon yellow">
-                        <i class="bi bi-bullseye"></i>
-                    </div>
+                    <div class="stat-icon yellow"><i class="bi bi-bullseye"></i></div>
                     <div>
                         <div class="stat-value">{{ stats.total_correct }}</div>
                         <div class="stat-label">To'g'ri javoblar</div>
                     </div>
                 </div>
-
                 <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <i class="bi bi-lightning"></i>
-                    </div>
+                    <div class="stat-icon purple"><i class="bi bi-lightning"></i></div>
                     <div>
                         <div class="stat-value">{{ stats.total_xp }}</div>
                         <div class="stat-label">Jami XP</div>
                     </div>
                 </div>
             </div>
+
+            <!-- Charts -->
+            {% if stats.total > 0 %}
+            <div class="charts-row">
+                <!-- Score Progress (Line Chart) -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h6><i class="bi bi-graph-up" style="color: var(--primary);"></i> Ball dinamikasi</h6>
+                        <small style="color: var(--gray-400); font-size: 0.72rem;">Oxirgi 30 kun</small>
+                    </div>
+                    <div class="chart-card-body">
+                        <div class="chart-container">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject Distribution (Doughnut) -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h6><i class="bi bi-pie-chart-fill" style="color: #8B5CF6;"></i> Fanlar bo'yicha</h6>
+                    </div>
+                    <div class="chart-card-body">
+                        {% if subject_names %}
+                        <div class="chart-container">
+                            <canvas id="subjectChart"></canvas>
+                        </div>
+                        <div class="subject-legend">
+                            {% for s in subject_legend %}
+                            <div class="subject-legend-item">
+                                <div class="subject-legend-dot" style="background: {{ s.color }};"></div>
+                                {{ s.name }} ({{ s.avg }}%)
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-3">
+                            <i class="bi bi-pie-chart" style="font-size: 1.5rem; color: var(--gray-300);"></i>
+                            <p style="font-size: 0.78rem; color: var(--gray-400); margin: 0.4rem 0 0;">Ma'lumot yetarli emas</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Test Count (Bar Chart) -->
+            <div class="chart-card chart-full">
+                <div class="chart-card-header">
+                    <h6><i class="bi bi-bar-chart-fill" style="color: #3B82F6;"></i> Haftalik faoliyat</h6>
+                    <small style="color: var(--gray-400); font-size: 0.72rem;">Oxirgi 8 hafta</small>
+                </div>
+                <div class="chart-card-body">
+                    <div class="chart-container">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Filters -->
             <div class="results-filters">
@@ -427,7 +437,6 @@
                     <button class="results-tab" data-filter="practice">Mashqlar</button>
                     <button class="results-tab" data-filter="exam">Imtihonlar</button>
                 </div>
-
                 <div class="results-sort">
                     <select>
                         <option value="date">Sana bo'yicha</option>
@@ -453,14 +462,8 @@
                             {% if attempt.test.subject %}
                             <span class="result-subject">{{ attempt.test.subject.icon }} {{ attempt.test.subject.name }}</span>
                             {% endif %}
-                            <span>
-                                <i class="bi bi-calendar3"></i>
-                                {{ attempt.completed_at|date:"d.m.Y" }}
-                            </span>
-                            <span>
-                                <i class="bi bi-clock"></i>
-                                {{ attempt.time_spent|floatformat:0 }}s
-                            </span>
+                            <span><i class="bi bi-calendar3"></i> {{ attempt.completed_at|date:"d.m.Y" }}</span>
+                            <span><i class="bi bi-clock"></i> {{ attempt.time_spent|floatformat:0 }}s</span>
                         </div>
                     </div>
 
@@ -480,7 +483,7 @@
                     </div>
 
                     <div class="result-actions">
-                        <a href="{% url 'tests_app:test_play_result' uuid=attempt.uuid %}" class="result-btn primary">
+                        <a href="{% url 'tests_app:test_play_result' uuid=attempt.uuid %}" class="result-btn">
                             Batafsil
                         </a>
                     </div>
@@ -532,23 +535,174 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    // Filter tabs
-    document.querySelectorAll('.results-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const filter = this.dataset.filter;
+// Theme colors
+const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.06)';
+const textColor = isDark ? '#94A3B8' : '#64748B';
+const tooltipBg = isDark ? '#1E293B' : '#0F172A';
 
-            document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
+const chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            backgroundColor: tooltipBg,
+            titleFont: { size: 12, weight: 600 },
+            bodyFont: { size: 11 },
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: false,
+        }
+    }
+};
 
-            document.querySelectorAll('.result-item').forEach(item => {
-                if (filter === 'all' || item.dataset.type === filter) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
+// 1. Score Progress Line Chart
+{% if daily_scores %}
+const scoreCtx = document.getElementById('scoreChart');
+if (scoreCtx) {
+    const scoreData = [{% for s in daily_scores %}{% if s == None %}null{% else %}{{ s }}{% endif %}{% if not forloop.last %},{% endif %}{% endfor %}];
+    new Chart(scoreCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for l in daily_labels %}'{{ l }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: scoreData,
+                borderColor: '#8BC540',
+                backgroundColor: isDark ? 'rgba(139, 197, 64, 0.08)' : 'rgba(139, 197, 64, 0.12)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: '#8BC540',
+                pointBorderColor: isDark ? '#1A2332' : '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 5,
+                spanGaps: true,
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            scales: {
+                y: {
+                    min: 0, max: 100,
+                    ticks: { stepSize: 25, color: textColor, font: { size: 10 }, callback: v => v + '%' },
+                    grid: { color: gridColor },
+                    border: { display: false }
+                },
+                x: {
+                    ticks: { color: textColor, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 8 },
+                    grid: { display: false },
+                    border: { display: false }
                 }
-            });
+            },
+            plugins: {
+                ...chartDefaults.plugins,
+                tooltip: {
+                    ...chartDefaults.plugins.tooltip,
+                    callbacks: { label: ctx => ctx.parsed.y + '% ball' }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+
+// 2. Subject Doughnut Chart
+{% if subject_names %}
+const subjectCtx = document.getElementById('subjectChart');
+if (subjectCtx) {
+    new Chart(subjectCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for n in subject_names %}'{{ n }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for c in subject_counts %}{{ c }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                backgroundColor: [{% for c in subject_colors %}'{{ c }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderWidth: isDark ? 2 : 3,
+                borderColor: isDark ? '#1A2332' : '#ffffff',
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            cutout: '62%',
+            plugins: {
+                ...chartDefaults.plugins,
+                tooltip: {
+                    ...chartDefaults.plugins.tooltip,
+                    callbacks: {
+                        label: ctx => {
+                            const avgs = [{% for a in subject_avgs %}{{ a }}{% if not forloop.last %},{% endif %}{% endfor %}];
+                            return ctx.label + ': ' + ctx.parsed + ' ta test, ' + avgs[ctx.dataIndex] + '% o\'rtacha';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+
+// 3. Weekly Bar Chart
+{% if weekly_counts %}
+const weeklyCtx = document.getElementById('weeklyChart');
+if (weeklyCtx) {
+    const weeklyData = [{% for c in weekly_counts %}{{ c }}{% if not forloop.last %},{% endif %}{% endfor %}];
+    const maxWeekly = Math.max(...weeklyData, 1);
+    new Chart(weeklyCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for l in weekly_labels %}'{{ l }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                data: weeklyData,
+                backgroundColor: weeklyData.map((v, i) =>
+                    i === weeklyData.length - 1 ? '#8BC540' : (isDark ? 'rgba(139, 197, 64, 0.25)' : 'rgba(139, 197, 64, 0.35)')
+                ),
+                borderRadius: 6,
+                borderSkipped: false,
+                barThickness: 32,
+            }]
+        },
+        options: {
+            ...chartDefaults,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, color: textColor, font: { size: 10 }, callback: v => Number.isInteger(v) ? v : '' },
+                    grid: { color: gridColor },
+                    border: { display: false }
+                },
+                x: {
+                    ticks: { color: textColor, font: { size: 10, weight: 600 } },
+                    grid: { display: false },
+                    border: { display: false }
+                }
+            },
+            plugins: {
+                ...chartDefaults.plugins,
+                tooltip: {
+                    ...chartDefaults.plugins.tooltip,
+                    callbacks: { label: ctx => ctx.parsed.y + ' ta test' }
+                }
+            }
+        }
+    });
+}
+{% endif %}
+
+// Filter tabs
+document.querySelectorAll('.results-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.result-item').forEach(item => {
+            item.style.display = (filter === 'all' || item.dataset.type === filter) ? 'flex' : 'none';
         });
     });
+});
 </script>
 {% endblock %}
