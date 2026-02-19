@@ -12,6 +12,8 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 
+from asgiref.sync import sync_to_async
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 from aiogram.enums import ParseMode
@@ -39,16 +41,18 @@ class Command(BaseCommand):
             from accounts.models import TelegramAuthCode
 
             # Eski ishlatilmagan kodlarni bekor qilish
-            TelegramAuthCode.objects.filter(
-                telegram_id=message.from_user.id,
-                is_used=False,
-            ).update(is_used=True)
+            await sync_to_async(
+                TelegramAuthCode.objects.filter(
+                    telegram_id=message.from_user.id,
+                    is_used=False,
+                ).update
+            )(is_used=True)
 
             # Yangi 6 xonali kod
             code = str(random.randint(100000, 999999))
 
             # Saqlash (1 daqiqa amal qiladi)
-            TelegramAuthCode.objects.create(
+            await sync_to_async(TelegramAuthCode.objects.create)(
                 telegram_id=message.from_user.id,
                 telegram_username=message.from_user.username or '',
                 telegram_first_name=message.from_user.first_name or '',
