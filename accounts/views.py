@@ -299,18 +299,78 @@ def profile(request):
     user = request.user
 
     # Statistika
-    from tests_app.models import TestAttempt
+    from tests_app.models import TestAttempt, Subject
     from competitions.models import Battle
+    from django.db.models import Avg, Count, Sum
+    from datetime import timedelta
+
+    total_tests = TestAttempt.objects.filter(user=user, status='completed').count()
 
     stats = {
-        'tests': TestAttempt.objects.filter(user=user, status='completed').count(),
+        'tests': total_tests,
         'correct': user.total_correct_answers,
         'accuracy': user.accuracy_rate,
         'xp': user.xp_points,
         'level': user.get_level_display(),
         'streak': user.current_streak,
+        'longest_streak': user.longest_streak,
         'battles_won': Battle.objects.filter(winner=user).count(),
     }
+
+    # Level progress hisoblash
+    level_thresholds = [
+        ('beginner', 0), ('elementary', 500), ('intermediate', 2000),
+        ('advanced', 5000), ('expert', 10000), ('master', 25000), ('legend', 50000),
+    ]
+    current_xp = user.xp_points
+    current_level_idx = 0
+    for i, (lvl, threshold) in enumerate(level_thresholds):
+        if user.level == lvl:
+            current_level_idx = i
+            break
+    if current_level_idx < len(level_thresholds) - 1:
+        current_threshold = level_thresholds[current_level_idx][1]
+        next_threshold = level_thresholds[current_level_idx + 1][1]
+        next_level_name = dict(User.LEVEL_CHOICES)[level_thresholds[current_level_idx + 1][0]]
+        progress_pct = min(100, int((current_xp - current_threshold) / max(1, next_threshold - current_threshold) * 100))
+        xp_remaining = max(0, next_threshold - current_xp)
+    else:
+        next_level_name = "MAX"
+        progress_pct = 100
+        xp_remaining = 0
+    stats['next_level'] = next_level_name
+    stats['level_progress'] = progress_pct
+    stats['xp_remaining'] = xp_remaining
+
+    # Fan bo'yicha statistika (radar chart uchun)
+    subject_stats = []
+    subjects = Subject.objects.filter(is_active=True)[:8]
+    for subject in subjects:
+        attempts = TestAttempt.objects.filter(
+            user=user, test__subject=subject, status='completed'
+        )
+        if attempts.exists():
+            avg_score = attempts.aggregate(Avg('percentage'))['percentage__avg'] or 0
+            subject_stats.append({
+                'name': subject.name,
+                'avg_score': round(avg_score, 1),
+                'count': attempts.count(),
+                'color': subject.color or '#8BC540',
+            })
+
+    # Haftalik faoliyat (oxirgi 7 kun)
+    today = timezone.now().date()
+    weekly_data = []
+    day_names = ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha', 'Ya']
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = TestAttempt.objects.filter(
+            user=user, started_at__date=day, status='completed'
+        ).count()
+        weekly_data.append({
+            'day': day_names[day.weekday()],
+            'count': count,
+        })
 
     # Badgelar
     badges = UserBadge.objects.filter(user=user).select_related('badge')[:6]
@@ -330,6 +390,8 @@ def profile(request):
         'badges': badges,
         'activities': activities,
         'friends_count': friends_count,
+        'subject_stats': subject_stats,
+        'weekly_data': weekly_data,
     }
 
     return render(request, 'accounts/profile.html', context)
