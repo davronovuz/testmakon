@@ -961,6 +961,28 @@
             z-index: 1050;
         }
 
+        /* Premium navbar button */
+        .nav-premium-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.4rem 0.9rem;
+            background: var(--gradient-primary);
+            color: #fff !important;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(139,197,64,0.3);
+            white-space: nowrap;
+        }
+        .nav-premium-btn:hover {
+            box-shadow: 0 4px 18px rgba(139,197,64,0.45);
+            transform: translateY(-1px);
+            color: #fff !important;
+        }
+
         .navbar-brand {
             font-weight: 900;
             font-size: 1.5rem;
@@ -2005,6 +2027,13 @@
                                 </div>
                             </div>
 
+                            <!-- Premium button - Desktop, faqat non-premium -->
+                            {% if not user.is_premium %}
+                            <a href="{% url 'subscriptions:pricing' %}" class="nav-premium-btn d-none d-md-inline-flex">
+                                <span>💎</span> Premium
+                            </a>
+                            {% endif %}
+
                             <!-- User Dropdown - Desktop only -->
                             <div class="user-dropdown-wrapper d-none d-md-block" id="userDropdown">
                                 <a class="user-dropdown-trigger" href="javascript:void(0)" onclick="toggleUserDropdown()">
@@ -2135,6 +2164,14 @@
 
                 {% if user.is_authenticated %}
                 <div class="mob-divider"></div>
+
+                {% if not user.is_premium %}
+                <a href="{% url 'subscriptions:pricing' %}" class="mob-item" onclick="closeMobMenu()"
+                   style="background:linear-gradient(135deg,rgba(139,197,64,0.12),rgba(107,168,50,0.08));border:1px solid rgba(139,197,64,0.2);border-radius:12px;margin-bottom:0.5rem;">
+                    <div class="mob-icon" style="background:var(--gradient-primary);color:#fff;">💎</div>
+                    <span style="color:var(--primary);font-weight:800;">Premium ol</span>
+                </a>
+                {% endif %}
 
                 <!-- Notifications -->
                 <div class="mob-section-label">Profil</div>
