@@ -156,8 +156,8 @@ class UserAdmin(BaseUserAdmin):
     @admin.display(description='XP')
     def xp_display(self, obj):
         return format_html(
-            '<strong style="color: #2ecc71;">{:,}</strong> XP',
-            obj.xp_points
+            '<strong style="color: #2ecc71;">{}</strong> XP',
+            f'{obj.xp_points:,}'
         )
 
     @admin.display(description='Streak 🔥')

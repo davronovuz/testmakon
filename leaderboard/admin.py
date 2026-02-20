@@ -87,8 +87,8 @@ class GlobalLeaderboardAdmin(admin.ModelAdmin):
     @admin.display(description='XP', ordering='xp_earned')
     def xp_earned_display(self, obj):
         return format_html(
-            '<strong style="color: #2ecc71;">{:,}</strong>',
-            obj.xp_earned
+            '<strong style="color: #2ecc71;">{}</strong>',
+            f'{obj.xp_earned:,}'
         )
 
     @admin.display(description='Aniqlik', ordering='accuracy_rate')
@@ -126,13 +126,13 @@ class GlobalLeaderboardAdmin(admin.ModelAdmin):
     def stats_overview(self, obj):
         return format_html(
             '<table style="width: 100%;">'
-            '<tr><td><strong>XP:</strong></td><td>{:,}</td></tr>'
+            '<tr><td><strong>XP:</strong></td><td>{}</td></tr>'
             '<tr><td><strong>Testlar:</strong></td><td>{}</td></tr>'
             '<tr><td><strong>To\'g\'ri:</strong></td><td style="color: #2ecc71;">{}</td></tr>'
             '<tr><td><strong>Aniqlik:</strong></td><td><strong>{:.1f}%</strong></td></tr>'
             '<tr><td><strong>Streak:</strong></td><td>{} kun 🔥</td></tr>'
             '</table>',
-            obj.xp_earned, obj.tests_completed, obj.correct_answers,
+            f'{obj.xp_earned:,}', obj.tests_completed, obj.correct_answers,
             obj.accuracy_rate, obj.streak_days
         )
 
@@ -176,8 +176,8 @@ class SubjectLeaderboardAdmin(admin.ModelAdmin):
     @admin.display(description='Ball', ordering='score')
     def score_display(self, obj):
         return format_html(
-            '<strong style="color: #2ecc71;">{:,}</strong>',
-            obj.score
+            '<strong style="color: #2ecc71;">{}</strong>',
+            f'{obj.score:,}'
         )
 
     @admin.display(description='Aniqlik', ordering='accuracy_rate')
@@ -267,8 +267,8 @@ class AchievementAdmin(admin.ModelAdmin):
     @admin.display(description='XP', ordering='xp_reward')
     def xp_reward_display(self, obj):
         return format_html(
-            '<strong style="color: #2ecc71;">+{:,}</strong> XP',
-            obj.xp_reward
+            '<strong style="color: #2ecc71;">+{}</strong> XP',
+            f'{obj.xp_reward:,}'
         )
 
     @admin.display(description='Olganlar')
@@ -496,11 +496,11 @@ class UserStatsAdmin(admin.ModelAdmin):
     def weekly_stats_overview(self, obj):
         return format_html(
             '<table style="width: 100%;">'
-            '<tr><td>XP:</td><td><strong style="color: #2ecc71;">{:,}</strong></td></tr>'
+            '<tr><td>XP:</td><td><strong style="color: #2ecc71;">{}</strong></td></tr>'
             '<tr><td>Testlar:</td><td><strong>{}</strong></td></tr>'
             '<tr><td>To\'g\'ri:</td><td><strong>{}</strong></td></tr>'
             '</table>',
-            obj.weekly_xp, obj.weekly_tests, obj.weekly_correct
+            f'{obj.weekly_xp:,}', obj.weekly_tests, obj.weekly_correct
         )
 
 
@@ -576,8 +576,8 @@ class SeasonalLeaderboardAdmin(admin.ModelAdmin):
     def participants_count(self, obj):
         count = obj.participants.count()
         return format_html(
-            '<strong style="color: #2ecc71; font-size: 16px;">{:,}</strong> ta',
-            count
+            '<strong style="color: #2ecc71; font-size: 16px;">{}</strong> ta',
+            f'{count:,}'
         )
 
     @admin.display(description='Sovrinlar ko\'rinishi')
@@ -627,8 +627,8 @@ class SeasonalParticipantAdmin(admin.ModelAdmin):
     @admin.display(description='XP', ordering='total_xp')
     def total_xp_display(self, obj):
         return format_html(
-            '<strong style="color: #2ecc71;">{:,}</strong>',
-            obj.total_xp
+            '<strong style="color: #2ecc71;">{}</strong>',
+            f'{obj.total_xp:,}'
         )
 
     @admin.display(description='Aniqlik', ordering='accuracy_rate')

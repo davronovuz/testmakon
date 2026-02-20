@@ -39,12 +39,12 @@ class SubscriptionPlanAdmin(admin.ModelAdmin):
     def price_display(self, obj):
         if obj.original_price and obj.discount_percent:
             return format_html(
-                '<span style="text-decoration: line-through; color: #999;">{:,}</span> '
-                '<strong style="color: #22c55e;">{:,} so\'m</strong> '
+                '<span style="text-decoration: line-through; color: #999;">{}</span> '
+                '<strong style="color: #22c55e;">{} so\'m</strong> '
                 '<span style="background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">-{}%</span>',
-                obj.original_price, obj.price, obj.discount_percent
+                f'{obj.original_price:,}', f'{obj.price:,}', obj.discount_percent
             )
-        return format_html('<strong>{:,} so\'m</strong>', obj.price)
+        return format_html('<strong>{} so\'m</strong>', f'{obj.price:,}')
 
     price_display.short_description = 'Narxi'
 
@@ -130,7 +130,7 @@ class PaymentAdmin(admin.ModelAdmin):
     )
 
     def amount_display(self, obj):
-        return format_html('<strong>{:,} so\'m</strong>', obj.amount)
+        return format_html('<strong>{} so\'m</strong>', f'{obj.amount:,}')
 
     amount_display.short_description = 'Summa'
 
@@ -193,7 +193,7 @@ class PromoCodeAdmin(admin.ModelAdmin):
         if obj.discount_type == 'percent':
             return format_html('<strong>{}%</strong>', obj.discount_value)
         elif obj.discount_type == 'fixed':
-            return format_html('<strong>{:,} so\'m</strong>', obj.discount_value)
+            return format_html('<strong>{} so\'m</strong>', f'{obj.discount_value:,}')
         return format_html('<strong>{} kun</strong>', obj.discount_value)
 
     discount_display.short_description = 'Chegirma'
