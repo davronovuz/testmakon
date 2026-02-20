@@ -17,3 +17,4 @@ sqlparse==0.5.5
 tablib==3.9.0
 urllib3==2.6.3
 aiogram==3.17.0
+sentry-sdk==2.20.0

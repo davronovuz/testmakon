@@ -5,6 +5,7 @@ Django Settings
 
 from pathlib import Path
 import os
+import sentry_sdk
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.system_banners',
                 'core.context_processors.notifications_count',
+                'core.context_processors.analytics_settings',
             ],
         },
     },
@@ -154,6 +156,26 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
+
+# ============================================================
+# SENTRY — xatolarni real vaqtda kuzatish
+# DSN ni sentry.io dan oling
+# ============================================================
+SENTRY_DSN = os.environ.get('SENTRY_DSN', 'https://3781979e4fc948a9411faa1a67ded53e@o4510917351440384.ingest.de.sentry.io/4510917390827600')
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        send_default_pii=True,         # foydalanuvchi ma'lumotlari
+        traces_sample_rate=0.2,        # 20% so'rovlarni kuzat (performance)
+        environment='production' if not DEBUG else 'development',
+    )
+
+# ============================================================
+# GOOGLE ANALYTICS 4
+# Measurement ID ni analytics.google.com dan oling (G-XXXXXXXXXX)
+# ============================================================
+GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', 'G-B6NRGX93LD')
 
 JAZZMIN_SETTINGS = {
     "site_title": "Admin",

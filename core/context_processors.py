@@ -1,6 +1,7 @@
 # core/context_processors.py
 
 from django.utils import timezone
+from django.conf import settings
 
 
 def system_banners(request):
@@ -48,4 +49,11 @@ def notifications_count(request):
         'unread_notifications_count': 0,
         'recent_notifications': [],
         'pending_friend_requests_count': 0,
+    }
+
+
+def analytics_settings(request):
+    """Analytics kalitlarini barcha templatega uzatish"""
+    return {
+        'GOOGLE_ANALYTICS_ID': getattr(settings, 'GOOGLE_ANALYTICS_ID', ''),
     }
