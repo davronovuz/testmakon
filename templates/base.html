@@ -1986,8 +1986,8 @@
                             <div class="notif-bell-wrapper d-none d-md-block" id="notifBell">
                                 <button class="notif-bell-btn" onclick="toggleNotifDropdown()" aria-label="Bildirishnomalar">
                                     <i class="bi bi-bell"></i>
-                                    {% if unread_notifications_count > 0 %}
-                                        <span class="notif-badge">{{ unread_notifications_count }}</span>
+                                    {% if unread_notifications_count > 0 or pending_friend_requests_count > 0 %}
+                                        <span class="notif-badge">{{ unread_notifications_count|add:pending_friend_requests_count }}</span>
                                     {% endif %}
                                 </button>
                                 <div class="notif-dropdown" id="notifDropdown">
@@ -2000,6 +2000,17 @@
                                         {% endif %}
                                     </div>
                                     <div class="notif-list">
+                                        {% if pending_friend_requests_count > 0 %}
+                                            <a href="{% url 'accounts:friend_requests' %}" class="notif-item unread">
+                                                <div class="notif-item-icon type-friend">
+                                                    <i class="bi bi-person-plus"></i>
+                                                </div>
+                                                <div class="notif-item-body">
+                                                    <div class="notif-item-title">{{ pending_friend_requests_count }} ta do'stlik so'rovi</div>
+                                                    <div class="notif-item-time">Ko'rish uchun bosing</div>
+                                                </div>
+                                            </a>
+                                        {% endif %}
                                         {% if recent_notifications %}
                                             {% for notif in recent_notifications %}
                                                 <a href="{% if notif.link %}{{ notif.link }}{% else %}{% url 'news:notification_mark_read' notif.id %}{% endif %}" class="notif-item {% if not notif.is_read %}unread{% endif %}">
@@ -2012,7 +2023,8 @@
                                                     </div>
                                                 </a>
                                             {% endfor %}
-                                        {% else %}
+                                        {% endif %}
+                                        {% if not recent_notifications and not pending_friend_requests_count %}
                                             <div class="notif-empty">
                                                 <i class="bi bi-bell-slash"></i>
                                                 <span style="font-size: 0.85rem;">Bildirishnomalar yo'q</span>
@@ -2136,7 +2148,7 @@
                     </div>
                     <div>
                         <div class="mob-profile-name">{{ user.first_name }} {{ user.last_name }}</div>
-                        
+
                     </div>
                     <i class="bi bi-chevron-right ms-auto" style="color:var(--gray-400); font-size:0.85rem;"></i>
                 </a>

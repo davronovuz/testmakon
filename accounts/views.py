@@ -539,7 +539,7 @@ def friend_requests(request):
         status='pending'
     ).select_related('to_user')
 
-    context = {'received': received, 'sent': sent}
+    context = {'pending_requests': received, 'sent': sent}
     return render(request, 'accounts/friend_requests.html', context)
 
 
