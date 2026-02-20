@@ -312,8 +312,8 @@ class StudyPlanAdmin(admin.ModelAdmin):
             '<div style="width: 120px;">'
             '<div style="background-color: #ecf0f1; border-radius: 10px; overflow: hidden;">'
             '<div style="width: {}%; background-color: {}; color: white; text-align: center; padding: 2px 0; font-size: 11px; font-weight: bold;">'
-            '{} {:.0f}%</div></div></div>',
-            percentage, color, emoji, percentage
+            '{} {}%</div></div></div>',
+            percentage, color, emoji, f'{percentage:.0f}'
         )
 
     progress_bar.short_description = 'Progress'
@@ -468,8 +468,8 @@ class WeakTopicAnalysisAdmin(admin.ModelAdmin):
 
         return format_html(
             '<span style="background-color: {}; color: white; padding: 5px 12px; border-radius: 5px; font-weight: bold;">'
-            '{} {:.1f}% - {}</span>',
-            color, emoji, obj.accuracy_rate, status
+            '{} {}% - {}</span>',
+            color, emoji, f'{obj.accuracy_rate:.1f}', status
         )
 
     accuracy_badge.short_description = 'To\'g\'rilik'

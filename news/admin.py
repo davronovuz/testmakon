@@ -67,11 +67,6 @@ class NotificationAdmin(admin.ModelAdmin):
         ]
         return custom_urls + super().get_urls()
 
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context['bulk_url'] = 'send-bulk/'
-        return super().changelist_view(request, extra_context=extra_context)
-
     def send_bulk_view(self, request):
         from accounts.models import User
 

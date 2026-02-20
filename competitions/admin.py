@@ -500,8 +500,8 @@ class CompetitionParticipantAdmin(admin.ModelAdmin):
 
     def score_display(self, obj):
         return format_html(
-            '<span style="font-weight:600;">{}</span> <span style="color:#6B7280;">({:.1f}%)</span>',
-            obj.score, obj.percentage
+            '<span style="font-weight:600;">{}</span> <span style="color:#6B7280;">({}%)</span>',
+            obj.score, f'{obj.percentage:.1f}'
         )
 
     score_display.short_description = 'Ball'

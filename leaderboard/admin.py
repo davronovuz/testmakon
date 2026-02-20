@@ -100,8 +100,8 @@ class GlobalLeaderboardAdmin(admin.ModelAdmin):
         else:
             color = '#e74c3c'
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{:.1f}%</span>',
-            color, obj.accuracy_rate
+            '<span style="color: {}; font-weight: bold;">{}%</span>',
+            color, f'{obj.accuracy_rate:.1f}'
         )
 
     @admin.display(description='O\'zgarish')
@@ -129,11 +129,11 @@ class GlobalLeaderboardAdmin(admin.ModelAdmin):
             '<tr><td><strong>XP:</strong></td><td>{}</td></tr>'
             '<tr><td><strong>Testlar:</strong></td><td>{}</td></tr>'
             '<tr><td><strong>To\'g\'ri:</strong></td><td style="color: #2ecc71;">{}</td></tr>'
-            '<tr><td><strong>Aniqlik:</strong></td><td><strong>{:.1f}%</strong></td></tr>'
+            '<tr><td><strong>Aniqlik:</strong></td><td><strong>{}%</strong></td></tr>'
             '<tr><td><strong>Streak:</strong></td><td>{} kun 🔥</td></tr>'
             '</table>',
             f'{obj.xp_earned:,}', obj.tests_completed, obj.correct_answers,
-            obj.accuracy_rate, obj.streak_days
+            f'{obj.accuracy_rate:.1f}', obj.streak_days
         )
 
 
@@ -184,8 +184,8 @@ class SubjectLeaderboardAdmin(admin.ModelAdmin):
     def accuracy_badge(self, obj):
         color = '#2ecc71' if obj.accuracy_rate >= 80 else '#f39c12' if obj.accuracy_rate >= 60 else '#e74c3c'
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{:.1f}%</span>',
-            color, obj.accuracy_rate
+            '<span style="color: {}; font-weight: bold;">{}%</span>',
+            color, f'{obj.accuracy_rate:.1f}'
         )
 
 
@@ -274,8 +274,8 @@ class AchievementAdmin(admin.ModelAdmin):
     @admin.display(description='Olganlar')
     def earn_stats(self, obj):
         return format_html(
-            '<strong>{}</strong> ({:.1f}%)',
-            obj.total_earned, obj.earn_percentage
+            '<strong>{}</strong> ({}%)',
+            obj.total_earned, f'{obj.earn_percentage:.1f}'
         )
 
     @admin.display(description='Foiz')
@@ -291,8 +291,8 @@ class AchievementAdmin(admin.ModelAdmin):
             '<div style="width: 200px; background-color: #ecf0f1; '
             'border-radius: 10px; height: 20px; overflow: hidden;">'
             '<div style="width: {}%; background-color: {}; height: 100%;"></div></div>'
-            '<small>{:.1f}% foydalanuvchi olgan</small>',
-            min(percentage, 100), color, percentage
+            '<small>{}% foydalanuvchi olgan</small>',
+            min(percentage, 100), color, f'{percentage:.1f}'
         )
 
     actions = ['activate', 'deactivate', 'make_hidden']
@@ -432,8 +432,8 @@ class UserStatsAdmin(admin.ModelAdmin):
         accuracy = obj.accuracy_rate
         color = '#2ecc71' if accuracy >= 80 else '#f39c12' if accuracy >= 60 else '#e74c3c'
         return format_html(
-            '<strong style="color: {};">{:.1f}%</strong>',
-            color, accuracy
+            '<strong style="color: {};">{}%</strong>',
+            color, f'{accuracy:.1f}'
         )
 
     @admin.display(description='Win Rate')
@@ -441,17 +441,17 @@ class UserStatsAdmin(admin.ModelAdmin):
         rate = obj.win_rate
         color = '#2ecc71' if rate >= 60 else '#f39c12' if rate >= 40 else '#e74c3c'
         return format_html(
-            '<strong style="color: {};">{:.1f}%</strong>',
-            color, rate
+            '<strong style="color: {};">{}%</strong>',
+            color, f'{rate:.1f}'
         )
 
     @admin.display(description='Eng yaxshi')
     def best_performance(self, obj):
         return format_html(
-            'Ball: <strong>{:.1f}</strong> | '
+            'Ball: <strong>{}</strong> | '
             'Streak: <strong>{}</strong> | '
-            'Aniqlik: <strong>{:.1f}%</strong>',
-            obj.best_score, obj.best_streak, obj.best_accuracy
+            'Aniqlik: <strong>{}%</strong>',
+            f'{obj.best_score:.1f}', obj.best_streak, f'{obj.best_accuracy:.1f}'
         )
 
     @admin.display(description='Test statistikasi')
@@ -462,10 +462,10 @@ class UserStatsAdmin(admin.ModelAdmin):
             '<tr><td>Jami javoblar:</td><td><strong>{}</strong></td></tr>'
             '<tr><td style="color: #2ecc71;">To\'g\'ri:</td><td><strong>{}</strong></td></tr>'
             '<tr><td style="color: #e74c3c;">Noto\'g\'ri:</td><td><strong>{}</strong></td></tr>'
-            '<tr><td>Aniqlik:</td><td><strong style="color: #2ecc71;">{:.1f}%</strong></td></tr>'
+            '<tr><td>Aniqlik:</td><td><strong style="color: #2ecc71;">{}%</strong></td></tr>'
             '</table>',
             obj.total_tests, obj.total_questions_answered,
-            obj.total_correct, obj.total_wrong, obj.accuracy_rate
+            obj.total_correct, obj.total_wrong, f'{obj.accuracy_rate:.1f}'
         )
 
     @admin.display(description='Jang statistikasi')
@@ -475,9 +475,9 @@ class UserStatsAdmin(admin.ModelAdmin):
             '<tr><td style="color: #2ecc71;">Yutdi:</td><td><strong>{}</strong></td></tr>'
             '<tr><td style="color: #e74c3c;">Yutqazdi:</td><td><strong>{}</strong></td></tr>'
             '<tr><td style="color: #95a5a6;">Durrang:</td><td><strong>{}</strong></td></tr>'
-            '<tr><td>Win Rate:</td><td><strong style="color: #2ecc71;">{:.1f}%</strong></td></tr>'
+            '<tr><td>Win Rate:</td><td><strong style="color: #2ecc71;">{}%</strong></td></tr>'
             '</table>',
-            obj.battles_won, obj.battles_lost, obj.battles_draw, obj.win_rate
+            obj.battles_won, obj.battles_lost, obj.battles_draw, f'{obj.win_rate:.1f}'
         )
 
     @admin.display(description='Vaqt statistikasi')
@@ -487,9 +487,9 @@ class UserStatsAdmin(admin.ModelAdmin):
         return format_html(
             '<table style="width: 100%;">'
             '<tr><td>Jami vaqt:</td><td><strong>{} soat {} daqiqa</strong></td></tr>'
-            '<tr><td>O\'rtacha:</td><td><strong>{:.1f} soniya/savol</strong></td></tr>'
+            '<tr><td>O\'rtacha:</td><td><strong>{} soniya/savol</strong></td></tr>'
             '</table>',
-            hours, minutes, obj.average_time_per_question
+            hours, minutes, f'{obj.average_time_per_question:.1f}'
         )
 
     @admin.display(description='Haftalik statistika')
@@ -635,6 +635,6 @@ class SeasonalParticipantAdmin(admin.ModelAdmin):
     def accuracy_badge(self, obj):
         color = '#2ecc71' if obj.accuracy_rate >= 80 else '#f39c12' if obj.accuracy_rate >= 60 else '#e74c3c'
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{:.1f}%</span>',
-            color, obj.accuracy_rate
+            '<span style="color: {}; font-weight: bold;">{}%</span>',
+            color, f'{obj.accuracy_rate:.1f}'
         )
