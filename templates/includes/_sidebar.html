@@ -1,108 +1,149 @@
 {% load static %}
-{# Unified sidebar - use: {% include 'includes/_sidebar.html' with active='page_name' %} #}
+{# Modern collapsible sidebar — {% include 'includes/_sidebar.html' with active='page_name' %} #}
 
 <aside class="tl-sidebar">
-    <div class="tl-sidebar-card">
-        <div class="tl-sidebar-title">Testlar</div>
-        <div class="tl-nav">
+    {# === TESTLAR === #}
+    <div class="tl-sidebar-group {% if active == 'tests_list' or active == 'question_bank' or active == 'practice' or active == 'dtm' or active == 'quick_test' %}open{% endif %}" data-group="tests">
+        <button class="tl-group-toggle" onclick="toggleSidebarGroup(this)">
+            <div class="tl-group-icon green"><i class="bi bi-grid-fill"></i></div>
+            <span class="tl-group-label">Testlar</span>
+            <i class="bi bi-chevron-down tl-chevron"></i>
+        </button>
+        <div class="tl-group-body">
             <a href="{% url 'tests_app:tests_list' %}" class="tl-nav-item {% if active == 'tests_list' %}active{% endif %}">
-                <div class="tl-nav-icon green"><i class="bi bi-grid-fill"></i></div>
-                <span class="tl-nav-label">Barcha testlar</span>
+                <i class="bi bi-grid-fill"></i>
+                <span>Barcha testlar</span>
             </a>
             <a href="{% url 'tests_app:question_bank' %}" class="tl-nav-item {% if active == 'question_bank' %}active{% endif %}">
-                <div class="tl-nav-icon purple"><i class="bi bi-collection-fill"></i></div>
-                <span class="tl-nav-label">Savol banki</span>
+                <i class="bi bi-collection-fill"></i>
+                <span>Savol banki</span>
             </a>
             <a href="{% url 'tests_app:practice_select' %}" class="tl-nav-item {% if active == 'practice' %}active{% endif %}">
-                <div class="tl-nav-icon blue"><i class="bi bi-lightning-charge-fill"></i></div>
-                <span class="tl-nav-label">Mashq qilish</span>
+                <i class="bi bi-lightning-charge-fill"></i>
+                <span>Mashq qilish</span>
             </a>
             <a href="{% url 'tests_app:dtm_simulation' %}" class="tl-nav-item {% if active == 'dtm' %}active{% endif %}">
-                <div class="tl-nav-icon dark"><i class="bi bi-mortarboard-fill"></i></div>
-                <span class="tl-nav-label">DTM</span>
+                <i class="bi bi-mortarboard-fill"></i>
+                <span>DTM simulyatsiya</span>
             </a>
             <a href="{% url 'tests_app:quick_test' %}" class="tl-nav-item {% if active == 'quick_test' %}active{% endif %}">
-                <div class="tl-nav-icon amber"><i class="bi bi-stopwatch-fill"></i></div>
-                <span class="tl-nav-label">Tezkor test</span>
+                <i class="bi bi-stopwatch-fill"></i>
+                <span>Tezkor test</span>
             </a>
         </div>
     </div>
 
-    <div class="tl-sidebar-card">
-        <div class="tl-sidebar-title">AI Yordamchi</div>
-        <div class="tl-nav">
+    {# === AI & REJALASHTIRISH (merged) === #}
+    <div class="tl-sidebar-group {% if active == 'mentor' or active == 'conversations' or active == 'tutor' or active == 'advisor' or active == 'plans' or active == 'recommendations' or active == 'weak_topics' %}open{% endif %}" data-group="ai">
+        <button class="tl-group-toggle" onclick="toggleSidebarGroup(this)">
+            <div class="tl-group-icon purple"><i class="bi bi-robot"></i></div>
+            <span class="tl-group-label">AI Yordamchi</span>
+            <i class="bi bi-chevron-down tl-chevron"></i>
+        </button>
+        <div class="tl-group-body">
             <a href="{% url 'ai_core:ai_mentor' %}" class="tl-nav-item {% if active == 'mentor' %}active{% endif %}">
-                <div class="tl-nav-icon purple"><i class="bi bi-robot"></i></div>
-                <span class="tl-nav-label">AI Mentor</span>
+                <i class="bi bi-robot"></i>
+                <span>AI Mentor</span>
             </a>
             <a href="{% url 'ai_core:conversations_list' %}" class="tl-nav-item {% if active == 'conversations' %}active{% endif %}">
-                <div class="tl-nav-icon blue"><i class="bi bi-chat-dots-fill"></i></div>
-                <span class="tl-nav-label">Suhbatlar</span>
+                <i class="bi bi-chat-dots-fill"></i>
+                <span>Suhbatlar</span>
             </a>
             <a href="{% url 'ai_core:ai_tutor' %}" class="tl-nav-item {% if active == 'tutor' %}active{% endif %}">
-                <div class="tl-nav-icon green"><i class="bi bi-book-half"></i></div>
-                <span class="tl-nav-label">AI Repetitor</span>
+                <i class="bi bi-book-half"></i>
+                <span>AI Repetitor</span>
             </a>
             <a href="{% url 'ai_core:ai_advisor' %}" class="tl-nav-item {% if active == 'advisor' %}active{% endif %}">
-                <div class="tl-nav-icon amber"><i class="bi bi-bank2"></i></div>
-                <span class="tl-nav-label">OTM Maslahatchi</span>
+                <i class="bi bi-bank2"></i>
+                <span>OTM Maslahatchi</span>
             </a>
-        </div>
-    </div>
-
-    <div class="tl-sidebar-card">
-        <div class="tl-sidebar-title">Rejalashtirish</div>
-        <div class="tl-nav">
+            <div class="tl-divider"></div>
             <a href="{% url 'ai_core:study_plan_list' %}" class="tl-nav-item {% if active == 'plans' %}active{% endif %}">
-                <div class="tl-nav-icon teal"><i class="bi bi-calendar-check-fill"></i></div>
-                <span class="tl-nav-label">O'quv rejalar</span>
+                <i class="bi bi-calendar-check-fill"></i>
+                <span>O'quv rejalar</span>
             </a>
             <a href="{% url 'ai_core:recommendations_list' %}" class="tl-nav-item {% if active == 'recommendations' %}active{% endif %}">
-                <div class="tl-nav-icon amber"><i class="bi bi-lightbulb-fill"></i></div>
-                <span class="tl-nav-label">Tavsiyalar</span>
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>Tavsiyalar</span>
             </a>
             <a href="{% url 'ai_core:weak_topics' %}" class="tl-nav-item {% if active == 'weak_topics' %}active{% endif %}">
-                <div class="tl-nav-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                <span class="tl-nav-label">Sust mavzular</span>
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Sust mavzular</span>
             </a>
         </div>
     </div>
 
-    <div class="tl-sidebar-card">
-        <div class="tl-sidebar-title">Universitetlar</div>
-        <div class="tl-nav">
+    {# === UNIVERSITETLAR === #}
+    <div class="tl-sidebar-group {% if active == 'universities_list' or active == 'all_directions' or active == 'compare' %}open{% endif %}" data-group="uni">
+        <button class="tl-group-toggle" onclick="toggleSidebarGroup(this)">
+            <div class="tl-group-icon blue"><i class="bi bi-building"></i></div>
+            <span class="tl-group-label">Universitetlar</span>
+            <i class="bi bi-chevron-down tl-chevron"></i>
+        </button>
+        <div class="tl-group-body">
             <a href="{% url 'universities:universities_list' %}" class="tl-nav-item {% if active == 'universities_list' %}active{% endif %}">
-                <div class="tl-nav-icon blue"><i class="bi bi-building"></i></div>
-                <span class="tl-nav-label">Oliygohlar</span>
+                <i class="bi bi-building"></i>
+                <span>Oliygohlar</span>
             </a>
             <a href="{% url 'universities:all_directions' %}" class="tl-nav-item {% if active == 'all_directions' %}active{% endif %}">
-                <div class="tl-nav-icon purple"><i class="bi bi-signpost-split-fill"></i></div>
-                <span class="tl-nav-label">Yo'nalishlar</span>
+                <i class="bi bi-signpost-split-fill"></i>
+                <span>Yo'nalishlar</span>
             </a>
             <a href="{% url 'universities:compare' %}" class="tl-nav-item {% if active == 'compare' %}active{% endif %}">
-                <div class="tl-nav-icon amber"><i class="bi bi-arrow-left-right"></i></div>
-                <span class="tl-nav-label">Solishtirish</span>
+                <i class="bi bi-arrow-left-right"></i>
+                <span>Solishtirish</span>
             </a>
         </div>
     </div>
 
+    {# === MENING === #}
     {% if user.is_authenticated %}
-    <div class="tl-sidebar-card">
-        <div class="tl-sidebar-title">Mening</div>
-        <div class="tl-nav">
+    <div class="tl-sidebar-group {% if active == 'my_results' or active == 'saved' or active == 'wrong_answers' %}open{% endif %}" data-group="my">
+        <button class="tl-group-toggle" onclick="toggleSidebarGroup(this)">
+            <div class="tl-group-icon green"><i class="bi bi-person-fill"></i></div>
+            <span class="tl-group-label">Mening</span>
+            <i class="bi bi-chevron-down tl-chevron"></i>
+        </button>
+        <div class="tl-group-body">
             <a href="{% url 'tests_app:my_results' %}" class="tl-nav-item {% if active == 'my_results' %}active{% endif %}">
-                <div class="tl-nav-icon green"><i class="bi bi-graph-up"></i></div>
-                <span class="tl-nav-label">Natijalarim</span>
+                <i class="bi bi-graph-up"></i>
+                <span>Natijalarim</span>
             </a>
             <a href="{% url 'tests_app:saved_questions' %}" class="tl-nav-item {% if active == 'saved' %}active{% endif %}">
-                <div class="tl-nav-icon amber"><i class="bi bi-bookmark-fill"></i></div>
-                <span class="tl-nav-label">Saqlangan</span>
+                <i class="bi bi-bookmark-fill"></i>
+                <span>Saqlangan</span>
             </a>
             <a href="{% url 'tests_app:wrong_answers' %}" class="tl-nav-item {% if active == 'wrong_answers' %}active{% endif %}">
-                <div class="tl-nav-icon red"><i class="bi bi-x-circle-fill"></i></div>
-                <span class="tl-nav-label">Xatolarim</span>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Xatolarim</span>
             </a>
         </div>
     </div>
     {% endif %}
 </aside>
+
+<script>
+function toggleSidebarGroup(btn) {
+    const group = btn.closest('.tl-sidebar-group');
+    group.classList.toggle('open');
+    // Save state
+    const key = 'sb_' + group.dataset.group;
+    localStorage.setItem(key, group.classList.contains('open') ? '1' : '0');
+}
+
+// Restore saved states on load (but active group always stays open)
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tl-sidebar-group').forEach(function(g) {
+        const key = 'sb_' + g.dataset.group;
+        const saved = localStorage.getItem(key);
+        // If has active child, always keep open
+        if (g.querySelector('.tl-nav-item.active')) {
+            g.classList.add('open');
+        } else if (saved === '0') {
+            g.classList.remove('open');
+        } else if (saved === '1') {
+            g.classList.add('open');
+        }
+    });
+});
+</script>
