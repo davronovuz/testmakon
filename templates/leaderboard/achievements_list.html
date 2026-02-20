@@ -4,168 +4,117 @@
 {% block title %}Yutuqlar - TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'leaderboard/_sidebar_css.html' %}
 <style>
-@media (max-width: 768px) {
-    .achievements-hero { padding: 1.5rem 0 !important; }
-    .achievements-hero h1 { font-size: 1.5rem; }
-    .achievements-hero .lead { font-size: 0.95rem; }
-    .achievements-hero div[style*="padding: 1rem 1.5rem"] { padding: 0.75rem 1rem !important; }
-    .card.h-100.p-3 { padding: 0.75rem !important; }
-}
+    .ach-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .ach-header-title { font-size: 1.25rem; font-weight: 700; color: var(--dark); }
+    .ach-count-badge { background: var(--primary-glow); color: var(--primary); border-radius: 20px; padding: 0.35rem 0.9rem; font-size: 0.85rem; font-weight: 700; }
+
+    .ach-category { margin-bottom: 2rem; }
+    .ach-category-title { font-size: 0.95rem; font-weight: 700; color: var(--dark); margin-bottom: 0.875rem; display: flex; align-items: center; gap: 0.5rem; }
+    .ach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
+
+    .ach-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 1rem; display: flex; align-items: flex-start; gap: 0.875rem; transition: transform 0.2s; text-decoration: none; color: inherit; }
+    .ach-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); color: inherit; }
+    .ach-card.earned { border-color: var(--primary); background: linear-gradient(135deg, rgba(139,197,64,0.08) 0%, rgba(139,197,64,0.04) 100%); }
+    .ach-card.hidden { opacity: 0.55; }
+
+    .ach-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ach-icon-box.earned { background: var(--gradient-primary); }
+    .ach-icon-box.locked { background: var(--gray-200); }
+    .ach-icon-box img { width: 28px; height: 28px; object-fit: contain; }
+
+    .ach-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); margin-bottom: 0.2rem; }
+    .ach-desc { font-size: 0.78rem; color: var(--gray-500); line-height: 1.4; margin-bottom: 0.5rem; }
+    .ach-badges { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+
+    .ach-progress { margin-top: 0.625rem; padding-top: 0.625rem; border-top: 1px solid var(--gray-100); }
+    .ach-progress-bar { background: var(--gray-200); border-radius: 10px; height: 5px; overflow: hidden; margin-top: 0.25rem; }
+    .ach-progress-fill { background: var(--gradient-primary); height: 100%; border-radius: 10px; }
+
+    @media (max-width: 768px) { .ach-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 576px) { .lb-layout { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="achievements-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}">Reyting</a></li>
-                <li class="breadcrumb-item active">Yutuqlar</li>
-            </ol>
-        </nav>
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1 class="mb-3"><span class="text-gradient">Yutuqlar</span> 🏆</h1>
-                <p class="lead mb-0" style="color: var(--gray-500);">
-                    Muvaffaqiyatlaringizni nishonlang va maxsus yutuqlarni qo'lga kiriting!
-                </p>
-            </div>
-            {% if user.is_authenticated %}
-            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                <div class="d-inline-block" style="background: var(--white); border-radius: var(--radius-lg); padding: 1rem 1.5rem; box-shadow: var(--shadow);">
-                    <span style="color: var(--gray-500);">Sizning yutuqlaringiz:</span>
-                    <span class="fw-bold ms-2" style="color: var(--primary); font-size: 1.25rem;">{{ earned_ids|length }}</span>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
-
 <section class="section-sm">
     <div class="container">
-        {% for category, achievements in by_category.items %}
-        <div class="mb-5">
-            <h4 class="fw-bold mb-4">
-                {% if category == 'Streak' %}
-                    <i class="bi bi-fire me-2" style="color: #F97316;"></i>
-                {% elif category == 'Test' %}
-                    <i class="bi bi-pencil-square me-2" style="color: var(--primary);"></i>
-                {% elif category == 'Ball' %}
-                    <i class="bi bi-star me-2" style="color: var(--accent);"></i>
-                {% elif category == 'Musobaqa' %}
-                    <i class="bi bi-trophy me-2" style="color: #8B5CF6;"></i>
-                {% elif category == 'Ijtimoiy' %}
-                    <i class="bi bi-people me-2" style="color: #3B82F6;"></i>
-                {% else %}
-                    <i class="bi bi-gem me-2" style="color: #EC4899;"></i>
-                {% endif %}
-                {{ category }}
-            </h4>
+        <div class="lb-layout">
+            {% include 'leaderboard/_sidebar.html' with active='achievements' %}
 
-            <div class="row g-3">
-                {% for achievement in achievements %}
-                <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <a href="{% url 'leaderboard:achievement_detail' achievement.slug %}" class="text-decoration-none">
-                        <div class="card h-100 p-3 {% if achievement.id in earned_ids %}card-glow{% endif %}"
-                             style="{% if achievement.id in earned_ids %}border: 2px solid var(--primary); background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.05) 100%);{% else %}{% if achievement.is_hidden and achievement.id not in earned_ids %}opacity: 0.6;{% endif %}{% endif %}">
+            <div class="lb-main">
+                <div class="ach-header">
+                    <div class="ach-header-title">
+                        🏆 Yutuqlar
+                    </div>
+                    {% if user.is_authenticated %}
+                    <span class="ach-count-badge">{{ earned_ids|length }} ta olgan</span>
+                    {% endif %}
+                </div>
 
-                            <div class="d-flex align-items-start gap-3">
-                                <!-- Icon -->
-                                <div style="width: 56px; height: 56px; background: {% if achievement.id in earned_ids %}var(--gradient-primary){% else %}var(--gray-200){% endif %}; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    {% if achievement.icon %}
-                                        <img src="{{ achievement.icon.url }}" alt="" style="width: 32px; height: 32px; object-fit: contain; {% if achievement.id not in earned_ids %}filter: grayscale(100%);{% endif %}">
-                                    {% else %}
-                                        <i class="bi bi-award" style="font-size: 1.5rem; color: {% if achievement.id in earned_ids %}white{% else %}var(--gray-400){% endif %};"></i>
-                                    {% endif %}
+                {% for category, achievements in by_category.items %}
+                <div class="ach-category">
+                    <div class="ach-category-title">
+                        {% if category == 'Streak' %}<i class="bi bi-fire" style="color:#F97316;"></i>
+                        {% elif category == 'Test' %}<i class="bi bi-pencil-square" style="color:var(--primary);"></i>
+                        {% elif category == 'Ball' %}<i class="bi bi-star" style="color:var(--accent);"></i>
+                        {% elif category == 'Musobaqa' %}<i class="bi bi-trophy" style="color:#8B5CF6;"></i>
+                        {% elif category == 'Ijtimoiy' %}<i class="bi bi-people" style="color:#3B82F6;"></i>
+                        {% else %}<i class="bi bi-gem" style="color:#EC4899;"></i>{% endif %}
+                        {{ category }}
+                    </div>
+
+                    <div class="ach-grid">
+                        {% for ach in achievements %}
+                        <a href="{% url 'leaderboard:achievement_detail' ach.slug %}"
+                           class="ach-card {% if ach.id in earned_ids %}earned{% endif %} {% if ach.is_hidden and ach.id not in earned_ids %}hidden{% endif %}">
+                            <div class="ach-icon-box {% if ach.id in earned_ids %}earned{% else %}locked{% endif %}">
+                                {% if ach.icon %}
+                                    <img src="{{ ach.icon.url }}" alt="" style="{% if ach.id not in earned_ids %}filter:grayscale(100%);{% endif %}">
+                                {% else %}
+                                    <i class="bi bi-award" style="font-size:1.25rem; color:{% if ach.id in earned_ids %}white{% else %}var(--gray-400){% endif %};"></i>
+                                {% endif %}
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div class="ach-name">
+                                    {% if ach.is_hidden and ach.id not in earned_ids %}???{% else %}{{ ach.name }}{% endif %}
+                                    {% if ach.id in earned_ids %}<i class="bi bi-check-circle-fill" style="color:var(--primary);font-size:0.8rem;"></i>{% endif %}
                                 </div>
-
-                                <!-- Content -->
-                                <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <h6 class="fw-bold mb-0" style="color: var(--dark); font-size: 0.95rem;">
-                                            {% if achievement.is_hidden and achievement.id not in earned_ids %}
-                                                ???
-                                            {% else %}
-                                                {{ achievement.name }}
-                                            {% endif %}
-                                        </h6>
-                                        {% if achievement.id in earned_ids %}
-                                        <i class="bi bi-check-circle-fill" style="color: var(--primary);"></i>
-                                        {% endif %}
-                                    </div>
-
-                                    <p class="small mb-2" style="color: var(--gray-500); line-height: 1.4;">
-                                        {% if achievement.is_hidden and achievement.id not in earned_ids %}
-                                            Yashirin yutuq
-                                        {% else %}
-                                            {{ achievement.description|truncatechars:50 }}
-                                        {% endif %}
-                                    </p>
-
-                                    <!-- Rarity & XP -->
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge" style="font-size: 0.7rem;
-                                            {% if achievement.rarity == 'common' %}background: var(--gray-200); color: var(--gray-600);
-                                            {% elif achievement.rarity == 'uncommon' %}background: #D1FAE5; color: #065F46;
-                                            {% elif achievement.rarity == 'rare' %}background: #DBEAFE; color: #1E40AF;
-                                            {% elif achievement.rarity == 'epic' %}background: #EDE9FE; color: #6D28D9;
-                                            {% else %}background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E;
-                                            {% endif %}">
-                                            {{ achievement.get_rarity_display }}
-                                        </span>
-                                        <span class="small" style="color: var(--primary);">
-                                            <i class="bi bi-star-fill" style="font-size: 0.7rem;"></i> {{ achievement.xp_reward }} XP
-                                        </span>
+                                <div class="ach-desc">
+                                    {% if ach.is_hidden and ach.id not in earned_ids %}Yashirin yutuq{% else %}{{ ach.description|truncatechars:55 }}{% endif %}
+                                </div>
+                                <div class="ach-badges">
+                                    <span class="badge" style="font-size:0.68rem;
+                                        {% if ach.rarity == 'common' %}background:var(--gray-200);color:var(--gray-600);
+                                        {% elif ach.rarity == 'uncommon' %}background:#D1FAE5;color:#065F46;
+                                        {% elif ach.rarity == 'rare' %}background:#DBEAFE;color:#1E40AF;
+                                        {% elif ach.rarity == 'epic' %}background:#EDE9FE;color:#6D28D9;
+                                        {% else %}background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#92400E;
+                                        {% endif %}">{{ ach.get_rarity_display }}</span>
+                                    <span style="font-size:0.75rem;color:var(--primary);">
+                                        <i class="bi bi-star-fill" style="font-size:0.65rem;"></i> {{ ach.xp_reward }} XP
+                                    </span>
+                                </div>
+                                {% if ach.id not in earned_ids and not ach.is_hidden %}
+                                <div class="ach-progress">
+                                    <div style="font-size:0.72rem;color:var(--gray-400);">{{ ach.earn_percentage }}% olgan</div>
+                                    <div class="ach-progress-bar">
+                                        <div class="ach-progress-fill" style="width:{{ ach.earn_percentage }}%;"></div>
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
-
-                            <!-- Progress indicator -->
-                            {% if achievement.id not in earned_ids and not achievement.is_hidden %}
-                            <div class="mt-3 pt-3" style="border-top: 1px solid var(--gray-200);">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small style="color: var(--gray-500);">{{ achievement.earn_percentage }}% olgan</small>
-                                </div>
-                                <div style="background: var(--gray-200); border-radius: 10px; height: 6px; overflow: hidden;">
-                                    <div style="background: var(--gradient-primary); height: 100%; width: {{ achievement.earn_percentage }}%; border-radius: 10px;"></div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </a>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5" style="color:var(--gray-400);">
+                    <i class="bi bi-trophy" style="font-size:3rem;display:block;margin-bottom:0.75rem;"></i>
+                    Yutuqlar hali qo'shilmagan
                 </div>
                 {% endfor %}
-            </div>
-        </div>
-        {% empty %}
-        <div class="text-center py-5">
-            <i class="bi bi-trophy" style="font-size: 4rem; color: var(--gray-300);"></i>
-            <h4 class="mt-3">Yutuqlar hali qo'shilmagan</h4>
-            <p style="color: var(--gray-500);">Tez orada yangi yutuqlar paydo bo'ladi!</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
-<!-- Motivation Section -->
-<section class="section-sm" style="background: var(--dark);">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h3 class="text-white mb-3">Barcha yutuqlarni oching! 🎯</h3>
-                <p class="text-white mb-0" style="opacity: 0.8;">
-                    Test yeching, streak saqlab turing, musobaqalarda qatnashing va maxsus yutuqlarni qo'lga kiriting.
-                    Har bir yutuq sizga qo'shimcha XP beradi!
-                </p>
-            </div>
-            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary btn-lg">
-                    Test boshlash <i class="bi bi-arrow-right ms-2"></i>
-                </a>
             </div>
         </div>
     </div>

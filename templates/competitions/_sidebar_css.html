@@ -1,0 +1,101 @@
+<style>
+    .comp-layout {
+        display: grid;
+        grid-template-columns: 272px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    .comp-sidebar {
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
+        position: sticky;
+        top: 80px;
+    }
+    .csb-user-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem;
+        background: var(--gray-50);
+        border-radius: 12px;
+        margin-bottom: 1.25rem;
+    }
+    .csb-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--primary-glow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .csb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .csb-user-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
+    .csb-user-xp { font-size: 0.78rem; color: var(--gray-500); margin-top: 0.1rem; }
+    .csb-nav-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--gray-400);
+        padding: 0 0.5rem;
+        margin-bottom: 0.375rem;
+    }
+    .csb-link {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--dark);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-bottom: 0.125rem;
+        position: relative;
+    }
+    .csb-link:hover { background: var(--gray-100); color: var(--primary); }
+    .csb-link.active { background: var(--primary-glow); color: var(--primary); font-weight: 600; }
+    .csb-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .csb-badge {
+        margin-left: auto;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.15rem 0.45rem;
+        border-radius: 20px;
+    }
+    .csb-battle-btn {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--gray-100);
+    }
+    .csb-battle-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.65rem;
+        background: var(--gradient-primary);
+        color: #fff;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .csb-battle-link:hover { color: #fff; box-shadow: var(--shadow-primary); }
+    @media (max-width: 991px) {
+        .comp-layout { grid-template-columns: 1fr; }
+        .comp-sidebar { position: static; }
+    }
+</style>

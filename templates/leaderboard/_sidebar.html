@@ -1,0 +1,59 @@
+{% load static %}
+<aside class="lb-sidebar">
+    <!-- User Rank -->
+    {% if user.is_authenticated %}
+    <div class="lbs-rank-card">
+        <div class="lbs-rank-label">Sizning o'rningiz</div>
+        <div class="lbs-rank-num">#{{ user_rank|default:"—" }}</div>
+        <div class="lbs-rank-xp">{{ user.xp_points }} XP</div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <nav class="lbs-nav">
+        <div class="lbs-nav-title">Reyting turlari</div>
+        <a href="{% url 'leaderboard:global_leaderboard' %}"
+           class="lbs-link {% if active == 'global' %}active{% endif %}">
+            <span class="lbs-icon">🌍</span>
+            <span>Umumiy reyting</span>
+        </a>
+        <a href="{% url 'leaderboard:weekly_leaderboard' %}"
+           class="lbs-link {% if active == 'weekly' %}active{% endif %}">
+            <span class="lbs-icon">📆</span>
+            <span>Haftalik</span>
+        </a>
+        <a href="{% url 'leaderboard:monthly_leaderboard' %}"
+           class="lbs-link {% if active == 'monthly' %}active{% endif %}">
+            <span class="lbs-icon">🗓️</span>
+            <span>Oylik</span>
+        </a>
+
+        <div class="lbs-nav-title mt-3">Fan bo'yicha</div>
+        {% for subject in subjects %}
+        <a href="{% url 'leaderboard:subject_leaderboard' subject.slug %}"
+           class="lbs-link {% if active_subject == subject.slug %}active{% endif %}">
+            <span class="lbs-icon">{{ subject.icon|default:"📚" }}</span>
+            <span>{{ subject.name }}</span>
+        </a>
+        {% endfor %}
+
+        <div class="lbs-nav-title mt-3">Boshqa</div>
+        <a href="{% url 'leaderboard:achievements_list' %}"
+           class="lbs-link {% if active == 'achievements' %}active{% endif %}">
+            <span class="lbs-icon">🏆</span>
+            <span>Yutuqlar</span>
+        </a>
+        <a href="{% url 'leaderboard:current_season' %}"
+           class="lbs-link {% if active == 'season' %}active{% endif %}">
+            <span class="lbs-icon">🏅</span>
+            <span>Mavsum</span>
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'leaderboard:my_stats' %}"
+           class="lbs-link {% if active == 'my_stats' %}active{% endif %}">
+            <span class="lbs-icon">📊</span>
+            <span>Statistikam</span>
+        </a>
+        {% endif %}
+    </nav>
+</aside>

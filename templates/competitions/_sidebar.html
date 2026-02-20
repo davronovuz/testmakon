@@ -1,0 +1,64 @@
+{% load static %}
+{% with request_path=request.path %}
+<aside class="comp-sidebar">
+    <!-- User Stats -->
+    {% if user.is_authenticated %}
+    <div class="csb-user-card">
+        <div class="csb-avatar">
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="">
+            {% else %}
+                <span>{{ user.first_name|first|default:"?" }}</span>
+            {% endif %}
+        </div>
+        <div class="csb-user-info">
+            <div class="csb-user-name">{{ user.first_name|default:"Foydalanuvchi" }}</div>
+            <div class="csb-user-xp">⚡ {{ user.xp_points }} XP</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <nav class="csb-nav">
+        <a href="{% url 'competitions:competitions_list' %}"
+           class="csb-link {% if active == 'competitions_list' %}active{% endif %}">
+            <span class="csb-icon">🏆</span>
+            <span>Musobaqalar</span>
+        </a>
+        <a href="{% url 'competitions:daily_challenge' %}"
+           class="csb-link {% if active == 'daily_challenge' %}active{% endif %}">
+            <span class="csb-icon">📅</span>
+            <span>Kunlik Challenge</span>
+            {% if daily_challenge and not daily_completed %}
+            <span class="csb-badge">Yangi</span>
+            {% endif %}
+        </a>
+        <a href="{% url 'competitions:weekly_league' %}"
+           class="csb-link {% if active == 'weekly_league' %}active{% endif %}">
+            <span class="csb-icon">🏅</span>
+            <span>Haftalik Liga</span>
+        </a>
+        <a href="{% url 'competitions:battles_list' %}"
+           class="csb-link {% if active == 'battles_list' %}active{% endif %}">
+            <span class="csb-icon">⚡</span>
+            <span>1v1 Janglar</span>
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'competitions:my_certificates' %}"
+           class="csb-link {% if active == 'my_certificates' %}active{% endif %}">
+            <span class="csb-icon">🎖️</span>
+            <span>Sertifikatlarim</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <!-- Quick Battle -->
+    {% if user.is_authenticated %}
+    <div class="csb-battle-btn">
+        <a href="{% url 'competitions:battle_create' %}" class="csb-battle-link">
+            <i class="bi bi-lightning-fill me-1"></i> Jang boshlash
+        </a>
+    </div>
+    {% endif %}
+</aside>
+{% endwith %}

@@ -4,287 +4,238 @@
 {% block title %}Mening statistikam - TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'leaderboard/_sidebar_css.html' %}
 <style>
-@media (max-width: 768px) {
-    .mystats-hero { padding: 1.5rem 0 !important; }
-    .mystats-hero h1 { font-size: 1.5rem; }
-    .mystats-hero div[style*="width: 80px"] { width: 60px !important; height: 60px !important; }
-    .col-6 .card.p-4 { padding: 1rem !important; }
-    .col-6 .card div[style*="font-size: 2.5rem"] { font-size: 1.5rem !important; }
-    .card-body { padding: 1rem !important; }
-}
+    /* Quick stats row */
+    .qs-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .qs-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 1.25rem; text-align: center; }
+    .qs-val { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    .qs-val.dark { color: var(--dark); }
+    .qs-label { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.2rem; }
+
+    /* User header */
+    .user-hero { background: var(--gradient-primary); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+    .user-hero-avatar { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+    .user-hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-hero-name { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem; }
+    .user-hero-meta { display: flex; gap: 0.875rem; flex-wrap: wrap; }
+    .user-hero-meta span { font-size: 0.82rem; color: rgba(255,255,255,0.85); }
+
+    /* Stats cards */
+    .stats-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem; }
+    .stats-card-head { padding: 1.125rem 1.5rem; border-bottom: 1px solid var(--gray-100); font-size: 0.95rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 0.5rem; }
+    .stats-card-body { padding: 1.25rem 1.5rem; }
+    .stats-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-50); }
+    .stats-row:last-child { border-bottom: none; }
+    .stats-label { font-size: 0.875rem; color: var(--gray-500); }
+    .stats-val { font-size: 0.875rem; font-weight: 700; color: var(--dark); }
+
+    /* Today / weekly mini cards */
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+    .mini-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 1rem 1.25rem; }
+    .mini-card.green { background: var(--gradient-primary); border: none; }
+    .mini-title { font-size: 0.78rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
+    .mini-title.white { color: rgba(255,255,255,0.8); }
+    .mini-row { display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem; }
+    .mini-row .lbl { color: var(--gray-500); }
+    .mini-row .lbl.white { color: rgba(255,255,255,0.8); }
+    .mini-row .val { font-weight: 700; color: var(--dark); }
+    .mini-row .val.white { color: #fff; }
+
+    /* Subject bars */
+    .sub-bar-item { margin-bottom: 1rem; }
+    .sub-bar-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.375rem; }
+    .sub-bar-name { font-size: 0.875rem; font-weight: 600; color: var(--dark); display: flex; align-items: center; gap: 0.4rem; }
+    .sub-bar-score { font-size: 0.875rem; font-weight: 700; color: var(--primary); }
+    .sub-bar-track { background: var(--gray-200); border-radius: 10px; height: 7px; overflow: hidden; }
+    .sub-bar-fill { background: var(--gradient-primary); height: 100%; border-radius: 10px; }
+
+    /* Achievements */
+    .ach-mini { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem; background: var(--gray-50); border-radius: 10px; margin-bottom: 0.5rem; }
+    .ach-mini-icon { width: 36px; height: 36px; background: var(--gradient-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ach-mini-name { font-size: 0.82rem; font-weight: 700; color: var(--dark); }
+    .ach-mini-time { font-size: 0.75rem; color: var(--gray-400); }
+
+    @media (max-width: 768px) {
+        .qs-grid { grid-template-columns: repeat(2,1fr); }
+        .mini-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 576px) {
+        .qs-grid { grid-template-columns: repeat(2,1fr); }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="mystats-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}">Reyting</a></li>
-                <li class="breadcrumb-item active">Statistikam</li>
-            </ol>
-        </nav>
-        <div class="d-flex align-items-center gap-4">
-            <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid var(--primary);">
-                {% if user.avatar %}
-                    <img src="{{ user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                {% else %}
-                    <i class="bi bi-person-fill" style="font-size: 2.5rem; color: var(--gray-500);"></i>
-                {% endif %}
-            </div>
-            <div>
-                <h1 class="mb-2">{{ user.full_name|default:user.phone_number }}</h1>
-                <div class="d-flex flex-wrap gap-3">
-                    <span class="badge badge-primary">Level {{ user.level }}</span>
-                    <span style="color: var(--gray-500);"><i class="bi bi-star-fill text-warning me-1"></i> {{ user.xp_points }} XP</span>
-                    <span style="color: var(--gray-500);"><i class="bi bi-fire text-danger me-1"></i> {{ user.current_streak }} kun streak</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <section class="section-sm">
     <div class="container">
-        <!-- Quick Stats -->
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
-                <div class="card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary);">{{ test_stats.total }}</div>
-                    <div style="color: var(--gray-500);">Jami testlar</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--dark);">{{ test_stats.total_xp }}</div>
-                    <div style="color: var(--gray-500);">Jami XP</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--dark);">{{ test_stats.avg_score|floatformat:0 }}%</div>
-                    <div style="color: var(--gray-500);">O'rtacha ball</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="card p-4 text-center h-100">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--dark);">#{{ user.global_rank|default:"—" }}</div>
-                    <div style="color: var(--gray-500);">Umumiy o'rin</div>
-                </div>
-            </div>
-        </div>
+        <div class="lb-layout">
+            {% include 'leaderboard/_sidebar.html' with active='my_stats' %}
 
-        <div class="row g-4">
-            <!-- Main Stats -->
-            <div class="col-lg-8">
-                <!-- Detailed Stats -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-graph-up me-2" style="color: var(--primary);"></i> Batafsil statistika
-                        </h5>
+            <div class="lb-main">
+                <!-- User header -->
+                <div class="user-hero">
+                    <div class="user-hero-avatar">
+                        {% if user.avatar %}<img src="{{ user.avatar.url }}" alt="">
+                        {% else %}<i class="bi bi-person-fill text-white" style="font-size:1.5rem;"></i>{% endif %}
+                    </div>
+                    <div>
+                        <div class="user-hero-name">{{ user.full_name|default:user.phone_number }}</div>
+                        <div class="user-hero-meta">
+                            <span><i class="bi bi-star-fill me-1"></i>{{ user.xp_points }} XP</span>
+                            <span><i class="bi bi-lightning-fill me-1"></i>Level {{ user.level }}</span>
+                            <span><i class="bi bi-fire me-1"></i>{{ user.current_streak }} kun streak</span>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Quick stats -->
+                <div class="qs-grid">
+                    <div class="qs-card">
+                        <div class="qs-val">{{ test_stats.total }}</div>
+                        <div class="qs-label">Jami testlar</div>
+                    </div>
+                    <div class="qs-card">
+                        <div class="qs-val dark">{{ test_stats.total_xp }}</div>
+                        <div class="qs-label">Jami XP</div>
+                    </div>
+                    <div class="qs-card">
+                        <div class="qs-val dark">{{ test_stats.avg_score|floatformat:0 }}%</div>
+                        <div class="qs-label">O'rtacha ball</div>
+                    </div>
+                    <div class="qs-card">
+                        <div class="qs-val dark">#{{ user.global_rank|default:"—" }}</div>
+                        <div class="qs-label">Umumiy o'rin</div>
+                    </div>
+                </div>
+
+                <!-- Today & weekly mini cards -->
+                <div class="mini-grid">
+                    <div class="mini-card green">
+                        <div class="mini-title white">Bugungi natija</div>
+                        <div class="mini-row">
+                            <span class="lbl white">XP</span>
+                            <span class="val white">+{{ stats.today_xp }}</span>
+                        </div>
+                        <div class="mini-row">
+                            <span class="lbl white">Testlar</span>
+                            <span class="val white">{{ stats.today_tests }}</span>
+                        </div>
+                        <div class="mini-row">
+                            <span class="lbl white">To'g'ri javoblar</span>
+                            <span class="val white">{{ stats.today_correct }}</span>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-title"><i class="bi bi-calendar-week me-1" style="color:var(--primary);"></i>Haftalik natija</div>
+                        <div class="mini-row">
+                            <span class="lbl">XP</span>
+                            <span class="val" style="color:var(--primary);">+{{ stats.weekly_xp }}</span>
+                        </div>
+                        <div class="mini-row">
+                            <span class="lbl">Testlar</span>
+                            <span class="val">{{ stats.weekly_tests }}</span>
+                        </div>
+                        <div class="mini-row">
+                            <span class="lbl">To'g'ri javoblar</span>
+                            <span class="val">{{ stats.weekly_correct }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed stats -->
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <i class="bi bi-graph-up" style="color:var(--primary);"></i> Batafsil statistika
+                    </div>
+                    <div class="stats-card-body">
                         <div class="row g-4">
-                            <!-- Test Stats -->
                             <div class="col-md-6">
-                                <h6 class="text-uppercase small fw-bold mb-3" style="color: var(--gray-500);">Test statistikasi</h6>
-                                <div class="d-flex flex-column gap-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Jami savollar</span>
-                                        <span class="fw-bold">{{ stats.total_questions_answered }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">To'g'ri javoblar</span>
-                                        <span class="fw-bold text-success">{{ stats.total_correct }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Noto'g'ri javoblar</span>
-                                        <span class="fw-bold text-danger">{{ stats.total_wrong }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Aniqlik</span>
-                                        <span class="fw-bold" style="color: var(--primary);">{{ stats.accuracy_rate }}%</span>
-                                    </div>
-                                </div>
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);margin-bottom:0.75rem;">Test statistikasi</div>
+                                <div class="stats-row"><span class="stats-label">Jami savollar</span><span class="stats-val">{{ stats.total_questions_answered }}</span></div>
+                                <div class="stats-row"><span class="stats-label">To'g'ri javoblar</span><span class="stats-val" style="color:#22C55E;">{{ stats.total_correct }}</span></div>
+                                <div class="stats-row"><span class="stats-label">Noto'g'ri javoblar</span><span class="stats-val" style="color:#EF4444;">{{ stats.total_wrong }}</span></div>
+                                <div class="stats-row"><span class="stats-label">Aniqlik</span><span class="stats-val" style="color:var(--primary);">{{ stats.accuracy_rate }}%</span></div>
                             </div>
-
-                            <!-- Time & Streak -->
                             <div class="col-md-6">
-                                <h6 class="text-uppercase small fw-bold mb-3" style="color: var(--gray-500);">Vaqt va streak</h6>
-                                <div class="d-flex flex-column gap-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Jami vaqt</span>
-                                        <span class="fw-bold">{{ stats.total_time_spent }} daqiqa</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">O'rtacha vaqt/savol</span>
-                                        <span class="fw-bold">{{ stats.average_time_per_question|floatformat:1 }}s</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Joriy streak</span>
-                                        <span class="fw-bold">{{ user.current_streak }} kun</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Eng uzun streak</span>
-                                        <span class="fw-bold" style="color: var(--accent);">{{ stats.best_streak }} kun</span>
-                                    </div>
-                                </div>
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);margin-bottom:0.75rem;">Vaqt va streak</div>
+                                <div class="stats-row"><span class="stats-label">Jami vaqt</span><span class="stats-val">{{ stats.total_time_spent }} daqiqa</span></div>
+                                <div class="stats-row"><span class="stats-label">O'rtacha vaqt/savol</span><span class="stats-val">{{ stats.average_time_per_question|floatformat:1 }}s</span></div>
+                                <div class="stats-row"><span class="stats-label">Joriy streak</span><span class="stats-val">{{ user.current_streak }} kun</span></div>
+                                <div class="stats-row"><span class="stats-label">Eng uzun streak</span><span class="stats-val" style="color:var(--accent);">{{ stats.best_streak }} kun</span></div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
+                        <hr style="margin: 1.25rem 0; border-color: var(--gray-100);">
 
-                        <!-- Competition Stats -->
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <h6 class="text-uppercase small fw-bold mb-3" style="color: var(--gray-500);">Jang statistikasi</h6>
-                                <div class="d-flex flex-column gap-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Yutilgan janglar</span>
-                                        <span class="fw-bold text-success">{{ stats.battles_won }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Yutqazilgan</span>
-                                        <span class="fw-bold text-danger">{{ stats.battles_lost }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Durrang</span>
-                                        <span class="fw-bold">{{ stats.battles_draw }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Yutish foizi</span>
-                                        <span class="fw-bold" style="color: var(--primary);">{{ stats.win_rate }}%</span>
-                                    </div>
-                                </div>
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);margin-bottom:0.75rem;">Jang statistikasi</div>
+                                <div class="stats-row"><span class="stats-label">Yutilgan janglar</span><span class="stats-val" style="color:#22C55E;">{{ stats.battles_won }}</span></div>
+                                <div class="stats-row"><span class="stats-label">Yutqazilgan</span><span class="stats-val" style="color:#EF4444;">{{ stats.battles_lost }}</span></div>
+                                <div class="stats-row"><span class="stats-label">Durrang</span><span class="stats-val">{{ stats.battles_draw }}</span></div>
+                                <div class="stats-row"><span class="stats-label">Yutish foizi</span><span class="stats-val" style="color:var(--primary);">{{ stats.win_rate }}%</span></div>
                             </div>
-
                             <div class="col-md-6">
-                                <h6 class="text-uppercase small fw-bold mb-3" style="color: var(--gray-500);">Eng yaxshi natijalar</h6>
-                                <div class="d-flex flex-column gap-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Eng yuqori ball</span>
-                                        <span class="fw-bold" style="color: var(--accent);">{{ stats.best_score|floatformat:0 }}%</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Eng yuqori aniqlik</span>
-                                        <span class="fw-bold">{{ stats.best_accuracy|floatformat:0 }}%</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Musobaqalar</span>
-                                        <span class="fw-bold">{{ stats.competitions_participated }}</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span style="color: var(--gray-500);">Top 3 musobaqalar</span>
-                                        <span class="fw-bold" style="color: var(--primary);">{{ stats.competitions_top3 }}</span>
-                                    </div>
-                                </div>
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);margin-bottom:0.75rem;">Eng yaxshi natijalar</div>
+                                <div class="stats-row"><span class="stats-label">Eng yuqori ball</span><span class="stats-val" style="color:var(--accent);">{{ stats.best_score|floatformat:0 }}%</span></div>
+                                <div class="stats-row"><span class="stats-label">Eng yuqori aniqlik</span><span class="stats-val">{{ stats.best_accuracy|floatformat:0 }}%</span></div>
+                                <div class="stats-row"><span class="stats-label">Musobaqalar</span><span class="stats-val">{{ stats.competitions_participated }}</span></div>
+                                <div class="stats-row"><span class="stats-label">Top 3 musobaqalar</span><span class="stats-val" style="color:var(--primary);">{{ stats.competitions_top3 }}</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Subject Stats -->
+                <!-- Fan bo'yicha -->
                 {% if subject_stats %}
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-book me-2" style="color: var(--primary);"></i> Fanlar bo'yicha
-                        </h5>
-
-                        <div class="d-flex flex-column gap-3">
-                            {% for item in subject_stats %}
-                            <div>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span style="font-size: 1.25rem;">{{ item.subject.icon|default:"📚" }}</span>
-                                        <span class="fw-bold">{{ item.subject.name }}</span>
-                                        <small style="color: var(--gray-500);">({{ item.count }} test)</small>
-                                    </div>
-                                    <span class="fw-bold" style="color: var(--primary);">{{ item.avg_score }}%</span>
+                <div class="stats-card">
+                    <div class="stats-card-head">
+                        <i class="bi bi-book" style="color:var(--primary);"></i> Fanlar bo'yicha
+                    </div>
+                    <div class="stats-card-body">
+                        {% for item in subject_stats %}
+                        <div class="sub-bar-item">
+                            <div class="sub-bar-info">
+                                <div class="sub-bar-name">
+                                    <span>{{ item.subject.icon|default:"📚" }}</span>
+                                    {{ item.subject.name }}
+                                    <span style="font-size:0.75rem;color:var(--gray-400);font-weight:400;">({{ item.count }} test)</span>
                                 </div>
-                                <div style="background: var(--gray-200); border-radius: 10px; height: 8px; overflow: hidden;">
-                                    <div style="background: var(--gradient-primary); height: 100%; width: {{ item.avg_score }}%; border-radius: 10px;"></div>
-                                </div>
+                                <span class="sub-bar-score">{{ item.avg_score }}%</span>
                             </div>
-                            {% endfor %}
+                            <div class="sub-bar-track">
+                                <div class="sub-bar-fill" style="width:{{ item.avg_score }}%;"></div>
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
                 {% endif %}
-            </div>
 
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Today Stats -->
-                <div class="card mb-4" style="background: var(--gradient-primary); border: none;">
-                    <div class="card-body">
-                        <h6 class="text-white mb-3">Bugungi natija</h6>
-                        <div class="d-flex justify-content-between text-white mb-2">
-                            <span style="opacity: 0.8;">XP</span>
-                            <span class="fw-bold">+{{ stats.today_xp }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between text-white mb-2">
-                            <span style="opacity: 0.8;">Testlar</span>
-                            <span class="fw-bold">{{ stats.today_tests }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between text-white">
-                            <span style="opacity: 0.8;">To'g'ri javoblar</span>
-                            <span class="fw-bold">{{ stats.today_correct }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Weekly Stats -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-calendar-week me-2" style="color: var(--primary);"></i> Haftalik natija
-                        </h6>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span style="color: var(--gray-500);">XP</span>
-                            <span class="fw-bold">+{{ stats.weekly_xp }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span style="color: var(--gray-500);">Testlar</span>
-                            <span class="fw-bold">{{ stats.weekly_tests }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span style="color: var(--gray-500);">To'g'ri javoblar</span>
-                            <span class="fw-bold">{{ stats.weekly_correct }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Achievements -->
+                <!-- Oxirgi yutuqlar -->
                 {% if achievements %}
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">
-                                <i class="bi bi-award me-2" style="color: var(--accent);"></i> Oxirgi yutuqlar
-                            </h6>
-                            <a href="{% url 'leaderboard:achievements_list' %}" class="small">Barchasi</a>
-                        </div>
-                        <div class="d-flex flex-column gap-2">
-                            {% for ua in achievements %}
-                            <div class="d-flex align-items-center gap-2 p-2" style="background: var(--gray-100); border-radius: var(--radius);">
-                                <div style="width: 36px; height: 36px; background: var(--gradient-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                    {% if ua.achievement.icon %}
-                                        <img src="{{ ua.achievement.icon.url }}" alt="" style="width: 20px; height: 20px; object-fit: contain;">
-                                    {% else %}
-                                        <i class="bi bi-award text-white" style="font-size: 0.9rem;"></i>
-                                    {% endif %}
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small fw-bold">{{ ua.achievement.name }}</div>
-                                    <div class="small" style="color: var(--gray-500);">{{ ua.earned_at|timesince }} oldin</div>
-                                </div>
+                <div class="stats-card">
+                    <div class="stats-card-head" style="justify-content:space-between;">
+                        <span><i class="bi bi-award" style="color:var(--accent);"></i> Oxirgi yutuqlar</span>
+                        <a href="{% url 'leaderboard:achievements_list' %}" style="font-size:0.82rem;color:var(--primary);">Barchasi</a>
+                    </div>
+                    <div class="stats-card-body">
+                        {% for ua in achievements %}
+                        <div class="ach-mini">
+                            <div class="ach-mini-icon">
+                                {% if ua.achievement.icon %}
+                                    <img src="{{ ua.achievement.icon.url }}" alt="" style="width:20px;height:20px;object-fit:contain;">
+                                {% else %}
+                                    <i class="bi bi-award text-white" style="font-size:0.9rem;"></i>
+                                {% endif %}
                             </div>
-                            {% endfor %}
+                            <div>
+                                <div class="ach-mini-name">{{ ua.achievement.name }}</div>
+                                <div class="ach-mini-time">{{ ua.earned_at|timesince }} oldin</div>
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
                 </div>
                 {% endif %}

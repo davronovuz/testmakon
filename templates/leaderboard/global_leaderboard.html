@@ -4,214 +4,130 @@
 {% block title %}Umumiy reyting - TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'leaderboard/_sidebar_css.html' %}
 <style>
-    @media (max-width: 768px) {
-        .gl-hero { padding: 2rem 0 !important; }
-        .gl-top3 .col-md-4 .card { padding: 1rem !important; }
-        .gl-top3 .col-md-4 div[style*="width: 80px"] { width: 60px !important; height: 60px !important; }
+    .lb-table-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; }
+    .lb-table-head { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-100); }
+    .lb-table-title { font-size: 1rem; font-weight: 700; color: var(--dark); }
+    .lb-table table { width: 100%; border-collapse: collapse; }
+    .lb-table th { padding: 0.75rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); border-bottom: 1px solid var(--gray-100); background: var(--gray-50); }
+    .lb-table td { padding: 0.875rem 1.5rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    .lb-table tr:last-child td { border-bottom: none; }
+    .lb-table tr:hover td { background: var(--gray-50); }
+    .lb-table tr.is-me td { background: var(--primary-glow); }
+    .lb-user-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .lb-row-avatar { width: 38px; height: 38px; background: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+    .lb-row-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .lb-row-name { font-size: 0.9rem; font-weight: 600; color: var(--dark); }
+    .lb-row-sub { font-size: 0.75rem; color: var(--gray-400); }
+    .lb-xp { font-weight: 700; color: var(--primary); font-size: 0.95rem; }
+    .lb-xp small { font-weight: 400; font-size: 0.75rem; color: var(--gray-400); margin-left: 2px; }
+
+    /* Top 3 */
+    .top3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .top3-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 1.25rem; text-align: center; transition: transform 0.2s; }
+    .top3-card.gold { border-color: #FBBF24; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); }
+    .top3-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto 0.75rem; background: var(--gray-200); }
+    .top3-avatar.gold { border: 3px solid #FBBF24; }
+    .top3-avatar.silver { border: 3px solid #C0C0C0; }
+    .top3-avatar.bronze { border: 3px solid #CD7F32; }
+    .top3-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .top3-medal { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .top3-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); margin-bottom: 0.25rem; }
+    .top3-xp { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+    .top3-level { font-size: 0.78rem; color: var(--gray-400); }
+
+    @media (max-width: 576px) {
+        .top3-grid { grid-template-columns: 1fr; }
+        .lb-table th:nth-child(3), .lb-table td:nth-child(3),
+        .lb-table th:nth-child(4), .lb-table td:nth-child(4) { display: none; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="gl-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}">Reyting</a></li>
-                <li class="breadcrumb-item active">Umumiy reyting</li>
-            </ol>
-        </nav>
-        <h1 class="mb-2">Umumiy <span class="text-gradient">reyting</span></h1>
-        <p class="lead mb-0" style="color: var(--gray-500);">Barcha vaqt davomida eng ko'p XP to'plagan foydalanuvchilar</p>
-    </div>
-</section>
-
 <section class="section-sm">
     <div class="container">
-        <!-- Navigation Tabs -->
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <a href="{% url 'leaderboard:global_leaderboard' %}" class="btn btn-primary">
-                <i class="bi bi-globe me-2"></i> Umumiy
-            </a>
-            <a href="{% url 'leaderboard:weekly_leaderboard' %}" class="btn btn-outline">
-                <i class="bi bi-calendar-week me-2"></i> Haftalik
-            </a>
-            <a href="{% url 'leaderboard:monthly_leaderboard' %}" class="btn btn-outline">
-                <i class="bi bi-calendar-month me-2"></i> Oylik
-            </a>
-        </div>
+        <div class="lb-layout">
+            {% include 'leaderboard/_sidebar.html' with active='global' %}
 
-        <div class="row">
-            <div class="col-lg-8">
-                <!-- Top 3 Cards -->
+            <div class="lb-main">
+                <!-- Top 3 -->
                 {% if users %}
-                <div class="row g-3 mb-4 gl-top3">
+                <div class="top3-grid">
                     {% for u in users|slice:":3" %}
-                    <div class="col-md-4">
-                        <div class="card text-center p-4 {% if forloop.counter == 1 %}card-glow{% endif %}" style="{% if forloop.counter == 1 %}border: 2px solid var(--accent); background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);{% endif %}">
-                            <div class="position-relative d-inline-block mx-auto mb-3">
-                                <div style="width: 80px; height: 80px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; {% if forloop.counter == 1 %}border: 3px solid var(--accent);{% endif %}">
-                                    {% if u.avatar %}
-                                        <img src="{{ u.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-500);"></i>
-                                    {% endif %}
-                                </div>
-                                <span class="position-absolute" style="bottom: -5px; right: 50%; transform: translateX(50%); font-size: 1.5rem;">
-                                    {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}
-                                </span>
-                            </div>
-                            <h6 class="fw-bold mb-1">{{ u.full_name|default:u.phone_number }}</h6>
-                            <p class="small mb-2" style="color: var(--gray-500);">Level {{ u.level }}</p>
-                            <div class="fw-bold" style="color: var(--primary); font-size: 1.25rem;">{{ u.xp_points }} XP</div>
+                    <div class="top3-card {% if forloop.counter == 1 %}gold{% endif %}">
+                        <div class="top3-avatar {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% else %}bronze{% endif %}">
+                            {% if u.avatar %}
+                                <img src="{{ u.avatar.url }}" alt="">
+                            {% else %}
+                                <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--gray-400);"></i>
+                            {% endif %}
                         </div>
+                        <div class="top3-medal">{% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}</div>
+                        <div class="top3-name">{{ u.full_name|default:u.phone_number|truncatechars:16 }}</div>
+                        <div class="top3-level">Level {{ u.level }}</div>
+                        <div class="top3-xp">{{ u.xp_points }} XP</div>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
 
-                <!-- Full Leaderboard -->
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-list-ol me-2" style="color: var(--primary);"></i> Top 100 foydalanuvchi
-                        </h5>
-
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr style="border-bottom: 2px solid var(--gray-200);">
-                                        <th style="width: 60px; font-weight: 700; color: var(--dark);">O'rin</th>
-                                        <th style="font-weight: 700; color: var(--dark);">Foydalanuvchi</th>
-                                        <th class="text-center" style="font-weight: 700; color: var(--dark);">Level</th>
-                                        <th class="text-center" style="font-weight: 700; color: var(--dark);">Testlar</th>
-                                        <th class="text-end" style="font-weight: 700; color: var(--dark);">XP</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for u in users %}
-                                    <tr style="{% if user.is_authenticated and u.id == user.id %}background: var(--primary-glow);{% endif %}">
-                                        <td>
-                                            {% if forloop.counter == 1 %}
-                                                <span style="font-size: 1.3rem;">🥇</span>
-                                            {% elif forloop.counter == 2 %}
-                                                <span style="font-size: 1.3rem;">🥈</span>
-                                            {% elif forloop.counter == 3 %}
-                                                <span style="font-size: 1.3rem;">🥉</span>
-                                            {% else %}
-                                                <span class="fw-bold" style="color: var(--gray-500);">{{ forloop.counter }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div style="width: 40px; height: 40px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                                    {% if u.avatar %}
-                                                        <img src="{{ u.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% else %}
-                                                        <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
-                                                    {% endif %}
-                                                </div>
-                                                <div>
-                                                    <div class="fw-bold" style="color: var(--dark);">{{ u.full_name|default:u.phone_number }}</div>
-                                                    {% if u.region %}
-                                                    <small style="color: var(--gray-500);">{{ u.region }}</small>
-                                                    {% endif %}
-                                                </div>
+                <!-- Full table -->
+                <div class="lb-table-card">
+                    <div class="lb-table-head">
+                        <div class="lb-table-title">
+                            <i class="bi bi-list-ol me-2" style="color: var(--primary);"></i>Top 100 foydalanuvchi
+                        </div>
+                    </div>
+                    <div class="lb-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 52px;">O'rin</th>
+                                    <th>Foydalanuvchi</th>
+                                    <th class="text-center" style="width: 80px;">Level</th>
+                                    <th class="text-center" style="width: 80px;">Testlar</th>
+                                    <th class="text-end" style="width: 100px;">XP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for u in users %}
+                                <tr {% if user.is_authenticated and u.id == user.id %}class="is-me"{% endif %}>
+                                    <td>
+                                        {% if forloop.counter == 1 %}<span style="font-size:1.3rem;">🥇</span>
+                                        {% elif forloop.counter == 2 %}<span style="font-size:1.3rem;">🥈</span>
+                                        {% elif forloop.counter == 3 %}<span style="font-size:1.3rem;">🥉</span>
+                                        {% else %}<span style="font-weight:700;color:var(--gray-400);">{{ forloop.counter }}</span>{% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="lb-user-cell">
+                                            <div class="lb-row-avatar">
+                                                {% if u.avatar %}<img src="{{ u.avatar.url }}" alt="">
+                                                {% else %}<i class="bi bi-person-fill" style="color:var(--gray-400);"></i>{% endif %}
                                             </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge" style="background: var(--gray-100); color: var(--dark);">
-                                                {{ u.level }}
-                                            </span>
-                                        </td>
-                                        <td class="text-center" style="color: var(--gray-500);">
-                                            {{ u.total_tests_taken }}
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="fw-bold" style="color: var(--primary);">{{ u.xp_points }}</span>
-                                            <small style="color: var(--gray-500);">XP</small>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5">
-                                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300);"></i>
-                                            <p class="mt-2 mb-0" style="color: var(--gray-500);">Hali ma'lumot yo'q</p>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Your Position -->
-                {% if user.is_authenticated %}
-                <div class="card mb-4" style="background: var(--gradient-primary); border: none;">
-                    <div class="card-body text-center">
-                        <p class="text-white mb-2" style="opacity: 0.9;">Sizning o'rningiz</p>
-                        <div class="text-white" style="font-size: 3rem; font-weight: 800;">#{{ user.global_rank|default:"—" }}</div>
-                        <div class="d-flex justify-content-center gap-4 mt-3">
-                            <div>
-                                <div class="text-white" style="font-size: 1.25rem; font-weight: 700;">{{ user.xp_points }}</div>
-                                <small class="text-white" style="opacity: 0.8;">XP</small>
-                            </div>
-                            <div>
-                                <div class="text-white" style="font-size: 1.25rem; font-weight: 700;">{{ user.level }}</div>
-                                <small class="text-white" style="opacity: 0.8;">Level</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- XP Info -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i> XP qanday olish mumkin?
-                        </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start gap-2 mb-3">
-                                <span style="color: var(--primary);">✓</span>
-                                <span style="color: var(--gray-500);">Test yechish - har bir to'g'ri javob uchun</span>
-                            </li>
-                            <li class="d-flex align-items-start gap-2 mb-3">
-                                <span style="color: var(--primary);">✓</span>
-                                <span style="color: var(--gray-500);">Kunlik streak bonus</span>
-                            </li>
-                            <li class="d-flex align-items-start gap-2 mb-3">
-                                <span style="color: var(--primary);">✓</span>
-                                <span style="color: var(--gray-500);">1v1 janglarda g'alaba</span>
-                            </li>
-                            <li class="d-flex align-items-start gap-2">
-                                <span style="color: var(--primary);">✓</span>
-                                <span style="color: var(--gray-500);">Yutuqlarni ochish</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Achievements Link -->
-                <div class="card" style="background: var(--gray-100); border: none;">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3">
-                            <div style="font-size: 2.5rem;">🏆</div>
-                            <div>
-                                <h6 class="fw-bold mb-1">Yutuqlar</h6>
-                                <p class="small mb-0" style="color: var(--gray-500);">Yutuqlarni oching va bonus XP oling</p>
-                            </div>
-                        </div>
-                        <a href="{% url 'leaderboard:achievements_list' %}" class="btn btn-dark w-100 mt-3">
-                            Ko'rish <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
+                                            <div>
+                                                <div class="lb-row-name">{{ u.full_name|default:u.phone_number }}</div>
+                                                {% if u.region %}<div class="lb-row-sub">{{ u.region }}</div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge" style="background:var(--gray-100);color:var(--dark);font-size:0.78rem;">{{ u.level }}</span>
+                                    </td>
+                                    <td class="text-center" style="color:var(--gray-500);">{{ u.total_tests_taken }}</td>
+                                    <td class="text-end"><span class="lb-xp">{{ u.xp_points }}<small>XP</small></span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5" style="color:var(--gray-400);">
+                                        <i class="bi bi-inbox" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;"></i>
+                                        Hali ma'lumot yo'q
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

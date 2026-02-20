@@ -50,9 +50,14 @@ def global_leaderboard(request):
         is_active=True
     ).order_by('-xp_points')[:100]
 
+    subjects = Subject.objects.filter(is_active=True)
+    user_rank = request.user.global_rank if request.user.is_authenticated else None
+
     context = {
         'users': users,
         'period': 'all_time',
+        'subjects': subjects,
+        'user_rank': user_rank,
     }
 
     return render(request, 'leaderboard/global_leaderboard.html', context)
@@ -87,10 +92,15 @@ def weekly_leaderboard(request):
                 'tests': entry['tests_count'],
             })
 
+    subjects = Subject.objects.filter(is_active=True)
+    user_rank = request.user.global_rank if request.user.is_authenticated else None
+
     context = {
         'leaderboard': leaderboard,
         'period': 'weekly',
         'week_start': week_start,
+        'subjects': subjects,
+        'user_rank': user_rank,
     }
 
     return render(request, 'leaderboard/weekly_leaderboard.html', context)
@@ -123,10 +133,15 @@ def monthly_leaderboard(request):
                 'tests': entry['tests_count'],
             })
 
+    subjects = Subject.objects.filter(is_active=True)
+    user_rank = request.user.global_rank if request.user.is_authenticated else None
+
     context = {
         'leaderboard': leaderboard,
         'period': 'monthly',
         'month_start': month_start,
+        'subjects': subjects,
+        'user_rank': user_rank,
     }
 
     return render(request, 'leaderboard/monthly_leaderboard.html', context)
@@ -189,9 +204,14 @@ def achievements_list(request):
             user=request.user
         ).values_list('achievement_id', flat=True))
 
+    subjects = Subject.objects.filter(is_active=True)
+    user_rank = request.user.global_rank if request.user.is_authenticated else None
+
     context = {
         'by_category': by_category,
         'earned_ids': earned_ids,
+        'subjects': subjects,
+        'user_rank': user_rank,
     }
 
     return render(request, 'leaderboard/achievements_list.html', context)
@@ -258,11 +278,16 @@ def my_stats(request):
                 'count': subject_attempts.count(),
             })
 
+    all_subjects = Subject.objects.filter(is_active=True)
+    user_rank = user.global_rank
+
     context = {
         'stats': stats,
         'test_stats': test_stats,
         'achievements': achievements,
         'subject_stats': subject_stats,
+        'subjects': all_subjects,
+        'user_rank': user_rank,
     }
 
     return render(request, 'leaderboard/my_stats.html', context)

@@ -4,266 +4,190 @@
 {% block title %}Oylik reyting - TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'leaderboard/_sidebar_css.html' %}
 <style>
-@media (max-width: 768px) {
-    .monthly-hero { padding: 1.5rem 0 !important; }
-    .monthly-hero h1 { font-size: 1.5rem; }
-    .monthly-hero .lead { font-size: 0.95rem; }
-    .monthly-hero div[style*="font-size: 3rem"] { font-size: 2rem !important; }
-    .card .row.align-items-end div[style*="width: 90px"] { width: 65px !important; height: 65px !important; }
-    .card .row.align-items-end div[style*="width: 70px"] { width: 50px !important; height: 50px !important; }
-    .card.mb-4.p-4 { padding: 1rem !important; }
-    .card-body { padding: 1rem !important; }
-}
+    .lb-table-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; }
+    .lb-table-head { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-100); }
+    .lb-table-title { font-size: 1rem; font-weight: 700; color: var(--dark); }
+    .lb-table table { width: 100%; border-collapse: collapse; }
+    .lb-table th { padding: 0.75rem 1.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-500); border-bottom: 1px solid var(--gray-100); background: var(--gray-50); }
+    .lb-table td { padding: 0.875rem 1.5rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    .lb-table tr:last-child td { border-bottom: none; }
+    .lb-table tr:hover td { background: var(--gray-50); }
+    .lb-table tr.is-me td { background: var(--primary-glow); }
+    .lb-user-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .lb-row-avatar { width: 38px; height: 38px; background: var(--gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+    .lb-row-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .lb-row-name { font-size: 0.9rem; font-weight: 600; color: var(--dark); }
+    .lb-row-sub { font-size: 0.75rem; color: var(--gray-400); }
+    .lb-xp { font-weight: 700; color: var(--primary); font-size: 0.95rem; }
+    .lb-xp small { font-weight: 400; font-size: 0.75rem; color: var(--gray-400); margin-left: 2px; }
+
+    /* Month card */
+    .month-info-card { background: var(--gradient-primary); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .month-progress-bar { background: rgba(255,255,255,0.3); border-radius: 10px; height: 10px; overflow: hidden; margin-top: 0.75rem; }
+    .month-progress-fill { background: rgba(255,255,255,0.9); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+
+    /* Rewards */
+    .rewards-card { background: #fff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .reward-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem; border-radius: 10px; }
+
+    /* Podium */
+    .podium-card { background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .podium-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; align-items: end; text-align: center; }
+    .podium-avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; background: rgba(255,255,255,0.15); }
+    .podium-medal { font-size: 1.5rem; margin: 0.35rem 0 0.25rem; }
+    .podium-name { font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+    .podium-xp { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 0.15rem 0.6rem; font-size: 0.78rem; font-weight: 600; }
+    .podium-xp.gold-bg { background: var(--accent); color: var(--dark); }
+    .podium-tests { font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 0.25rem; }
+
+    @media (max-width: 576px) {
+        .lb-table th:nth-child(3), .lb-table td:nth-child(3) { display: none; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="monthly-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Bosh sahifa</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'leaderboard:leaderboard_main' %}">Reyting</a></li>
-                <li class="breadcrumb-item active">Oylik reyting</li>
-            </ol>
-        </nav>
-        <div class="d-flex align-items-center gap-3">
-            <div style="font-size: 3rem;">📆</div>
-            <div>
-                <h1 class="mb-2">Oylik <span class="text-gradient">reyting</span></h1>
-                <p class="lead mb-0" style="color: var(--gray-500);">
-                    {{ month_start|date:"F Y" }}
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
 <section class="section-sm">
     <div class="container">
-        <!-- Navigation Tabs -->
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <a href="{% url 'leaderboard:global_leaderboard' %}" class="btn btn-outline">
-                <i class="bi bi-globe me-2"></i> Umumiy
-            </a>
-            <a href="{% url 'leaderboard:weekly_leaderboard' %}" class="btn btn-outline">
-                <i class="bi bi-calendar-week me-2"></i> Haftalik
-            </a>
-            <a href="{% url 'leaderboard:monthly_leaderboard' %}" class="btn btn-primary">
-                <i class="bi bi-calendar-month me-2"></i> Oylik
-            </a>
-        </div>
+        <div class="lb-layout">
+            {% include 'leaderboard/_sidebar.html' with active='monthly' %}
 
-        <div class="row">
-            <div class="col-lg-8">
-                <!-- Top 3 Podium -->
+            <div class="lb-main">
+                <!-- Month progress -->
+                <div class="month-info-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="text-white" style="font-weight:600;">{{ month_start|date:"F Y" }}</span>
+                        <span class="text-white fw-bold" id="month-pct">0%</span>
+                    </div>
+                    <div class="month-progress-bar">
+                        <div class="month-progress-fill" id="month-bar" style="width:0%;"></div>
+                    </div>
+                    <div style="font-size:0.8rem;color:rgba(255,255,255,0.75);margin-top:0.5rem;">
+                        Oy oxirigacha faol bo'ling va sovrin yuting!
+                    </div>
+                </div>
+
+                <!-- Podium top 3 -->
                 {% if leaderboard %}
-                <div class="card mb-4 p-4" style="background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border: none;">
-                    <h5 class="text-white text-center mb-4">
-                        <i class="bi bi-trophy-fill text-warning me-2"></i> Oylik TOP 3
-                    </h5>
-                    <div class="row align-items-end text-center">
-                        <!-- 2nd Place -->
-                        <div class="col-4">
-                            {% if leaderboard|length >= 2 %}
-                            {% with leaderboard.1 as second %}
-                            <div class="position-relative">
-                                <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #C0C0C0;">
-                                    {% if second.user.avatar %}
-                                        <img src="{{ second.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <i class="bi bi-person-fill text-white" style="font-size: 1.5rem;"></i>
-                                    {% endif %}
-                                </div>
-                                <div style="background: #C0C0C0; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-weight: 800;">2</div>
+                <div class="podium-card">
+                    <div class="podium-row">
+                        <!-- 2nd -->
+                        <div>
+                            {% if leaderboard|length >= 2 %}{% with leaderboard.1 as s %}
+                            <div class="podium-avatar" style="width:60px;height:60px;border:2px solid #C0C0C0;">
+                                {% if s.user.avatar %}<img src="{{ s.user.avatar.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                                {% else %}<i class="bi bi-person-fill text-white"></i>{% endif %}
                             </div>
-                            <p class="text-white fw-bold mb-1 mt-3 small">{{ second.user.full_name|default:second.user.phone_number|truncatechars:12 }}</p>
-                            <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">{{ second.xp }} XP</span>
-                            <div class="small text-white mt-1" style="opacity: 0.7;">{{ second.tests }} test</div>
-                            {% endwith %}
-                            {% endif %}
+                            <div class="podium-medal">🥈</div>
+                            <div class="podium-name">{{ s.user.full_name|default:s.user.phone_number|truncatechars:12 }}</div>
+                            <span class="podium-xp">+{{ s.xp }} XP</span>
+                            <div class="podium-tests">{{ s.tests }} test</div>
+                            {% endwith %}{% endif %}
                         </div>
-                        <!-- 1st Place -->
-                        <div class="col-4">
-                            {% if leaderboard|length >= 1 %}
-                            {% with leaderboard.0 as first %}
-                            <div class="position-relative">
-                                <span style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 1.5rem;">👑</span>
-                                <div style="width: 90px; height: 90px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 4px solid #FFD700;">
-                                    {% if first.user.avatar %}
-                                        <img src="{{ first.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <i class="bi bi-person-fill text-white" style="font-size: 2rem;"></i>
-                                    {% endif %}
-                                </div>
-                                <div style="background: #FFD700; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); font-weight: 800; color: var(--dark);">1</div>
+                        <!-- 1st -->
+                        <div>
+                            {% if leaderboard|length >= 1 %}{% with leaderboard.0 as f %}
+                            <div class="podium-avatar" style="width:76px;height:76px;border:3px solid #FFD700;">
+                                {% if f.user.avatar %}<img src="{{ f.user.avatar.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                                {% else %}<i class="bi bi-person-fill text-white" style="font-size:1.5rem;"></i>{% endif %}
                             </div>
-                            <p class="text-white fw-bold mb-1 mt-3">{{ first.user.full_name|default:first.user.phone_number|truncatechars:15 }}</p>
-                            <span class="badge" style="background: var(--accent); color: var(--dark); font-size: 0.9rem;">{{ first.xp }} XP</span>
-                            <div class="small text-white mt-1" style="opacity: 0.7;">{{ first.tests }} test</div>
-                            {% endwith %}
-                            {% endif %}
+                            <div class="podium-medal" style="font-size:1.8rem;">🥇</div>
+                            <div class="podium-name" style="font-size:0.88rem;">{{ f.user.full_name|default:f.user.phone_number|truncatechars:14 }}</div>
+                            <span class="podium-xp gold-bg">+{{ f.xp }} XP</span>
+                            <div class="podium-tests">{{ f.tests }} test</div>
+                            {% endwith %}{% endif %}
                         </div>
-                        <!-- 3rd Place -->
-                        <div class="col-4">
-                            {% if leaderboard|length >= 3 %}
-                            {% with leaderboard.2 as third %}
-                            <div class="position-relative">
-                                <div style="width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 0 auto; border: 3px solid #CD7F32;">
-                                    {% if third.user.avatar %}
-                                        <img src="{{ third.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <i class="bi bi-person-fill text-white" style="font-size: 1.5rem;"></i>
-                                    {% endif %}
-                                </div>
-                                <div style="background: #CD7F32; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-weight: 800; color: white;">3</div>
+                        <!-- 3rd -->
+                        <div>
+                            {% if leaderboard|length >= 3 %}{% with leaderboard.2 as t %}
+                            <div class="podium-avatar" style="width:60px;height:60px;border:2px solid #CD7F32;">
+                                {% if t.user.avatar %}<img src="{{ t.user.avatar.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+                                {% else %}<i class="bi bi-person-fill text-white"></i>{% endif %}
                             </div>
-                            <p class="text-white fw-bold mb-1 mt-3 small">{{ third.user.full_name|default:third.user.phone_number|truncatechars:12 }}</p>
-                            <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">{{ third.xp }} XP</span>
-                            <div class="small text-white mt-1" style="opacity: 0.7;">{{ third.tests }} test</div>
-                            {% endwith %}
-                            {% endif %}
+                            <div class="podium-medal">🥉</div>
+                            <div class="podium-name">{{ t.user.full_name|default:t.user.phone_number|truncatechars:12 }}</div>
+                            <span class="podium-xp">+{{ t.xp }} XP</span>
+                            <div class="podium-tests">{{ t.tests }} test</div>
+                            {% endwith %}{% endif %}
                         </div>
                     </div>
                 </div>
                 {% endif %}
 
-                <!-- Full Leaderboard -->
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-4">
-                            <i class="bi bi-list-ol me-2" style="color: var(--primary);"></i> Bu oyning reytingi
-                        </h5>
+                <!-- Rewards -->
+                <div class="rewards-card">
+                    <div style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray-400);margin-bottom:0.75rem;">
+                        <i class="bi bi-gift me-1" style="color:var(--accent);"></i> Oylik mukofotlar
+                    </div>
+                    <div class="reward-item" style="background:linear-gradient(90deg,#FEF3C7 0%,transparent 100%);">
+                        <span style="font-size:1.25rem;">🥇</span>
+                        <div><div style="font-weight:600;font-size:0.88rem;">1-o'rin</div><div style="font-size:0.78rem;color:var(--gray-500);">Premium 1 oy + 1000 XP</div></div>
+                    </div>
+                    <div class="reward-item" style="background:linear-gradient(90deg,#E5E7EB 0%,transparent 100%);">
+                        <span style="font-size:1.25rem;">🥈</span>
+                        <div><div style="font-weight:600;font-size:0.88rem;">2-o'rin</div><div style="font-size:0.78rem;color:var(--gray-500);">500 XP bonus</div></div>
+                    </div>
+                    <div class="reward-item" style="background:linear-gradient(90deg,#FED7AA 0%,transparent 100%);">
+                        <span style="font-size:1.25rem;">🥉</span>
+                        <div><div style="font-weight:600;font-size:0.88rem;">3-o'rin</div><div style="font-size:0.78rem;color:var(--gray-500);">250 XP bonus</div></div>
+                    </div>
+                </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr style="border-bottom: 2px solid var(--gray-200);">
-                                        <th style="width: 60px; font-weight: 700; color: var(--dark);">O'rin</th>
-                                        <th style="font-weight: 700; color: var(--dark);">Foydalanuvchi</th>
-                                        <th class="text-center" style="font-weight: 700; color: var(--dark);">Testlar</th>
-                                        <th class="text-end" style="font-weight: 700; color: var(--dark);">XP</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for entry in leaderboard %}
-                                    <tr style="{% if user.is_authenticated and entry.user.id == user.id %}background: var(--primary-glow);{% endif %}">
-                                        <td>
-                                            {% if entry.rank == 1 %}
-                                                <span style="font-size: 1.3rem;">🥇</span>
-                                            {% elif entry.rank == 2 %}
-                                                <span style="font-size: 1.3rem;">🥈</span>
-                                            {% elif entry.rank == 3 %}
-                                                <span style="font-size: 1.3rem;">🥉</span>
-                                            {% elif entry.rank <= 10 %}
-                                                <span class="badge" style="background: var(--primary-glow); color: var(--primary-dark);">{{ entry.rank }}</span>
-                                            {% else %}
-                                                <span class="fw-bold" style="color: var(--gray-500);">{{ entry.rank }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div style="width: 40px; height: 40px; background: var(--gray-200); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                                    {% if entry.user.avatar %}
-                                                        <img src="{{ entry.user.avatar.url }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% else %}
-                                                        <i class="bi bi-person-fill" style="color: var(--gray-500);"></i>
-                                                    {% endif %}
-                                                </div>
-                                                <div>
-                                                    <div class="fw-bold" style="color: var(--dark);">{{ entry.user.full_name|default:entry.user.phone_number }}</div>
-                                                    <small style="color: var(--gray-500);">Level {{ entry.user.level }}</small>
-                                                </div>
+                <!-- Full table -->
+                <div class="lb-table-card">
+                    <div class="lb-table-head">
+                        <div class="lb-table-title">
+                            <i class="bi bi-list-ol me-2" style="color:var(--primary);"></i>Bu oyning reytingi
+                        </div>
+                    </div>
+                    <div class="lb-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:52px;">O'rin</th>
+                                    <th>Foydalanuvchi</th>
+                                    <th class="text-center" style="width:80px;">Testlar</th>
+                                    <th class="text-end" style="width:100px;">XP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in leaderboard %}
+                                <tr {% if user.is_authenticated and entry.user.id == user.id %}class="is-me"{% endif %}>
+                                    <td>
+                                        {% if entry.rank == 1 %}<span style="font-size:1.3rem;">🥇</span>
+                                        {% elif entry.rank == 2 %}<span style="font-size:1.3rem;">🥈</span>
+                                        {% elif entry.rank == 3 %}<span style="font-size:1.3rem;">🥉</span>
+                                        {% else %}<span style="font-weight:700;color:var(--gray-400);">{{ entry.rank }}</span>{% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="lb-user-cell">
+                                            <div class="lb-row-avatar">
+                                                {% if entry.user.avatar %}<img src="{{ entry.user.avatar.url }}" alt="">
+                                                {% else %}<i class="bi bi-person-fill" style="color:var(--gray-400);"></i>{% endif %}
                                             </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge" style="background: var(--gray-100); color: var(--dark);">
-                                                {{ entry.tests }}
-                                            </span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="fw-bold" style="color: var(--primary);">+{{ entry.xp }}</span>
-                                            <small style="color: var(--gray-500);">XP</small>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center py-5">
-                                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300);"></i>
-                                            <p class="mt-2 mb-0" style="color: var(--gray-500);">Bu oy hali hech kim test yechmagan</p>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Month Progress -->
-                <div class="card mb-4" style="background: var(--gradient-primary); border: none;">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-white">Oy davomiyligi</span>
-                            <span class="text-white fw-bold" id="month-progress">0%</span>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.3); border-radius: 10px; height: 10px; overflow: hidden;">
-                            <div id="progress-bar" style="background: white; height: 100%; border-radius: 10px; transition: width 0.5s ease;"></div>
-                        </div>
-                        <p class="text-white mt-3 mb-0 text-center" style="opacity: 0.9; font-size: 0.9rem;">
-                            Oy oxirigacha faol bo'ling!
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Monthly Rewards -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-gift me-2" style="color: var(--accent);"></i> Oylik mukofotlar
-                        </h6>
-                        <div class="d-flex flex-column gap-3">
-                            <div class="d-flex align-items-center gap-3 p-2" style="background: linear-gradient(90deg, #FEF3C7 0%, transparent 100%); border-radius: var(--radius);">
-                                <span style="font-size: 1.5rem;">🥇</span>
-                                <div>
-                                    <div class="fw-bold" style="color: var(--dark);">1-o'rin</div>
-                                    <small style="color: var(--gray-500);">Premium 1 oy + 1000 XP</small>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center gap-3 p-2" style="background: linear-gradient(90deg, #E5E7EB 0%, transparent 100%); border-radius: var(--radius);">
-                                <span style="font-size: 1.5rem;">🥈</span>
-                                <div>
-                                    <div class="fw-bold" style="color: var(--dark);">2-o'rin</div>
-                                    <small style="color: var(--gray-500);">500 XP bonus</small>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center gap-3 p-2" style="background: linear-gradient(90deg, #FED7AA 0%, transparent 100%); border-radius: var(--radius);">
-                                <span style="font-size: 1.5rem;">🥉</span>
-                                <div>
-                                    <div class="fw-bold" style="color: var(--dark);">3-o'rin</div>
-                                    <small style="color: var(--gray-500);">250 XP bonus</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Start Test CTA -->
-                <div class="card" style="background: var(--gray-100); border: none;">
-                    <div class="card-body text-center">
-                        <span style="font-size: 3rem;">📈</span>
-                        <h5 class="fw-bold mt-2 mb-2">Oylik g'olib bo'ling!</h5>
-                        <p class="small mb-3" style="color: var(--gray-500);">
-                            Har kuni test yeching va sovrin yuting
-                        </p>
-                        <a href="{% url 'tests_app:tests_list' %}" class="btn btn-primary w-100">
-                            Test boshlash <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
+                                            <div>
+                                                <div class="lb-row-name">{{ entry.user.full_name|default:entry.user.phone_number }}</div>
+                                                <div class="lb-row-sub">Level {{ entry.user.level }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge" style="background:var(--gray-100);color:var(--dark);font-size:0.78rem;">{{ entry.tests }}</span>
+                                    </td>
+                                    <td class="text-end"><span class="lb-xp">+{{ entry.xp }}<small>XP</small></span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5" style="color:var(--gray-400);">
+                                        <i class="bi bi-inbox" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;"></i>
+                                        Bu oy hali hech kim test yechmagan
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -274,20 +198,12 @@
 
 {% block extra_js %}
 <script>
-// Calculate month progress
-function updateMonthProgress() {
+(function() {
     const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    const totalDays = end.getDate();
-    const currentDay = now.getDate();
-    const progress = Math.round((currentDay / totalDays) * 100);
-
-    document.getElementById('month-progress').textContent = progress + '%';
-    document.getElementById('progress-bar').style.width = progress + '%';
-}
-
-updateMonthProgress();
+    const pct = Math.round((now.getDate() / end.getDate()) * 100);
+    document.getElementById('month-pct').textContent = pct + '%';
+    document.getElementById('month-bar').style.width = pct + '%';
+})();
 </script>
 {% endblock %}

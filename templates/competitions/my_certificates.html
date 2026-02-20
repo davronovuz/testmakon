@@ -4,56 +4,12 @@
 {% block title %}Mening sertifikatlarim | TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'competitions/_sidebar_css.html' %}
 <style>
-    .mc-page { padding: 2rem 0 4rem; }
-
-    .mc-bread {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-
-    .mc-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
-    .mc-bread a:hover { text-decoration: underline; }
-
-    /* Header */
-    .mc-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .mc-header h1 {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--dark);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .mc-count {
-        background: var(--gray-50);
-        padding: 0.5rem 1rem;
-        border-radius: 10px;
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--gray-600);
-    }
-
-    .mc-count strong { color: var(--primary); }
-
     /* ========== CERTIFICATES GRID ========== */
     .mc-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1rem;
     }
 
@@ -69,10 +25,7 @@
     .mc-cert:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
 
     /* Top gradient */
-    .mc-cert-top {
-        height: 6px;
-    }
-
+    .mc-cert-top { height: 6px; }
     .mc-cert-top.gold { background: linear-gradient(90deg, #F59E0B, #D97706); }
     .mc-cert-top.silver { background: linear-gradient(90deg, #94A3B8, #64748B); }
     .mc-cert-top.bronze { background: linear-gradient(90deg, #F97316, #C2410C); }
@@ -81,254 +34,166 @@
     .mc-cert-body { padding: 1.25rem; }
 
     /* Medal + title */
-    .mc-cert-header {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
+    .mc-cert-header { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem; }
 
     .mc-cert-medal {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.35rem;
-        flex-shrink: 0;
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.35rem; flex-shrink: 0;
     }
-
     .mc-cert-medal.gold { background: #FEF3C7; }
     .mc-cert-medal.silver { background: #F1F5F9; }
     .mc-cert-medal.bronze { background: #FED7AA; }
     .mc-cert-medal.participation { background: #DBEAFE; }
 
-    .mc-cert-title {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--dark);
-        line-height: 1.4;
-        margin-bottom: 0.15rem;
-    }
-
-    .mc-cert-comp {
-        font-size: 0.78rem;
-        color: var(--gray-500);
-    }
+    .mc-cert-title { font-size: 0.95rem; font-weight: 700; color: var(--dark); line-height: 1.4; margin-bottom: 0.15rem; }
+    .mc-cert-comp { font-size: 0.78rem; color: var(--gray-500); }
 
     /* Details */
-    .mc-cert-details {
-        display: flex;
-        gap: 1.25rem;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .mc-cert-detail { }
+    .mc-cert-details { display: flex; gap: 1.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .mc-cert-detail-label { font-size: 0.7rem; color: var(--gray-400); font-weight: 600; }
     .mc-cert-detail-val { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
 
     /* Verification code */
     .mc-cert-code {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 0.85rem;
-        background: var(--gray-50);
-        border-radius: 10px;
-        margin-bottom: 1rem;
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.6rem 0.85rem; background: var(--gray-50);
+        border-radius: 10px; margin-bottom: 1rem;
     }
-
-    .mc-cert-code-label {
-        font-size: 0.72rem;
-        color: var(--gray-500);
-        font-weight: 600;
-    }
-
-    .mc-cert-code-val {
-        font-size: 0.88rem;
-        font-weight: 800;
-        color: var(--dark);
-        font-family: monospace;
-        letter-spacing: 1px;
-        flex: 1;
-    }
-
-    .mc-cert-copy {
-        background: none;
-        border: none;
-        color: var(--primary);
-        cursor: pointer;
-        font-size: 0.95rem;
-        padding: 0.25rem;
-        transition: all 0.2s;
-    }
-
+    .mc-cert-code-label { font-size: 0.72rem; color: var(--gray-500); font-weight: 600; }
+    .mc-cert-code-val { font-size: 0.88rem; font-weight: 800; color: var(--dark); font-family: monospace; letter-spacing: 1px; flex: 1; }
+    .mc-cert-copy { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.95rem; padding: 0.25rem; transition: all 0.2s; }
     .mc-cert-copy:hover { transform: scale(1.1); }
 
     /* Actions */
-    .mc-cert-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
+    .mc-cert-actions { display: flex; gap: 0.5rem; }
     .mc-cert-btn {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.35rem;
-        padding: 0.6rem;
-        border-radius: 10px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        gap: 0.35rem; padding: 0.6rem; border-radius: 10px;
+        font-size: 0.82rem; font-weight: 700; text-decoration: none;
+        transition: all 0.2s; border: none; cursor: pointer;
     }
-
     .mc-cert-btn.view { background: var(--gray-50); color: var(--dark); }
     .mc-cert-btn.view:hover { background: var(--gray-100); color: var(--dark); }
     .mc-cert-btn.download { background: rgba(139,197,64,0.1); color: var(--primary); }
     .mc-cert-btn.download:hover { background: rgba(139,197,64,0.2); color: var(--primary); }
 
     /* ========== EMPTY ========== */
-    .mc-empty {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: var(--gray-50);
-        border-radius: 20px;
-    }
-
+    .mc-empty { text-align: center; padding: 4rem 2rem; background: var(--gray-50); border-radius: 20px; }
     .mc-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.4; }
     .mc-empty h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
     .mc-empty p { font-size: 0.92rem; color: var(--gray-500); margin: 0 0 1.25rem; }
 
-    .mc-empty-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        background: var(--gradient-primary);
-        color: white;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        text-decoration: none;
+    /* Section header */
+    .mc-section-head {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.25rem;
     }
-
-    .mc-empty-btn:hover { color: white; }
-
-    @media (max-width: 575px) {
-        .mc-grid { grid-template-columns: 1fr; }
-    }
+    .mc-section-title { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+    .mc-count { background: var(--gray-50); padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.82rem; font-weight: 700; color: var(--gray-600); }
+    .mc-count strong { color: var(--primary); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="mc-page">
+<section class="section-sm">
     <div class="container">
+        <div class="comp-layout">
+            {% include 'competitions/_sidebar.html' with active='my_certificates' %}
 
-        <div class="mc-bread">
-            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>Sertifikatlar</span>
-        </div>
+            <div>
+                <div class="mc-section-head">
+                    <h2 class="mc-section-title">📜 Mening sertifikatlarim</h2>
+                    {% if certificates %}
+                    <div class="mc-count">Jami: <strong>{{ certificates|length }}</strong></div>
+                    {% endif %}
+                </div>
 
-        <div class="mc-header">
-            <h1>📜 Mening sertifikatlarim</h1>
-            {% if certificates %}
-            <div class="mc-count">Jami: <strong>{{ certificates|length }}</strong></div>
-            {% endif %}
-        </div>
+                {% if certificates %}
+                <div class="mc-grid">
+                    {% for cert in certificates %}
+                    <div class="mc-cert">
+                        <div class="mc-cert-top {{ cert.certificate_type }}"></div>
+                        <div class="mc-cert-body">
+                            <div class="mc-cert-header">
+                                <div class="mc-cert-medal {{ cert.certificate_type }}">
+                                    {% if cert.certificate_type == 'gold' %}🥇
+                                    {% elif cert.certificate_type == 'silver' %}🥈
+                                    {% elif cert.certificate_type == 'bronze' %}🥉
+                                    {% else %}📜
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="mc-cert-title">
+                                        {% if cert.certificate_type == 'gold' %}Oltin sertifikat
+                                        {% elif cert.certificate_type == 'silver' %}Kumush sertifikat
+                                        {% elif cert.certificate_type == 'bronze' %}Bronza sertifikat
+                                        {% else %}Ishtirok sertifikati
+                                        {% endif %}
+                                    </div>
+                                    <div class="mc-cert-comp">{{ cert.competition.title }}</div>
+                                </div>
+                            </div>
 
-        {% if certificates %}
-        <div class="mc-grid">
-            {% for cert in certificates %}
-            <div class="mc-cert">
-                <div class="mc-cert-top {{ cert.certificate_type }}"></div>
-                <div class="mc-cert-body">
+                            <div class="mc-cert-details">
+                                <div class="mc-cert-detail">
+                                    <div class="mc-cert-detail-label">O'rin</div>
+                                    <div class="mc-cert-detail-val">#{{ cert.rank }}</div>
+                                </div>
+                                <div class="mc-cert-detail">
+                                    <div class="mc-cert-detail-label">Ball</div>
+                                    <div class="mc-cert-detail-val">{{ cert.score|floatformat:0 }}</div>
+                                </div>
+                                <div class="mc-cert-detail">
+                                    <div class="mc-cert-detail-label">Sana</div>
+                                    <div class="mc-cert-detail-val">{{ cert.issued_at|date:"d.m.Y" }}</div>
+                                </div>
+                            </div>
 
-                    <div class="mc-cert-header">
-                        <div class="mc-cert-medal {{ cert.certificate_type }}">
-                            {% if cert.certificate_type == 'gold' %}🥇
-                            {% elif cert.certificate_type == 'silver' %}🥈
-                            {% elif cert.certificate_type == 'bronze' %}🥉
-                            {% else %}📜
-                            {% endif %}
-                        </div>
-                        <div>
-                            <div class="mc-cert-title">
-                                {% if cert.certificate_type == 'gold' %}Oltin sertifikat
-                                {% elif cert.certificate_type == 'silver' %}Kumush sertifikat
-                                {% elif cert.certificate_type == 'bronze' %}Bronza sertifikat
-                                {% else %}Ishtirok sertifikati
+                            <div class="mc-cert-code">
+                                <div>
+                                    <div class="mc-cert-code-label">Tasdiqlash kodi</div>
+                                    <div class="mc-cert-code-val">{{ cert.verification_code }}</div>
+                                </div>
+                                <button type="button" class="mc-cert-copy" onclick="copyCode('{{ cert.verification_code }}')" title="Nusxalash">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+
+                            <div class="mc-cert-actions">
+                                <a href="{% url 'competitions:verify_certificate' %}?code={{ cert.verification_code }}" class="mc-cert-btn view">
+                                    <i class="bi bi-eye"></i> Ko'rish
+                                </a>
+                                {% if cert.pdf_file %}
+                                <a href="{{ cert.pdf_file.url }}" target="_blank" class="mc-cert-btn download">
+                                    <i class="bi bi-download"></i> Yuklab olish
+                                </a>
                                 {% endif %}
                             </div>
-                            <div class="mc-cert-comp">{{ cert.competition.title }}</div>
                         </div>
                     </div>
-
-                    <div class="mc-cert-details">
-                        <div class="mc-cert-detail">
-                            <div class="mc-cert-detail-label">O'rin</div>
-                            <div class="mc-cert-detail-val">#{{ cert.rank }}</div>
-                        </div>
-                        <div class="mc-cert-detail">
-                            <div class="mc-cert-detail-label">Ball</div>
-                            <div class="mc-cert-detail-val">{{ cert.score|floatformat:0 }}</div>
-                        </div>
-                        <div class="mc-cert-detail">
-                            <div class="mc-cert-detail-label">Sana</div>
-                            <div class="mc-cert-detail-val">{{ cert.issued_at|date:"d.m.Y" }}</div>
-                        </div>
-                    </div>
-
-                    <div class="mc-cert-code">
-                        <div>
-                            <div class="mc-cert-code-label">Tasdiqlash kodi</div>
-                            <div class="mc-cert-code-val">{{ cert.verification_code }}</div>
-                        </div>
-                        <button type="button" class="mc-cert-copy" onclick="copyCode('{{ cert.verification_code }}')" title="Nusxalash">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                    </div>
-
-                    <div class="mc-cert-actions">
-                        <a href="{% url 'competitions:verify_certificate' %}?code={{ cert.verification_code }}" class="mc-cert-btn view">
-                            <i class="bi bi-eye"></i> Ko'rish
-                        </a>
-                        {% if cert.pdf_file %}
-                        <a href="{{ cert.pdf_file.url }}" target="_blank" class="mc-cert-btn download">
-                            <i class="bi bi-download"></i> Yuklab olish
-                        </a>
-                        {% endif %}
-                    </div>
+                    {% endfor %}
                 </div>
+                {% else %}
+                <div class="mc-empty">
+                    <div class="mc-empty-icon">📜</div>
+                    <h3>Hali sertifikat yo'q</h3>
+                    <p>Musobaqalarda ishtirok eting va sertifikat oling!</p>
+                    <a href="{% url 'competitions:competitions_list' %}" class="btn btn-primary">
+                        <i class="bi bi-trophy-fill me-1"></i> Musobaqalarga o'tish
+                    </a>
+                </div>
+                {% endif %}
             </div>
-            {% endfor %}
         </div>
-        {% else %}
-        <div class="mc-empty">
-            <div class="mc-empty-icon">📜</div>
-            <h3>Hali sertifikat yo'q</h3>
-            <p>Musobaqalarda ishtirok eting va sertifikat oling!</p>
-            <a href="{% url 'competitions:competitions_list' %}" class="mc-empty-btn">
-                <i class="bi bi-trophy-fill"></i> Musobaqalarga o'tish
-            </a>
-        </div>
-        {% endif %}
     </div>
-</div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 window.copyCode = function(code) {
     navigator.clipboard.writeText(code).then(function() {
-        // Visual feedback
         var btns = document.querySelectorAll('.mc-cert-copy');
         btns.forEach(function(btn) {
             if (btn.closest('.mc-cert-code').querySelector('.mc-cert-code-val').textContent.trim() === code) {

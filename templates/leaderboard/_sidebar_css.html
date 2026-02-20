@@ -1,0 +1,70 @@
+<style>
+    .lb-layout {
+        display: grid;
+        grid-template-columns: 272px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    .lb-sidebar {
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
+        position: sticky;
+        top: 80px;
+    }
+    .lbs-rank-card {
+        background: var(--gradient-primary);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+    .lbs-rank-label {
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.85);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .lbs-rank-num {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.1;
+        margin: 0.25rem 0;
+    }
+    .lbs-rank-xp {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.8);
+    }
+    .lbs-nav-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--gray-400);
+        padding: 0 0.5rem;
+        margin-bottom: 0.375rem;
+    }
+    .lbs-link {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--dark);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-bottom: 0.125rem;
+    }
+    .lbs-link:hover { background: var(--gray-100); color: var(--primary); }
+    .lbs-link.active { background: var(--primary-glow); color: var(--primary); font-weight: 600; }
+    .lbs-icon { font-size: 1rem; width: 20px; text-align: center; }
+    @media (max-width: 991px) {
+        .lb-layout { grid-template-columns: 1fr; }
+        .lb-sidebar { position: static; }
+    }
+</style>

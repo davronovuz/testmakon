@@ -4,529 +4,181 @@
 {% block title %}Kunlik Challenge | TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'competitions/_sidebar_css.html' %}
 <style>
-    .dc-page { padding: 2rem 0 4rem; }
-
-    /* Breadcrumb */
-    .dc-bread {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-
-    .dc-bread a { color: var(--primary); text-decoration: none; font-weight: 600; }
-    .dc-bread a:hover { text-decoration: underline; }
-
-    /* Layout */
-    .dc-layout {
-        display: grid;
-        grid-template-columns: 1fr 340px;
-        gap: 2rem;
-        align-items: start;
-    }
-
-    /* ========== HERO CARD ========== */
+    /* Hero card */
     .dc-hero {
         background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        border-radius: 20px;
-        padding: 2rem;
+        border-radius: 16px;
+        padding: 1.75rem;
         color: white;
         position: relative;
         overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    .dc-hero::after {
-        content: '📅';
-        position: absolute;
-        right: -10px;
-        bottom: -20px;
-        font-size: 8rem;
-        opacity: 0.08;
-        pointer-events: none;
-    }
-
-    .dc-hero-inner { position: relative; z-index: 1; }
-
-    .dc-hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255,255,255,0.18);
-        padding: 0.4rem 0.85rem;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    .dc-hero h1 {
-        font-size: 1.65rem;
-        font-weight: 900;
-        color: white;
-        margin: 0 0 0.5rem;
-    }
-
-    .dc-hero p {
-        font-size: 0.95rem;
-        color: rgba(255,255,255,0.85);
-        margin: 0 0 1.5rem;
-        line-height: 1.6;
-    }
-
-    .dc-hero-stats {
-        display: flex;
-        gap: 2rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .dc-hero-stat strong {
-        display: block;
-        font-size: 1.4rem;
-        font-weight: 900;
-    }
-
-    .dc-hero-stat span {
-        font-size: 0.78rem;
-        opacity: 0.85;
-        font-weight: 600;
-    }
-
-    .dc-hero-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.8rem 1.75rem;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 800;
-        text-decoration: none;
-        transition: all 0.3s;
-        border: none;
-    }
-
-    .dc-hero-btn.start { background: white; color: #6D28D9; }
-    .dc-hero-btn.start:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); color: #6D28D9; }
-    .dc-hero-btn.done { background: rgba(255,255,255,0.25); color: white; cursor: default; }
-
-    /* ========== RESULT CARD ========== */
-    .dc-result {
-        background: var(--white);
-        border: 2px solid var(--primary);
-        border-radius: 20px;
-        padding: 1.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .dc-result-head {
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
         margin-bottom: 1.25rem;
     }
+    .dc-hero::after { content:'📅'; position:absolute; right:-10px; bottom:-20px; font-size:7rem; opacity:0.08; pointer-events:none; }
+    .dc-hero-inner { position:relative; z-index:1; }
+    .dc-hero-badge { display:inline-flex; align-items:center; gap:0.35rem; background:rgba(255,255,255,0.18); padding:0.35rem 0.8rem; border-radius:50px; font-size:0.78rem; font-weight:700; margin-bottom:0.75rem; }
+    .dc-hero h2 { font-size:1.4rem; font-weight:900; color:white; margin:0 0 0.4rem; }
+    .dc-hero p { font-size:0.88rem; color:rgba(255,255,255,0.85); margin:0 0 1rem; }
+    .dc-hero-stats { display:flex; gap:1.5rem; margin-bottom:1.25rem; }
+    .dc-hero-stat strong { display:block; font-size:1.25rem; font-weight:900; }
+    .dc-hero-stat span { font-size:0.75rem; opacity:0.85; }
+    .dc-hero-btn { display:inline-flex; align-items:center; gap:0.5rem; padding:0.7rem 1.5rem; border-radius:12px; font-size:0.9rem; font-weight:800; text-decoration:none; transition:all 0.2s; border:none; cursor:pointer; }
+    .dc-hero-btn.start { background:white; color:#6D28D9; }
+    .dc-hero-btn.start:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.15); color:#6D28D9; }
+    .dc-hero-btn.done { background:rgba(255,255,255,0.25); color:white; cursor:default; }
 
-    .dc-result-head h3 {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin: 0;
-    }
+    /* Result card */
+    .dc-result { background:#fff; border:2px solid var(--primary); border-radius:14px; padding:1.5rem; margin-bottom:1.25rem; }
+    .dc-result-head { display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; }
+    .dc-result-head h3 { font-size:1rem; font-weight:800; color:var(--dark); margin:0; }
+    .dc-result-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.75rem; }
+    .dc-result-item { text-align:center; padding:0.75rem 0.5rem; background:var(--gray-50); border-radius:10px; }
+    .dc-result-val { font-size:1.25rem; font-weight:900; color:var(--dark); }
+    .dc-result-val.green { color:#059669; } .dc-result-val.red { color:#DC2626; } .dc-result-val.primary { color:var(--primary); }
+    .dc-result-label { font-size:0.7rem; color:var(--gray-500); font-weight:600; }
 
-    .dc-result-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0.75rem;
-    }
+    /* Leaderboard */
+    .dc-lb { background:#fff; border:1px solid var(--gray-200); border-radius:14px; overflow:hidden; margin-bottom:1.25rem; }
+    .dc-lb-head { padding:1rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+    .dc-lb-head h3 { font-size:0.95rem; font-weight:800; color:var(--dark); margin:0; display:flex; align-items:center; gap:0.5rem; }
+    .dc-lb-row { display:flex; align-items:center; gap:0.75rem; padding:0.7rem 1.25rem; transition:background 0.15s; }
+    .dc-lb-row:hover { background:var(--gray-50); }
+    .dc-lb-row + .dc-lb-row { border-top:1px solid var(--gray-50); }
+    .dc-lb-row.me { background:rgba(139,197,64,0.06); }
+    .dc-lb-rank { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; flex-shrink:0; background:var(--gray-100); color:var(--gray-600); }
+    .dc-lb-rank.r1 { background:#FEF3C7; color:#D97706; }
+    .dc-lb-rank.r2 { background:#F1F5F9; color:#64748B; }
+    .dc-lb-rank.r3 { background:#FED7AA; color:#C2410C; }
+    .dc-lb-name { flex:1; font-size:0.85rem; font-weight:600; color:var(--dark); }
+    .dc-lb-score { font-size:0.82rem; font-weight:700; color:var(--primary); }
+    .dc-lb-time { font-size:0.75rem; color:var(--gray-400); min-width:36px; text-align:right; }
+    .dc-lb-empty { padding:1.5rem; text-align:center; font-size:0.85rem; color:var(--gray-400); }
 
-    .dc-result-item {
-        text-align: center;
-        padding: 0.85rem 0.5rem;
-        background: var(--gray-50);
-        border-radius: 12px;
-    }
-
-    .dc-result-val {
-        font-size: 1.35rem;
-        font-weight: 900;
-        color: var(--dark);
-    }
-
-    .dc-result-val.green { color: #059669; }
-    .dc-result-val.red { color: #DC2626; }
-    .dc-result-val.primary { color: var(--primary); }
-
-    .dc-result-label {
-        font-size: 0.72rem;
-        color: var(--gray-500);
-        font-weight: 600;
-        margin-top: 0.15rem;
-    }
-
-    /* ========== LEADERBOARD ========== */
-    .dc-lb {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    .dc-lb-head {
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid var(--gray-100);
-    }
-
-    .dc-lb-head h3 {
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .dc-lb-row {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1.25rem;
-        transition: background 0.15s;
-    }
-
-    .dc-lb-row:hover { background: var(--gray-50); }
-    .dc-lb-row + .dc-lb-row { border-top: 1px solid var(--gray-50); }
-
-    .dc-lb-row.me { background: rgba(139,197,64,0.06); }
-
-    .dc-lb-rank {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.78rem;
-        font-weight: 800;
-        flex-shrink: 0;
-        background: var(--gray-100);
-        color: var(--gray-600);
-    }
-
-    .dc-lb-rank.r1 { background: #FEF3C7; color: #D97706; }
-    .dc-lb-rank.r2 { background: #F1F5F9; color: #64748B; }
-    .dc-lb-rank.r3 { background: #FED7AA; color: #C2410C; }
-
-    .dc-lb-name {
-        flex: 1;
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    .dc-lb-score {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--primary);
-    }
-
-    .dc-lb-time {
-        font-size: 0.78rem;
-        color: var(--gray-400);
-        min-width: 40px;
-        text-align: right;
-    }
-
-    .dc-lb-empty {
-        padding: 2rem;
-        text-align: center;
-        font-size: 0.88rem;
-        color: var(--gray-400);
-    }
-
-    /* ========== SIDEBAR ========== */
-    .dc-sidebar { position: sticky; top: 1.5rem; }
-
-    .dc-info-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .dc-info-card h4 {
-        font-size: 0.95rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin: 0 0 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .dc-info-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .dc-info-list li {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.65rem 0;
-        font-size: 0.88rem;
-    }
-
-    .dc-info-list li + li { border-top: 1px solid var(--gray-100); }
-    .dc-info-list li span:first-child { color: var(--gray-500); font-weight: 600; }
-    .dc-info-list li span:last-child { color: var(--dark); font-weight: 700; }
-
-    /* How it works */
-    .dc-steps { counter-reset: step; }
-
-    .dc-step {
-        display: flex;
-        gap: 0.85rem;
-        padding: 0.65rem 0;
-    }
-
-    .dc-step + .dc-step { border-top: 1px solid var(--gray-100); }
-
-    .dc-step-num {
-        width: 28px;
-        height: 28px;
-        background: var(--primary);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: 800;
-        flex-shrink: 0;
-    }
-
-    .dc-step-text {
-        font-size: 0.88rem;
-        color: var(--gray-600);
-        line-height: 1.5;
-        padding-top: 0.15rem;
-    }
+    /* Info card (moved from right sidebar) */
+    .dc-info-card { background:#fff; border:1px solid var(--gray-200); border-radius:14px; padding:1.25rem; margin-bottom:1.25rem; }
+    .dc-info-card h4 { font-size:0.88rem; font-weight:800; color:var(--dark); margin:0 0 0.75rem; display:flex; align-items:center; gap:0.4rem; }
+    .dc-info-list { list-style:none; padding:0; margin:0; }
+    .dc-info-list li { display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0; font-size:0.85rem; }
+    .dc-info-list li + li { border-top:1px solid var(--gray-50); }
+    .dc-info-list li span:first-child { color:var(--gray-500); font-weight:600; }
+    .dc-info-list li span:last-child { color:var(--dark); font-weight:700; }
 
     /* Empty */
-    .dc-empty {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: var(--gray-50);
-        border-radius: 20px;
-    }
-
-    .dc-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.5; }
-    .dc-empty h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 0.5rem; }
-    .dc-empty p { font-size: 0.92rem; color: var(--gray-500); margin: 0 0 1.25rem; }
-
-    .dc-empty-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        background: var(--gradient-primary);
-        color: white;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.92rem;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .dc-empty-btn:hover { color: white; transform: translateY(-2px); }
-
-    /* Responsive */
-    @media (max-width: 991px) {
-        .dc-layout { grid-template-columns: 1fr; }
-        .dc-sidebar { position: static; }
-    }
+    .dc-empty { text-align:center; padding:3rem 2rem; background:var(--gray-50); border-radius:16px; }
+    .dc-empty-icon { font-size:3rem; margin-bottom:0.75rem; opacity:0.5; }
+    .dc-empty h3 { font-size:1.1rem; font-weight:800; margin:0 0 0.5rem; }
+    .dc-empty p { font-size:0.88rem; color:var(--gray-500); margin:0 0 1rem; }
 
     @media (max-width: 575px) {
-        .dc-result-grid { grid-template-columns: repeat(2, 1fr); }
-        .dc-hero-stats { gap: 1.25rem; }
+        .dc-result-grid { grid-template-columns: repeat(2,1fr); }
+        .dc-hero-stats { gap:1rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dc-page">
+<section class="section-sm">
     <div class="container">
+        <div class="comp-layout">
+            {% include 'competitions/_sidebar.html' with active='daily_challenge' %}
 
-        <!-- Breadcrumb -->
-        <div class="dc-bread">
-            <a href="{% url 'competitions:competitions_list' %}">Musobaqalar</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>Kunlik Challenge</span>
-        </div>
-
-        {% if challenge %}
-        <div class="dc-layout">
-            <div class="dc-main">
-
-                <!-- Hero -->
-                <div class="dc-hero">
-                    <div class="dc-hero-inner">
-                        <div class="dc-hero-badge">
-                            <i class="bi bi-calendar-check-fill"></i> Bugungi challenge
-                        </div>
-                        <h1>{{ challenge.subject.name|default:"Umumiy" }} Challenge</h1>
-                        <p>{{ challenge.question_count }} ta savolga {{ challenge.time_limit }} daqiqa ichida javob bering va XP yuting!</p>
-                        <div class="dc-hero-stats">
-                            <div class="dc-hero-stat">
-                                <strong>{{ challenge.participants_count }}</strong>
-                                <span>qatnashdi</span>
+            <div>
+                {% if challenge %}
+                    <!-- Hero -->
+                    <div class="dc-hero">
+                        <div class="dc-hero-inner">
+                            <div class="dc-hero-badge"><i class="bi bi-calendar-check-fill"></i> Bugungi challenge</div>
+                            <h2>{{ challenge.subject.name|default:"Umumiy" }} Challenge</h2>
+                            <p>{{ challenge.question_count }} ta savolga {{ challenge.time_limit }} daqiqa ichida javob bering va XP yuting!</p>
+                            <div class="dc-hero-stats">
+                                <div class="dc-hero-stat">
+                                    <strong>{{ challenge.participants_count }}</strong>
+                                    <span>qatnashdi</span>
+                                </div>
+                                <div class="dc-hero-stat">
+                                    <strong>+{{ challenge.xp_reward }}</strong>
+                                    <span>XP mukofot</span>
+                                </div>
+                                {% if challenge.bonus_xp_top10 > 0 %}
+                                <div class="dc-hero-stat">
+                                    <strong>+{{ challenge.bonus_xp_top10 }}</strong>
+                                    <span>Top 10 bonus</span>
+                                </div>
+                                {% endif %}
                             </div>
-                            <div class="dc-hero-stat">
-                                <strong>+{{ challenge.xp_reward }}</strong>
-                                <span>XP mukofot</span>
-                            </div>
-                            {% if challenge.bonus_xp_top10 > 0 %}
-                            <div class="dc-hero-stat">
-                                <strong>+{{ challenge.bonus_xp_top10 }}</strong>
-                                <span>Top 10 bonus</span>
-                            </div>
+                            {% if completed %}
+                            <span class="dc-hero-btn done"><i class="bi bi-check-circle-fill"></i> Yakunladingiz ✓</span>
+                            {% elif user.is_authenticated %}
+                            <a href="{% url 'competitions:daily_challenge_start' %}" class="dc-hero-btn start"><i class="bi bi-play-fill"></i> Boshlash</a>
+                            {% else %}
+                            <a href="{% url 'account_login' %}" class="dc-hero-btn start"><i class="bi bi-box-arrow-in-right"></i> Kirish va boshlash</a>
                             {% endif %}
                         </div>
+                    </div>
 
-                        {% if completed %}
-                        <span class="dc-hero-btn done">
-                            <i class="bi bi-check-circle-fill"></i> Yakunladingiz ✓
-                        </span>
-                        {% elif user.is_authenticated %}
-                        <a href="{% url 'competitions:daily_challenge_start' %}" class="dc-hero-btn start">
-                            <i class="bi bi-play-fill"></i> Boshlash
-                        </a>
+                    <!-- Challenge info (compact) -->
+                    <div class="dc-info-card">
+                        <h4><i class="bi bi-info-circle-fill" style="color:var(--primary);"></i> Ma'lumot</h4>
+                        <ul class="dc-info-list">
+                            <li><span>Fan</span><span>{{ challenge.subject.name|default:"Umumiy" }}</span></li>
+                            <li><span>Savollar</span><span>{{ challenge.question_count }} ta</span></li>
+                            <li><span>Vaqt</span><span>{{ challenge.time_limit }} daqiqa</span></li>
+                            <li><span>XP mukofot</span><span style="color:var(--primary);font-weight:800;">+{{ challenge.xp_reward }}</span></li>
+                            <li><span>Qatnashchilar</span><span>{{ challenge.participants_count }}</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- My result -->
+                    {% if participant %}
+                    <div class="dc-result">
+                        <div class="dc-result-head">
+                            <span style="font-size:1.25rem;">📊</span>
+                            <h3>Sizning natijangiz</h3>
+                        </div>
+                        <div class="dc-result-grid">
+                            <div class="dc-result-item"><div class="dc-result-val primary">{{ participant.score }}</div><div class="dc-result-label">Ball</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val green">{{ participant.correct_answers }}</div><div class="dc-result-label">To'g'ri</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val red">{{ participant.wrong_answers }}</div><div class="dc-result-label">Noto'g'ri</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val">+{{ participant.xp_earned }}</div><div class="dc-result-label">XP olindi</div></div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Leaderboard -->
+                    <div class="dc-lb">
+                        <div class="dc-lb-head">
+                            <h3><i class="bi bi-bar-chart-fill"></i> Bugungi reyting</h3>
+                        </div>
+                        {% if leaderboard %}
+                            {% for p in leaderboard %}
+                            <div class="dc-lb-row {% if p.user == request.user %}me{% endif %}">
+                                <div class="dc-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
+                                    {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+                                </div>
+                                <span class="dc-lb-name">{{ p.user.first_name }} {{ p.user.last_name|default:"" }}{% if p.user == request.user %} <small style="color:var(--primary);">(siz)</small>{% endif %}</span>
+                                <span class="dc-lb-score">{{ p.score }} ball</span>
+                                <span class="dc-lb-time">{{ p.time_spent }}s</span>
+                            </div>
+                            {% endfor %}
                         {% else %}
-                        <a href="{% url 'account_login' %}" class="dc-hero-btn start">
-                            <i class="bi bi-box-arrow-in-right"></i> Kirish va boshlash
-                        </a>
+                            <div class="dc-lb-empty">Hali hech kim qatnashmagan. Birinchi bo'ling!</div>
                         {% endif %}
                     </div>
-                </div>
 
-                <!-- Result (agar yakunlagan bo'lsa) -->
-                {% if participant %}
-                <div class="dc-result">
-                    <div class="dc-result-head">
-                        <span style="font-size: 1.35rem;">📊</span>
-                        <h3>Sizning natijangiz</h3>
-                    </div>
-                    <div class="dc-result-grid">
-                        <div class="dc-result-item">
-                            <div class="dc-result-val primary">{{ participant.score }}</div>
-                            <div class="dc-result-label">Ball</div>
-                        </div>
-                        <div class="dc-result-item">
-                            <div class="dc-result-val green">{{ participant.correct_answers }}</div>
-                            <div class="dc-result-label">To'g'ri</div>
-                        </div>
-                        <div class="dc-result-item">
-                            <div class="dc-result-val red">{{ participant.wrong_answers }}</div>
-                            <div class="dc-result-label">Noto'g'ri</div>
-                        </div>
-                        <div class="dc-result-item">
-                            <div class="dc-result-val">+{{ participant.xp_earned }}</div>
-                            <div class="dc-result-label">XP olindi</div>
-                        </div>
-                    </div>
+                {% else %}
+                <div class="dc-empty">
+                    <div class="dc-empty-icon">📅</div>
+                    <h3>Bugun challenge yo'q</h3>
+                    <p>Ertaga yangi challenge bilan qaytib keling!</p>
+                    <a href="{% url 'competitions:competitions_list' %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Musobaqalarga qaytish
+                    </a>
                 </div>
                 {% endif %}
-
-                <!-- Leaderboard -->
-                <div class="dc-lb">
-                    <div class="dc-lb-head">
-                        <h3><i class="bi bi-bar-chart-fill"></i> Bugungi reyting</h3>
-                    </div>
-                    {% if leaderboard %}
-                        {% for p in leaderboard %}
-                        <div class="dc-lb-row {% if p.user == request.user %}me{% endif %}">
-                            <div class="dc-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
-                                {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
-                            </div>
-                            <span class="dc-lb-name">
-                                {{ p.user.first_name }} {{ p.user.last_name|default:"" }}
-                                {% if p.user == request.user %}<small style="color: var(--primary);">(siz)</small>{% endif %}
-                            </span>
-                            <span class="dc-lb-score">{{ p.score }} ball</span>
-                            <span class="dc-lb-time">{{ p.time_spent }}s</span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="dc-lb-empty">Hali hech kim qatnashmagan. Birinchi bo'ling!</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="dc-sidebar">
-                <div class="dc-info-card">
-                    <h4><i class="bi bi-info-circle-fill"></i> Ma'lumot</h4>
-                    <ul class="dc-info-list">
-                        <li>
-                            <span>Fan</span>
-                            <span>{{ challenge.subject.name|default:"Umumiy" }}</span>
-                        </li>
-                        <li>
-                            <span>Savollar</span>
-                            <span>{{ challenge.question_count }} ta</span>
-                        </li>
-                        <li>
-                            <span>Vaqt</span>
-                            <span>{{ challenge.time_limit }} daqiqa</span>
-                        </li>
-                        <li>
-                            <span>XP mukofot</span>
-                            <span style="color: var(--primary); font-weight: 800;">+{{ challenge.xp_reward }}</span>
-                        </li>
-                        <li>
-                            <span>Qatnashchilar</span>
-                            <span>{{ challenge.participants_count }}</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="dc-info-card">
-                    <h4><i class="bi bi-lightbulb-fill"></i> Qanday ishlaydi?</h4>
-                    <div class="dc-steps">
-                        <div class="dc-step">
-                            <div class="dc-step-num">1</div>
-                            <div class="dc-step-text">Har kuni yangi challenge — bitta fan, cheklangan vaqt</div>
-                        </div>
-                        <div class="dc-step">
-                            <div class="dc-step-num">2</div>
-                            <div class="dc-step-text">Savollarga javob bering va natijangizni ko'ring</div>
-                        </div>
-                        <div class="dc-step">
-                            <div class="dc-step-num">3</div>
-                            <div class="dc-step-text">Top 10 ga kirsangiz qo'shimcha +{{ challenge.bonus_xp_top10 }} XP bonus</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
-
-        {% else %}
-        <!-- No challenge today -->
-        <div class="dc-empty">
-            <div class="dc-empty-icon">📅</div>
-            <h3>Bugun challenge yo'q</h3>
-            <p>Ertaga yangi challenge bilan qaytib keling!</p>
-            <a href="{% url 'competitions:competitions_list' %}" class="dc-empty-btn">
-                <i class="bi bi-arrow-left"></i> Musobaqalarga qaytish
-            </a>
-        </div>
-        {% endif %}
-
     </div>
-</div>
+</section>
 {% endblock %}

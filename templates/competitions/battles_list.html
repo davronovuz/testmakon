@@ -4,1067 +4,505 @@
 {% block title %}Janglar | TestMakon{% endblock %}
 
 {% block extra_css %}
+{% include 'competitions/_sidebar_css.html' %}
 <style>
-    /* ========== HEADER ========== */
-    .battles-header {
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-        padding: 3rem 0;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .battles-header::before {
-        content: '⚔️';
-        position: absolute;
-        top: -30px;
-        right: -30px;
-        font-size: 12rem;
-        opacity: 0.1;
-    }
-
-    .battles-header-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .battles-header-grid {
+    /* Stats bar */
+    .battles-stats-bar {
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 2rem;
-        align-items: center;
-    }
-
-    @media (max-width: 768px) {
-        .battles-header-grid {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-    }
-
-    .battles-header h1 {
-        font-size: 2.25rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .battles-header p {
-        font-size: 1.05rem;
-        color: rgba(255,255,255,0.9);
+        grid-template-columns: repeat(4,1fr);
+        gap: 1rem;
         margin-bottom: 1.5rem;
     }
-
-    .battles-stats {
-        display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    @media (max-width: 768px) {
-        .battles-stats {
-            justify-content: center;
-        }
-    }
-
-    .battles-stat {
+    .battles-stat-card {
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        padding: 1rem;
         text-align: center;
     }
+    .battles-stat-val { font-size: 1.75rem; font-weight: 800; color: var(--dark); }
+    .battles-stat-lbl { font-size: 0.78rem; color: var(--gray-500); }
 
-    .battles-stat-value {
-        font-size: 2rem;
-        font-weight: 800;
+    /* Quick battle */
+    .battles-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
-
-    .battles-stat-label {
-        font-size: 0.85rem;
-        opacity: 0.9;
+    .quick-card {
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.2s;
+        text-decoration: none;
     }
-
-    .battles-header-btn {
-        padding: 1rem 2rem;
-        background: white;
-        color: #DC2626;
-        border: none;
-        border-radius: var(--radius-lg);
-        font-size: 1rem;
-        font-weight: 700;
-        display: inline-flex;
+    .quick-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: var(--primary); }
+    .quick-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s;
-        white-space: nowrap;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.5rem;
     }
+    .quick-icon.friend { background: #DBEAFE; }
+    .quick-icon.random { background: #EDE9FE; }
+    .quick-icon.bot { background: #FEE2E2; }
+    .quick-title { font-size: 0.92rem; font-weight: 700; color: var(--dark); margin-bottom: 0.2rem; }
+    .quick-sub { font-size: 0.78rem; color: var(--gray-500); }
 
-    .battles-header-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        color: #DC2626;
-    }
-
-    /* ========== CONTENT ========== */
-    .battles-content {
-        padding: 2.5rem 0;
-    }
-
-    /* ========== TABS ========== */
+    /* Tabs */
     .battles-tabs {
         display: flex;
-        gap: 0.5rem;
-        margin-bottom: 2rem;
+        gap: 0;
         border-bottom: 2px solid var(--gray-200);
-        padding-bottom: 0;
-        overflow-x: auto;
+        margin-bottom: 1.25rem;
     }
-
     .battles-tab {
-        padding: 1rem 1.5rem;
-        font-size: 0.95rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: var(--gray-500);
         background: none;
         border: none;
         cursor: pointer;
         position: relative;
+        transition: color 0.2s;
         white-space: nowrap;
-        transition: all 0.2s;
     }
-
-    .battles-tab:hover {
-        color: var(--dark);
-    }
-
-    .battles-tab.active {
-        color: var(--primary);
-    }
-
+    .battles-tab:hover { color: var(--dark); }
+    .battles-tab.active { color: var(--primary); }
     .battles-tab.active::after {
         content: '';
         position: absolute;
         bottom: -2px;
-        left: 0;
-        right: 0;
+        left: 0; right: 0;
         height: 3px;
         background: var(--primary);
         border-radius: 3px 3px 0 0;
     }
-
     .battles-tab-badge {
         background: var(--gray-200);
         color: var(--gray-600);
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        padding: 0.2rem 0.5rem;
+        padding: 0.15rem 0.45rem;
         border-radius: 10px;
-        margin-left: 0.5rem;
+        margin-left: 0.4rem;
     }
+    .battles-tab.active .battles-tab-badge { background: var(--primary); color: white; }
 
-    .battles-tab.active .battles-tab-badge {
-        background: var(--primary);
-        color: white;
-    }
+    .battles-tab-content { display: none; }
+    .battles-tab-content.active { display: block; }
 
-    /* ========== TAB CONTENT ========== */
-    .battles-tab-content {
-        display: none;
-    }
-
-    .battles-tab-content.active {
-        display: block;
-    }
-
-    /* ========== SECTION ========== */
-    .battles-section {
-        margin-bottom: 2.5rem;
-    }
-
-    .battles-section-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .battles-section-title i {
-        color: var(--primary);
-    }
-
-    /* ========== BATTLE CARDS ========== */
+    /* Battle cards */
     .battles-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2,1fr);
         gap: 1.25rem;
     }
-
-    @media (max-width: 768px) {
-        .battles-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
     .battle-card {
-        background: var(--white);
+        background: #fff;
         border: 1px solid var(--gray-200);
-        border-radius: var(--radius-xl);
+        border-radius: 16px;
         overflow: hidden;
-        transition: all 0.3s;
+        transition: transform 0.2s;
     }
-
-    .battle-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .battle-card.pending {
-        border-left: 4px solid #F59E0B;
-    }
-
-    .battle-card.active {
-        border-left: 4px solid #10B981;
-    }
-
-    .battle-card.completed {
-        border-left: 4px solid var(--gray-400);
-    }
+    .battle-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+    .battle-card.pending { border-left: 4px solid #F59E0B; }
+    .battle-card.active-card { border-left: 4px solid #10B981; }
+    .battle-card.completed-card { border-left: 4px solid var(--gray-300); }
 
     .battle-card-header {
-        padding: 1rem 1.25rem;
+        padding: 0.75rem 1.25rem;
         background: var(--gray-50);
-        border-bottom: 1px solid var(--gray-200);
+        border-bottom: 1px solid var(--gray-100);
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
-
     .battle-status {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        font-size: 0.8rem;
+        gap: 0.3rem;
+        font-size: 0.78rem;
         font-weight: 600;
-        padding: 0.35rem 0.75rem;
+        padding: 0.3rem 0.7rem;
         border-radius: 20px;
     }
+    .battle-status.pending { background: #FEF3C7; color: #D97706; }
+    .battle-status.accepted { background: #DBEAFE; color: #2563EB; }
+    .battle-status.in_progress { background: #D1FAE5; color: #059669; }
+    .battle-status.completed { background: var(--gray-100); color: var(--gray-600); }
+    .battle-time { font-size: 0.78rem; color: var(--gray-500); }
 
-    .battle-status.pending {
-        background: #FEF3C7;
-        color: #D97706;
-    }
-
-    .battle-status.accepted {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .battle-status.in_progress {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .battle-status.completed {
-        background: var(--gray-100);
-        color: var(--gray-600);
-    }
-
-    .battle-time {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .battle-card-body {
-        padding: 1.5rem 1.25rem;
-    }
-
-    /* Players Section */
-    .battle-players {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.25rem;
-    }
-
-    .battle-player {
-        text-align: center;
-        flex: 1;
-    }
-
+    .battle-card-body { padding: 1.25rem; }
+    .battle-players { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .battle-player { text-align: center; flex: 1; }
     .battle-player-avatar {
-        width: 64px;
-        height: 64px;
+        width: 56px; height: 56px;
         background: var(--gray-100);
         border-radius: 50%;
-        margin: 0 auto 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--dark-600);
+        margin: 0 auto 0.5rem;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; font-weight: 700; color: var(--dark);
         overflow: hidden;
         border: 3px solid var(--gray-200);
         position: relative;
     }
+    .battle-player-avatar img { width:100%; height:100%; object-fit:cover; }
+    .battle-player-avatar.you { border-color: var(--primary); }
+    .battle-player-avatar.winner { border-color: #10B981; }
+    .battle-player-avatar.winner::after { content:'👑'; position:absolute; top:-8px; right:-8px; font-size:0.9rem; }
+    .battle-player-avatar.bot { background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; }
+    .battle-player-name { font-size: 0.85rem; font-weight: 700; color: var(--dark); }
+    .battle-player-score { font-size: 0.78rem; color: var(--gray-500); }
+    .battle-player-score.winner { color: #10B981; font-weight: 600; }
+    .battle-vs { padding: 0 1rem; text-align: center; }
+    .battle-vs-text { font-size: 1.25rem; font-weight: 800; color: var(--gray-300); }
+    .battle-vs-sub { font-size: 0.72rem; color: var(--gray-400); }
 
-    .battle-player-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .battle-player-avatar.you {
-        border-color: var(--primary);
-    }
-
-    .battle-player-avatar.winner {
-        border-color: #10B981;
-    }
-
-    .battle-player-avatar.winner::after {
-        content: '👑';
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        font-size: 1rem;
-    }
-
-    .battle-player-avatar.bot {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        color: white;
-    }
-
-    .battle-player-name {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
-    }
-
-    .battle-player-score {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .battle-player-score.winner {
-        color: #10B981;
-        font-weight: 600;
-    }
-
-    .battle-vs {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0 1.5rem;
-    }
-
-    .battle-vs-text {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--gray-300);
-    }
-
-    .battle-vs-subject {
-        font-size: 0.75rem;
-        color: var(--gray-500);
-        margin-top: 0.25rem;
-    }
-
-    /* Battle Info */
     .battle-info {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
-        padding: 0.75rem;
+        gap: 1.25rem;
+        padding: 0.6rem;
         background: var(--gray-50);
-        border-radius: var(--radius);
-        margin-bottom: 1rem;
-        font-size: 0.85rem;
+        border-radius: 10px;
+        margin-bottom: 0.875rem;
+        font-size: 0.82rem;
         color: var(--gray-600);
     }
+    .battle-info span { display:flex; align-items:center; gap:0.3rem; }
+    .battle-info i { color: var(--primary); }
 
-    .battle-info span {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-
-    .battle-info i {
-        color: var(--primary);
-    }
-
-    /* Battle Actions */
-    .battle-actions {
-        display: flex;
-        gap: 0.75rem;
-    }
-
+    .battle-actions { display: flex; gap: 0.625rem; }
     .battle-btn {
         flex: 1;
-        padding: 0.75rem 1rem;
-        border-radius: var(--radius);
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-align: center;
-        transition: all 0.2s;
-        cursor: pointer;
-    }
-
-    .battle-btn.primary {
-        background: var(--gradient-primary);
-        color: white;
-        border: none;
-    }
-
-    .battle-btn.primary:hover {
-        box-shadow: var(--shadow-primary);
-        color: white;
-    }
-
-    .battle-btn.success {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-        border: none;
-    }
-
-    .battle-btn.success:hover {
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-        color: white;
-    }
-
-    .battle-btn.danger {
-        background: transparent;
-        color: #DC2626;
-        border: 1px solid #FCA5A5;
-    }
-
-    .battle-btn.danger:hover {
-        background: #FEE2E2;
-    }
-
-    .battle-btn.outline {
-        background: transparent;
-        color: var(--dark-600);
-        border: 1px solid var(--gray-300);
-    }
-
-    .battle-btn.outline:hover {
-        background: var(--gray-100);
-    }
-
-    /* ========== INVITE CARD (Received) ========== */
-    .battle-invite-card {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        border: 2px solid #F59E0B;
-        border-radius: var(--radius-xl);
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .battle-invite-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .battle-invite-icon {
-        width: 48px;
-        height: 48px;
-        background: #F59E0B;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        color: white;
-    }
-
-    .battle-invite-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #92400E;
-    }
-
-    .battle-invite-from {
+        padding: 0.65rem 1rem;
+        border-radius: 10px;
         font-size: 0.85rem;
-        color: #B45309;
-    }
-
-    .battle-invite-info {
-        display: flex;
-        gap: 1.5rem;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        color: #92400E;
-    }
-
-    .battle-invite-actions {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .battle-invite-btn {
-        flex: 1;
-        padding: 0.75rem;
-        border-radius: var(--radius);
-        font-size: 0.9rem;
         font-weight: 600;
         text-align: center;
-        cursor: pointer;
         transition: all 0.2s;
-    }
-
-    .battle-invite-btn.accept {
-        background: #10B981;
-        color: white;
-        border: none;
-    }
-
-    .battle-invite-btn.reject {
-        background: white;
-        color: #DC2626;
-        border: 1px solid #FCA5A5;
-    }
-
-    /* ========== FRIENDS SECTION ========== */
-    .friends-section {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .friends-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .friends-title i {
-        color: var(--primary);
-    }
-
-    .friends-list {
-        display: flex;
-        gap: 1rem;
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
-    }
-
-    .friend-item {
-        text-align: center;
-        flex-shrink: 0;
-    }
-
-    .friend-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: var(--gray-100);
-        display: flex;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 0.5rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        overflow: hidden;
-        border: 2px solid var(--gray-200);
-        position: relative;
+        gap: 0.3rem;
+        border: none;
     }
+    .battle-btn.primary { background: var(--gradient-primary); color: white; }
+    .battle-btn.primary:hover { box-shadow: var(--shadow-primary); color: white; }
+    .battle-btn.success { background: linear-gradient(135deg,#10B981,#059669); color: white; }
+    .battle-btn.success:hover { box-shadow: 0 4px 15px rgba(16,185,129,0.4); color: white; }
+    .battle-btn.outline { background: transparent; color: var(--dark); border: 1px solid var(--gray-200); }
+    .battle-btn.outline:hover { background: var(--gray-100); color: var(--dark); }
+    .battle-btn.danger { background: transparent; color: #DC2626; border: 1px solid #FCA5A5; }
+    .battle-btn.danger:hover { background: #FEE2E2; }
 
-    .friend-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .friend-avatar.online::after {
-        content: '';
-        position: absolute;
-        bottom: 2px;
-        right: 2px;
-        width: 12px;
-        height: 12px;
-        background: #10B981;
-        border: 2px solid white;
-        border-radius: 50%;
-    }
-
-    .friend-name {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--dark);
-        max-width: 70px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* ========== EMPTY STATE ========== */
-    .battles-empty {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: var(--gray-50);
-        border-radius: var(--radius-lg);
-    }
-
-    .battles-empty-icon {
-        font-size: 4rem;
+    /* Invite card */
+    .battle-invite-card {
+        background: linear-gradient(135deg,#FEF3C7,#FDE68A);
+        border: 2px solid #F59E0B;
+        border-radius: 14px;
+        padding: 1.25rem;
         margin-bottom: 1rem;
-        opacity: 0.5;
     }
+    .invite-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.875rem; }
+    .invite-icon { width:44px; height:44px; background:#F59E0B; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:white; flex-shrink:0; }
+    .invite-title { font-size:0.95rem; font-weight:700; color:#92400E; }
+    .invite-from { font-size:0.82rem; color:#B45309; }
+    .invite-info { display:flex; gap:1.25rem; margin-bottom:0.875rem; font-size:0.85rem; color:#92400E; }
+    .invite-actions { display:flex; gap:0.625rem; }
+    .invite-btn { flex:1; padding:0.65rem; border-radius:10px; font-size:0.85rem; font-weight:600; text-align:center; cursor:pointer; transition:all 0.2s; border:none; }
+    .invite-btn.accept { background:#10B981; color:white; }
+    .invite-btn.reject { background:white; color:#DC2626; border:1px solid #FCA5A5; }
 
-    .battles-empty h4 {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .battles-empty p {
-        color: var(--gray-500);
-        margin-bottom: 1.5rem;
-    }
-
-    /* ========== QUICK BATTLE ========== */
-    .quick-battle-section {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
+    /* Empty */
+    .battles-empty { text-align:center; padding:3rem 2rem; background:var(--gray-50); border-radius:14px; }
+    .battles-empty i { font-size:3rem; color:var(--gray-300); display:block; margin-bottom:0.75rem; }
 
     @media (max-width: 768px) {
-        .quick-battle-section {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .quick-battle-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        text-align: center;
-        transition: all 0.3s;
-        cursor: pointer;
-    }
-
-    .quick-battle-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--primary);
-    }
-
-    .quick-battle-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: var(--radius-lg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 1.75rem;
-    }
-
-    .quick-battle-icon.friend {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .quick-battle-icon.random {
-        background: #EDE9FE;
-        color: #7C3AED;
-    }
-
-    .quick-battle-icon.bot {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .quick-battle-card h4 {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.25rem;
-    }
-
-    .quick-battle-card p {
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        margin: 0;
+        .battles-stats-bar { grid-template-columns: repeat(2,1fr); }
+        .battles-quick-grid { grid-template-columns: 1fr; }
+        .battles-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="battles-header">
+<section class="section-sm">
     <div class="container">
-        <div class="battles-header-content">
-            <div class="battles-header-grid">
-                <div>
-                    <h1>⚔️ 1v1 Janglar</h1>
-                    <p>Do'stlaringiz, random foydalanuvchilar yoki bot bilan bellashing!</p>
+        <div class="comp-layout">
+            {% include 'competitions/_sidebar.html' with active='battles_list' %}
 
-                    <div class="battles-stats">
-                        <div class="battles-stat">
-                            <div class="battles-stat-value">{{ stats.total }}</div>
-                            <div class="battles-stat-label">Jami janglar</div>
-                        </div>
-                        <div class="battles-stat">
-                            <div class="battles-stat-value">{{ stats.won }}</div>
-                            <div class="battles-stat-label">G'alabalar</div>
-                        </div>
-                        <div class="battles-stat">
-                            <div class="battles-stat-value">{{ stats.lost }}</div>
-                            <div class="battles-stat-label">Mag'lubiyatlar</div>
-                        </div>
-                        <div class="battles-stat">
-                            <div class="battles-stat-value">{{ stats.draw }}</div>
-                            <div class="battles-stat-label">Durrang</div>
-                        </div>
+            <div>
+                <!-- Stats bar -->
+                {% if user.is_authenticated %}
+                <div class="battles-stats-bar">
+                    <div class="battles-stat-card">
+                        <div class="battles-stat-val">{{ stats.total }}</div>
+                        <div class="battles-stat-lbl">Jami janglar</div>
+                    </div>
+                    <div class="battles-stat-card">
+                        <div class="battles-stat-val" style="color:#22C55E;">{{ stats.won }}</div>
+                        <div class="battles-stat-lbl">G'alabalar</div>
+                    </div>
+                    <div class="battles-stat-card">
+                        <div class="battles-stat-val" style="color:#EF4444;">{{ stats.lost }}</div>
+                        <div class="battles-stat-lbl">Mag'lubiyatlar</div>
+                    </div>
+                    <div class="battles-stat-card">
+                        <div class="battles-stat-val" style="color:var(--gray-500);">{{ stats.draw }}</div>
+                        <div class="battles-stat-lbl">Durrang</div>
                     </div>
                 </div>
+                {% endif %}
 
-                <a href="{% url 'competitions:battle_create' %}" class="battles-header-btn">
-                    <i class="bi bi-plus-lg"></i>
-                    Yangi jang
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Content -->
-<div class="battles-content">
-    <div class="container">
-        <!-- Quick Battle Options -->
-        <div class="quick-battle-section">
-            <a href="{% url 'competitions:battle_create' %}?type=friend" class="quick-battle-card">
-                <div class="quick-battle-icon friend">
-                    <i class="bi bi-people-fill"></i>
+                <!-- Quick battle -->
+                <div class="battles-quick-grid">
+                    <a href="{% url 'competitions:battle_create' %}?type=friend" class="quick-card">
+                        <div class="quick-icon friend"><i class="bi bi-people-fill" style="color:#2563EB;"></i></div>
+                        <div class="quick-title">Do'st bilan</div>
+                        <div class="quick-sub">Do'stingizni tanlang</div>
+                    </a>
+                    <a href="{% url 'competitions:battle_matchmaking' %}" class="quick-card">
+                        <div class="quick-icon random"><i class="bi bi-shuffle" style="color:#7C3AED;"></i></div>
+                        <div class="quick-title">Random raqib</div>
+                        <div class="quick-sub">Tasodifiy o'yinchi bilan</div>
+                    </a>
+                    <a href="{% url 'competitions:battle_create' %}?type=bot" class="quick-card">
+                        <div class="quick-icon bot"><i class="bi bi-robot" style="color:#DC2626;"></i></div>
+                        <div class="quick-title">Bot bilan</div>
+                        <div class="quick-sub">AI raqibga qarshi</div>
+                    </a>
                 </div>
-                <h4>Do'st bilan</h4>
-                <p>Do'stingizni tanlang</p>
-            </a>
 
-            <a href="{% url 'competitions:battle_matchmaking' %}" class="quick-battle-card">
-                <div class="quick-battle-icon random">
-                    <i class="bi bi-shuffle"></i>
-                </div>
-                <h4>Random raqib</h4>
-                <p>Tasodifiy o'yinchi bilan</p>
-            </a>
-
-            <a href="{% url 'competitions:battle_create' %}?type=bot" class="quick-battle-card">
-                <div class="quick-battle-icon bot">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <h4>Bot bilan</h4>
-                <p>AI raqibga qarshi</p>
-            </a>
-        </div>
-
-        <!-- Pending Invites (Received) -->
-        {% if pending_received %}
-        <div class="battles-section">
-            <h3 class="battles-section-title">
-                <i class="bi bi-envelope-fill"></i>
-                Kelgan takliflar
-            </h3>
-
-            {% for battle in pending_received %}
-            <div class="battle-invite-card">
-                <div class="battle-invite-header">
-                    <div class="battle-invite-icon">
-                        <i class="bi bi-lightning-fill"></i>
+                <!-- Pending invites -->
+                {% if pending_received %}
+                <div style="margin-bottom:1.25rem;">
+                    <div style="font-size:0.88rem;font-weight:700;color:var(--dark);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+                        <i class="bi bi-envelope-fill" style="color:var(--primary);"></i> Kelgan takliflar
                     </div>
-                    <div>
-                        <div class="battle-invite-title">Jang taklifi!</div>
-                        <div class="battle-invite-from">{{ battle.challenger.first_name }} sizni jangga chaqirmoqda</div>
+                    {% for battle in pending_received %}
+                    <div class="battle-invite-card">
+                        <div class="invite-header">
+                            <div class="invite-icon"><i class="bi bi-lightning-fill"></i></div>
+                            <div>
+                                <div class="invite-title">Jang taklifi!</div>
+                                <div class="invite-from">{{ battle.challenger.first_name }} sizni jangga chaqirmoqda</div>
+                            </div>
+                        </div>
+                        <div class="invite-info">
+                            <span><i class="bi bi-journal-text"></i> {{ battle.question_count }} savol</span>
+                            {% if battle.subject %}<span><i class="bi bi-book"></i> {{ battle.subject.name }}</span>{% endif %}
+                            <span><i class="bi bi-clock"></i> {{ battle.total_time }}s</span>
+                        </div>
+                        <div class="invite-actions">
+                            <form action="{% url 'competitions:battle_accept' uuid=battle.uuid %}" method="post" style="flex:1;">
+                                {% csrf_token %}
+                                <button type="submit" class="invite-btn accept" style="width:100%;"><i class="bi bi-check-lg"></i> Qabul</button>
+                            </form>
+                            <form action="{% url 'competitions:battle_reject' uuid=battle.uuid %}" method="post" style="flex:1;">
+                                {% csrf_token %}
+                                <button type="submit" class="invite-btn reject" style="width:100%;"><i class="bi bi-x-lg"></i> Rad etish</button>
+                            </form>
+                        </div>
                     </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Tabs -->
+                <div class="battles-tabs">
+                    <button class="battles-tab active" data-tab="active">
+                        <i class="bi bi-play-circle"></i> Faol
+                        {% if active or pending_sent %}<span class="battles-tab-badge">{{ active.count|add:pending_sent.count }}</span>{% endif %}
+                    </button>
+                    <button class="battles-tab" data-tab="completed">
+                        <i class="bi bi-check-circle"></i> Yakunlangan
+                        {% if completed %}<span class="battles-tab-badge">{{ completed.count }}</span>{% endif %}
+                    </button>
                 </div>
 
-                <div class="battle-invite-info">
-                    <span><i class="bi bi-journal-text"></i> {{ battle.question_count }} savol</span>
-                    {% if battle.subject %}
-                    <span><i class="bi bi-book"></i> {{ battle.subject.name }}</span>
+                <!-- Active tab -->
+                <div class="battles-tab-content active" id="tab-active">
+                    {% if active or pending_sent %}
+                    <div class="battles-grid">
+                        {% for battle in pending_sent %}
+                        <div class="battle-card pending">
+                            <div class="battle-card-header">
+                                <span class="battle-status pending"><i class="bi bi-hourglass-split"></i> Kutilmoqda</span>
+                                <span class="battle-time">{{ battle.created_at|timesince }} oldin</span>
+                            </div>
+                            <div class="battle-card-body">
+                                <div class="battle-players">
+                                    <div class="battle-player">
+                                        <div class="battle-player-avatar you">
+                                            {% if request.user.avatar %}<img src="{{ request.user.avatar.url }}" alt="">
+                                            {% else %}{{ request.user.first_name|slice:":1" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-name">Siz</div>
+                                    </div>
+                                    <div class="battle-vs">
+                                        <div class="battle-vs-text">VS</div>
+                                        {% if battle.subject %}<div class="battle-vs-sub">{{ battle.subject.name }}</div>{% endif %}
+                                    </div>
+                                    <div class="battle-player">
+                                        <div class="battle-player-avatar">
+                                            {% if battle.opponent and battle.opponent.avatar %}<img src="{{ battle.opponent.avatar.url }}" alt="">
+                                            {% else %}{{ battle.opponent.first_name|slice:":1"|default:"?" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-name">{{ battle.opponent.first_name|default:"Kutilmoqda" }}</div>
+                                    </div>
+                                </div>
+                                <div class="battle-info">
+                                    <span><i class="bi bi-journal-text"></i> {{ battle.question_count }} savol</span>
+                                    <span><i class="bi bi-clock"></i> {{ battle.total_time }}s</span>
+                                </div>
+                                <div class="battle-actions">
+                                    <a href="{% url 'competitions:battle_detail' uuid=battle.uuid %}" class="battle-btn outline">Ko'rish</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% for battle in active %}
+                        <div class="battle-card active-card">
+                            <div class="battle-card-header">
+                                <span class="battle-status {{ battle.status }}">
+                                    {% if battle.status == 'accepted' %}<i class="bi bi-check-circle"></i> Qabul qilindi
+                                    {% else %}<i class="bi bi-play-circle"></i> Davom etmoqda{% endif %}
+                                </span>
+                                <span class="battle-time">{{ battle.created_at|timesince }} oldin</span>
+                            </div>
+                            <div class="battle-card-body">
+                                <div class="battle-players">
+                                    <div class="battle-player">
+                                        <div class="battle-player-avatar {% if battle.challenger == request.user %}you{% endif %}">
+                                            {% if battle.challenger.avatar %}<img src="{{ battle.challenger.avatar.url }}" alt="">
+                                            {% else %}{{ battle.challenger.first_name|slice:":1" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-name">{% if battle.challenger == request.user %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}</div>
+                                    </div>
+                                    <div class="battle-vs">
+                                        <div class="battle-vs-text">VS</div>
+                                        {% if battle.subject %}<div class="battle-vs-sub">{{ battle.subject.name }}</div>{% endif %}
+                                    </div>
+                                    <div class="battle-player">
+                                        <div class="battle-player-avatar {% if battle.opponent == request.user %}you{% elif battle.opponent_type == 'bot' %}bot{% endif %}">
+                                            {% if battle.opponent_type == 'bot' %}🤖
+                                            {% elif battle.opponent and battle.opponent.avatar %}<img src="{{ battle.opponent.avatar.url }}" alt="">
+                                            {% else %}{{ battle.opponent.first_name|slice:":1"|default:"?" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-name">
+                                            {% if battle.opponent_type == 'bot' %}Bot ({{ battle.get_bot_difficulty_display }})
+                                            {% elif battle.opponent == request.user %}Siz
+                                            {% else %}{{ battle.opponent.first_name|default:"Kutilmoqda" }}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="battle-info">
+                                    <span><i class="bi bi-journal-text"></i> {{ battle.question_count }} savol</span>
+                                    <span><i class="bi bi-clock"></i> {{ battle.total_time }}s</span>
+                                </div>
+                                <div class="battle-actions">
+                                    <a href="{% url 'competitions:battle_play' uuid=battle.uuid %}" class="battle-btn success">
+                                        <i class="bi bi-play-fill"></i> O'ynash
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="battles-empty">
+                        <i class="bi bi-lightning"></i>
+                        <h5 style="font-weight:700;margin-bottom:0.5rem;">Faol janglar yo'q</h5>
+                        <p style="color:var(--gray-500);margin-bottom:1rem;">Yangi jang boshlang yoki taklif yuboring</p>
+                        <a href="{% url 'competitions:battle_create' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i> Yangi jang
+                        </a>
+                    </div>
                     {% endif %}
-                    <span><i class="bi bi-clock"></i> {{ battle.total_time }}s</span>
                 </div>
 
-                <div class="battle-invite-actions">
-                    <form action="{% url 'competitions:battle_accept' uuid=battle.uuid %}" method="post" style="flex:1;">
-                        {% csrf_token %}
-                        <button type="submit" class="battle-invite-btn accept" style="width:100%;">
-                            <i class="bi bi-check-lg"></i> Qabul qilish
-                        </button>
-                    </form>
-                    <form action="{% url 'competitions:battle_reject' uuid=battle.uuid %}" method="post" style="flex:1;">
-                        {% csrf_token %}
-                        <button type="submit" class="battle-invite-btn reject" style="width:100%;">
-                            <i class="bi bi-x-lg"></i> Rad etish
-                        </button>
-                    </form>
+                <!-- Completed tab -->
+                <div class="battles-tab-content" id="tab-completed">
+                    {% if completed %}
+                    <div class="battles-grid">
+                        {% for battle in completed %}
+                        <div class="battle-card completed-card">
+                            <div class="battle-card-header">
+                                <span class="battle-status completed"><i class="bi bi-check-circle"></i> Yakunlangan</span>
+                                <span class="battle-time">{{ battle.completed_at|timesince }} oldin</span>
+                            </div>
+                            <div class="battle-card-body">
+                                <div class="battle-players">
+                                    <div class="battle-player">
+                                        <div class="battle-player-avatar {% if battle.challenger == request.user %}you{% endif %} {% if battle.winner == battle.challenger %}winner{% endif %}">
+                                            {% if battle.challenger.avatar %}<img src="{{ battle.challenger.avatar.url }}" alt="">
+                                            {% else %}{{ battle.challenger.first_name|slice:":1" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-name">{% if battle.challenger == request.user %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}</div>
+                                        <div class="battle-player-score {% if battle.winner == battle.challenger %}winner{% endif %}">{{ battle.challenger_correct }}/{{ battle.question_count }}</div>
+                                    </div>
+                                    <div class="battle-vs">
+                                        <div class="battle-vs-text" style="font-size:1.5rem;">
+                                            {% if battle.is_draw %}🤝{% elif battle.winner == request.user %}🏆{% else %}😢{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="battle-player">
+                                        <div class="battle-player-avatar {% if battle.opponent == request.user %}you{% elif battle.opponent_type == 'bot' %}bot{% endif %} {% if battle.winner == battle.opponent or battle.winner_is_bot %}winner{% endif %}">
+                                            {% if battle.opponent_type == 'bot' %}🤖
+                                            {% elif battle.opponent and battle.opponent.avatar %}<img src="{{ battle.opponent.avatar.url }}" alt="">
+                                            {% else %}{{ battle.opponent.first_name|slice:":1"|default:"?" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-name">
+                                            {% if battle.opponent_type == 'bot' %}Bot
+                                            {% elif battle.opponent == request.user %}Siz
+                                            {% else %}{{ battle.opponent.first_name|default:"-" }}{% endif %}
+                                        </div>
+                                        <div class="battle-player-score {% if battle.winner == battle.opponent or battle.winner_is_bot %}winner{% endif %}">{{ battle.opponent_correct }}/{{ battle.question_count }}</div>
+                                    </div>
+                                </div>
+                                <div class="battle-actions">
+                                    <a href="{% url 'competitions:battle_result' uuid=battle.uuid %}" class="battle-btn outline">Natija</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="battles-empty">
+                        <i class="bi bi-clipboard"></i>
+                        <h5 style="font-weight:700;margin-bottom:0.5rem;">Yakunlangan janglar yo'q</h5>
+                        <p style="color:var(--gray-500);margin:0;">Birinchi jangingizni boshlang!</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        <!-- Tabs -->
-        <div class="battles-tabs">
-            <button class="battles-tab active" data-tab="active">
-                <i class="bi bi-play-circle"></i> Faol
-                {% if active or pending_sent %}
-                <span class="battles-tab-badge">{{ active.count|add:pending_sent.count }}</span>
-                {% endif %}
-            </button>
-            <button class="battles-tab" data-tab="completed">
-                <i class="bi bi-check-circle"></i> Yakunlangan
-                {% if completed %}
-                <span class="battles-tab-badge">{{ completed.count }}</span>
-                {% endif %}
-            </button>
-        </div>
-
-        <!-- Active Tab -->
-        <div class="battles-tab-content active" id="tab-active">
-            {% if active or pending_sent %}
-            <div class="battles-grid">
-                {% for battle in pending_sent %}
-                <div class="battle-card pending">
-                    <div class="battle-card-header">
-                        <span class="battle-status pending">
-                            <i class="bi bi-hourglass-split"></i> Kutilmoqda
-                        </span>
-                        <span class="battle-time">{{ battle.created_at|timesince }} oldin</span>
-                    </div>
-
-                    <div class="battle-card-body">
-                        <div class="battle-players">
-                            <div class="battle-player">
-                                <div class="battle-player-avatar you">
-                                    {% if request.user.avatar %}
-                                    <img src="{{ request.user.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ request.user.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="battle-player-name">Siz</div>
-                            </div>
-
-                            <div class="battle-vs">
-                                <div class="battle-vs-text">VS</div>
-                                {% if battle.subject %}
-                                <div class="battle-vs-subject">{{ battle.subject.name }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="battle-player">
-                                <div class="battle-player-avatar">
-                                    {% if battle.opponent and battle.opponent.avatar %}
-                                    <img src="{{ battle.opponent.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ battle.opponent.first_name|slice:":1"|default:"?" }}
-                                    {% endif %}
-                                </div>
-                                <div class="battle-player-name">{{ battle.opponent.first_name|default:"Kutilmoqda" }}</div>
-                            </div>
-                        </div>
-
-                        <div class="battle-info">
-                            <span><i class="bi bi-journal-text"></i> {{ battle.question_count }} savol</span>
-                            <span><i class="bi bi-clock"></i> {{ battle.total_time }}s</span>
-                        </div>
-
-                        <div class="battle-actions">
-                            <a href="{% url 'competitions:battle_detail' uuid=battle.uuid %}" class="battle-btn outline">
-                                Ko'rish
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-
-                {% for battle in active %}
-                <div class="battle-card active">
-                    <div class="battle-card-header">
-                        <span class="battle-status {{ battle.status }}">
-                            {% if battle.status == 'accepted' %}
-                            <i class="bi bi-check-circle"></i> Qabul qilindi
-                            {% else %}
-                            <i class="bi bi-play-circle"></i> Davom etmoqda
-                            {% endif %}
-                        </span>
-                        <span class="battle-time">{{ battle.created_at|timesince }} oldin</span>
-                    </div>
-
-                    <div class="battle-card-body">
-                        <div class="battle-players">
-                            <div class="battle-player">
-                                <div class="battle-player-avatar {% if battle.challenger == request.user %}you{% endif %}">
-                                    {% if battle.challenger.avatar %}
-                                    <img src="{{ battle.challenger.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ battle.challenger.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="battle-player-name">
-                                    {% if battle.challenger == request.user %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}
-                                </div>
-                            </div>
-
-                            <div class="battle-vs">
-                                <div class="battle-vs-text">VS</div>
-                                {% if battle.subject %}
-                                <div class="battle-vs-subject">{{ battle.subject.name }}</div>
-                                {% endif %}
-                            </div>
-
-                            <div class="battle-player">
-                                <div class="battle-player-avatar {% if battle.opponent == request.user %}you{% elif battle.opponent_type == 'bot' %}bot{% endif %}">
-                                    {% if battle.opponent_type == 'bot' %}
-                                    🤖
-                                    {% elif battle.opponent and battle.opponent.avatar %}
-                                    <img src="{{ battle.opponent.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ battle.opponent.first_name|slice:":1"|default:"?" }}
-                                    {% endif %}
-                                </div>
-                                <div class="battle-player-name">
-                                    {% if battle.opponent_type == 'bot' %}Bot ({{ battle.get_bot_difficulty_display }})
-                                    {% elif battle.opponent == request.user %}Siz
-                                    {% else %}{{ battle.opponent.first_name|default:"Kutilmoqda" }}{% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="battle-info">
-                            <span><i class="bi bi-journal-text"></i> {{ battle.question_count }} savol</span>
-                            <span><i class="bi bi-clock"></i> {{ battle.total_time }}s</span>
-                        </div>
-
-                        <div class="battle-actions">
-                            <a href="{% url 'competitions:battle_play' uuid=battle.uuid %}" class="battle-btn success">
-                                <i class="bi bi-play-fill"></i> O'ynash
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="battles-empty">
-                <div class="battles-empty-icon">⚔️</div>
-                <h4>Faol janglar yo'q</h4>
-                <p>Yangi jang boshlang yoki taklif yuboring</p>
-                <a href="{% url 'competitions:battle_create' %}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-2"></i>Yangi jang
-                </a>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Completed Tab -->
-        <div class="battles-tab-content" id="tab-completed">
-            {% if completed %}
-            <div class="battles-grid">
-                {% for battle in completed %}
-                <div class="battle-card completed">
-                    <div class="battle-card-header">
-                        <span class="battle-status completed">
-                            <i class="bi bi-check-circle"></i> Yakunlangan
-                        </span>
-                        <span class="battle-time">{{ battle.completed_at|timesince }} oldin</span>
-                    </div>
-
-                    <div class="battle-card-body">
-                        <div class="battle-players">
-                            <div class="battle-player">
-                                <div class="battle-player-avatar {% if battle.challenger == request.user %}you{% endif %} {% if battle.winner == battle.challenger %}winner{% endif %}">
-                                    {% if battle.challenger.avatar %}
-                                    <img src="{{ battle.challenger.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ battle.challenger.first_name|slice:":1" }}
-                                    {% endif %}
-                                </div>
-                                <div class="battle-player-name">
-                                    {% if battle.challenger == request.user %}Siz{% else %}{{ battle.challenger.first_name }}{% endif %}
-                                </div>
-                                <div class="battle-player-score {% if battle.winner == battle.challenger %}winner{% endif %}">
-                                    {{ battle.challenger_correct }}/{{ battle.question_count }}
-                                </div>
-                            </div>
-
-                            <div class="battle-vs">
-                                <div class="battle-vs-text">
-                                    {% if battle.is_draw %}🤝{% elif battle.winner == request.user %}🏆{% elif battle.winner_is_bot %}😢{% else %}{% if battle.winner %}😢{% else %}🤝{% endif %}{% endif %}
-                                </div>
-                            </div>
-
-                            <div class="battle-player">
-                                <div class="battle-player-avatar {% if battle.opponent == request.user %}you{% elif battle.opponent_type == 'bot' %}bot{% endif %} {% if battle.winner == battle.opponent or battle.winner_is_bot %}winner{% endif %}">
-                                    {% if battle.opponent_type == 'bot' %}
-                                    🤖
-                                    {% elif battle.opponent and battle.opponent.avatar %}
-                                    <img src="{{ battle.opponent.avatar.url }}" alt="">
-                                    {% else %}
-                                    {{ battle.opponent.first_name|slice:":1"|default:"?" }}
-                                    {% endif %}
-                                </div>
-                                <div class="battle-player-name">
-                                    {% if battle.opponent_type == 'bot' %}Bot
-                                    {% elif battle.opponent == request.user %}Siz
-                                    {% else %}{{ battle.opponent.first_name|default:"-" }}{% endif %}
-                                </div>
-                                <div class="battle-player-score {% if battle.winner == battle.opponent or battle.winner_is_bot %}winner{% endif %}">
-                                    {{ battle.opponent_correct }}/{{ battle.question_count }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="battle-actions">
-                            <a href="{% url 'competitions:battle_result' uuid=battle.uuid %}" class="battle-btn outline">
-                                Natija
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="battles-empty">
-                <div class="battles-empty-icon">📋</div>
-                <h4>Yakunlangan janglar yo'q</h4>
-                <p>Birinchi jangingizni boshlang!</p>
-            </div>
-            {% endif %}
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Tabs functionality
-    document.querySelectorAll('.battles-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabId = this.dataset.tab;
-
-            // Update tabs
-            document.querySelectorAll('.battles-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-
-            // Update content
-            document.querySelectorAll('.battles-tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-        });
+document.querySelectorAll('.battles-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.battles-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.battles-tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
     });
+});
 </script>
 {% endblock %}
