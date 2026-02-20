@@ -1450,94 +1450,6 @@
 
         .banner-close:hover { background: rgba(255,255,255,0.25); }
 
-        /* ========== PREMIUM PROMO BAR ========== */
-        .promo-bar {
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-            border-bottom: 1px solid rgba(139,197,64,0.2);
-            padding: 0.6rem 0;
-            position: relative;
-            z-index: 990;
-        }
-        .promo-bar-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-        .promo-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex: 1;
-            min-width: 0;
-        }
-        .promo-bar-badge {
-            background: rgba(139,197,64,0.15);
-            color: #8BC540;
-            border: 1px solid rgba(139,197,64,0.3);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 800;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .promo-bar-text {
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.85);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .promo-bar-items {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .promo-bar-items i { color: #8BC540; font-size: 0.78rem; }
-        .promo-sep { color: rgba(255,255,255,0.25); }
-        .promo-bar-short { display: none; }
-        .promo-bar-right {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
-        .promo-bar-btn {
-            display: inline-flex;
-            align-items: center;
-            background: var(--gradient-primary);
-            color: #fff;
-            padding: 0.35rem 0.875rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .promo-bar-btn:hover { color: #fff; box-shadow: 0 4px 16px rgba(139,197,64,0.4); }
-        .promo-bar-close {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.4);
-            cursor: pointer;
-            padding: 0.2rem 0.3rem;
-            font-size: 1rem;
-            transition: color 0.2s;
-            line-height: 1;
-        }
-        .promo-bar-close:hover { color: rgba(255,255,255,0.8); }
-
-        @media (max-width: 767px) {
-            .promo-bar-items { display: none; }
-            .promo-bar-short { display: inline; }
-        }
-        @media (max-width: 480px) {
-            .promo-bar-badge { display: none; }
-            .promo-bar-text { font-size: 0.78rem; }
-        }
-
         /* ========== FOOTER ========== */
         .footer {
             background: var(--dark);
@@ -2317,39 +2229,6 @@
         </div>
         {% endif %}
 
-        <!-- ===== PREMIUM PROMO BAR ===== -->
-        {% if not user.is_premium %}
-        <div class="promo-bar" id="promoBar">
-            <div class="container">
-                <div class="promo-bar-inner">
-                    <div class="promo-bar-left">
-                        <span class="promo-bar-badge">💎 Premium</span>
-                        <span class="promo-bar-text">
-                            <span class="promo-bar-items">
-                                <span><i class="bi bi-robot"></i> AI Study Planner</span>
-                                <span class="promo-sep">·</span>
-                                <span><i class="bi bi-bar-chart-fill"></i> Shaxsiy tahlil</span>
-                                <span class="promo-sep">·</span>
-                                <span><i class="bi bi-infinity"></i> Cheksiz testlar</span>
-                                <span class="promo-sep">·</span>
-                                <span><i class="bi bi-mortarboard-fill"></i> Universitet tavsiyasi</span>
-                            </span>
-                            <span class="promo-bar-short">AI tahlil + Cheksiz testlar bilan DTM ga tayyor bo'l</span>
-                        </span>
-                    </div>
-                    <div class="promo-bar-right">
-                        <a href="{% url 'subscriptions:pricing' %}" class="promo-bar-btn">
-                            Premium ol <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
-                        <button class="promo-bar-close" onclick="dismissPromoBar()" title="Yopish">
-                            <i class="bi bi-x"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
         <!-- Page Content -->
         <main class="page-content">
             {% block content %}{% endblock %}
@@ -2447,31 +2326,6 @@
     (function() {
         const saved = localStorage.getItem('theme');
         if (saved) document.documentElement.setAttribute('data-theme', saved);
-    })();
-
-    // Promo bar
-    function dismissPromoBar() {
-        var bar = document.getElementById('promoBar');
-        if (bar) {
-            bar.style.height = bar.offsetHeight + 'px';
-            bar.style.overflow = 'hidden';
-            bar.style.transition = 'height 0.3s, opacity 0.3s, padding 0.3s';
-            setTimeout(function() {
-                bar.style.height = '0';
-                bar.style.opacity = '0';
-                bar.style.padding = '0';
-            }, 10);
-            setTimeout(function() { bar.style.display = 'none'; }, 320);
-            // 6 soat yashirish
-            localStorage.setItem('promoBarDismissed', Date.now() + 6 * 60 * 60 * 1000);
-        }
-    }
-    (function() {
-        var until = localStorage.getItem('promoBarDismissed');
-        if (until && Date.now() < parseInt(until)) {
-            var bar = document.getElementById('promoBar');
-            if (bar) bar.style.display = 'none';
-        }
     })();
 
     // Banner close
