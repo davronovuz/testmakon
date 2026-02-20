@@ -8,308 +8,105 @@
 <style>
     {% include 'includes/_sidebar_css.html' %}
 
-    /* ========== MAIN CONTENT ========== */
-    .qb-content {
-        padding: 2rem 0;
+    .qb-head {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
+    }
+    .qb-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0; }
+    .qb-count { font-size: 0.8rem; font-weight: 600; color: var(--gray-400); }
+
+    /* ===== Quick actions (compact) ===== */
+    .qb-actions {
+        display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap;
+    }
+    .qb-action {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 8px 14px; background: var(--white); border: 1px solid var(--gray-200);
+        border-radius: 10px; text-decoration: none; color: var(--dark-600);
+        font-size: 0.78rem; font-weight: 600; transition: all 0.15s ease;
+    }
+    .qb-action:hover { border-color: var(--primary); color: var(--primary-dark); background: rgba(139,197,64,0.04); }
+    .qb-action i { font-size: 0.85rem; }
+    .qb-action .dot-red { color: #DC2626; }
+    .qb-action .dot-blue { color: #2563EB; }
+    .qb-action .dot-green { color: #059669; }
+
+    /* ===== Subject cards — COMPACT ===== */
+    .qb-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;
     }
 
-    /* ========== SUBJECT CARDS ========== */
-    .qb-subjects-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+    .qb-card {
+        background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px;
+        padding: 14px; text-decoration: none; color: inherit;
+        transition: all 0.2s ease; position: relative; overflow: hidden;
+    }
+    .qb-card:hover {
+        border-color: var(--gray-300); box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transform: translateY(-2px); color: inherit;
     }
 
-    @media (max-width: 992px) {
-        .qb-subjects-grid {
-            grid-template-columns: 1fr;
-        }
+    .qb-card-head {
+        display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
     }
-
-    .qb-subject-card {
-        background: var(--white);
-        border-radius: var(--radius-xl);
-        overflow: hidden;
-        box-shadow: var(--shadow);
-        transition: all 0.3s ease;
-        border: 1px solid var(--gray-200);
+    .qb-card-icon {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
     }
+    .qb-card-name { font-size: 0.85rem; font-weight: 800; color: var(--dark); }
+    .qb-card-stat { font-size: 0.7rem; color: var(--gray-500); font-weight: 500; }
 
-    .qb-subject-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
+    /* Topics preview */
+    .qb-topics {
+        display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px;
     }
-
-    /* Subject Header */
-    .qb-subject-header {
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: white;
-    }
-
-    .qb-subject-header h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: white;
-        margin: 0;
-    }
-
-    .qb-subject-header span {
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .qb-subject-header .btn {
-        background: rgba(255,255,255,0.2);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.3);
-        font-size: 0.8rem;
-        padding: 0.4rem 1rem;
-    }
-
-    .qb-subject-header .btn:hover {
-        background: rgba(255,255,255,0.3);
-    }
-
-    /* Subject Colors */
-    .qb-subject-header.matematika { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
-    .qb-subject-header.fizika { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
-    .qb-subject-header.kimyo { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
-    .qb-subject-header.biologiya { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
-    .qb-subject-header.ingliz-tili { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
-    .qb-subject-header.tarix { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); }
-    .qb-subject-header.geografiya { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
-    .qb-subject-header.ona-tili { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
-    .qb-subject-header.adabiyot { background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%); }
-    .qb-subject-header.default { background: linear-gradient(135deg, #64748B 0%, #475569 100%); }
-
-    /* Subject Body */
-    .qb-subject-body {
-        padding: 1rem 1.5rem 1.5rem;
-    }
-
-    /* Topic Item */
-    .qb-topic-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.85rem 0;
+    .qb-topic {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 5px 0; font-size: 0.75rem; color: var(--dark-600);
         border-bottom: 1px solid var(--gray-100);
-        transition: all 0.2s ease;
     }
+    .qb-topic:last-child { border-bottom: none; }
+    .qb-topic-name { font-weight: 600; }
+    .qb-topic-cnt { font-size: 0.68rem; color: var(--gray-400); font-weight: 500; }
 
-    .qb-topic-item:last-child {
-        border-bottom: none;
+    /* Progress */
+    .qb-progress {
+        height: 4px; background: var(--gray-100); border-radius: 2px; overflow: hidden;
     }
-
-    .qb-topic-item:hover {
-        padding-left: 0.5rem;
-    }
-
-    .qb-topic-link {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        transition: color 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .qb-topic-link:hover {
-        color: var(--primary-dark);
-    }
-
-    .qb-topic-count {
-        font-size: 0.85rem;
-        color: var(--gray-400);
-        font-weight: 500;
-    }
-
-    /* Topic Progress Indicators */
-    .qb-topic-progress {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .qb-progress-badge {
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-    }
-
-    .qb-progress-badge.weak {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .qb-progress-badge.strong {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .qb-progress-badge.bookmarked {
-        background: var(--primary-glow);
-        color: var(--primary-dark);
-    }
-
-    /* User Progress Bar */
-    .qb-user-progress {
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--gray-200);
-    }
-
-    .qb-progress-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .qb-progress-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--gray-500);
-    }
-
-    .qb-progress-value {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--primary-dark);
-    }
-
     .qb-progress-bar {
-        height: 6px;
-        background: var(--gray-200);
-        border-radius: 3px;
-        overflow: hidden;
+        height: 100%; border-radius: 2px; background: var(--gradient-primary); transition: width 0.4s ease;
     }
 
-    .qb-progress-fill {
-        height: 100%;
-        background: var(--gradient-primary);
-        border-radius: 3px;
-        transition: width 0.5s ease;
+    /* Card footer */
+    .qb-card-foot {
+        display: flex; align-items: center; justify-content: space-between;
+        padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--gray-100);
     }
+    .qb-card-more {
+        font-size: 0.72rem; font-weight: 700; color: var(--primary-dark);
+        display: inline-flex; align-items: center; gap: 3px;
+    }
+    .qb-card-more i { font-size: 0.65rem; transition: transform 0.15s ease; }
+    .qb-card:hover .qb-card-more i { transform: translateX(2px); }
 
-    /* ========== EMPTY STATE ========== */
+    .qb-badge {
+        font-size: 0.62rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+    }
+    .qb-badge.weak { background: #FEE2E2; color: #DC2626; }
+    .qb-badge.strong { background: #D1FAE5; color: #059669; }
+
+    /* Empty */
     .qb-empty {
-        text-align: center;
-        padding: 4rem 2rem;
+        text-align: center; padding: 3rem 2rem; grid-column: 1 / -1;
+        background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px;
     }
-
-    .qb-empty-icon {
-        width: 80px;
-        height: 80px;
-        background: var(--gray-100);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2rem;
-        color: var(--gray-400);
-    }
-
-    .qb-empty h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .qb-empty p {
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* ========== QUICK ACTIONS ========== */
-    .qb-quick-actions {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-        margin-bottom: 1.5rem;
-        border: 1px solid var(--gray-200);
-    }
-
-    .qb-quick-title {
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--gray-400);
-        margin-bottom: 1rem;
-    }
-
-    .qb-quick-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-    }
+    .qb-empty i { font-size: 2rem; color: var(--gray-300); margin-bottom: 0.5rem; }
+    .qb-empty h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .qb-empty p { font-size: 0.78rem; color: var(--gray-500); }
 
     @media (max-width: 768px) {
-        .qb-quick-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .qb-quick-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
-    }
-
-    .qb-quick-item:hover {
-        background: var(--primary-glow);
-        border-color: var(--primary-light);
-        transform: translateY(-2px);
-    }
-
-    .qb-quick-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
-
-    .qb-quick-icon.red {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-
-    .qb-quick-icon.blue {
-        background: #DBEAFE;
-        color: #2563EB;
-    }
-
-    .qb-quick-icon.green {
-        background: #D1FAE5;
-        color: #059669;
-    }
-
-    .qb-quick-text h4 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-    }
-
-    .qb-quick-text span {
-        font-size: 0.8rem;
-        color: var(--gray-500);
+        .qb-grid { grid-template-columns: 1fr; }
+        .qb-actions { flex-direction: column; }
     }
 </style>
 {% endblock %}
@@ -319,116 +116,77 @@
     <div class="tl-layout">
         {% include 'includes/_sidebar.html' with active='question_bank' %}
 
-        <main class="qb-content">
+        <main>
+            <div class="qb-head">
+                <h1 class="qb-title">Savol banki</h1>
+                {% if subjects_data %}
+                <span class="qb-count">{{ subjects_data|length }} ta fan</span>
+                {% endif %}
+            </div>
+
             {% if user.is_authenticated %}
-            <!-- Quick Actions -->
-            <div class="qb-quick-actions">
-                <div class="qb-quick-title">Tez harakatlar</div>
-                <div class="qb-quick-grid">
-                    <a href="{% url 'tests_app:wrong_answers' %}" class="qb-quick-item">
-                        <div class="qb-quick-icon red">
-                            <i class="bi bi-x-circle"></i>
-                        </div>
-                        <div class="qb-quick-text">
-                            <h4>Xatolar ustida ishlash</h4>
-                            <span>Noto'g'ri javoblarni takrorlang</span>
-                        </div>
-                    </a>
-                    <a href="{% url 'tests_app:saved_questions' %}" class="qb-quick-item">
-                        <div class="qb-quick-icon blue">
-                            <i class="bi bi-bookmark-fill"></i>
-                        </div>
-                        <div class="qb-quick-text">
-                            <h4>Saqlangan savollar</h4>
-                            <span>Belgilangan savollar</span>
-                        </div>
-                    </a>
-                    <a href="{% url 'tests_app:dtm_simulation' %}" class="qb-quick-item">
-                        <div class="qb-quick-icon green">
-                            <i class="bi bi-mortarboard-fill"></i>
-                        </div>
-                        <div class="qb-quick-text">
-                            <h4>DTM Simulyatsiya</h4>
-                            <span>Haqiqiy imtihon formati</span>
-                        </div>
-                    </a>
-                </div>
+            <div class="qb-actions">
+                <a href="{% url 'tests_app:wrong_answers' %}" class="qb-action">
+                    <i class="bi bi-x-circle dot-red"></i> Xatolar ustida ishlash
+                </a>
+                <a href="{% url 'tests_app:saved_questions' %}" class="qb-action">
+                    <i class="bi bi-bookmark-fill dot-blue"></i> Saqlangan savollar
+                </a>
+                <a href="{% url 'tests_app:dtm_simulation' %}" class="qb-action">
+                    <i class="bi bi-mortarboard-fill dot-green"></i> DTM simulyatsiya
+                </a>
             </div>
             {% endif %}
 
-            <!-- Subjects Grid -->
             {% if subjects_data %}
-            <div class="qb-subjects-grid">
+            <div class="qb-grid">
                 {% for item in subjects_data %}
-                <div class="qb-subject-card">
-                    <div class="qb-subject-header {{ item.subject.slug|default:'default' }}">
+                <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="qb-card">
+                    <div class="qb-card-head">
+                        <div class="qb-card-icon" style="background: {{ item.subject.color }}15; color: {{ item.subject.color }}">
+                            {{ item.subject.icon }}
+                        </div>
                         <div>
-                            <h3>{{ item.subject.icon }} {{ item.subject.name }}</h3>
-                            <span>{{ item.questions_count }} ta savol</span>
+                            <div class="qb-card-name">{{ item.subject.name }}</div>
+                            <div class="qb-card-stat">{{ item.questions_count }} ta savol{% if item.topics %} · {{ item.topics.count }} mavzu{% endif %}</div>
                         </div>
-                        <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="btn">
-                            Barcha mavzular
-                        </a>
                     </div>
 
-                    <div class="qb-subject-body">
-                        {% if item.topics %}
-                            {% for topic in item.topics|slice:":6" %}
-                            <div class="qb-topic-item">
-                                <a href="{% url 'tests_app:practice_topic' subject_slug=item.subject.slug topic_slug=topic.slug %}" class="qb-topic-link">
-                                    {{ topic.name }}
-                                </a>
-                                <div class="qb-topic-progress">
-                                    {% if user.is_authenticated and topic.id in topic_performances %}
-                                        {% with perf=topic_performances|get_item:topic.id %}
-                                            {% if perf.is_weak %}
-                                            <span class="qb-progress-badge weak">Kuchsiz</span>
-                                            {% elif perf.is_strong %}
-                                            <span class="qb-progress-badge strong">Kuchli</span>
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% endif %}
-                                    <span class="qb-topic-count">{{ topic.questions_count }} savol</span>
-                                </div>
-                            </div>
-                            {% endfor %}
+                    {% if item.topics %}
+                    <div class="qb-topics">
+                        {% for topic in item.topics|slice:":4" %}
+                        <div class="qb-topic">
+                            <span class="qb-topic-name">{{ topic.name }}</span>
+                            <span class="qb-topic-cnt">{{ topic.questions_count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
-                            {% if item.topics.count > 6 %}
-                            <div class="text-center mt-3">
-                                <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="btn btn-light btn-sm">
-                                    Yana {{ item.topics.count|add:"-6" }} ta mavzu <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                            {% endif %}
-                        {% else %}
-                            <div class="text-center py-3">
-                                <p class="text-muted mb-0">Mavzular qo'shilmoqda...</p>
-                            </div>
-                        {% endif %}
+                    {% if item.user_progress %}
+                    <div class="qb-progress">
+                        <div class="qb-progress-bar" style="width: {{ item.user_progress.accuracy }}%"></div>
+                    </div>
+                    {% endif %}
 
+                    <div class="qb-card-foot">
                         {% if item.user_progress %}
-                        <div class="qb-user-progress">
-                            <div class="qb-progress-header">
-                                <span class="qb-progress-label">Sizning progressingiz</span>
-                                <span class="qb-progress-value">{{ item.user_progress.accuracy }}% aniqlik</span>
-                            </div>
-                            <div class="qb-progress-bar">
-                                <div class="qb-progress-fill" style="width: {{ item.user_progress.accuracy }}%"></div>
-                            </div>
-                        </div>
+                        <span class="qb-badge {% if item.user_progress.accuracy >= 70 %}strong{% else %}weak{% endif %}">
+                            {{ item.user_progress.accuracy }}%
+                        </span>
+                        {% else %}
+                        <span></span>
                         {% endif %}
+                        <span class="qb-card-more">Ochish <i class="bi bi-chevron-right"></i></span>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
             {% else %}
-            <!-- Empty State -->
             <div class="qb-empty">
-                <div class="qb-empty-icon">
-                    <i class="bi bi-journal-x"></i>
-                </div>
+                <i class="bi bi-journal-x"></i>
                 <h3>Fanlar topilmadi</h3>
-                <p>Hozircha fanlar qo'shilmagan. Tez orada yangi fanlar qo'shiladi.</p>
+                <p>Hozircha fanlar qo'shilmagan.</p>
             </div>
             {% endif %}
         </main>
