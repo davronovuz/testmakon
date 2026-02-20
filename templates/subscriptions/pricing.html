@@ -152,7 +152,6 @@
         <!-- Plan cards -->
         <div class="pr-plans">
             {% for plan in plans %}
-            {% if plan.price > 0 %}
             <div class="pr-card {% if plan.is_featured %}featured{% endif %}">
                 {% if plan.is_featured %}
                 <div class="pr-featured-tag">⭐ Eng ommabop</div>
@@ -166,20 +165,29 @@
                 {% endif %}
 
                 <div class="pr-price">
-                    <span class="pr-amount">{{ plan.price|intcomma }}</span>
-                    <span class="pr-currency">so'm</span>
+                    {% if plan.price == 0 %}
+                        <span class="pr-amount" style="font-size:1.6rem;color:var(--gray-500);">Bepul</span>
+                    {% else %}
+                        <span class="pr-amount">{{ plan.price|intcomma }}</span>
+                        <span class="pr-currency">so'm</span>
+                    {% endif %}
                 </div>
-                <div class="pr-dur">{{ plan.duration_days }} kunlik obuna</div>
+                <div class="pr-dur">{% if plan.price == 0 %}Doimiy bepul{% else %}{{ plan.duration_days }} kunlik obuna{% endif %}</div>
 
                 <ul class="pr-features">
-                    <li><i class="bi bi-check-circle-fill ci"></i> Cheksiz testlar</li>
+                    {% if plan.daily_test_limit %}
+                    <li><i class="bi bi-check-circle-fill ci"></i> Kuniga {{ plan.daily_test_limit }} ta test</li>
+                    {% else %}
+                    <li><i class="bi bi-check-circle-fill ci"></i> <strong>Cheksiz testlar</strong></li>
+                    {% endif %}
                     {% if plan.can_access_ai_mentor %}
                     <li><i class="bi bi-stars ci" style="color:#f59e0b;"></i> AI Mentor cheksiz</li>
+                    {% else %}
+                    <li><i class="bi bi-dash-circle cx"></i> AI Mentor yo'q</li>
                     {% endif %}
                     {% if plan.can_access_analytics %}
                     <li><i class="bi bi-check-circle-fill ci"></i> Shaxsiy tahlil</li>
                     {% endif %}
-                    <li><i class="bi bi-check-circle-fill ci"></i> DTM simulyatsiya</li>
                     {% if plan.ad_free %}
                     <li><i class="bi bi-check-circle-fill ci"></i> Reklama yo'q</li>
                     {% endif %}
@@ -187,13 +195,12 @@
 
                 {% if current_subscription.plan == plan %}
                     <span class="pr-btn curr">✓ Joriy tarifingiz</span>
+                {% elif plan.price == 0 %}
+                    <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-btn sec">Bepul boshlash</a>
                 {% else %}
-                    <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-btn {% if plan.is_featured %}prim{% else %}sec{% endif %}">
-                        Sotib olish →
-                    </a>
+                    <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-btn prim">Sotib olish →</a>
                 {% endif %}
             </div>
-            {% endif %}
             {% endfor %}
         </div>
 
