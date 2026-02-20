@@ -84,15 +84,25 @@
                             </div>
                         </div>
 
-                        <form action="{% url 'subscriptions:process_payment' slug=plan.slug %}" method="post">
+                        <!-- Online to'lov -->
+                        <form action="{% url 'subscriptions:process_payment' slug=plan.slug %}" method="post" class="mb-2">
                             {% csrf_token %}
                             {% if promo_code %}
                                 <input type="hidden" name="promo_code" value="{{ promo_code.code }}">
                             {% endif %}
                             <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-primary">
-                                To'lovga o'tish <i class="bi bi-arrow-right ms-2"></i>
+                                <i class="bi bi-credit-card me-2"></i>Online to'lov (Click/Payme)
                             </button>
                         </form>
+
+                        <!-- Qo'lda to'lov -->
+                        <a href="{% url 'subscriptions:manual_payment' slug=plan.slug %}{% if promo_code %}?promo_code={{ promo_code.code }}{% endif %}"
+                           class="btn btn-outline-secondary w-100 py-3 fw-bold rounded-pill">
+                            <i class="bi bi-bank me-2"></i>Karta orqali qo'lda to'lash
+                        </a>
+                        <p class="text-center text-muted mt-2" style="font-size:0.78rem;">
+                            <i class="bi bi-clock me-1"></i>Qo'lda to'lovda tasdiqlash 1-24 soat oladi
+                        </p>
                     </div>
                 </div>
 

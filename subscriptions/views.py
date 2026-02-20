@@ -292,6 +292,85 @@ def api_check_limits(request):
     })
 
 
+@login_required
+def manual_payment(request, slug):
+    """Qo'lda to'lov — chek yuborish sahifasi"""
+    plan = get_object_or_404(SubscriptionPlan, slug=slug, is_active=True)
+
+    # Promo kod session dan olish
+    promo_code_text = request.GET.get('promo_code', '').strip().upper()
+    final_price = plan.price
+    discount = 0
+    promo = None
+
+    if promo_code_text:
+        try:
+            promo = PromoCode.objects.get(code=promo_code_text)
+            if promo.is_valid:
+                final_price = promo.apply_discount(plan.price)
+                discount = plan.price - final_price
+        except PromoCode.DoesNotExist:
+            pass
+
+    if request.method == 'POST':
+        receipt = request.FILES.get('receipt_image')
+        sender_name = request.POST.get('sender_name', '').strip()
+
+        if not receipt:
+            messages.error(request, 'Chek rasmini yuklang!')
+            return redirect('subscriptions:manual_payment', slug=slug)
+
+        # Subscription yaratish (pending)
+        subscription = Subscription.objects.create(
+            user=request.user,
+            plan=plan,
+            status='pending'
+        )
+
+        # Payment yaratish
+        payment = Payment.objects.create(
+            user=request.user,
+            subscription=subscription,
+            plan=plan,
+            amount=final_price,
+            provider='manual',
+            status='pending',
+            receipt_image=receipt,
+            description=f"Jo'natuvchi: {sender_name}" if sender_name else '',
+            ip_address=get_client_ip(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+        )
+
+        # Promo kod bo'lsa
+        if promo:
+            PromoCodeUsage.objects.create(
+                promo_code=promo,
+                user=request.user,
+                payment=payment,
+                discount_amount=discount
+            )
+            promo.use()
+
+        messages.success(request, 'Chekingiz qabul qilindi! Admin tasdiqlashidan so\'ng premium faollashadi.')
+        return redirect('subscriptions:manual_pending', uuid=payment.uuid)
+
+    context = {
+        'plan': plan,
+        'final_price': final_price,
+        'discount': discount,
+        'promo_code_text': promo_code_text,
+    }
+    return render(request, 'subscriptions/manual_payment.html', context)
+
+
+@login_required
+def manual_pending(request, uuid):
+    """Qo'lda to'lov — kutish sahifasi"""
+    payment = get_object_or_404(Payment, uuid=uuid, user=request.user)
+    context = {'payment': payment}
+    return render(request, 'subscriptions/manual_pending.html', context)
+
+
 # Click/Payme Webhook handlers (demo)
 
 @csrf_exempt

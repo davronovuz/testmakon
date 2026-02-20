@@ -10,6 +10,8 @@ app_name = 'subscriptions'
 urlpatterns = [
     # Pages
     path('pricing/', views.pricing, name='pricing'),
+    path('manual/<slug:slug>/', views.manual_payment, name='manual_payment'),
+    path('manual/pending/<uuid:uuid>/', views.manual_pending, name='manual_pending'),
     path('checkout/<slug:slug>/', views.checkout, name='checkout'),
     path('process/<slug:slug>/', views.process_payment, name='process_payment'),
     path('success/<uuid:uuid>/', views.payment_success, name='success'),

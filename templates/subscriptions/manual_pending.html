@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Chek qabul qilindi | TestMakon{% endblock %}
+
+{% block content %}
+<section class="section-sm">
+    <div class="container">
+        <div style="max-width:480px; margin:0 auto; padding:2rem 0 4rem; text-align:center;">
+
+            <!-- Success icon -->
+            <div style="width:80px;height:80px;border-radius:50%;background:rgba(139,197,64,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+                <i class="bi bi-hourglass-split" style="font-size:2rem;color:var(--primary);"></i>
+            </div>
+
+            <h2 style="font-size:1.35rem;font-weight:900;color:var(--dark);margin-bottom:0.5rem;">Chek qabul qilindi!</h2>
+            <p style="font-size:0.92rem;color:var(--gray-500);margin-bottom:2rem;">Admin tekshirgach, premiumingiz faollashadi. Odatda <strong>1-24 soat</strong> vaqt ketadi.</p>
+
+            <!-- Order info -->
+            <div style="background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:1.25rem;margin-bottom:1.5rem;text-align:left;">
+                <div style="font-size:0.82rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.875rem;">To'lov ma'lumotlari</div>
+                <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-50);font-size:0.88rem;">
+                    <span style="color:var(--gray-500);">Buyurtma ID</span>
+                    <span style="font-weight:700;color:var(--dark);font-family:monospace;">{{ payment.order_id }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-50);font-size:0.88rem;">
+                    <span style="color:var(--gray-500);">Tarif</span>
+                    <span style="font-weight:700;color:var(--dark);">{{ payment.plan.name }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--gray-50);font-size:0.88rem;">
+                    <span style="color:var(--gray-500);">Summa</span>
+                    <span style="font-weight:800;color:var(--primary);">{{ payment.amount|intcomma }} so'm</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:0.5rem 0;font-size:0.88rem;">
+                    <span style="color:var(--gray-500);">Holat</span>
+                    <span style="background:#FEF3C7;color:#92400E;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.78rem;font-weight:700;">Tekshirilmoqda</span>
+                </div>
+            </div>
+
+            <!-- Steps -->
+            <div style="background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem;text-align:left;">
+                <div style="font-size:0.82rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.875rem;">Keyingi jarayon</div>
+                <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">1</div>
+                    <div style="font-size:0.85rem;color:var(--gray-600);">Admin chekni ko'rib chiqadi</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:var(--gray-200);color:var(--gray-500);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">2</div>
+                    <div style="font-size:0.85rem;color:var(--gray-600);">To'lov tasdiqlanadi</div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem 0;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:var(--gray-200);color:var(--gray-500);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">3</div>
+                    <div style="font-size:0.85rem;color:var(--gray-600);"><strong>Premium avtomatik faollashadi</strong> 🎉</div>
+                </div>
+            </div>
+
+            <a href="{% url 'core:dashboard' %}" class="btn btn-primary px-4" style="margin-right:0.5rem;">
+                <i class="bi bi-house me-1"></i> Bosh sahifa
+            </a>
+            <a href="{% url 'subscriptions:my_subscription' %}" class="btn btn-outline-secondary px-4">
+                Obunalarim
+            </a>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

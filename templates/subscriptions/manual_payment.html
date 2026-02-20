@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Qo'lda to'lov | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mp-wrap {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 2rem 0 4rem;
+    }
+
+    /* Steps */
+    .mp-steps {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin-bottom: 2rem;
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+    }
+    .mp-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        flex: 1;
+        text-align: center;
+    }
+    .mp-step-num {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; font-weight: 800;
+        background: var(--gray-100); color: var(--gray-400);
+    }
+    .mp-step-num.done { background: var(--primary); color: #fff; }
+    .mp-step-num.active { background: var(--dark); color: #fff; }
+    .mp-step-label { font-size: 0.72rem; color: var(--gray-400); font-weight: 600; }
+    .mp-step-label.active { color: var(--dark); }
+    .mp-step-line { flex: 1; height: 2px; background: var(--gray-100); margin: 0 0.25rem; margin-bottom: 1rem; }
+    .mp-step-line.done { background: var(--primary); }
+
+    /* Order summary card */
+    .mp-summary {
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    .mp-summary-head {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .mp-summary-title { font-size: 0.88rem; font-weight: 800; color: var(--dark); }
+    .mp-summary-plan { font-size: 0.82rem; color: var(--gray-500); }
+    .mp-summary-price { font-size: 1.35rem; font-weight: 900; color: var(--primary); }
+    .mp-summary-dur { font-size: 0.75rem; color: var(--gray-400); text-align: right; }
+
+    /* Card info */
+    .mp-card-info {
+        background: linear-gradient(135deg, var(--dark) 0%, #1E293B 100%);
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .mp-card-info::after {
+        content: '';
+        position: absolute;
+        right: -30px; top: -30px;
+        width: 120px; height: 120px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.05);
+    }
+    .mp-card-badge {
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        background: rgba(139,197,64,0.2); color: #8BC540;
+        padding: 0.3rem 0.75rem; border-radius: 50px;
+        font-size: 0.75rem; font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .mp-card-label { font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600; margin-bottom: 0.25rem; }
+    .mp-card-number {
+        font-size: 1.35rem; font-weight: 900; color: #fff;
+        letter-spacing: 3px; font-family: monospace;
+        margin-bottom: 1rem;
+    }
+    .mp-card-number span { margin-right: 0.5rem; }
+    .mp-copy-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
+        border: 1px solid rgba(255,255,255,0.15);
+        padding: 0.4rem 0.875rem; border-radius: 8px;
+        font-size: 0.8rem; font-weight: 600;
+        cursor: pointer; transition: all 0.2s; border: none;
+    }
+    .mp-copy-btn:hover { background: rgba(255,255,255,0.18); }
+    .mp-card-meta { display: flex; gap: 2rem; margin-top: 1rem; }
+    .mp-card-meta-item {}
+    .mp-card-meta-val { font-size: 0.9rem; font-weight: 700; color: #fff; }
+
+    /* Instructions */
+    .mp-instructions {
+        background: #fff; border: 1px solid var(--gray-200);
+        border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem;
+    }
+    .mp-instr-title { font-size: 0.88rem; font-weight: 800; color: var(--dark); margin-bottom: 0.875rem; display: flex; align-items: center; gap: 0.4rem; }
+    .mp-instr-list { list-style: none; padding: 0; margin: 0; }
+    .mp-instr-list li {
+        display: flex; align-items: flex-start; gap: 0.75rem;
+        padding: 0.5rem 0; font-size: 0.85rem; color: var(--gray-600);
+    }
+    .mp-instr-list li + li { border-top: 1px solid var(--gray-50); }
+    .mp-instr-num {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: var(--primary); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Upload form */
+    .mp-form {
+        background: #fff; border: 1px solid var(--gray-200);
+        border-radius: 16px; padding: 1.25rem;
+    }
+    .mp-form-title { font-size: 0.88rem; font-weight: 800; color: var(--dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem; }
+    .mp-label { font-size: 0.8rem; font-weight: 700; color: var(--gray-600); margin-bottom: 0.4rem; display: block; }
+    .mp-input {
+        width: 100%; padding: 0.7rem 1rem;
+        border: 1.5px solid var(--gray-200); border-radius: 10px;
+        font-size: 0.88rem; color: var(--dark);
+        transition: border-color 0.2s; outline: none;
+        background: #fff;
+        margin-bottom: 1rem;
+    }
+    .mp-input:focus { border-color: var(--primary); }
+
+    /* Upload zone */
+    .mp-upload-zone {
+        border: 2px dashed var(--gray-200);
+        border-radius: 12px;
+        padding: 2rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .mp-upload-zone:hover, .mp-upload-zone.drag { border-color: var(--primary); background: rgba(139,197,64,0.04); }
+    .mp-upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .mp-upload-icon { font-size: 2rem; margin-bottom: 0.5rem; color: var(--gray-300); }
+    .mp-upload-text { font-size: 0.88rem; color: var(--gray-500); font-weight: 600; }
+    .mp-upload-sub { font-size: 0.75rem; color: var(--gray-400); margin-top: 0.25rem; }
+    .mp-preview { display: none; width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; margin-bottom: 0.75rem; }
+
+    /* Submit btn */
+    .mp-submit {
+        width: 100%; padding: 0.875rem;
+        background: var(--gradient-primary); color: #fff;
+        border: none; border-radius: 12px;
+        font-size: 0.95rem; font-weight: 800;
+        cursor: pointer; transition: all 0.2s;
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .mp-submit:hover { box-shadow: var(--shadow-primary); transform: translateY(-1px); }
+
+    /* Warning */
+    .mp-warning {
+        background: #FEF3C7; border: 1px solid #FDE68A;
+        border-radius: 10px; padding: 0.75rem 1rem;
+        font-size: 0.82rem; color: #92400E;
+        display: flex; align-items: flex-start; gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 575px) {
+        .mp-card-number { font-size: 1.1rem; letter-spacing: 2px; }
+        .mp-card-meta { gap: 1.25rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section-sm">
+    <div class="container">
+        <div class="mp-wrap">
+
+            <!-- Steps -->
+            <div class="mp-steps">
+                <div class="mp-step">
+                    <div class="mp-step-num done"><i class="bi bi-check"></i></div>
+                    <div class="mp-step-label">Tarif</div>
+                </div>
+                <div class="mp-step-line done"></div>
+                <div class="mp-step">
+                    <div class="mp-step-num active">2</div>
+                    <div class="mp-step-label active">To'lov</div>
+                </div>
+                <div class="mp-step-line"></div>
+                <div class="mp-step">
+                    <div class="mp-step-num">3</div>
+                    <div class="mp-step-label">Tasdiqlash</div>
+                </div>
+            </div>
+
+            <!-- Order summary -->
+            <div class="mp-summary">
+                <div class="mp-summary-head">
+                    <div>
+                        <div class="mp-summary-title">{{ plan.name }}</div>
+                        <div class="mp-summary-plan">{{ plan.duration_days }} kunlik obuna</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="mp-summary-price">{{ final_price|intcomma }} so'm</div>
+                        {% if discount > 0 %}
+                        <div class="mp-summary-dur" style="color: #059669;">-{{ discount|intcomma }} so'm chegirma</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card details -->
+            <div class="mp-card-info">
+                <div class="mp-card-badge">
+                    <i class="bi bi-shield-check-fill"></i> Xavfsiz to'lov
+                </div>
+                <div class="mp-card-label">Karta raqami</div>
+                <div class="mp-card-number" id="cardNumber">
+                    <span>8600</span><span>1234</span><span>5678</span><span>9012</span>
+                </div>
+                <button class="mp-copy-btn" onclick="copyCard()">
+                    <i class="bi bi-clipboard" id="copyIcon"></i> Nusxalash
+                </button>
+                <div class="mp-card-meta">
+                    <div class="mp-card-meta-item">
+                        <div class="mp-card-label">Karta egasi</div>
+                        <div class="mp-card-meta-val">TESTMAKON ADMIN</div>
+                    </div>
+                    <div class="mp-card-meta-item">
+                        <div class="mp-card-label">Bank</div>
+                        <div class="mp-card-meta-val">Hamkorbank</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="mp-instructions">
+                <div class="mp-instr-title"><i class="bi bi-info-circle-fill" style="color:var(--primary);"></i> Qanday to'lash kerak?</div>
+                <ul class="mp-instr-list">
+                    <li>
+                        <div class="mp-instr-num">1</div>
+                        <span>Yuqoridagi karta raqamiga <strong>{{ final_price|intcomma }} so'm</strong> o'tkazing</span>
+                    </li>
+                    <li>
+                        <div class="mp-instr-num">2</div>
+                        <span>To'lov cheki (screenshot) oling</span>
+                    </li>
+                    <li>
+                        <div class="mp-instr-num">3</div>
+                        <span>Quyidagi formaga chek rasmini yuklang va jo'nating</span>
+                    </li>
+                    <li>
+                        <div class="mp-instr-num">4</div>
+                        <span>Admin <strong>1-24 soat</strong> ichida premiumingizni faollashtiradi</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Upload form -->
+            <div class="mp-form">
+                <div class="mp-form-title"><i class="bi bi-upload" style="color:var(--primary);"></i> Chek yuborish</div>
+
+                <div class="mp-warning">
+                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+                    <span>To'lovni amalga oshirib bo'lgach chek rasmini yuboring. Tasdiqlash 1-24 soat oladi.</span>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <label class="mp-label">To'lovchining ismi (ixtiyoriy)</label>
+                    <input type="text" name="sender_name" class="mp-input" placeholder="Masalan: Alisher Karimov">
+
+                    <label class="mp-label">To'lov cheki <span style="color:#ef4444;">*</span></label>
+
+                    <div class="mp-upload-zone" id="uploadZone">
+                        <input type="file" name="receipt_image" accept="image/*" id="receiptInput" required>
+                        <img src="" alt="" class="mp-preview" id="previewImg">
+                        <div id="uploadPlaceholder">
+                            <div class="mp-upload-icon"><i class="bi bi-image"></i></div>
+                            <div class="mp-upload-text">Chek rasmini bu yerga tashlang yoki bosing</div>
+                            <div class="mp-upload-sub">JPG, PNG, HEIC — max 5MB</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="mp-submit">
+                        <i class="bi bi-send-fill"></i> Chekni yuborish
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview
+document.getElementById('receiptInput').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        var preview = document.getElementById('previewImg');
+        var placeholder = document.getElementById('uploadPlaceholder');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+});
+
+// Drag & drop style
+var zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', function() { zone.classList.remove('drag'); });
+zone.addEventListener('drop', function(e) { zone.classList.remove('drag'); });
+
+// Copy card number
+function copyCard() {
+    var num = '8600123456789012';
+    navigator.clipboard.writeText(num).then(function() {
+        var icon = document.getElementById('copyIcon');
+        icon.className = 'bi bi-check-lg';
+        setTimeout(function() { icon.className = 'bi bi-clipboard'; }, 2000);
+    });
+}
+</script>
+{% endblock %}

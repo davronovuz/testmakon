@@ -225,6 +225,10 @@ class Payment(models.Model):
     provider_transaction_id = models.CharField('Provider transaction ID', max_length=100, blank=True)
     provider_response = models.JSONField('Provider javobi', default=dict, blank=True)
 
+    # Qo'lda to'lov uchun
+    receipt_image = models.ImageField('Chek rasmi', upload_to='receipts/%Y/%m/', null=True, blank=True)
+    admin_note = models.TextField('Admin eslatmasi', blank=True)
+
     # Qo'shimcha
     description = models.TextField('Tavsif', blank=True)
     ip_address = models.GenericIPAddressField('IP manzil', null=True, blank=True)

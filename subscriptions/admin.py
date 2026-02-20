@@ -102,11 +102,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['order_id', 'user', 'amount_display', 'provider', 'status_badge', 'created_at', 'paid_at']
+    list_display = [
+        'order_id', 'user', 'amount_display', 'provider_badge',
+        'status_badge', 'receipt_preview', 'created_at'
+    ]
     list_filter = ['status', 'provider', 'created_at']
     search_fields = ['order_id', 'user__phone_number', 'user__first_name', 'provider_transaction_id']
     raw_id_fields = ['user', 'subscription', 'plan']
-    readonly_fields = ['uuid', 'order_id', 'created_at', 'updated_at']
+    readonly_fields = ['uuid', 'order_id', 'receipt_image_preview', 'created_at', 'updated_at']
     date_hierarchy = 'created_at'
 
     fieldsets = (
@@ -115,6 +118,9 @@ class PaymentAdmin(admin.ModelAdmin):
         }),
         ('To\'lov', {
             'fields': ('amount', 'provider', 'status')
+        }),
+        ('Qo\'lda to\'lov', {
+            'fields': ('receipt_image', 'receipt_image_preview', 'admin_note'),
         }),
         ('Provider', {
             'fields': ('provider_transaction_id', 'provider_response'),
@@ -131,40 +137,92 @@ class PaymentAdmin(admin.ModelAdmin):
 
     def amount_display(self, obj):
         return format_html('<strong>{} so\'m</strong>', f'{obj.amount:,}')
-
     amount_display.short_description = 'Summa'
+
+    def provider_badge(self, obj):
+        colors = {
+            'manual': '#f59e0b',
+            'click': '#3b82f6',
+            'payme': '#8b5cf6',
+            'uzum': '#10b981',
+            'promo': '#6b7280',
+        }
+        color = colors.get(obj.provider, '#6b7280')
+        icon = '🏦' if obj.provider == 'manual' else '💳'
+        return format_html(
+            '<span style="background:{}22;color:{};border:1px solid {}44;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;">{} {}</span>',
+            color, color, color, icon, obj.get_provider_display()
+        )
+    provider_badge.short_description = 'Provider'
 
     def status_badge(self, obj):
         colors = {
             'completed': '#22c55e',
-            'pending': '#3b82f6',
-            'processing': '#f59e0b',
+            'pending': '#f59e0b',
+            'processing': '#3b82f6',
             'failed': '#ef4444',
             'cancelled': '#6b7280',
             'refunded': '#8b5cf6',
         }
         color = colors.get(obj.status, '#6b7280')
         return format_html(
-            '<span style="background: {}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">{}</span>',
+            '<span style="background:{};color:white;padding:4px 8px;border-radius:4px;font-size:11px;">{}</span>',
             color, obj.get_status_display()
         )
-
     status_badge.short_description = 'Holat'
 
-    actions = ['mark_as_paid', 'mark_as_failed']
+    def receipt_preview(self, obj):
+        if obj.receipt_image:
+            return format_html(
+                '<a href="{}" target="_blank">'
+                '<img src="{}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:2px solid #f59e0b;" title="Chekni ko\'rish">'
+                '</a>',
+                obj.receipt_image.url, obj.receipt_image.url
+            )
+        return format_html('<span style="color:#d1d5db;font-size:11px;">—</span>')
+    receipt_preview.short_description = 'Chek'
 
-    def mark_as_paid(self, request, queryset):
+    def receipt_image_preview(self, obj):
+        if obj.receipt_image:
+            return format_html(
+                '<a href="{}" target="_blank">'
+                '<img src="{}" style="max-width:400px;max-height:500px;border-radius:10px;border:2px solid #e5e7eb;">'
+                '</a><br><small style="color:#6b7280;">Kattalashtirish uchun bosing</small>',
+                obj.receipt_image.url, obj.receipt_image.url
+            )
+        return '—'
+    receipt_image_preview.short_description = 'Chek rasmi'
+
+    actions = ['approve_manual_payment', 'mark_as_failed']
+
+    def approve_manual_payment(self, request, queryset):
+        count = 0
         for payment in queryset.filter(status='pending'):
             payment.mark_as_paid()
-        self.message_user(request, f'{queryset.count()} ta to\'lov tasdiqlandi')
-
-    mark_as_paid.short_description = 'To\'langan deb belgilash'
+            count += 1
+        self.message_user(
+            request,
+            f'✅ {count} ta to\'lov tasdiqlandi va premium faollashtirildi!',
+            level='success'
+        )
+    approve_manual_payment.short_description = '✅ Tasdiqlash — premium faollashtirish'
 
     def mark_as_failed(self, request, queryset):
         queryset.update(status='failed')
         self.message_user(request, f'{queryset.count()} ta to\'lov rad etildi')
+    mark_as_failed.short_description = '❌ Rad etish'
 
-    mark_as_failed.short_description = 'Rad etilgan deb belgilash'
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # Pending manual to'lovlar tepada ko'rinsin
+        from django.db.models import Case, When, IntegerField
+        return qs.annotate(
+            sort_order=Case(
+                When(status='pending', provider='manual', then=0),
+                default=1,
+                output_field=IntegerField()
+            )
+        ).order_by('sort_order', '-created_at')
 
 
 @admin.register(PromoCode)
