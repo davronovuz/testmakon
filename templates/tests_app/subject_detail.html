@@ -3,6 +3,19 @@
 
 {% block title %}{{ subject.name }} | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .sticky-top[style*="top: 72px"] { position: static !important; }
+        .icon-box.shadow-sm { width: 36px; height: 36px; font-size: 1rem; }
+    }
+    @media (max-width: 576px) {
+        .section-sm { padding-top: 0.75rem; }
+        .card-body.p-5 { padding: 1.5rem !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="bg-white border-bottom shadow-sm sticky-top" style="top: 72px; z-index: 99;">
     <div class="container py-3">

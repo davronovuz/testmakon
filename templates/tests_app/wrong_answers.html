@@ -240,6 +240,22 @@
         color: white;
     }
 
+    @media (max-width: 768px) {
+        .wrong-action-card { padding: 1.25rem; flex-direction: column; text-align: center; gap: 1rem; }
+        .wrong-action-btn { width: 100%; justify-content: center; }
+        .wrong-item-header { flex-wrap: wrap; gap: 0.5rem; }
+        .wrong-item-meta { flex-wrap: wrap; gap: 0.4rem; }
+        .wrong-item-date { font-size: 0.75rem; }
+    }
+
+    @media (max-width: 576px) {
+        .wrong-filters { flex-direction: column; align-items: flex-start; }
+        .wrong-item-body { padding: 1rem; }
+        .wrong-answer { padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+        .wrong-answer-label { display: none; }
+        .wrong-empty { padding: 2rem 1rem; }
+    }
+
     /* ========== EMPTY STATE ========== */
     .wrong-empty {
         text-align: center;

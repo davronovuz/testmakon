@@ -189,6 +189,23 @@
         background: radial-gradient(circle, rgba(139,197,64,0.2) 0%, transparent 70%);
         border-radius: 50%;
     }
+
+    @media (max-width: 768px) {
+        .dashboard-header { padding: 1.25rem 0; }
+        .dashboard-header h2 { font-size: 1.5rem; }
+        .dashboard-header p { font-size: 0.95rem; }
+        .stat-card { padding: 1rem; }
+        .stat-card h3 { font-size: 1.4rem; }
+        .stat-icon { width: 44px; height: 44px; font-size: 1.2rem; margin-bottom: 0.75rem; }
+        .action-card { padding: 1rem; }
+        .action-card .icon-box-gradient { width: 48px; height: 48px; font-size: 1.2rem; }
+        .premium-banner { padding: 1.25rem; }
+    }
+
+    @media (max-width: 576px) {
+        .stat-card h3 { font-size: 1.2rem; }
+        .activity-item { padding: 0.75rem; }
+    }
 </style>
 {% endblock %}
 

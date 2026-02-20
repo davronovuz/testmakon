@@ -3,6 +3,17 @@
 
 {% block title %}{{ topic.name }} - Test | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 576px) {
+        .col-sm-4.border-start { border-left: none !important; }
+        .col-sm-4.border-end { border-right: none !important; }
+        .card-body.p-4.p-md-5 { padding: 1.25rem !important; }
+        .row.g-4.mb-5 { margin-bottom: 1.5rem !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="section-sm bg-light">
     <div class="container">

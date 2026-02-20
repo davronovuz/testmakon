@@ -3,6 +3,26 @@
 
 {% block title %}Natija Tahlili | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 991px) {
+        .result-sticky-sidebar {
+            position: static !important;
+            max-height: none !important;
+            overflow-y: visible !important;
+        }
+        .result-map-grid {
+            grid-template-columns: repeat(8, 1fr) !important;
+        }
+    }
+    @media (max-width: 575px) {
+        .section-sm { padding-top: 0.75rem; }
+        .card-body.p-4 { padding: 1rem !important; }
+        .result-header-stats { display: none !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="bg-white border-bottom shadow-sm sticky-top" style="top: 70px; z-index: 99;">
     <div class="container py-3">
@@ -37,7 +57,7 @@
 <div class="section-sm bg-light">
     <div class="container-fluid px-lg-5"> <div class="row g-4">
             <div class="col-lg-3 order-2 order-lg-1">
-                <div class="card border-0 shadow-sm sticky-top" style="top: 160px; max-height: calc(100vh - 180px); overflow-y: auto;">
+                <div class="card border-0 shadow-sm sticky-top result-sticky-sidebar" style="top: 160px; max-height: calc(100vh - 180px); overflow-y: auto;">
                     <div class="card-header bg-white py-3 border-bottom">
                         <h6 class="fw-bold mb-0">Savollar Xaritasi</h6>
                     </div>

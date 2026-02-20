@@ -3,6 +3,25 @@
 
 {% block title %}{{ profile_user.full_name }} | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .col-auto img,
+        .col-auto div[style*="120px"] {
+            width: 90px !important;
+            height: 90px !important;
+        }
+        .section-sm { padding-top: 1rem; }
+    }
+    @media (max-width: 576px) {
+        .card-body.p-4 { padding: 1rem !important; }
+        .row.align-items-end { gap: 0.5rem; }
+        .col-md.text-md-end { margin-top: 0.5rem; }
+        .col-md.text-md-end .btn { width: 100%; justify-content: center; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="section-sm bg-light min-vh-100">
     <div class="container">

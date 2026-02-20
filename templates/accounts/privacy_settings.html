@@ -3,6 +3,15 @@
 
 {% block title %}Maxfiylik | TestMakon{% endblock %}
 
+{% block profile_extra_css %}
+<style>
+    @media (max-width: 576px) {
+        .form-check.p-3 { padding: 0.75rem !important; }
+        .profile-card-header { flex-wrap: wrap; gap: 0.5rem; }
+    }
+</style>
+{% endblock %}
+
 {% block profile_content %}
 
 <div class="profile-card mb-3">

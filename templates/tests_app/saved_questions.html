@@ -271,6 +271,21 @@
         color: var(--gray-500);
         margin-bottom: 1.5rem;
     }
+
+    @media (max-width: 768px) {
+        .saved-item-header { flex-wrap: wrap; gap: 0.5rem; }
+        .saved-item-meta { flex-wrap: wrap; gap: 0.4rem; }
+        .saved-item-date { font-size: 0.75rem; }
+        .saved-item-topic { display: none; }
+    }
+
+    @media (max-width: 576px) {
+        .saved-filters { flex-direction: column; align-items: flex-start; }
+        .saved-actions { width: 100%; }
+        .saved-actions .btn { width: 100%; justify-content: center; }
+        .saved-item-body { padding: 1rem; }
+        .saved-empty { padding: 2rem 1rem; }
+    }
 </style>
 {% endblock %}
 

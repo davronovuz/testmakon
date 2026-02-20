@@ -156,6 +156,13 @@
 .plan-empty p {
     color: var(--gray-400);
 }
+
+@media (max-width: 576px) {
+    .plan-grid { grid-template-columns: 1fr; }
+    .plan-card { padding: 1.25rem; }
+    .plan-top-bar { justify-content: flex-start; }
+    .plan-empty { padding: 2rem 1rem; }
+}
 </style>
 {% endblock %}
 

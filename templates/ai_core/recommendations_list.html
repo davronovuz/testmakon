@@ -151,6 +151,12 @@
         color: #6B7280;
         margin: 0;
     }
+
+    @media (max-width: 576px) {
+        .rec-grid { grid-template-columns: 1fr; }
+        .rec-card { padding: 1rem; }
+        .rec-empty { padding: 2rem 1rem; }
+    }
 </style>
 {% endblock %}
 

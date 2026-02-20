@@ -3,6 +3,15 @@
 
 {% block title %}Do'stlar | TestMakon{% endblock %}
 
+{% block profile_extra_css %}
+<style>
+    @media (max-width: 576px) {
+        .profile-card-body.p-0 > div.d-flex { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem !important; }
+        .profile-card-body.p-0 > div.d-flex .d-flex.gap-2 { width: 100%; justify-content: flex-end; }
+    }
+</style>
+{% endblock %}
+
 {% block profile_content %}
 
 <!-- Pending Requests -->

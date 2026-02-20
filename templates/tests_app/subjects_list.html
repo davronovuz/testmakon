@@ -80,5 +80,15 @@
         color: white;
         border-color: var(--primary);
     }
+
+    @media (max-width: 576px) {
+        .section-sm { padding-top: 1.5rem; }
+        .text-center.mb-5 { margin-bottom: 2rem !important; }
+        .text-center.mb-5 h2 { font-size: 1.5rem; }
+        .text-center.mb-5 p { font-size: 0.95rem; }
+        .subject-card .card-body { padding: 1.25rem; }
+        .icon-box-lg { width: 60px !important; height: 60px !important; margin-bottom: 0.75rem !important; }
+        .subject-card:hover { transform: translateY(-4px); }
+    }
 </style>
 {% endblock %}

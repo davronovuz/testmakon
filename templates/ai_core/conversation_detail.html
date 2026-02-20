@@ -68,6 +68,19 @@
         padding: 1rem;
         border-top: 1px solid var(--gray-200);
     }
+
+    @media (max-width: 768px) {
+        .chat-container { height: calc(100vh - 120px); }
+        .messages-area { padding: 1rem; gap: 1rem; }
+        .message { max-width: 95%; }
+        .message-content { padding: 0.75rem 1rem; font-size: 0.9rem; }
+    }
+
+    @media (max-width: 576px) {
+        .chat-container { height: calc(100vh - 110px); }
+        .avatar { width: 28px; height: 28px; font-size: 0.8rem; }
+        .input-area { padding: 0.75rem; }
+    }
 </style>
 {% endblock %}
 

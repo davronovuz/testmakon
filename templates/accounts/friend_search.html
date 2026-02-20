@@ -3,6 +3,27 @@
 
 {% block title %}Do'st Qidirish | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 576px) {
+        .section-sm { padding-top: 1.25rem; }
+        .list-group-item.p-3 .d-flex.align-items-center.justify-content-between {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .list-group-item.p-3 .d-flex.align-items-center.justify-content-between > div:last-child {
+            width: 100%;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .list-group-item.p-3 .d-flex.align-items-center.justify-content-between > div:last-child .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="section-sm bg-light min-vh-100">
     <div class="container">

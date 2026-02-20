@@ -3,6 +3,16 @@
 
 {% block title %}Sahifa topilmadi | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 576px) {
+        .icon-box-lg[style*="120px"] { width: 90px !important; height: 90px !important; font-size: 3rem !important; }
+        h1.display-5 { font-size: 1.8rem; }
+        .lead { font-size: 1rem; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="section-sm bg-light min-vh-100 d-flex align-items-center">
     <div class="container">

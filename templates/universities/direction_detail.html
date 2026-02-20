@@ -3,6 +3,18 @@
 
 {% block title %}{{ direction.name }} | Statistika{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .card-body.p-4.p-lg-5 { padding: 1.25rem !important; }
+    }
+    @media (max-width: 576px) {
+        .section-sm { padding-top: 1rem; }
+        .d-flex.justify-content-center.gap-2 { flex-wrap: wrap; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="section-sm bg-light min-vh-100">
     <div class="container">
