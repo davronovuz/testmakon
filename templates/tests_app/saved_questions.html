@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Saqlangan savollar | TestMakon{% endblock %}
 
@@ -326,7 +326,7 @@
                     <div class="saved-item-header">
                         <div class="saved-item-meta">
                             <span class="saved-item-subject">
-                                {{ item.question.subject.icon }}
+                                {% subject_icon item.question.subject 22 %}
                                 {{ item.question.subject.name }}
                             </span>
                             {% if item.question.topic %}

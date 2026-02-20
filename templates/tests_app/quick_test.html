@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Tezkor test | TestMakon{% endblock %}
 
@@ -222,7 +222,7 @@
                                 <label class="quick-subject" data-id="{{ subject.id }}">
                                     <input type="radio" name="subject_select" value="{{ subject.id }}">
                                     <div class="quick-subject-radio"></div>
-                                    <span class="quick-subject-icon">{{ subject.icon }}</span>
+                                    <span class="quick-subject-icon">{% subject_icon subject 44 %}</span>
                                     <div class="quick-subject-info">
                                         <h4>{{ subject.name }}</h4>
                                         <span>{{ subject.questions_count }} savol</span>

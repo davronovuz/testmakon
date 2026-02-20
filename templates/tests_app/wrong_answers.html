@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Xatolar ustida ishlash | TestMakon{% endblock %}
 
@@ -323,7 +323,7 @@
                     <div class="wrong-item-header">
                         <div class="wrong-item-meta">
                             <span class="wrong-item-subject">
-                                {{ item.question.subject.icon }}
+                                {% subject_icon item.question.subject 22 %}
                                 {{ item.question.subject.name }}
                             </span>
                             {% if item.question.topic %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load tests_extras %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Savol Banki | TestMakon{% endblock %}
 
@@ -143,8 +143,8 @@
                 {% for item in subjects_data %}
                 <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="qb-card">
                     <div class="qb-card-head">
-                        <div class="qb-card-icon" style="background: {{ item.subject.color }}15; color: {{ item.subject.color }}">
-                            {{ item.subject.icon }}
+                        <div class="qb-card-icon" style="background: {{ item.subject.color }}15;">
+                            {% subject_icon item.subject 44 %}
                         </div>
                         <div>
                             <div class="qb-card-name">{{ item.subject.name }}</div>

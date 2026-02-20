@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Test | {{ test.title }} | TestMakon{% endblock %}
 
@@ -1556,7 +1556,7 @@
             </a>
             <h1 class="test-title">{{ test.title }}</h1>
             {% if test.subject %}
-            <span class="test-subject-badge">{{ test.subject.icon }} {{ test.subject.name }}</span>
+            <span class="test-subject-badge">{% subject_icon test.subject 28 %} {{ test.subject.name }}</span>
             {% endif %}
         </div>
 

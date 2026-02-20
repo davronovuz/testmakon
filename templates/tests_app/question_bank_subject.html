@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
-{% load tests_extras %}
+{% load static tests_extras icon_tags %}
 
 {% block title %}{{ subject.name }} - Savol Banki | TestMakon{% endblock %}
 
@@ -534,7 +533,7 @@
             </div>
 
             <h1>
-                <span class="icon">{{ subject.icon }}</span>
+                <span class="icon">{% subject_icon subject 52 %}</span>
                 {{ subject.name }}
             </h1>
             <p class="qbs-header-desc">{{ subject.description|default:"Bu fan bo'yicha savollar va mavzular" }}</p>

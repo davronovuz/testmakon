@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Mashq | TestMakon{% endblock %}
 
@@ -144,7 +144,7 @@
             <div class="subjects-grid">
                 {% for subject in subjects %}
                 <div class="subject-card {{ subject.slug }}">
-                    <span class="subject-icon">{{ subject.icon }}</span>
+                    <span class="subject-icon">{% subject_icon subject 48 %}</span>
                     <h4>{{ subject.name }}</h4>
                     <div class="subject-meta">
                         <span><i class="bi bi-journal-text"></i> {{ subject.questions_count }} savol</span>

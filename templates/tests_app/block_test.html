@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}DTM Blok Test | TestMakon{% endblock %}
 
@@ -279,7 +279,7 @@
                                     <input type="checkbox" class="subject-checkbox"
                                            name="subjects" id="sub{{ subject.id }}"
                                            value="{{ subject.id }}" autocomplete="off">
-                                    <span class="bt-subject-icon">{{ subject.icon }}</span>
+                                    <span class="bt-subject-icon">{% subject_icon subject 40 %}</span>
                                     <span class="bt-subject-name">{{ subject.name }}</span>
                                     <i class="bi bi-check-circle-fill bt-subject-check"></i>
                                 </label>

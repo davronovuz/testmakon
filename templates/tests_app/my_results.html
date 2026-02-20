@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Mening natijalarim | TestMakon{% endblock %}
 
@@ -460,7 +460,7 @@
                         <div class="result-title">{{ attempt.test.title }}</div>
                         <div class="result-meta">
                             {% if attempt.test.subject %}
-                            <span class="result-subject">{{ attempt.test.subject.icon }} {{ attempt.test.subject.name }}</span>
+                            <span class="result-subject">{% subject_icon attempt.test.subject 24 %} {{ attempt.test.subject.name }}</span>
                             {% endif %}
                             <span><i class="bi bi-calendar3"></i> {{ attempt.completed_at|date:"d.m.Y" }}</span>
                             <span><i class="bi bi-clock"></i> {{ attempt.time_spent|floatformat:0 }}s</span>

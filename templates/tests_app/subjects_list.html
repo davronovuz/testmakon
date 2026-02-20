@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Fanlar | TestMakon{% endblock %}
 
@@ -20,7 +20,7 @@
                     <div class="card-body p-4 text-center">
                         <div class="icon-box-lg rounded-circle mb-4 mx-auto shadow-sm position-relative subject-icon-wrapper"
                              style="background-color: {{ subject.color }}15; color: {{ subject.color }};">
-                            {{ subject.icon|safe }}
+                            {% subject_icon subject 56 %}
 
                             {% if subject.is_new %}
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white">

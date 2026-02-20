@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}Testlar | TestMakon{% endblock %}
 
@@ -209,8 +209,8 @@
             <div class="tl-subj-grid">
                 {% for subject in subjects %}
                 <a href="{% url 'tests_app:practice_select' %}?subject={{ subject.slug }}" class="tl-subj-item">
-                    <div class="tl-subj-icon" style="background: {{ subject.color }}15; color: {{ subject.color }}">
-                        {{ subject.icon }}
+                    <div class="tl-subj-icon" style="background: {{ subject.color }}15;">
+                        {% subject_icon subject 32 %}
                     </div>
                     <div>
                         <div class="tl-subj-name">{{ subject.name }}</div>
@@ -228,7 +228,7 @@
                 <a href="{% url 'tests_app:test_detail' slug=test.slug %}" class="tl-card">
                     <div class="tl-card-top">
                         <div class="tl-card-subj">
-                            <span>{{ test.subject.icon|default:"📚" }}</span>
+                            {% subject_icon test.subject 24 %}
                             {{ test.subject.name|default:"Umumiy" }}
                         </div>
                         <span class="tl-badge {{ test.test_type }}">
