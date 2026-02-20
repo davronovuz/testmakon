@@ -12,103 +12,22 @@
         padding: 2.5rem 0;
     }
 
-    /* ========== MODE CARDS ========== */
-    .practice-modes {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+    /* ========== PAGE HEADER ========== */
+    .practice-page-header {
+        margin-bottom: 2rem;
     }
 
-    @media (max-width: 992px) {
-        .practice-modes {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .practice-mode-card {
-        background: var(--white);
-        border: 2px solid var(--gray-200);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .practice-mode-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .practice-mode-card.selected {
-        border-color: var(--primary);
-        background: var(--primary-glow);
-    }
-
-    .practice-mode-card.popular::before {
-        content: 'Mashhur';
-        position: absolute;
-        top: 12px;
-        right: -28px;
-        background: var(--accent);
+    .practice-page-header h2 {
+        font-size: 1.35rem;
+        font-weight: 800;
         color: var(--dark);
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 0.25rem 2rem;
-        transform: rotate(45deg);
+        margin: 0 0 0.25rem;
     }
 
-    .practice-mode-icon {
-        width: 64px;
-        height: 64px;
-        background: var(--gray-100);
-        border-radius: var(--radius-lg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.25rem;
-        font-size: 1.75rem;
-        transition: all 0.3s;
-    }
-
-    .practice-mode-card:hover .practice-mode-icon {
-        background: var(--primary-glow);
-        color: var(--primary-dark);
-    }
-
-    .practice-mode-card.selected .practice-mode-icon {
-        background: var(--primary);
-        color: white;
-    }
-
-    .practice-mode-card h3 {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .practice-mode-card p {
+    .practice-page-header p {
         font-size: 0.9rem;
         color: var(--gray-500);
         margin: 0;
-    }
-
-    /* ========== SECTION TITLE ========== */
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .section-title i {
-        color: var(--primary);
     }
 
     /* ========== SUBJECTS GRID ========== */
@@ -217,42 +136,9 @@
     <div class="tl-layout">
         {% include 'includes/_sidebar.html' with active='practice' %}
         <main>
-            <!-- Practice Modes -->
-            <div class="section-title">
-                <i class="bi bi-lightning-charge-fill"></i>
-                Mashq turi
-            </div>
-
-            <div class="practice-modes">
-                <div class="practice-mode-card popular" data-mode="practice">
-                    <div class="practice-mode-icon">
-                        <i class="bi bi-journal-check"></i>
-                    </div>
-                    <h3>Oddiy mashq</h3>
-                    <p>Vaqt chegarasisiz, o'z tezligingizda</p>
-                </div>
-
-                <div class="practice-mode-card" data-mode="timed">
-                    <div class="practice-mode-icon">
-                        <i class="bi bi-stopwatch"></i>
-                    </div>
-                    <h3>Vaqt bilan</h3>
-                    <p>Har bir savol uchun 2 daqiqa</p>
-                </div>
-
-                <div class="practice-mode-card" data-mode="exam">
-                    <div class="practice-mode-icon">
-                        <i class="bi bi-mortarboard"></i>
-                    </div>
-                    <h3>Imtihon rejimi</h3>
-                    <p>DTM formatida, qattiq vaqt</p>
-                </div>
-            </div>
-
-            <!-- Subjects -->
-            <div class="section-title">
-                <i class="bi bi-book-fill"></i>
-                Fan tanlang
+            <div class="practice-page-header">
+                <h2><i class="bi bi-lightning-charge-fill" style="color:var(--primary);margin-right:0.35rem;"></i> Fan tanlang</h2>
+                <p>Mashq qilmoqchi bo'lgan faningizni tanlang</p>
             </div>
 
             <div class="subjects-grid">
@@ -281,22 +167,4 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    // Mode selection
-    document.querySelectorAll('.practice-mode-card').forEach(card => {
-        card.addEventListener('click', function() {
-            document.querySelectorAll('.practice-mode-card').forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-
-            // Store selected mode
-            const mode = this.dataset.mode;
-            sessionStorage.setItem('practiceMode', mode);
-        });
-    });
-
-    // Restore selected mode
-    const savedMode = sessionStorage.getItem('practiceMode') || 'practice';
-    document.querySelector(`.practice-mode-card[data-mode="${savedMode}"]`)?.classList.add('selected');
-</script>
 {% endblock %}
