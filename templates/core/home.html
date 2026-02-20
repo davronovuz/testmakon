@@ -1158,13 +1158,13 @@
     <div class="container">
         <div class="text-center" data-aos="fade-up" data-aos-duration="600">
             <span class="section-label">Narxlar</span>
-            <h2 class="section-heading">O'zingizga mos <span class="text-gradient">tarifni</span> tanlang</h2>
+            <h2 class="section-heading">Oyiga atigi <span class="text-gradient">30,000 so'm</span></h2>
             <p class="section-desc">Bepul rejada ham ko'p narsa bor. Premium esa imtihonga 100% tayyor qiladi.</p>
         </div>
 
         <div class="row g-4 justify-content-center">
             <!-- Free -->
-            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+            <div class="col-md-6 col-lg-5" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
                 <div class="pricing-card">
                     <div class="pricing-icon" style="background: var(--gray-100); color: var(--dark-600);">
                         <i class="bi bi-gift"></i>
@@ -1179,61 +1179,30 @@
                     </div>
 
                     <ul class="pricing-features">
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Kuniga 10 ta test savoli</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> 3 ta fan tanlash</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Testlar yechish</li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> Umumiy reyting</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Musobaqalar</li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> Asosiy statistika</li>
                         <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> AI Mentor</li>
-                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Blok test simulyator</li>
-                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Batafsil AI tahlil</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Shaxsiy tahlil</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> DTM simulyatsiya</li>
                     </ul>
 
                     <a href="{% url 'accounts:register' %}" class="btn btn-outline w-100">
-                        Boshlash
-                    </a>
-                </div>
-            </div>
-
-            <!-- Pro -->
-            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
-                <div class="pricing-card popular">
-                    <div class="popular-badge">Eng mashhur</div>
-                    <div class="pricing-icon icon-3d-green" style="width: 56px; height: 56px; border-radius: 16px; font-size: 1.5rem;">
-                        <i class="bi bi-lightning-charge-fill"></i>
-                    </div>
-                    <h3 class="pricing-name">Pro</h3>
-                    <p class="pricing-desc">Jiddiy tayyorgarlik uchun</p>
-
-                    <div class="pricing-amount">
-                        <span class="pricing-value">20,000</span>
-                        <span class="pricing-currency">so'm</span>
-                        <span class="pricing-period">/ oyiga</span>
-                    </div>
-
-                    <ul class="pricing-features">
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Cheksiz test savollari</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Barcha fanlar ochiq</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> AI Mentor — kuniga 20 savol</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Blok test simulyator</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> AI xato tahlili</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Shaxsiy o'quv reja</li>
-                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> 1-on-1 mentor</li>
-                    </ul>
-
-                    <a href="{% url 'accounts:register' %}" class="btn btn-primary w-100">
-                        Pro ga o'tish <i class="bi bi-arrow-right ms-1"></i>
+                        Bepul boshlash
                     </a>
                 </div>
             </div>
 
             <!-- Premium -->
-            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
-                <div class="pricing-card">
-                    <div class="pricing-icon" style="background: linear-gradient(145deg, #FCD34D 0%, #D97706 100%); color: white; box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.4);">
-                        <i class="bi bi-diamond-fill"></i>
+            <div class="col-md-6 col-lg-5" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+                <div class="pricing-card popular">
+                    <div class="popular-badge">💎 Premium</div>
+                    <div class="pricing-icon icon-3d-green" style="width: 56px; height: 56px; border-radius: 16px; font-size: 1.5rem;">
+                        <i class="bi bi-lightning-charge-fill"></i>
                     </div>
                     <h3 class="pricing-name">Premium</h3>
-                    <p class="pricing-desc">189+ ball olish kafolati</p>
+                    <p class="pricing-desc">DTM ga eng qisqa yo'l</p>
 
                     <div class="pricing-amount">
                         <span class="pricing-value">30,000</span>
@@ -1242,17 +1211,17 @@
                     </div>
 
                     <ul class="pricing-features">
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Pro dagi hamma narsa</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> <strong>Cheksiz testlar</strong></li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> AI Mentor — cheksiz</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Batafsil video yechimlar</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Universitet maslahatchisi</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Maxsus turnirlar</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Telegram bot — shaxsiy</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> 1-on-1 AI mentor sessiya</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Shaxsiy zaiflik tahlili</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> DTM simulyatsiya</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Universitet tavsiyasi (AI)</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Reklama yo'q</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Sertifikat + PDF</li>
                     </ul>
 
-                    <a href="{% url 'accounts:register' %}" class="btn btn-dark w-100">
-                        Premium tanlash
+                    <a href="{% url 'subscriptions:pricing' %}" class="btn btn-primary w-100">
+                        Sotib olish <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
