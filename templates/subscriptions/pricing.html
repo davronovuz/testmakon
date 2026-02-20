@@ -2,138 +2,368 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Tariflar | TestMakon{% endblock %}
+{% block title %}Premium | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-@media (max-width: 768px) {
-    .pricing-section {
-        padding-top: 2rem !important;
-        padding-bottom: 2rem !important;
+    .pr-page { padding: 3rem 0 5rem; background: var(--gray-50); }
+
+    /* Hero */
+    .pr-hero { text-align: center; margin-bottom: 3rem; }
+    .pr-hero-badge {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        background: rgba(139,197,64,0.12); color: var(--primary);
+        border: 1px solid rgba(139,197,64,0.25);
+        padding: 0.4rem 1rem; border-radius: 50px;
+        font-size: 0.8rem; font-weight: 700; margin-bottom: 1.25rem;
     }
-    .pricing-section .display-6 {
-        font-size: 1.5rem;
+    .pr-hero h1 { font-size: 2.25rem; font-weight: 900; color: var(--dark); margin-bottom: 0.75rem; }
+    .pr-hero p { font-size: 1rem; color: var(--gray-500); max-width: 520px; margin: 0 auto; }
+    @media(max-width:575px) { .pr-hero h1 { font-size: 1.6rem; } }
+
+    /* Why premium — benefits grid */
+    .pr-why { margin-bottom: 3rem; }
+    .pr-why-title { font-size: 1rem; font-weight: 800; color: var(--dark); margin-bottom: 1.25rem; text-align: center; }
+    .pr-benefits {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 0;
     }
-    .pricing-section .lead {
-        font-size: 0.95rem;
+    .pr-benefit {
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        padding: 1.25rem;
+        display: flex; align-items: flex-start; gap: 0.875rem;
+        transition: box-shadow 0.2s;
     }
-    .pricing-section .mb-5 {
-        margin-bottom: 1.5rem !important;
+    .pr-benefit:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .pr-benefit-icon {
+        width: 42px; height: 42px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
     }
-    .pricing-card .card-body {
-        padding: 1.25rem !important;
+    .pr-benefit-title { font-size: 0.88rem; font-weight: 800; color: var(--dark); margin-bottom: 0.2rem; }
+    .pr-benefit-desc { font-size: 0.78rem; color: var(--gray-500); line-height: 1.45; }
+
+    /* Plans */
+    .pr-plans-title { font-size: 1rem; font-weight: 800; color: var(--dark); margin-bottom: 1.25rem; text-align: center; }
+    .pr-plans {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+        align-items: start;
     }
-    .pricing-card .display-5 {
-        font-size: 2rem;
+    .pr-plan {
+        background: #fff;
+        border: 1.5px solid var(--gray-200);
+        border-radius: 18px;
+        overflow: hidden;
+        transition: all 0.2s;
     }
-    .pricing-card .list-unstyled span {
-        font-size: 0.875rem;
+    .pr-plan:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .pr-plan.featured {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(139,197,64,0.12);
     }
-    .pricing-card .list-unstyled li {
-        margin-bottom: 0.5rem !important;
+    .pr-plan-top {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.72rem; font-weight: 800;
+        text-align: center; text-transform: uppercase; letter-spacing: 1px;
     }
-    .pricing-card .btn {
-        padding-top: 0.625rem !important;
-        padding-bottom: 0.625rem !important;
+    .pr-plan.featured .pr-plan-top { background: var(--primary); color: #fff; }
+    .pr-plan:not(.featured) .pr-plan-top { background: var(--gray-50); color: var(--gray-400); }
+    .pr-plan-body { padding: 1.5rem 1.25rem; }
+    .pr-plan-name { font-size: 0.82rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
+    .pr-plan-price { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.25rem; }
+    .pr-plan-amount { font-size: 2rem; font-weight: 900; color: var(--dark); }
+    .pr-plan-amount.free { font-size: 1.5rem; color: var(--gray-500); }
+    .pr-plan-currency { font-size: 0.88rem; color: var(--gray-400); }
+    .pr-plan-dur { font-size: 0.78rem; color: var(--gray-400); margin-bottom: 1.25rem; }
+    .pr-plan-old { font-size: 0.78rem; color: var(--gray-400); text-decoration: line-through; margin-bottom: 0.25rem; }
+    .pr-plan-discount {
+        display: inline-block;
+        background: #FEF3C7; color: #92400E;
+        font-size: 0.7rem; font-weight: 800;
+        padding: 0.15rem 0.5rem; border-radius: 6px;
+        margin-bottom: 1rem;
     }
-}
+    .pr-plan-features { list-style: none; padding: 0; margin: 0 0 1.25rem; }
+    .pr-plan-features li {
+        display: flex; align-items: flex-start; gap: 0.5rem;
+        font-size: 0.84rem; color: var(--gray-600);
+        padding: 0.35rem 0;
+    }
+    .pr-plan-features li + li { border-top: 1px solid var(--gray-50); }
+    .pr-plan-features .fi { color: var(--primary); font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+    .pr-plan-features .fi.miss { color: var(--gray-300); }
+    .pr-plan-btn {
+        display: block; width: 100%; padding: 0.75rem;
+        border-radius: 12px; font-size: 0.9rem; font-weight: 800;
+        text-align: center; text-decoration: none; transition: all 0.2s;
+        border: none; cursor: pointer;
+    }
+    .pr-plan-btn.primary { background: var(--gradient-primary); color: #fff; }
+    .pr-plan-btn.primary:hover { color: #fff; box-shadow: var(--shadow-primary); }
+    .pr-plan-btn.outline { background: var(--gray-50); color: var(--gray-600); }
+    .pr-plan-btn.outline:hover { background: var(--gray-100); color: var(--dark); }
+    .pr-plan-btn.current { background: rgba(139,197,64,0.1); color: var(--primary); cursor: default; }
+
+    /* Compare table */
+    .pr-compare { background: #fff; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; margin-bottom: 2.5rem; }
+    .pr-compare-head { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-100); }
+    .pr-compare-title { font-size: 0.95rem; font-weight: 800; color: var(--dark); }
+    .pr-compare table { width: 100%; border-collapse: collapse; }
+    .pr-compare th { padding: 0.75rem 1.25rem; font-size: 0.78rem; font-weight: 700; color: var(--gray-500); background: var(--gray-50); text-align: center; }
+    .pr-compare th:first-child { text-align: left; }
+    .pr-compare td { padding: 0.75rem 1.25rem; border-top: 1px solid var(--gray-50); font-size: 0.85rem; color: var(--gray-600); text-align: center; vertical-align: middle; }
+    .pr-compare td:first-child { text-align: left; font-weight: 600; color: var(--dark); }
+    .pr-compare tr:hover td { background: var(--gray-50); }
+    .pr-check { color: var(--primary); font-size: 1rem; }
+    .pr-cross { color: var(--gray-300); font-size: 1rem; }
+    .pr-val-free { font-size: 0.82rem; color: var(--gray-500); }
+    .pr-val-premium { font-size: 0.82rem; font-weight: 700; color: var(--primary); }
+
+    /* FAQ / guarantee */
+    .pr-guarantee {
+        background: #fff; border: 1px solid var(--gray-200);
+        border-radius: 14px; padding: 1.5rem; text-align: center;
+    }
+    .pr-guarantee-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .pr-guarantee h3 { font-size: 1rem; font-weight: 800; color: var(--dark); margin-bottom: 0.4rem; }
+    .pr-guarantee p { font-size: 0.85rem; color: var(--gray-500); margin: 0; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="section-sm bg-light min-vh-100 pricing-section">
+<div class="pr-page">
     <div class="container">
-        <div class="text-center mb-5">
-            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill mb-3">
-                💎 Premium Imkoniyatlar
-            </span>
-            <h2 class="fw-bold display-6">Sizga mos tarifni tanlang</h2>
-            <p class="text-muted lead">O'z bilimingizga sarmoya kiritib, imtihonga 100% tayyorlaning.</p>
+
+        <!-- Hero -->
+        <div class="pr-hero">
+            <div class="pr-hero-badge">💎 TestMakon Premium</div>
+            <h1>DTM ga eng tez yo'l — Premium bilan</h1>
+            <p>Shaxsiy AI tahlil, study planner va cheksiz resurslar bilan boshqa abituriyentlardan oldinda bo'ling</p>
         </div>
 
-        <div class="row g-4 justify-content-center align-items-center">
-            {% for plan in plans %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 position-relative overflow-hidden hover-lift transition-all pricing-card
-                            {% if plan.is_featured %}border-2 border-primary transform-scale-sm{% endif %}">
-
-                    {% if plan.is_featured %}
-                    <div class="position-absolute top-0 start-50 translate-middle-x bg-primary text-white px-3 py-1 rounded-bottom-3 small fw-bold shadow-sm">
-                        Eng Ommabop
+        <!-- Nima uchun premium? -->
+        <div class="pr-why">
+            <div class="pr-why-title">Nima uchun Premium?</div>
+            <div class="pr-benefits">
+                <div class="pr-benefit">
+                    <div class="pr-benefit-icon" style="background:rgba(139,197,64,0.1);">🤖</div>
+                    <div>
+                        <div class="pr-benefit-title">AI Study Planner</div>
+                        <div class="pr-benefit-desc">Zaif tomonlaringizni tahlil qilib, DTM gacha shaxsiy dars jadvalingizni tuzadi</div>
                     </div>
+                </div>
+                <div class="pr-benefit">
+                    <div class="pr-benefit-icon" style="background:rgba(251,191,36,0.1);">📊</div>
+                    <div>
+                        <div class="pr-benefit-title">Shaxsiy tahlil</div>
+                        <div class="pr-benefit-desc">Qaysi mavzuda qancha ball olishingiz, qayerda xato qilishingizni aniq ko'rasiz</div>
+                    </div>
+                </div>
+                <div class="pr-benefit">
+                    <div class="pr-benefit-icon" style="background:rgba(59,130,246,0.1);">🎓</div>
+                    <div>
+                        <div class="pr-benefit-title">Universitet tavsiyasi</div>
+                        <div class="pr-benefit-desc">Ballingizga mos universitetlarni AI tavsiya qiladi — O'zbekiston bo'yicha</div>
+                    </div>
+                </div>
+                <div class="pr-benefit">
+                    <div class="pr-benefit-icon" style="background:rgba(139,197,64,0.1);">♾️</div>
+                    <div>
+                        <div class="pr-benefit-title">Cheksiz testlar</div>
+                        <div class="pr-benefit-desc">Istagan vaqt, istagan fandan, istagan miqdorda test ishlang — heç limit yo'q</div>
+                    </div>
+                </div>
+                <div class="pr-benefit">
+                    <div class="pr-benefit-icon" style="background:rgba(139,92,246,0.1);">💬</div>
+                    <div>
+                        <div class="pr-benefit-title">Cheksiz AI Mentor</div>
+                        <div class="pr-benefit-desc">Har qanday savolga AI javob beradi, tushuntiradi, misollar keltiradi</div>
+                    </div>
+                </div>
+                <div class="pr-benefit">
+                    <div class="pr-benefit-icon" style="background:rgba(16,185,129,0.1);">📄</div>
+                    <div>
+                        <div class="pr-benefit-title">Sertifikat + PDF</div>
+                        <div class="pr-benefit-desc">Musobaqalarda yuqori o'rin egallasangiz rasmiy sertifikat oling</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plans -->
+        <div class="pr-plans-title">Tarifni tanlang</div>
+        <div class="pr-plans">
+            {% for plan in plans %}
+            <div class="pr-plan {% if plan.is_featured %}featured{% endif %}">
+                <div class="pr-plan-top">
+                    {% if plan.is_featured %}⭐ Eng ommabop{% else %}{{ plan.plan_type|upper }}{% endif %}
+                </div>
+                <div class="pr-plan-body">
+                    <div class="pr-plan-name">{{ plan.name }}</div>
+
+                    {% if plan.original_price and plan.discount_percent %}
+                    <div class="pr-plan-old">{{ plan.original_price|intcomma }} so'm</div>
+                    <div class="pr-plan-discount">-{{ plan.discount_percent }}% chegirma</div>
                     {% endif %}
 
-                    <div class="card-body p-4 p-lg-5 d-flex flex-column">
-                        <div class="text-center mb-4">
-                            <h5 class="fw-bold text-uppercase text-muted small letter-spacing-1">{{ plan.name }}</h5>
-                            <div class="d-flex justify-content-center align-items-baseline gap-1 my-3">
-                                {% if plan.price == 0 %}
-                                    <h2 class="fw-bold display-5 mb-0">Bepul</h2>
-                                {% else %}
-                                    <h2 class="fw-bold display-5 mb-0">{{ plan.price|intcomma }}</h2>
-                                    <span class="text-muted">so'm</span>
-                                {% endif %}
-                            </div>
-                            {% if plan.original_price %}
-                                <div class="text-decoration-line-through text-muted small">{{ plan.original_price|intcomma }} so'm</div>
-                            {% endif %}
-                            <span class="badge bg-light text-dark border mt-2">{{ plan.duration_days }} kun</span>
-                        </div>
-
-                        <ul class="list-unstyled mb-5 flex-grow-1">
-                            {% for feature in plan.features %}
-                            <li class="mb-3 d-flex align-items-start gap-2">
-                                <i class="bi bi-check-circle-fill text-success mt-1"></i>
-                                <span class="text-muted">{{ feature }}</span>
-                            </li>
-                            {% endfor %}
-
-                            {% if plan.daily_test_limit %}
-                            <li class="mb-3 d-flex align-items-start gap-2">
-                                <i class="bi bi-check-circle-fill text-success mt-1"></i>
-                                <span class="text-muted">Kuniga <strong>{{ plan.daily_test_limit }}</strong> ta test</span>
-                            </li>
-                            {% else %}
-                            <li class="mb-3 d-flex align-items-start gap-2">
-                                <i class="bi bi-check-circle-fill text-success mt-1"></i>
-                                <span class="text-muted fw-bold text-dark">Cheksiz testlar</span>
-                            </li>
-                            {% endif %}
-
-                            {% if plan.can_access_ai_mentor %}
-                            <li class="mb-3 d-flex align-items-start gap-2">
-                                <i class="bi bi-stars text-warning mt-1"></i>
-                                <span class="text-dark fw-bold">AI Mentor bilan ishlash</span>
-                            </li>
-                            {% endif %}
-                        </ul>
-
-                        <div class="mt-auto">
-                            {% if current_subscription.plan == plan %}
-                                <button class="btn btn-success bg-opacity-10 text-success w-100 py-3 fw-bold border-0" disabled>
-                                    Joriy Tarif
-                                </button>
-                            {% else %}
-                                <a href="{% url 'subscriptions:checkout' slug=plan.slug %}"
-                                   class="btn {% if plan.is_featured %}btn-primary shadow-primary{% else %}btn-outline-primary{% endif %} w-100 py-3 fw-bold rounded-pill">
-                                    {% if plan.price == 0 %}Boshlash{% else %}Sotib olish{% endif %}
-                                </a>
-                            {% endif %}
-                        </div>
+                    <div class="pr-plan-price">
+                        {% if plan.price == 0 %}
+                            <span class="pr-plan-amount free">Bepul</span>
+                        {% else %}
+                            <span class="pr-plan-amount">{{ plan.price|intcomma }}</span>
+                            <span class="pr-plan-currency">so'm</span>
+                        {% endif %}
                     </div>
+                    <div class="pr-plan-dur">
+                        {% if plan.price == 0 %}Doimiy bepul{% else %}{{ plan.duration_days }} kunlik{% endif %}
+                    </div>
+
+                    <ul class="pr-plan-features">
+                        {% for feature in plan.features %}
+                        <li>
+                            <i class="bi bi-check-circle-fill fi"></i>
+                            {{ feature }}
+                        </li>
+                        {% endfor %}
+                        {% if plan.daily_test_limit %}
+                        <li>
+                            <i class="bi bi-check-circle-fill fi"></i>
+                            Kuniga {{ plan.daily_test_limit }} ta test
+                        </li>
+                        {% else %}
+                        <li>
+                            <i class="bi bi-check-circle-fill fi"></i>
+                            <strong>Cheksiz testlar</strong>
+                        </li>
+                        {% endif %}
+                        {% if plan.can_access_ai_mentor %}
+                        <li>
+                            <i class="bi bi-stars fi" style="color:#f59e0b;"></i>
+                            <strong>AI Mentor cheksiz</strong>
+                        </li>
+                        {% else %}
+                        <li>
+                            <i class="bi bi-dash-circle fi miss"></i>
+                            AI Mentor yo'q
+                        </li>
+                        {% endif %}
+                        {% if plan.can_access_analytics %}
+                        <li>
+                            <i class="bi bi-check-circle-fill fi"></i>
+                            <strong>Shaxsiy tahlil</strong>
+                        </li>
+                        {% endif %}
+                        {% if not plan.ad_free %}
+                        <li>
+                            <i class="bi bi-dash-circle fi miss"></i>
+                            Reklamalar mavjud
+                        </li>
+                        {% else %}
+                        <li>
+                            <i class="bi bi-check-circle-fill fi"></i>
+                            Reklama yo'q
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    {% if current_subscription.plan == plan %}
+                        <span class="pr-plan-btn current">✓ Joriy tarifingiz</span>
+                    {% elif plan.price == 0 %}
+                        <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-plan-btn outline">Boshlash</a>
+                    {% else %}
+                        <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-plan-btn primary">
+                            {% if plan.is_featured %}Hoziroq boshlash{% else %}Sotib olish{% endif %}
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
 
-        <div class="text-center mt-5 pt-4 opacity-50">
-            <small class="text-uppercase fw-bold letter-spacing-1 mb-3 d-block">Ishonchli To'lov Tizimlari</small>
-            <div class="d-flex justify-content-center gap-4 align-items-center grayscale">
-                <img src="{% static 'img/click-logo.png' %}" height="30" alt="Click" onerror="this.style.display='none'">
-                <img src="{% static 'img/payme-logo.png' %}" height="30" alt="Payme" onerror="this.style.display='none'">
-                <i class="bi bi-shield-lock-fill fs-3"></i>
+        <!-- Compare table -->
+        <div class="pr-compare">
+            <div class="pr-compare-head">
+                <div class="pr-compare-title">Bepul vs Premium — to'liq taqqoslash</div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:50%;">Imkoniyat</th>
+                            <th>Bepul</th>
+                            <th style="color:var(--primary);">💎 Premium</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Testlar</td>
+                            <td><span class="pr-val-free">Cheklangan</span></td>
+                            <td><span class="pr-val-premium">Cheksiz ♾️</span></td>
+                        </tr>
+                        <tr>
+                            <td>AI Mentor (savol-javob)</td>
+                            <td><span class="pr-val-free">Kuniga 3 ta</span></td>
+                            <td><span class="pr-val-premium">Cheksiz</span></td>
+                        </tr>
+                        <tr>
+                            <td>AI Study Planner</td>
+                            <td><i class="bi bi-x-circle pr-cross"></i></td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Shaxsiy zaiflik tahlili</td>
+                            <td><i class="bi bi-x-circle pr-cross"></i></td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Universitet tavsiyasi (AI)</td>
+                            <td><i class="bi bi-x-circle pr-cross"></i></td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>DTM simulyatsiya</td>
+                            <td><span class="pr-val-free">Oyiga 2 ta</span></td>
+                            <td><span class="pr-val-premium">Cheksiz</span></td>
+                        </tr>
+                        <tr>
+                            <td>Musobaqa sertifikatlari (PDF)</td>
+                            <td><i class="bi bi-x-circle pr-cross"></i></td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Reklama</td>
+                            <td><span class="pr-val-free">Bor</span></td>
+                            <td><span class="pr-val-premium">Yo'q</span></td>
+                        </tr>
+                        <tr>
+                            <td>Xato javoblar tahlili</td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Musobaqalar</td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                            <td><i class="bi bi-check-circle-fill pr-check"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        <!-- Guarantee -->
+        <div class="pr-guarantee">
+            <div class="pr-guarantee-icon">🏦</div>
+            <h3>Qo'lda to'lash imkoniyati</h3>
+            <p>Karta orqali o'tkazing, chek rasmini yuboring — admin 1-24 soat ichida premiumingizni faollashtiradi</p>
+        </div>
+
     </div>
 </div>
 {% endblock %}
