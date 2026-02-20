@@ -5,7 +5,8 @@
       "Bash(python3 manage.py check:*)",
       "Bash(pip show:*)",
       "Bash(python3 -m pip:*)",
-      "Bash(pip3 install:*)"
+      "Bash(pip3 install:*)",
+      "Bash(source:*)"
     ]
   }
 }

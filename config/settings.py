@@ -178,13 +178,196 @@ if SENTRY_DSN:
 GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', 'G-B6NRGX93LD')
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Admin",
-    "site_header": "Admin",
-    "site_brand": "Admin",
-    "welcome_sign": "TestMakon  adminlar uchun",
-    "copyright": "TestMakon",
+    # Oyna sarlavhasi
+    "site_title": "TestMakon Admin",
+    "site_header": "TestMakon",
+    "site_brand": "TestMakon.uz",
+
+    # Login sahifasi
+    "welcome_sign": "Boshqaruv paneliga xush kelibsiz",
+    "copyright": "TestMakon.uz © 2025",
+
+    # Yuqori menyu
+    "topmenu_links": [
+        {"name": "Bosh sahifa", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Saytga o'tish", "url": "/", "new_window": True},
+        {"model": "accounts.User"},
+    ],
+
+    # Foydalanuvchi menyusi (o'ng yuqori)
+    "usermenu_links": [
+        {"name": "Saytga o'tish", "url": "/", "new_window": True, "icon": "fas fa-external-link-alt"},
+    ],
+
+    # Sidebar
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    # Keraksiz modellarni yashirish
+    "hide_apps": [],
+    "hide_models": [
+        "tests_app.DailyUserStats",
+        "tests_app.UserActivityLog",
+        "tests_app.UserTopicPerformance",
+        "tests_app.UserSubjectPerformance",
+        "tests_app.UserStudySession",
+        "tests_app.UserAnalyticsSummary",
+        "accounts.PhoneVerification",
+        "accounts.UserActivity",
+        "news.ArticleLike",
+        "competitions.BattleInvitation",
+        "competitions.MatchmakingQueue",
+        "competitions.CompetitionQuestion",
+        "competitions.DailyChallengeParticipant",
+        "competitions.WeeklyLeagueParticipant",
+        "leaderboard.SeasonalParticipant",
+        "leaderboard.SubjectLeaderboard",
+        "leaderboard.UserAchievement",
+        "subscriptions.PromoCodeUsage",
+        "subscriptions.UserDailyLimit",
+        "ai_core.AIMessage",
+        "ai_core.StudyPlanTask",
+        "ai_core.WeakTopicAnalysis",
+        "universities.AdmissionCalculation",
+    ],
+
+    # App va model ikonkalari (Font Awesome 5)
+    "icons": {
+        # Django auth
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+
+        # Foydalanuvchilar
+        "accounts": "fas fa-users",
+        "accounts.User": "fas fa-user-circle",
+        "accounts.Badge": "fas fa-medal",
+        "accounts.UserBadge": "fas fa-award",
+        "accounts.Friendship": "fas fa-user-friends",
+
+        # Testlar
+        "tests_app": "fas fa-clipboard-list",
+        "tests_app.Subject": "fas fa-book",
+        "tests_app.Topic": "fas fa-bookmark",
+        "tests_app.Question": "fas fa-question-circle",
+        "tests_app.Test": "fas fa-file-alt",
+        "tests_app.TestAttempt": "fas fa-chart-bar",
+        "tests_app.SavedQuestion": "fas fa-heart",
+
+        # Yangiliklar
+        "news": "fas fa-newspaper",
+        "news.Article": "fas fa-newspaper",
+        "news.Category": "fas fa-tags",
+        "news.Notification": "fas fa-bell",
+        "news.SystemBanner": "fas fa-bullhorn",
+
+        # Musobaqalar
+        "competitions": "fas fa-trophy",
+        "competitions.Competition": "fas fa-trophy",
+        "competitions.CompetitionParticipant": "fas fa-users",
+        "competitions.CompetitionPayment": "fas fa-credit-card",
+        "competitions.Certificate": "fas fa-certificate",
+        "competitions.Battle": "fas fa-bolt",
+        "competitions.DailyChallenge": "fas fa-calendar-day",
+        "competitions.WeeklyLeague": "fas fa-calendar-week",
+
+        # Obunalar
+        "subscriptions": "fas fa-star",
+        "subscriptions.SubscriptionPlan": "fas fa-layer-group",
+        "subscriptions.Subscription": "fas fa-user-check",
+        "subscriptions.Payment": "fas fa-money-bill-wave",
+        "subscriptions.PromoCode": "fas fa-ticket-alt",
+
+        # Universitetlar
+        "universities": "fas fa-university",
+        "universities.University": "fas fa-university",
+        "universities.Faculty": "fas fa-building",
+        "universities.Direction": "fas fa-graduation-cap",
+        "universities.PassingScore": "fas fa-chart-line",
+        "universities.UniversityReview": "fas fa-star-half-alt",
+
+        # Reyting
+        "leaderboard": "fas fa-list-ol",
+        "leaderboard.GlobalLeaderboard": "fas fa-globe",
+        "leaderboard.Achievement": "fas fa-medal",
+        "leaderboard.UserStats": "fas fa-chart-pie",
+        "leaderboard.SeasonalLeaderboard": "fas fa-calendar-alt",
+
+        # AI
+        "ai_core": "fas fa-robot",
+        "ai_core.AIConversation": "fas fa-comments",
+        "ai_core.AIRecommendation": "fas fa-lightbulb",
+        "ai_core.StudyPlan": "fas fa-tasks",
+
+        # Sozlamalar
+        "core": "fas fa-cog",
+        "core.SiteSettings": "fas fa-sliders-h",
+        "core.ContactMessage": "fas fa-envelope",
+        "core.Feedback": "fas fa-comment-alt",
+        "core.FAQ": "fas fa-question",
+        "core.Banner": "fas fa-image",
+        "core.Partner": "fas fa-handshake",
+    },
+
+    # Default ikonkalar
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+
+    # Related modal (tez qo'shish)
+    "related_modal_active": True,
+
+    # Qo'shimcha
     "custom_css": None,
     "custom_js": None,
     "use_google_fonts_cdn": True,
-    "show_ui_builder": True,
+    "show_ui_builder": False,
+
+    # Sidebar tartib
+    "order_with_respect_to": [
+        "accounts",
+        "tests_app",
+        "news",
+        "competitions",
+        "subscriptions",
+        "universities",
+        "leaderboard",
+        "ai_core",
+        "core",
+        "auth",
+    ],
+
+    # Form ko'rinishi
+    "changeform_format": "horizontal_tabs",
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": True,
+    "brand_small_text": False,
+    "brand_colour": "navbar-success",
+    "accent": "accent-success",
+    "navbar": "navbar-white navbar-light",
+    "no_navbar_border": True,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-success",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
+    },
 }
