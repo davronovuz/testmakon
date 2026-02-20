@@ -3,9 +3,21 @@
 
 {% block title %}Yutuqlar - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .achievements-hero { padding: 1.5rem 0 !important; }
+    .achievements-hero h1 { font-size: 1.5rem; }
+    .achievements-hero .lead { font-size: 0.95rem; }
+    .achievements-hero div[style*="padding: 1rem 1.5rem"] { padding: 0.75rem 1rem !important; }
+    .card.h-100.p-3 { padding: 0.75rem !important; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+<section class="achievements-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">

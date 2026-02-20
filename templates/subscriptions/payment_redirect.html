@@ -4,12 +4,38 @@
 
 {% block title %}To'lov tizimini tanlang | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .payment-redirect-section {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    .payment-redirect-card .card-body {
+        padding: 1.5rem !important;
+    }
+    .payment-redirect-card h4 {
+        font-size: 1.15rem;
+    }
+    .payment-redirect-card p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem !important;
+    }
+    .payment-redirect-card .btn {
+        font-size: 0.9rem;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light min-vh-100 d-flex align-items-center">
+<div class="section-sm bg-light min-vh-100 d-flex align-items-center payment-redirect-section">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden payment-redirect-card">
                     <div class="card-body p-5 text-center">
                         <h4 class="fw-bold mb-4">To'lov usulini tanlang</h4>
                         <p class="text-muted mb-5">

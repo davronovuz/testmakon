@@ -3,9 +3,24 @@
 
 {% block title %}{{ season.name }} - Mavsum - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .season-hero { padding: 2rem 0 !important; }
+    .season-hero h1 { font-size: 1.5rem; }
+    .season-hero span[style*="font-size: 3.5rem"] { font-size: 2.5rem !important; }
+    .season-hero div[style*="font-size: 3rem"] { font-size: 2rem !important; }
+    .card.mb-4.p-4 { padding: 1rem !important; }
+    .card .row.align-items-end div[style*="width: 90px"] { width: 65px !important; height: 65px !important; }
+    .card .row.align-items-end div[style*="width: 70px"] { width: 50px !important; height: 50px !important; }
+    .card-body { padding: 1rem !important; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); padding: 4rem 0;">
+<section class="season-hero" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); padding: 4rem 0;">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">

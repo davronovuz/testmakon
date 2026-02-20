@@ -3,12 +3,35 @@
 
 {% block title %}Xatolik | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .failed-section {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+    .failed-card {
+        padding: 1.5rem !important;
+    }
+    .failed-card h2 {
+        font-size: 1.35rem;
+    }
+    .failed-card p {
+        font-size: 0.9rem;
+    }
+    .failed-card .d-flex.gap-3 {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light min-vh-100 d-flex align-items-center">
+<div class="section-sm bg-light min-vh-100 d-flex align-items-center failed-section">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card border-0 shadow-lg rounded-4 text-center p-5">
+                <div class="card border-0 shadow-lg rounded-4 text-center p-5 failed-card">
                     <div class="icon-box-lg bg-danger bg-opacity-10 text-danger rounded-circle mx-auto mb-4">
                         <i class="bi bi-x-lg display-4"></i>
                     </div>

@@ -3,9 +3,19 @@
 
 {% block title %}Umumiy reyting - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .gl-hero { padding: 2rem 0 !important; }
+        .gl-top3 .col-md-4 .card { padding: 1rem !important; }
+        .gl-top3 .col-md-4 div[style*="width: 80px"] { width: 60px !important; height: 60px !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+<section class="gl-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">
@@ -38,7 +48,7 @@
             <div class="col-lg-8">
                 <!-- Top 3 Cards -->
                 {% if users %}
-                <div class="row g-3 mb-4">
+                <div class="row g-3 mb-4 gl-top3">
                     {% for u in users|slice:":3" %}
                     <div class="col-md-4">
                         <div class="card text-center p-4 {% if forloop.counter == 1 %}card-glow{% endif %}" style="{% if forloop.counter == 1 %}border: 2px solid var(--accent); background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);{% endif %}">

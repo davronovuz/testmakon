@@ -3,8 +3,19 @@
 
 {% block title %}Mavsum yo'q - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .no-season-hero { padding: 2rem 0 !important; }
+    .no-season-hero .card.p-5 { padding: 2rem !important; }
+    .no-season-hero h2 { font-size: 1.5rem; }
+    .no-season-hero .lead { font-size: 0.95rem; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="section">
+<section class="section no-season-hero">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">

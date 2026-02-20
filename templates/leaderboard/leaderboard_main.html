@@ -3,9 +3,20 @@
 
 {% block title %}Reyting - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 768px) {
+        .lb-hero { padding: 2rem 0 !important; }
+        .lb-user-stats { flex-wrap: wrap; gap: 0.25rem 0.75rem !important; font-size: 0.85rem; }
+        .lb-rank-box { padding: 0.75rem 1.25rem !important; }
+        .lb-rank-box div:last-child { font-size: 2rem !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+<section class="lb-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
@@ -41,7 +52,7 @@
                         </div>
                         <div>
                             <h4 class="text-white mb-1">{{ user.full_name|default:user.phone_number }}</h4>
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-3 lb-user-stats">
                                 <span class="text-white" style="opacity: 0.9;">
                                     <i class="bi bi-star-fill me-1"></i> {{ user.xp_points }} XP
                                 </span>
@@ -56,7 +67,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <div class="d-inline-block text-center" style="background: rgba(255,255,255,0.2); border-radius: var(--radius-lg); padding: 1rem 2rem;">
+                    <div class="d-inline-block text-center lb-rank-box" style="background: rgba(255,255,255,0.2); border-radius: var(--radius-lg); padding: 1rem 2rem;">
                         <div class="text-white" style="font-size: 0.85rem; opacity: 0.9;">Sizning o'rningiz</div>
                         <div class="text-white" style="font-size: 2.5rem; font-weight: 800;">#{{ user_rank|default:"—" }}</div>
                     </div>

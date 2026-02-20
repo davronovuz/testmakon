@@ -3,9 +3,23 @@
 
 {% block title %}{{ subject.name }} - Reyting - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .subject-hero { padding: 1.5rem 0 !important; }
+    .subject-hero h1 { font-size: 1.5rem; }
+    .subject-hero .lead { font-size: 0.95rem; }
+    .subject-hero div[style*="font-size: 3rem"] { font-size: 2rem !important; }
+    .col-md-4 .card.text-center.p-4 { padding: 1rem !important; }
+    .col-md-4 .card div[style*="width: 70px"] { width: 50px !important; height: 50px !important; }
+    .card-body { padding: 1rem !important; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+<section class="subject-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">

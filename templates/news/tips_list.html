@@ -3,10 +3,26 @@
 
 {% block title %}Maslahatlar | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .tips-section { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    .tips-section .tips-hero .mb-5 { margin-bottom: 1.5rem !important; }
+    .tips-section .display-6 { font-size: 1.5rem; }
+    .tips-section .lead { font-size: 0.95rem; }
+    .tips-section .tips-filters { margin-bottom: 1.5rem !important; }
+    .tips-section .tips-filters .btn { padding: 0.4rem 1rem; font-size: 0.85rem; }
+    .tips-section .card-body { padding: 1rem !important; }
+    .tips-section .card-footer { padding: 0 1rem 1rem !important; }
+    .tips-section h5 { font-size: 1rem; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light min-vh-100">
+<div class="section-sm bg-light min-vh-100 tips-section">
     <div class="container">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 tips-hero">
             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill mb-3">
                 <i class="bi bi-lightbulb-fill me-1"></i> Foydali
             </span>
@@ -14,7 +30,7 @@
             <p class="text-muted lead">Samarali o'rganish va imtihonga tayyorlanish sirlari.</p>
         </div>
 
-        <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap">
+        <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap tips-filters">
             <a href="{% url 'news:tips_list' %}" class="btn {% if not request.GET.subject %}btn-dark{% else %}btn-light{% endif %} rounded-pill px-4 fw-bold">
                 Barchasi
             </a>

@@ -3,9 +3,20 @@
 
 {% block title %}{{ season.name }} - TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .season-detail-hero { padding: 1.5rem 0 !important; }
+    .season-detail-hero h1 { font-size: 1.5rem; }
+    .season-detail-hero span[style*="font-size: 3rem"] { font-size: 2rem !important; }
+    .card-body { padding: 1rem !important; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
+<section class="season-detail-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #F1F5F9 100%); padding: 3rem 0;">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">

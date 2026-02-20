@@ -3,10 +3,24 @@
 
 {% block title %}{{ category.name }} | Yangiliklar{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .category-detail-section { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    .category-detail-section .category-header { margin-bottom: 1.5rem !important; }
+    .category-detail-section .category-header h2 { font-size: 1.4rem; }
+    .category-detail-section .category-header span[style*="font-size: 2rem"] { font-size: 1.5rem !important; }
+    .category-detail-section .card-body { padding: 1rem !important; }
+    .category-detail-section .card-img-top, .category-detail-section .bg-light[style*="height: 200px"] { height: 160px !important; }
+    .category-detail-section h5 { font-size: 1rem; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light min-vh-100">
+<div class="section-sm bg-light min-vh-100 category-detail-section">
     <div class="container">
-        <div class="d-flex align-items-center gap-3 mb-5">
+        <div class="d-flex align-items-center gap-3 mb-5 category-header">
             <a href="{% url 'news:news_list' %}" class="btn btn-light rounded-circle shadow-sm"><i class="bi bi-arrow-left"></i></a>
             <div>
                 <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ category.articles.count }} ta maqola</span>

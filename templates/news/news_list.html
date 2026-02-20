@@ -3,8 +3,24 @@
 
 {% block title %}Yangiliklar | TestMakon{% endblock %}
 
+{% block extra_css %}
+<style>
+@media (max-width: 768px) {
+    .news-hero-section { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    .news-hero-section .mb-5 { margin-bottom: 1.5rem !important; }
+    .news-hero-section .display-6 { font-size: 1.5rem; }
+    .news-hero-section .lead { font-size: 0.95rem; }
+    .news-featured-section .card-body { padding: 1.25rem !important; }
+    .news-featured-section h2 { font-size: 1.25rem; }
+    .news-grid .card-body { padding: 1rem !important; }
+    .news-grid .card-img-top, .news-grid .bg-light[style*="height: 200px"] { height: 160px !important; }
+    .news-grid h5 { font-size: 1rem; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="section-sm bg-light min-vh-100">
+<div class="section-sm bg-light min-vh-100 news-hero-section">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="fw-bold display-6">So'nggi Yangiliklar</h2>
@@ -12,7 +28,7 @@
         </div>
 
         {% if featured %}
-        <div class="row g-4 mb-5">
+        <div class="row g-4 mb-5 news-featured-section">
             <div class="col-lg-8">
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 text-white position-relative">
                     {% if featured.0.featured_image %}
@@ -62,7 +78,7 @@
             </a>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 news-grid">
             {% for article in articles %}
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift transition-all">
