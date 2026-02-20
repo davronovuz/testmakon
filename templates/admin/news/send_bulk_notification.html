@@ -1,0 +1,122 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Barcha foydalanuvchilarga xabar yuborish{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumb-nav">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">Bosh sahifa</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin:news_notification_changelist' %}">Bildirishnomalar</a></li>
+        <li class="breadcrumb-item active">Barcha foydalanuvchilarga yuborish</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-bullhorn mr-2"></i>
+                    Barcha foydalanuvchilarga xabar yuborish
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Hozir <strong>{{ total_users }}</strong> ta faol foydalanuvchi bor.
+                    Xabar yuborish tugmasini bosgandan keyin barcha foydalanuvchilar
+                    bildirishnoma bo'limida bu xabarni ko'radi.
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label><strong>Sarlavha *</strong></label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label><strong>Xabar matni *</strong></label>
+                        {{ form.message }}
+                        {% if form.message.errors %}
+                            <div class="text-danger">{{ form.message.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label><strong>Bildirishnoma turi *</strong></label>
+                        {{ form.notification_type }}
+                    </div>
+
+                    <div class="form-group">
+                        <label><strong>Havola (ixtiyoriy)</strong></label>
+                        {{ form.link }}
+                        <small class="text-muted">Masalan: /competitions/ yoki to'liq URL</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            {{ form.only_active }}
+                            <label class="custom-control-label ml-2">
+                                <strong>Faqat faol foydalanuvchilarga</strong>
+                                <small class="text-muted">(tavsiya etiladi)</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success btn-lg"
+                                onclick="return confirm('{{ total_users }} ta foydalanuvchiga xabar yuborilsinmi?')">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Yuborish ({{ total_users }} ta user)
+                        </button>
+                        <a href="{% url 'admin:news_notification_changelist' %}" class="btn btn-secondary btn-lg ml-2">
+                            Bekor qilish
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card card-warning card-outline">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-1"></i> Eslatma</h3>
+            </div>
+            <div class="card-body">
+                <ul class="pl-3">
+                    <li>Bu xabar <strong>barcha</strong> foydalanuvchilarga bir vaqtda yuboriladi</li>
+                    <li>Xabarni o'chirib bo'lmaydi (faqat alohida o'chirish mumkin)</li>
+                    <li>Foydalanuvchilar saytga kirganida bildiradi</li>
+                    <li>Turi bo'yicha eng to'g'risi: <strong>Musobaqa</strong> yoki <strong>Tizim</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card card-info card-outline">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-lightbulb mr-1"></i> Misol xabarlar</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Musobaqa uchun:</strong><br>
+                <em>"Yangi musobaqa boshlandi! Ishtirok eting va sovrin yutib oling."</em></p>
+                <p><strong>Tizim uchun:</strong><br>
+                <em>"Saytda yangi imkoniyatlar qo'shildi. Ko'rib chiqing!"</em></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
