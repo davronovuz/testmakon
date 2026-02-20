@@ -8,7 +8,6 @@
 <style>
     .pr-page { padding: 2.5rem 0 4rem; background: var(--gray-50); }
 
-    /* Header */
     .pr-header { text-align: center; margin-bottom: 2rem; }
     .pr-badge {
         display: inline-flex; align-items: center; gap: 6px;
@@ -21,28 +20,21 @@
     .pr-header p { font-size: 0.95rem; color: var(--gray-500); }
     @media(max-width:575px) { .pr-header h1 { font-size: 1.5rem; } }
 
-    /* Plans grid */
     .pr-plans {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
-        margin-bottom: 2rem;
     }
+    @media(max-width: 900px) { .pr-plans { grid-template-columns: repeat(2, 1fr); } }
+    @media(max-width: 560px) { .pr-plans { grid-template-columns: 1fr; } }
+
     .pr-card {
         background: #fff; border: 1.5px solid var(--gray-200);
         border-radius: 18px; padding: 1.5rem;
-        position: relative; overflow: hidden;
         transition: all 0.2s ease;
     }
     .pr-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.08); }
-    .pr-card.featured { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,197,64,0.12); }
 
-    .pr-featured-tag {
-        position: absolute; top: 0; right: 0;
-        background: var(--gradient-primary); color: #fff;
-        font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px;
-        padding: 5px 14px; border-radius: 0 16px 0 12px;
-    }
     .pr-plan-name { font-size: 0.78rem; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
     .pr-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 0.2rem; }
     .pr-amount { font-size: 2.2rem; font-weight: 900; color: var(--dark); }
@@ -63,78 +55,16 @@
     }
     .pr-features li + li { border-top: 1px solid var(--gray-50); }
     .pr-features .ci { color: var(--primary); font-size: 0.9rem; }
-    .pr-features .cx { color: var(--gray-300); font-size: 0.9rem; }
 
     .pr-btn {
         display: block; width: 100%; padding: 0.75rem;
         border-radius: 12px; font-size: 0.9rem; font-weight: 800;
         text-align: center; text-decoration: none; border: none;
         cursor: pointer; transition: all 0.2s;
-    }
-    .pr-btn.prim { background: var(--gradient-primary); color: #fff; }
-    .pr-btn.prim:hover { color: #fff; box-shadow: var(--shadow-primary); }
-    .pr-btn.sec { background: var(--gray-100); color: var(--gray-600); }
-    .pr-btn.sec:hover { background: var(--gray-200); color: var(--dark); }
-    .pr-btn.curr { background: rgba(139,197,64,0.08); color: var(--primary); cursor: default; }
-
-    /* How it works */
-    .pr-how { background: #fff; border: 1px solid var(--gray-200); border-radius: 18px; padding: 2rem; margin-bottom: 1.25rem; }
-    .pr-how-title { font-size: 1rem; font-weight: 900; color: var(--dark); margin-bottom: 1.5rem; }
-
-    .pr-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
-    @media(max-width:640px) { .pr-steps { grid-template-columns: 1fr; } }
-
-    .pr-step { text-align: center; padding: 0.5rem; }
-    .pr-step-num {
-        width: 42px; height: 42px; border-radius: 50%;
         background: var(--gradient-primary); color: #fff;
-        font-size: 1rem; font-weight: 900;
-        display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 0.75rem;
     }
-    .pr-step-label { font-size: 0.88rem; font-weight: 800; color: var(--dark); margin-bottom: 0.25rem; }
-    .pr-step-desc { font-size: 0.76rem; color: var(--gray-500); line-height: 1.4; }
-
-    /* Divider between steps */
-    .pr-steps-wrap { position: relative; }
-
-    /* Card info */
-    .pr-card-info {
-        background: #0F172A; border-radius: 16px;
-        padding: 1.5rem; color: #fff;
-    }
-    .pr-card-info-label { font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
-    .pr-card-num {
-        font-size: 1.4rem; font-weight: 900; letter-spacing: 3px;
-        font-family: 'Courier New', monospace; margin-bottom: 0.5rem;
-    }
-    .pr-card-bank { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-bottom: 1rem; }
-    .pr-copy-btn {
-        display: inline-flex; align-items: center; gap: 6px;
-        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
-        color: #fff; font-size: 0.78rem; font-weight: 700;
-        padding: 7px 16px; border-radius: 8px; cursor: pointer;
-        transition: all 0.15s; border: none;
-    }
-    .pr-copy-btn:hover { background: rgba(255,255,255,0.18); }
-
-    .pr-note {
-        margin-top: 1rem; padding: 0.75rem 1rem;
-        background: rgba(139,197,64,0.12); border-radius: 10px;
-        font-size: 0.78rem; color: rgba(255,255,255,0.8);
-        display: flex; align-items: center; gap: 8px;
-    }
-    .pr-note i { color: #8BC540; flex-shrink: 0; }
-
-    /* Divider */
-    .pr-divider {
-        display: flex; align-items: center; gap: 1rem;
-        color: var(--gray-400); font-size: 0.78rem; font-weight: 600;
-        margin: 2rem 0 1.5rem;
-    }
-    .pr-divider::before, .pr-divider::after {
-        content: ''; flex: 1; height: 1px; background: var(--gray-200);
-    }
+    .pr-btn:hover { color: #fff; box-shadow: var(--shadow-primary); }
+    .pr-btn.curr { background: rgba(139,197,64,0.08); color: var(--primary); cursor: default; box-shadow: none; }
 </style>
 {% endblock %}
 
@@ -142,21 +72,15 @@
 <div class="pr-page">
     <div class="container">
 
-        <!-- Header -->
         <div class="pr-header">
             <div class="pr-badge">💎 TestMakon Premium</div>
             <h1>Tarifni tanlang</h1>
             <p>Karta orqali to'lang, chek yuboring — 24 soat ichida premium faol</p>
         </div>
 
-        <!-- Plan cards -->
         <div class="pr-plans">
             {% for plan in plans %}
-            <div class="pr-card {% if plan.is_featured %}featured{% endif %}">
-                {% if plan.is_featured %}
-                <div class="pr-featured-tag">⭐ Eng ommabop</div>
-                {% endif %}
-
+            <div class="pr-card">
                 <div class="pr-plan-name">{{ plan.name }}</div>
 
                 {% if plan.original_price and plan.discount_percent %}
@@ -165,94 +89,28 @@
                 {% endif %}
 
                 <div class="pr-price">
-                    {% if plan.price == 0 %}
-                        <span class="pr-amount" style="font-size:1.6rem;color:var(--gray-500);">Bepul</span>
-                    {% else %}
-                        <span class="pr-amount">{{ plan.price|intcomma }}</span>
-                        <span class="pr-currency">so'm</span>
-                    {% endif %}
+                    <span class="pr-amount">{{ plan.price|intcomma }}</span>
+                    <span class="pr-currency">so'm</span>
                 </div>
-                <div class="pr-dur">{% if plan.price == 0 %}Doimiy bepul{% else %}{{ plan.duration_days }} kunlik obuna{% endif %}</div>
+                <div class="pr-dur">{{ plan.duration_days }} kunlik obuna</div>
 
                 <ul class="pr-features">
-                    {% if plan.daily_test_limit %}
-                    <li><i class="bi bi-check-circle-fill ci"></i> Kuniga {{ plan.daily_test_limit }} ta test</li>
-                    {% else %}
                     <li><i class="bi bi-check-circle-fill ci"></i> <strong>Cheksiz testlar</strong></li>
-                    {% endif %}
-                    {% if plan.can_access_ai_mentor %}
                     <li><i class="bi bi-stars ci" style="color:#f59e0b;"></i> AI Mentor cheksiz</li>
-                    {% else %}
-                    <li><i class="bi bi-dash-circle cx"></i> AI Mentor yo'q</li>
-                    {% endif %}
-                    {% if plan.can_access_analytics %}
                     <li><i class="bi bi-check-circle-fill ci"></i> Shaxsiy tahlil</li>
-                    {% endif %}
-                    {% if plan.ad_free %}
+                    <li><i class="bi bi-check-circle-fill ci"></i> DTM simulyatsiya</li>
                     <li><i class="bi bi-check-circle-fill ci"></i> Reklama yo'q</li>
-                    {% endif %}
                 </ul>
 
                 {% if current_subscription.plan == plan %}
                     <span class="pr-btn curr">✓ Joriy tarifingiz</span>
-                {% elif plan.price == 0 %}
-                    <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-btn sec">Bepul boshlash</a>
                 {% else %}
-                    <a href="{% url 'subscriptions:checkout' slug=plan.slug %}" class="pr-btn prim">Sotib olish →</a>
+                    <a href="{% url 'subscriptions:manual_payment' slug=plan.slug %}" class="pr-btn">Sotib olish →</a>
                 {% endif %}
             </div>
             {% endfor %}
         </div>
 
-        <!-- How it works + card info -->
-        <div class="pr-how">
-            <div class="pr-how-title">Qanday to'lanadi?</div>
-
-            <div class="pr-steps">
-                <div class="pr-step">
-                    <div class="pr-step-num">1</div>
-                    <div class="pr-step-label">Tarif tanlang</div>
-                    <div class="pr-step-desc">Yuqoridan o'zingizga mos tarifni tanlang va "Sotib olish" ni bosing</div>
-                </div>
-                <div class="pr-step">
-                    <div class="pr-step-num">2</div>
-                    <div class="pr-step-label">Kartaga o'tkazing</div>
-                    <div class="pr-step-desc">Quyidagi karta raqamiga tarif narxini o'tkazing</div>
-                </div>
-                <div class="pr-step">
-                    <div class="pr-step-num">3</div>
-                    <div class="pr-step-label">Chek yuboring</div>
-                    <div class="pr-step-desc">To'lov cheki rasmini yuklang — 24 soat ichida premium faollanadi</div>
-                </div>
-            </div>
-
-            <div class="pr-divider">To'lov kartasi</div>
-
-            <div class="pr-card-info">
-                <div class="pr-card-info-label">Karta raqami</div>
-                <div class="pr-card-num" id="cardNum">8600 1234 5678 9012</div>
-                <div class="pr-card-bank">Kapitalbank · Jasur Ismoilov</div>
-                <button class="pr-copy-btn" onclick="copyCard()">
-                    <i class="bi bi-copy"></i> <span id="copyTxt">Nusxalash</span>
-                </button>
-                <div class="pr-note">
-                    <i class="bi bi-info-circle-fill"></i>
-                    To'lovni amalga oshirgandan so'ng "Sotib olish" tugmasini bosing va chek rasmini yuklang
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
-
-<script>
-function copyCard() {
-    const num = document.getElementById('cardNum').innerText.replace(/\s/g, '');
-    navigator.clipboard.writeText(num).then(() => {
-        const btn = document.getElementById('copyTxt');
-        btn.textContent = 'Nusxalandi!';
-        setTimeout(() => btn.textContent = 'Nusxalash', 2000);
-    });
-}
-</script>
 {% endblock %}
