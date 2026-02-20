@@ -816,12 +816,12 @@ def get_subject_tools(subject):
     tools = {
         'matematika': [
             {'id': 'calculator', 'name': 'Kalkulyator', 'icon': 'bi-calculator', 'type': 'desmos'},
-            {'id': 'formula', 'name': 'Formulalar', 'icon': 'bi-journal-text', 'type': 'sheet'},
+            {'id': 'formula', 'name': 'Formulalar', 'icon': 'bi-journal-text', 'type': 'sheet', 'subject_slug': 'matematika'},
         ],
         'fizika': [
             {'id': 'calculator', 'name': 'Kalkulyator', 'icon': 'bi-calculator', 'type': 'scientific'},
-            {'id': 'formula', 'name': 'Formulalar', 'icon': 'bi-journal-text', 'type': 'sheet'},
-            {'id': 'constants', 'name': 'Konstantalar', 'icon': 'bi-list-ul', 'type': 'sheet'},
+            {'id': 'formula', 'name': 'Formulalar', 'icon': 'bi-journal-text', 'type': 'sheet', 'subject_slug': 'fizika'},
+            {'id': 'constants', 'name': 'Konstantalar', 'icon': 'bi-list-ul', 'type': 'constants'},
         ],
         'kimyo': [
             {'id': 'periodic', 'name': 'Mendeleyev jadvali', 'icon': 'bi-grid-3x3', 'type': 'periodic'},
@@ -837,10 +837,10 @@ def get_subject_tools(subject):
             {'id': 'timeline', 'name': 'Vaqt chizig\'i', 'icon': 'bi-calendar-range', 'type': 'timeline'},
         ],
         'ingliz-tili': [
-            {'id': 'dictionary', 'name': 'Lug\'at', 'icon': 'bi-book', 'type': 'dictionary'},
+            {'id': 'dictionary', 'name': 'Lug\'at', 'icon': 'bi-book', 'type': 'dictionary', 'subject_slug': 'ingliz-tili'},
         ],
         'ona-tili': [
-            {'id': 'dictionary', 'name': 'Imlo lug\'ati', 'icon': 'bi-spellcheck', 'type': 'dictionary'},
+            {'id': 'dictionary', 'name': 'Imlo lug\'ati', 'icon': 'bi-spellcheck', 'type': 'dictionary', 'subject_slug': 'ona-tili'},
         ],
     }
 

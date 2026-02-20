@@ -621,13 +621,310 @@
 
     /* Periodic Table */
     .test-periodic-table {
-        text-align: center;
-        padding: 2rem;
+        width: 100%;
+        height: 500px;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        overflow: hidden;
     }
 
-    .test-periodic-table img {
-        max-width: 100%;
+    .test-periodic-table iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Map */
+    .test-map-view {
+        width: 100%;
+        height: 450px;
+        border: 1px solid var(--gray-200);
         border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    .test-map-view iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    /* Formula Accordion */
+    .formula-accordion-btn {
+        width: 100%;
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+    }
+
+    .formula-accordion-btn:hover {
+        background: var(--gray-100);
+    }
+
+    .formula-accordion-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .formula-accordion-body {
+        display: none;
+        padding: 0.5rem 0;
+    }
+
+    .formula-accordion-body.show {
+        display: block;
+    }
+
+    /* Constants Table */
+    .constants-table {
+        width: 100%;
+        font-size: 0.85rem;
+        border-collapse: collapse;
+    }
+
+    .constants-table th {
+        background: var(--gray-100);
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: var(--dark-600);
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .constants-table td {
+        padding: 0.4rem 0.75rem;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .constants-table tr:hover td {
+        background: var(--gray-50);
+    }
+
+    /* Timeline */
+    .test-timeline {
+        position: relative;
+        padding-left: 24px;
+    }
+
+    .test-timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--gray-200);
+    }
+
+    .timeline-section {
+        margin-bottom: 1.25rem;
+    }
+
+    .timeline-section-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .timeline-section-title::before {
+        content: '';
+        position: absolute;
+        left: -20px;
+        top: 6px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--primary);
+        border: 2px solid white;
+    }
+
+    .timeline-event {
+        font-size: 0.8rem;
+        color: var(--dark-600);
+        padding: 0.2rem 0;
+        position: relative;
+    }
+
+    .timeline-event::before {
+        content: '';
+        position: absolute;
+        left: -18px;
+        top: 8px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gray-300);
+    }
+
+    .timeline-year {
+        font-weight: 700;
+        color: var(--dark);
+        margin-right: 0.25rem;
+    }
+
+    /* Atlas */
+    .atlas-section {
+        margin-bottom: 1rem;
+    }
+
+    .atlas-section-btn {
+        width: 100%;
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+    }
+
+    .atlas-section-btn:hover {
+        background: var(--gray-100);
+    }
+
+    .atlas-section-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .atlas-body {
+        display: none;
+        padding: 0.5rem 0;
+    }
+
+    .atlas-body.show {
+        display: block;
+    }
+
+    .atlas-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.4rem 0;
+        font-size: 0.82rem;
+        color: var(--dark-600);
+    }
+
+    .atlas-item i {
+        color: var(--primary);
+        margin-top: 2px;
+    }
+
+    /* Dictionary */
+    .dict-search-box {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .dict-search-box input {
+        flex: 1;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .dict-search-box input:focus {
+        border-color: var(--primary);
+    }
+
+    .dict-search-box button {
+        padding: 0.6rem 1rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .dict-search-box button:hover {
+        background: var(--primary-dark);
+    }
+
+    .dict-result {
+        padding: 1rem;
+        background: var(--gray-50);
+        border-radius: var(--radius);
+    }
+
+    .dict-word {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+    }
+
+    .dict-phonetic {
+        font-size: 0.85rem;
+        color: var(--dark-600);
+        margin-bottom: 0.75rem;
+    }
+
+    .dict-meaning {
+        margin-bottom: 0.75rem;
+    }
+
+    .dict-pos {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        font-style: italic;
+        margin-bottom: 0.25rem;
+    }
+
+    .dict-def {
+        font-size: 0.85rem;
+        color: var(--dark-600);
+        padding: 0.2rem 0 0.2rem 0.75rem;
+        border-left: 2px solid var(--gray-200);
+        margin-bottom: 0.35rem;
+    }
+
+    .dict-example {
+        font-size: 0.82rem;
+        color: var(--gray-500);
+        font-style: italic;
+        padding-left: 0.75rem;
+    }
+
+    .dict-loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--dark-600);
+    }
+
+    .dict-error {
+        text-align: center;
+        padding: 1.5rem;
+        color: #dc3545;
+        font-size: 0.9rem;
     }
 
     /* ========== QUESTION PANEL (Center) ========== */
@@ -1394,33 +1691,376 @@
             <div class="test-tools-content">
                 {% for tool in subject_tools %}
                 <div class="test-tool-view {% if not forloop.first %}d-none{% endif %}" id="tool-{{ tool.id }}">
+
                     {% if tool.type == 'desmos' or tool.type == 'scientific' %}
+                    <!-- Kalkulyator (Desmos) -->
                     <div class="test-calculator">
                         <iframe src="https://www.desmos.com/scientific" title="Calculator"></iframe>
                     </div>
+
                     {% elif tool.type == 'periodic' %}
+                    <!-- Interaktiv Mendeleyev jadvali -->
                     <div class="test-periodic-table">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Periodic_table.svg/1200px-Periodic_table.svg.png"
-                             alt="Mendeleyev jadvali">
+                        <iframe src="https://ptable.com/?lang=uz#Properties" title="Mendeleyev jadvali"></iframe>
                     </div>
-                    {% elif tool.type == 'sheet' %}
+
+                    {% elif tool.type == 'sheet' and tool.subject_slug == 'matematika' %}
+                    <!-- Matematika formulalari -->
                     <div class="test-formula-sheet">
-                        <div class="test-formula-group">
-                            <h4>Asosiy formulalar</h4>
-                            <div class="test-formula-item">
-                                <code>a² + b² = c²</code>
-                                <span>Pifagor teoremasi</span>
+                        <button class="formula-accordion-btn active" onclick="toggleFormulaSection(this)">
+                            Algebra <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body show">
+                            <div class="test-formula-item"><code>x = (-b ± √D) / 2a</code><span>Kvadrat tenglama</span></div>
+                            <div class="test-formula-item"><code>D = b² - 4ac</code><span>Diskriminant</span></div>
+                            <div class="test-formula-item"><code>x₁ + x₂ = -b/a</code><span>Viet teoremasi (yig'indi)</span></div>
+                            <div class="test-formula-item"><code>x₁ · x₂ = c/a</code><span>Viet teoremasi (ko'paytma)</span></div>
+                            <div class="test-formula-item"><code>logₐ(xy) = logₐx + logₐy</code><span>Logarifm ko'paytma</span></div>
+                            <div class="test-formula-item"><code>logₐ(x/y) = logₐx - logₐy</code><span>Logarifm bo'linma</span></div>
+                            <div class="test-formula-item"><code>logₐxⁿ = n·logₐx</code><span>Logarifm daraja</span></div>
+                            <div class="test-formula-item"><code>(a+b)² = a²+2ab+b²</code><span>To'liq kvadrat</span></div>
+                            <div class="test-formula-item"><code>a²-b² = (a-b)(a+b)</code><span>Kvadratlar ayirmasi</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Geometriya <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>a² + b² = c²</code><span>Pifagor teoremasi</span></div>
+                            <div class="test-formula-item"><code>S = a·b</code><span>To'rtburchak yuzi</span></div>
+                            <div class="test-formula-item"><code>S = ½·a·h</code><span>Uchburchak yuzi</span></div>
+                            <div class="test-formula-item"><code>S = ½·d₁·d₂</code><span>Romb yuzi</span></div>
+                            <div class="test-formula-item"><code>S = πr²</code><span>Doira yuzi</span></div>
+                            <div class="test-formula-item"><code>C = 2πr</code><span>Aylana uzunligi</span></div>
+                            <div class="test-formula-item"><code>V = a·b·c</code><span>Parallelipiped hajmi</span></div>
+                            <div class="test-formula-item"><code>V = πr²h</code><span>Silindr hajmi</span></div>
+                            <div class="test-formula-item"><code>V = ⅓πr²h</code><span>Konus hajmi</span></div>
+                            <div class="test-formula-item"><code>V = ⁴⁄₃πr³</code><span>Shar hajmi</span></div>
+                            <div class="test-formula-item"><code>S = 4πr²</code><span>Shar sirti</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Trigonometriya <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>sin²α + cos²α = 1</code><span>Asosiy ayniyat</span></div>
+                            <div class="test-formula-item"><code>tgα = sinα / cosα</code><span>Tangens</span></div>
+                            <div class="test-formula-item"><code>ctgα = cosα / sinα</code><span>Kotangens</span></div>
+                            <div class="test-formula-item"><code>1 + tg²α = 1/cos²α</code><span>Tangens ayniyati</span></div>
+                            <div class="test-formula-item"><code>1 + ctg²α = 1/sin²α</code><span>Kotangens ayniyati</span></div>
+                            <div class="test-formula-item"><code>sin(α±β) = sinα·cosβ ± cosα·sinβ</code><span>Qo'shish formulasi</span></div>
+                            <div class="test-formula-item"><code>cos(α±β) = cosα·cosβ ∓ sinα·sinβ</code><span>Qo'shish formulasi</span></div>
+                            <div class="test-formula-item"><code>sin2α = 2sinα·cosα</code><span>Ikkilangan burchak</span></div>
+                            <div class="test-formula-item"><code>cos2α = cos²α - sin²α</code><span>Ikkilangan burchak</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Progressiya <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>aₙ = a₁ + (n-1)d</code><span>Arifmetik progressiya n-hadi</span></div>
+                            <div class="test-formula-item"><code>Sₙ = n(a₁+aₙ)/2</code><span>Arifmetik progressiya yig'indisi</span></div>
+                            <div class="test-formula-item"><code>bₙ = b₁·qⁿ⁻¹</code><span>Geometrik progressiya n-hadi</span></div>
+                            <div class="test-formula-item"><code>Sₙ = b₁(qⁿ-1)/(q-1)</code><span>Geometrik progressiya yig'indisi</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Kombinatorika <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>n! = 1·2·3·...·n</code><span>Faktorial</span></div>
+                            <div class="test-formula-item"><code>Pₙ = n!</code><span>Permutatsiya</span></div>
+                            <div class="test-formula-item"><code>Aₙₖ = n!/(n-k)!</code><span>O'rniga qo'yish</span></div>
+                            <div class="test-formula-item"><code>Cₙₖ = n!/k!(n-k)!</code><span>Kombinatsiya</span></div>
+                        </div>
+                    </div>
+
+                    {% elif tool.type == 'sheet' and tool.subject_slug == 'fizika' %}
+                    <!-- Fizika formulalari -->
+                    <div class="test-formula-sheet">
+                        <button class="formula-accordion-btn active" onclick="toggleFormulaSection(this)">
+                            Mexanika <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body show">
+                            <div class="test-formula-item"><code>v = s/t</code><span>Tezlik</span></div>
+                            <div class="test-formula-item"><code>a = (v-v₀)/t</code><span>Tezlanish</span></div>
+                            <div class="test-formula-item"><code>s = v₀t + at²/2</code><span>Yo'l (tekis tezl.)</span></div>
+                            <div class="test-formula-item"><code>v² = v₀² + 2as</code><span>Tezlik-yo'l bog'lanishi</span></div>
+                            <div class="test-formula-item"><code>F = ma</code><span>Nyuton II qonuni</span></div>
+                            <div class="test-formula-item"><code>F = G·m₁m₂/r²</code><span>Gravitatsiya qonuni</span></div>
+                            <div class="test-formula-item"><code>P = mg</code><span>Og'irlik kuchi</span></div>
+                            <div class="test-formula-item"><code>Fₛ = μN</code><span>Ishqalanish kuchi</span></div>
+                            <div class="test-formula-item"><code>A = F·s·cosα</code><span>Ish</span></div>
+                            <div class="test-formula-item"><code>N = A/t</code><span>Quvvat</span></div>
+                            <div class="test-formula-item"><code>Eₖ = mv²/2</code><span>Kinetik energiya</span></div>
+                            <div class="test-formula-item"><code>Eₚ = mgh</code><span>Potensial energiya</span></div>
+                            <div class="test-formula-item"><code>p = mv</code><span>Impuls</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Termodinamika <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>Q = cmΔT</code><span>Issiqlik miqdori</span></div>
+                            <div class="test-formula-item"><code>Q = λm</code><span>Erish issiqligi</span></div>
+                            <div class="test-formula-item"><code>Q = Lm</code><span>Bug'lanish issiqligi</span></div>
+                            <div class="test-formula-item"><code>pV = νRT</code><span>Ideal gaz holat tengl.</span></div>
+                            <div class="test-formula-item"><code>p₁V₁/T₁ = p₂V₂/T₂</code><span>Birlashgan gaz qonuni</span></div>
+                            <div class="test-formula-item"><code>η = A/Q</code><span>FIK</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Elektr <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>I = U/R</code><span>Om qonuni</span></div>
+                            <div class="test-formula-item"><code>R = ρl/S</code><span>Qarshilik</span></div>
+                            <div class="test-formula-item"><code>P = UI = I²R</code><span>Quvvat</span></div>
+                            <div class="test-formula-item"><code>A = UIt</code><span>Elektr ishi</span></div>
+                            <div class="test-formula-item"><code>F = k·q₁q₂/r²</code><span>Kulon qonuni</span></div>
+                            <div class="test-formula-item"><code>C = q/U</code><span>Sig'im</span></div>
+                            <div class="test-formula-item"><code>W = CU²/2</code><span>Kondensator energiyasi</span></div>
+                            <div class="test-formula-item"><code>ε = -ΔΦ/Δt</code><span>Elektromagnit induksiya</span></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Optika <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="test-formula-item"><code>n = sin α / sin β</code><span>Sinish qonuni</span></div>
+                            <div class="test-formula-item"><code>1/F = 1/d + 1/f</code><span>Linza formulasi</span></div>
+                            <div class="test-formula-item"><code>D = 1/F</code><span>Optik kuch (dioptri)</span></div>
+                            <div class="test-formula-item"><code>Г = f/d = H/h</code><span>Kattalashtirish</span></div>
+                            <div class="test-formula-item"><code>E = hν</code><span>Foton energiyasi</span></div>
+                        </div>
+                    </div>
+
+                    {% elif tool.type == 'constants' %}
+                    <!-- Fizik konstantalar -->
+                    <div class="test-formula-sheet">
+                        <table class="constants-table">
+                            <thead>
+                                <tr><th>Konstanta</th><th>Belgi</th><th>Qiymat</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Erkin tushish tezl.</td><td>g</td><td>9,8 m/s²</td></tr>
+                                <tr><td>Yorug'lik tezligi</td><td>c</td><td>3·10⁸ m/s</td></tr>
+                                <tr><td>Gravitatsiya doimiysi</td><td>G</td><td>6,67·10⁻¹¹ N·m²/kg²</td></tr>
+                                <tr><td>Avogadro soni</td><td>Nₐ</td><td>6,02·10²³ mol⁻¹</td></tr>
+                                <tr><td>Bolsman doimiysi</td><td>k</td><td>1,38·10⁻²³ J/K</td></tr>
+                                <tr><td>Universal gaz doimiysi</td><td>R</td><td>8,314 J/(mol·K)</td></tr>
+                                <tr><td>Plank doimiysi</td><td>h</td><td>6,63·10⁻³⁴ J·s</td></tr>
+                                <tr><td>Elektron zaryadi</td><td>e</td><td>1,6·10⁻¹⁹ C</td></tr>
+                                <tr><td>Elektron massasi</td><td>mₑ</td><td>9,1·10⁻³¹ kg</td></tr>
+                                <tr><td>Proton massasi</td><td>mₚ</td><td>1,67·10⁻²⁷ kg</td></tr>
+                                <tr><td>Kulon doimiysi</td><td>k</td><td>9·10⁹ N·m²/C²</td></tr>
+                                <tr><td>Magnit doimiysi</td><td>μ₀</td><td>4π·10⁻⁷ H/m</td></tr>
+                                <tr><td>Elektr doimiysi</td><td>ε₀</td><td>8,85·10⁻¹² F/m</td></tr>
+                                <tr><td>Stefano-Bolsman d.</td><td>σ</td><td>5,67·10⁻⁸ W/(m²·K⁴)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% elif tool.type == 'map' %}
+                    <!-- Geografiya xaritasi -->
+                    <div class="test-map-view">
+                        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=55.9%2C37.1%2C73.1%2C45.6&layer=mapnik"
+                                title="Xarita"></iframe>
+                    </div>
+
+                    {% elif tool.type == 'atlas' %}
+                    <!-- Biologiya atlasi -->
+                    <div class="test-formula-sheet">
+                        <button class="atlas-section-btn active" onclick="toggleAtlasSection(this)">
+                            <i class="bi bi-circle"></i> Hujayra tuzilishi
+                        </button>
+                        <div class="atlas-body show">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Hujayra membranasi</strong> — hujayraning tashqi qobig'i, moddalar almashinuvini boshqaradi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Sitoplazma</strong> — hujayra ichidagi suyuqlik, organoidlar joylashgan muhit</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Yadro</strong> — genetik ma'lumot (DNK) saqlanadigan markaz</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Mitoxondriya</strong> — energiya ishlab chiqaruvchi organoid (ATF sintezi)</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Ribosoma</strong> — oqsil sintezi amalga oshiriladigan joy</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Endoplazmatik to'r</strong> — moddalar tashish tizimi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Golji apparati</strong> — moddalarni saralash va tashish</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Lizosoma</strong> — hujayra ichki hazm qilish organoid</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Xloroplast</strong> — fotosintez organoid (faqat o'simliklarda)</div></div>
+                        </div>
+
+                        <button class="atlas-section-btn" onclick="toggleAtlasSection(this)">
+                            <i class="bi bi-heart-pulse"></i> Yurak-qon aylanish tizimi
+                        </button>
+                        <div class="atlas-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Yurak</strong> — 4 kamerali (2 bo'lmacha, 2 qorincha), minutiga ~70 marta uradi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Katta qon aylanish</strong> — chap qorincha → aorta → organlar → o'ng bo'lmacha</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Kichik qon aylanish</strong> — o'ng qorincha → o'pka arteriyasi → o'pka → chap bo'lmacha</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Arteriya</strong> — yurakdan qon olib ketadi, qalin devorli</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Vena</strong> — yurakka qon qaytaradi, klapanli</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Kapillyar</strong> — eng nozik qon tomirlari, moddalar almashinuvi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Eritrotsit</strong> — qizil qon tanachalari, O₂ tashiydi (gemoglobin)</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Leykotsit</strong> — oq qon tanachalari, immunitet</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Trombotsit</strong> — qon ivishi (tromboz)</div></div>
+                        </div>
+
+                        <button class="atlas-section-btn" onclick="toggleAtlasSection(this)">
+                            <i class="bi bi-lungs"></i> Nafas olish tizimi
+                        </button>
+                        <div class="atlas-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Burun bo'shlig'i</strong> — havoni isitish, namlash, tozalash</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Hiqildoq (larinks)</strong> — tovush hosil qilish</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Traxeya</strong> — havo o'tkazuvchi nay</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Bronxlar</strong> — traxeyaning tarmoqlari</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>O'pka (alveolalar)</strong> — gaz almashinuvi: O₂ qonga, CO₂ tashqariga</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Diafragma</strong> — nafas olish mushagi</div></div>
+                        </div>
+
+                        <button class="atlas-section-btn" onclick="toggleAtlasSection(this)">
+                            <i class="bi bi-cup-straw"></i> Ovqat hazm qilish tizimi
+                        </button>
+                        <div class="atlas-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Og'iz bo'shlig'i</strong> — mexanik maydalash, amilaza fermenti</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Qizilo'ngach</strong> — ovqatni oshqozonga o'tkazadi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Oshqozon</strong> — pepsin, xlorid kislota (pH 1.5-2)</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Jigar</strong> — o't ishlab chiqaradi, zaharlarni zararsizlantiradi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Oshqozon osti bezi</strong> — insulin, tripsin, lipaza</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Ingichka ichak</strong> — asosiy so'rilish joyi (vorsinalar)</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Yo'g'on ichak</strong> — suv so'rilishi, bakteriyalar</div></div>
+                        </div>
+
+                        <button class="atlas-section-btn" onclick="toggleAtlasSection(this)">
+                            <i class="bi bi-lightning"></i> Nerv tizimi
+                        </button>
+                        <div class="atlas-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Bosh miya</strong> — katta yarim sharlar, miyacha, uzunchoq miya</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Orqa miya</strong> — refleks yoylari markazi, 31 juft nerv</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Neyron</strong> — nerv hujayrasi: dendrit → tana → akson</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Sinaps</strong> — neyronlar orasidagi bog'lanish (mediatorlar)</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Somatik nerv tizimi</strong> — ixtiyoriy harakatlar</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Vegetativ nerv tizimi</strong> — simpatik + parasimpatik</div></div>
+                        </div>
+                    </div>
+
+                    {% elif tool.type == 'timeline' %}
+                    <!-- Tarix vaqt chizig'i -->
+                    <div class="test-formula-sheet">
+                        <div class="test-timeline">
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">Qadimgi davr</div>
+                                <div class="timeline-event"><span class="timeline-year">Mil.av. III-II ming.</span> Xorazm, Baqtriya, So'g'diyona madaniyatlari</div>
+                                <div class="timeline-event"><span class="timeline-year">Mil.av. VI asr</span> Ahamoniylar (Eron) bosqini</div>
+                                <div class="timeline-event"><span class="timeline-year">Mil.av. 329</span> Iskandar Zulqarnayn yurishi</div>
+                                <div class="timeline-event"><span class="timeline-year">Mil.av. III-II asr</span> Yunon-Baqtriya va Qo'shon davlatlari</div>
                             </div>
-                            <div class="test-formula-item">
-                                <code>S = πr²</code>
-                                <span>Doira yuzi</span>
+
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">O'rta asrlar</div>
+                                <div class="timeline-event"><span class="timeline-year">VII-VIII asr</span> Arab bosqini, Islom dini tarqalishi</div>
+                                <div class="timeline-event"><span class="timeline-year">IX-X asr</span> Somoniylar davlati — ilm-fan gullab-yashnashi</div>
+                                <div class="timeline-event"><span class="timeline-year">X-XII asr</span> Qoraxoniylar, G'aznaviylar, Xorazmshohlari</div>
+                                <div class="timeline-event"><span class="timeline-year">1220</span> Chingizxon bosqini — Buxoro, Samarqand vayronasi</div>
                             </div>
-                            <div class="test-formula-item">
-                                <code>V = 4/3πr³</code>
-                                <span>Shar hajmi</span>
+
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">Temuriylar davri</div>
+                                <div class="timeline-event"><span class="timeline-year">1370</span> Amir Temur davlatni barpo etishi</div>
+                                <div class="timeline-event"><span class="timeline-year">1370-1405</span> Temur hukmronligi — Movarounnahr yuksalishi</div>
+                                <div class="timeline-event"><span class="timeline-year">1409-1449</span> Mirzo Ulug'bek — rasadxona, ilm-fan markazi</div>
+                                <div class="timeline-event"><span class="timeline-year">1441-1501</span> Alisher Navoiy — adabiyot va madaniyat</div>
+                                <div class="timeline-event"><span class="timeline-year">1500-1601</span> Shayboniylar sulolasi</div>
+                            </div>
+
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">Xonliklar davri</div>
+                                <div class="timeline-event"><span class="timeline-year">XVI-XIX asr</span> Buxoro, Xiva, Qo'qon xonliklari</div>
+                            </div>
+
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">Rossiya mustamlakasi</div>
+                                <div class="timeline-event"><span class="timeline-year">1865</span> Toshkent Rossiya tomonidan bosib olinishi</div>
+                                <div class="timeline-event"><span class="timeline-year">1867</span> Turkiston general-gubernatorligi tashkil etilishi</div>
+                                <div class="timeline-event"><span class="timeline-year">1873-1876</span> Xiva va Qo'qon xonliklari tugatilishi</div>
+                            </div>
+
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">Sovet davri</div>
+                                <div class="timeline-event"><span class="timeline-year">1917-1920</span> Inqilob va fuqarolar urushi</div>
+                                <div class="timeline-event"><span class="timeline-year">1924</span> O'zbekiston SSR tashkil etilishi</div>
+                                <div class="timeline-event"><span class="timeline-year">1930-lar</span> Kollektivizatsiya, qatag'onlar</div>
+                                <div class="timeline-event"><span class="timeline-year">1941-1945</span> Ikkinchi jahon urushi</div>
+                                <div class="timeline-event"><span class="timeline-year">1966</span> Toshkent zilzilasi</div>
+                            </div>
+
+                            <div class="timeline-section">
+                                <div class="timeline-section-title">Mustaqillik</div>
+                                <div class="timeline-event"><span class="timeline-year">1991, 1-sentabr</span> O'zbekiston Mustaqillik e'lon qilishi</div>
+                                <div class="timeline-event"><span class="timeline-year">1992</span> Konstitutsiya qabul qilinishi (8-dekabr)</div>
+                                <div class="timeline-event"><span class="timeline-year">1994</span> Milliy valyuta — So'm muomalaga kiritilishi</div>
+                                <div class="timeline-event"><span class="timeline-year">2016</span> Yangi davr islohotlari boshlanishi</div>
+                                <div class="timeline-event"><span class="timeline-year">2023</span> Yangi Konstitutsiya qabul qilinishi</div>
                             </div>
                         </div>
                     </div>
+
+                    {% elif tool.type == 'dictionary' and tool.subject_slug == 'ingliz-tili' %}
+                    <!-- Ingliz tili lug'ati (Free Dictionary API) -->
+                    <div>
+                        <div class="dict-search-box">
+                            <input type="text" id="dictSearchInput" placeholder="So'z kiriting..." onkeydown="if(event.key==='Enter')searchDictionary()">
+                            <button onclick="searchDictionary()"><i class="bi bi-search"></i> Qidirish</button>
+                        </div>
+                        <div id="dictResult">
+                            <div class="text-center py-3" style="color:var(--dark-600);font-size:0.9rem;">
+                                <i class="bi bi-book" style="font-size:2rem;display:block;margin-bottom:0.5rem;color:var(--gray-300);"></i>
+                                Inglizcha so'z yozing va <strong>Qidirish</strong> tugmasini bosing
+                            </div>
+                        </div>
+                    </div>
+
+                    {% elif tool.type == 'dictionary' and tool.subject_slug == 'ona-tili' %}
+                    <!-- O'zbek tili imlo qoidalari -->
+                    <div class="test-formula-sheet">
+                        <button class="formula-accordion-btn active" onclick="toggleFormulaSection(this)">
+                            Bosh harf qoidalari <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body show">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Gap boshida bosh harf yoziladi</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Atoqli otlar bosh harf bilan: <strong>Toshkent, Navoiy, O'zbekiston</strong></div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Kitob, gazeta nomlari qo'shtirnoq ichida bosh harf bilan</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Hurmat ma'nosidagi <strong>Siz</strong> bosh harf bilan</div></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Qo'shib yozish <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Qo'shma so'zlar: <strong>gulzor, kitobxon, qo'ltiq</strong></div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Takroriy so'zlar chiziqcha bilan: <strong>sekin-sekin, oz-oz</strong></div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Juft so'zlar chiziqcha bilan: <strong>ota-ona, katta-kichik</strong></div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>So'z yasovchi qo'shimchalar qo'shib: <strong>-chi, -kor, -xona</strong></div></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            Tinish belgilari <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Nuqta (.)</strong> — darak gap oxirida</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>So'roq belgisi (?)</strong> — so'roq gap oxirida</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Undov belgisi (!)</strong> — undov gap oxirida</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Vergul (,)</strong> — sanash, undalmalar, qo'shma gaplar</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Nuqtali vergul (;)</strong> — murakkab qo'shma gaplarda</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Ikki nuqta (:)</strong> — umumlashtiruvchi so'z oldidan</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>Tire (—)</strong> — ega va kesim orasida, dialog</div></div>
+                        </div>
+
+                        <button class="formula-accordion-btn" onclick="toggleFormulaSection(this)">
+                            O' va G' harflari <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="formula-accordion-body">
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>O'</strong> harfi: o'quvchi, o'zbek, ko'z, to'g'ri</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div><strong>G'</strong> harfi: g'alaba, g'ildirak, tog', sog'liq</div></div>
+                            <div class="atlas-item"><i class="bi bi-dot"></i><div>Gap boshida: <strong>O'zbekiston, G'arb</strong></div></div>
+                        </div>
+                    </div>
+
                     {% else %}
                     <div class="text-center py-4">
                         <i class="bi {{ tool.icon }} fs-1 text-muted"></i>
@@ -1870,6 +2510,92 @@
             panel.classList.toggle('collapsed');
             if (btn) btn.classList.toggle('active');
         }
+    };
+
+    // Formula accordion toggle
+    window.toggleFormulaSection = function(btn) {
+        var body = btn.nextElementSibling;
+        var isOpen = body.classList.contains('show');
+        // Close all in same container
+        var container = btn.parentElement;
+        container.querySelectorAll('.formula-accordion-btn').forEach(function(b) { b.classList.remove('active'); });
+        container.querySelectorAll('.formula-accordion-body').forEach(function(b) { b.classList.remove('show'); });
+        if (!isOpen) {
+            btn.classList.add('active');
+            body.classList.add('show');
+        }
+    };
+
+    // Atlas section toggle
+    window.toggleAtlasSection = function(btn) {
+        var body = btn.nextElementSibling;
+        var isOpen = body.classList.contains('show');
+        var container = btn.parentElement;
+        container.querySelectorAll('.atlas-section-btn').forEach(function(b) { b.classList.remove('active'); });
+        container.querySelectorAll('.atlas-body').forEach(function(b) { b.classList.remove('show'); });
+        if (!isOpen) {
+            btn.classList.add('active');
+            body.classList.add('show');
+        }
+    };
+
+    // Dictionary search (Free Dictionary API)
+    window.searchDictionary = function() {
+        var input = document.getElementById('dictSearchInput');
+        var resultDiv = document.getElementById('dictResult');
+        var word = input.value.trim().toLowerCase();
+        if (!word) return;
+
+        resultDiv.innerHTML = '<div class="dict-loading"><div class="spinner-border spinner-border-sm" role="status"></div> Qidirilmoqda...</div>';
+
+        fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word))
+            .then(function(res) {
+                if (!res.ok) throw new Error('not found');
+                return res.json();
+            })
+            .then(function(data) {
+                var entry = data[0];
+                var html = '<div class="dict-result">';
+                html += '<div class="dict-word">' + entry.word + '</div>';
+                if (entry.phonetic) {
+                    html += '<div class="dict-phonetic">' + entry.phonetic + '</div>';
+                } else if (entry.phonetics && entry.phonetics.length > 0) {
+                    for (var p = 0; p < entry.phonetics.length; p++) {
+                        if (entry.phonetics[p].text) {
+                            html += '<div class="dict-phonetic">' + entry.phonetics[p].text + '</div>';
+                            break;
+                        }
+                    }
+                }
+                // Audio
+                if (entry.phonetics) {
+                    for (var a = 0; a < entry.phonetics.length; a++) {
+                        if (entry.phonetics[a].audio) {
+                            html += '<audio controls style="width:100%;height:32px;margin-bottom:0.5rem;"><source src="' + entry.phonetics[a].audio + '" type="audio/mpeg"></audio>';
+                            break;
+                        }
+                    }
+                }
+                // Meanings
+                for (var i = 0; i < entry.meanings.length; i++) {
+                    var meaning = entry.meanings[i];
+                    html += '<div class="dict-meaning">';
+                    html += '<div class="dict-pos">' + meaning.partOfSpeech + '</div>';
+                    for (var j = 0; j < Math.min(meaning.definitions.length, 3); j++) {
+                        var def = meaning.definitions[j];
+                        html += '<div class="dict-def">' + def.definition + '</div>';
+                        if (def.example) {
+                            html += '<div class="dict-example">"' + def.example + '"</div>';
+                        }
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            })
+            .catch(function() {
+                resultDiv.innerHTML = '<div class="dict-error"><i class="bi bi-exclamation-circle"></i> "<strong>' + word + '</strong>" so\'zi topilmadi. Boshqa so\'z kiriting.</div>';
+            });
     };
 
     // Tool tabs switching
