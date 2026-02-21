@@ -68,7 +68,10 @@ UI_ICONS = {
 @register.simple_tag
 def subject_icon(subject, size=40):
     """
-    Fan ikonasini 3D rasm sifatida ko'rsatish.
+    Fan ikonasini ko'rsatish. Ustuvorlik tartibi:
+    1. subject.image — admin yuklagan rasm
+    2. SUBJECT_ICONS  — slug bo'yicha CDN 3D icon
+    3. subject.icon   — emoji fallback
     Foydalanish: {% subject_icon subject 48 %}
     """
     if not subject:
@@ -80,18 +83,31 @@ def subject_icon(subject, size=40):
     slug = getattr(subject, 'slug', '')
     fallback = getattr(subject, 'icon', '📚')
     name = getattr(subject, 'name', '')
-    icon_path = SUBJECT_ICONS.get(slug)
+    img_style = 'object-fit:contain;display:inline-block;vertical-align:middle;border-radius:8px;'
 
+    # 1. Admin yuklagan rasm
+    image = getattr(subject, 'image', None)
+    if image:
+        try:
+            url = image.url
+            if url:
+                return format_html(
+                    '<img src="{}" width="{}" height="{}" alt="{}" loading="lazy" style="{}">',
+                    url, size, size, name, img_style
+                )
+        except Exception:
+            pass
+
+    # 2. Slug bo'yicha CDN 3D icon
+    icon_path = SUBJECT_ICONS.get(slug)
     if icon_path:
         url = CDN + icon_path
         return format_html(
-            '<img src="{}" width="{}" height="{}" alt="{}" '
-            'loading="lazy" style="object-fit:contain;display:inline-block;vertical-align:middle;" '
-            'onerror="this.style.display=\'none\';this.nextSibling.style.removeProperty(\'display\');">',
-            url, size, size, name
+            '<img src="{}" width="{}" height="{}" alt="{}" loading="lazy" style="{}">',
+            url, size, size, name, img_style
         )
 
-    # Fallback: emoji
+    # 3. Emoji fallback
     return format_html(
         '<span style="font-size:{}px;line-height:1;display:inline-block;">{}</span>',
         int(size * 0.75), fallback

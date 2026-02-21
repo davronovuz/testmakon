@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
 {% block title %}{{ direction.name }} | Statistika{% endblock %}
 
@@ -83,8 +83,9 @@
                     <ul class="list-group list-group-flush">
                         {% for subject in direction.required_subjects.all %}
                         <li class="list-group-item py-3 d-flex align-items-center gap-3">
-                            <div class="icon-box bg-light text-primary rounded-circle">
-                                {{ subject.icon|safe|default:"📚" }}
+                            <div class="icon-box d-flex align-items-center justify-content-center rounded-circle"
+                                 style="background-color: {{ subject.color }}18; width:44px; height:44px; flex-shrink:0;">
+                                {% subject_icon subject 28 %}
                             </div>
                             <span class="fw-bold">{{ subject.name }}</span>
                         </li>
