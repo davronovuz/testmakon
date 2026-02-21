@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Barcha yo'nalishlar | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .adir-header {
+        background: var(--gradient-dark);
+        padding: 2rem 0;
+        color: white;
+    }
+    .adir-header h1 {
+        font-size: 1.6rem;
+        font-weight: 900;
+        margin: 0;
+    }
+    .adir-header p {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.75);
+        margin: 0.25rem 0 0;
+    }
+
+    .adir-content {
+        padding: 2rem 0 4rem;
+        background: var(--gray-50);
+        min-height: 70vh;
+    }
+
+    /* Filters */
+    .adir-filters {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .adir-filter-select {
+        padding: 0.45rem 0.75rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.82rem;
+        font-weight: 500;
+        background: var(--white);
+        color: var(--dark);
+        cursor: pointer;
+        min-width: 160px;
+    }
+    .adir-filter-select:focus { outline: none; border-color: var(--primary); }
+
+    .adir-search {
+        position: relative;
+        flex: 1;
+        min-width: 200px;
+        max-width: 320px;
+        margin-left: auto;
+    }
+    .adir-search input {
+        width: 100%;
+        padding: 0.45rem 0.75rem 0.45rem 2.25rem;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 0.82rem;
+        background: var(--white);
+        color: var(--dark);
+    }
+    .adir-search input:focus { outline: none; border-color: var(--primary); }
+    .adir-search i {
+        position: absolute;
+        left: 0.75rem; top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-400);
+        font-size: 0.82rem;
+    }
+
+    /* Stats */
+    .adir-stats {
+        font-size: 0.82rem;
+        color: var(--gray-500);
+        margin-bottom: 0.75rem;
+    }
+    .adir-stats strong { color: var(--dark); }
+
+    /* Cards */
+    .adir-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .adir-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s;
+    }
+    .adir-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow);
+        transform: translateX(3px);
+    }
+
+    .adir-card-num {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        background: var(--gray-100);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--gray-500);
+        flex-shrink: 0;
+    }
+
+    .adir-card-logo {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: var(--gray-100);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .adir-card-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+    .adir-card-logo-text { font-size: 0.85rem; font-weight: 800; color: var(--primary); }
+
+    .adir-card-info { flex: 1; min-width: 0; }
+    .adir-card-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .adir-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+    .adir-card-uni {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        display: flex; align-items: center; gap: 0.25rem;
+    }
+    .adir-card-code {
+        font-size: 0.7rem;
+        background: var(--gray-100);
+        color: var(--gray-600);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .adir-card-stats {
+        display: flex;
+        gap: 1rem;
+        flex-shrink: 0;
+    }
+    .adir-stat { text-align: center; }
+    .adir-stat-val {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--dark);
+        line-height: 1;
+    }
+    .adir-stat-val.green { color: #059669; }
+    .adir-stat-val.blue  { color: #2563EB; }
+    .adir-stat-label {
+        font-size: 0.62rem;
+        color: var(--gray-400);
+        margin-top: 0.1rem;
+    }
+
+    .adir-card-arrow {
+        color: var(--gray-300);
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        transition: color 0.2s;
+    }
+    .adir-card:hover .adir-card-arrow { color: var(--primary); }
+
+    /* Empty */
+    .adir-empty {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+    }
+    .adir-empty-icon { font-size: 3rem; opacity: 0.3; margin-bottom: 0.75rem; }
+
+    /* Pagination */
+    .adir-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-top: 1.25rem;
+    }
+    .adir-page-btn {
+        width: 36px; height: 36px;
+        border-radius: var(--radius);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; font-weight: 600;
+        background: var(--white);
+        color: var(--dark-600);
+        border: 1px solid var(--gray-200);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .adir-page-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .adir-page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    @media (max-width: 640px) {
+        .adir-card-stats { display: none; }
+        .adir-card-num { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="adir-header">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'universities:list' %}" class="text-white opacity-75" style="font-size:1.2rem; text-decoration:none;">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            <div>
+                <h1>Barcha yo'nalishlar</h1>
+                <p>Barcha oliy ta'lim muassasalari yo'nalishlari</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="adir-content">
+    <div class="container">
+
+        <!-- Filters -->
+        <form method="get" class="adir-filters">
+            <select name="university" class="adir-filter-select" onchange="this.form.submit()">
+                <option value="">Barcha universitetlar</option>
+                {% for uni in universities %}
+                <option value="{{ uni.id }}" {% if current_university == uni.id|stringformat:"s" %}selected{% endif %}>
+                    {{ uni.short_name|default:uni.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+
+<div class="adir-search">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ search|default:'' }}" placeholder="Yo'nalish nomi yoki kodi...">
+            </div>
+        </form>
+
+        <!-- Count -->
+        <div class="adir-stats">
+            <strong>{{ directions.paginator.count }}</strong> ta yo'nalish topildi
+        </div>
+
+        <!-- List -->
+        <div class="adir-grid">
+            {% for direction in directions %}
+            <a href="{% url 'universities:direction_detail' uuid=direction.uuid %}" class="adir-card">
+
+                <div class="adir-card-num">{{ forloop.counter|add:directions.start_index|add:"-1" }}</div>
+
+                <div class="adir-card-logo">
+                    {% if direction.university.logo %}
+                    <img src="{{ direction.university.logo.url }}" alt="{{ direction.university.short_name }}">
+                    {% else %}
+                    <span class="adir-card-logo-text">{{ direction.university.short_name|slice:":2"|upper }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="adir-card-info">
+                    <div class="adir-card-name">{{ direction.name }}</div>
+                    <div class="adir-card-meta">
+                        <span class="adir-card-uni">
+                            <i class="bi bi-building"></i>
+                            {{ direction.university.short_name|default:direction.university.name }}
+                        </span>
+                        {% if direction.code %}
+                        <span class="adir-card-code">{{ direction.code }}</span>
+                        {% endif %}
+                        {% if direction.faculty %}
+                        <span class="adir-card-uni">
+                            <i class="bi bi-diagram-3"></i>
+                            {{ direction.faculty.name }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="adir-card-stats">
+                    <div class="adir-stat">
+                        <div class="adir-stat-val green">{{ direction.grant_quota|default:"—" }}</div>
+                        <div class="adir-stat-label">Grant</div>
+                    </div>
+                    <div class="adir-stat">
+                        <div class="adir-stat-val blue">{{ direction.contract_quota|default:"—" }}</div>
+                        <div class="adir-stat-label">Kontrakt</div>
+                    </div>
+                    <div class="adir-stat">
+                        <div class="adir-stat-val">{{ direction.duration_years }} yil</div>
+                        <div class="adir-stat-label">Muddat</div>
+                    </div>
+                </div>
+
+                <i class="bi bi-chevron-right adir-card-arrow"></i>
+            </a>
+            {% empty %}
+            <div class="adir-empty">
+                <div class="adir-empty-icon">🎓</div>
+                <h4>Yo'nalishlar topilmadi</h4>
+                <p class="text-muted">Qidiruv parametrlarini o'zgartiring</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if directions.has_other_pages %}
+        <div class="adir-pagination">
+            {% if directions.has_previous %}
+            <a href="?page={{ directions.previous_page_number }}{% if search %}&q={{ search }}{% endif %}{% if current_university %}&university={{ current_university }}{% endif %}{% if current_degree %}&degree={{ current_degree }}{% endif %}" class="adir-page-btn">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            {% endif %}
+
+            {% for num in directions.paginator.page_range %}
+            {% if num == directions.number %}
+            <span class="adir-page-btn active">{{ num }}</span>
+            {% elif num > directions.number|add:'-3' and num < directions.number|add:'3' %}
+            <a href="?page={{ num }}{% if search %}&q={{ search }}{% endif %}{% if current_university %}&university={{ current_university }}{% endif %}{% if current_degree %}&degree={{ current_degree }}{% endif %}" class="adir-page-btn">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if directions.has_next %}
+            <a href="?page={{ directions.next_page_number }}{% if search %}&q={{ search }}{% endif %}{% if current_university %}&university={{ current_university }}{% endif %}{% if current_degree %}&degree={{ current_degree }}{% endif %}" class="adir-page-btn">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
