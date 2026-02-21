@@ -681,8 +681,8 @@
 {% block content %}
 <!-- Hero -->
 <div class="ud-hero">
-    {% if university.banner_image %}
-    <img src="{{ university.banner_image.url }}" alt="" class="ud-hero-bg">
+    {% if university.cover_image %}
+    <img src="{{ university.cover_image.url }}" alt="" class="ud-hero-bg">
     {% else %}
     <img src="{% static 'images/university-banner.jpg' %}" alt="" class="ud-hero-bg">
     {% endif %}

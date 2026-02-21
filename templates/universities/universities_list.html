@@ -324,8 +324,8 @@
                 {% for university in universities %}
                 <a href="{% url 'universities:detail' slug=university.slug %}" class="uni-card" data-type="{{ university.university_type }}" data-region="{{ university.region }}" data-name="{{ university.name|lower }}">
                     <div class="uni-card-image">
-                        {% if university.banner_image %}
-                        <img src="{{ university.banner_image.url }}" alt="{{ university.name }}">
+                        {% if university.cover_image %}
+                        <img src="{{ university.cover_image.url }}" alt="{{ university.name }}">
                         {% else %}
                         <img src="{% static 'images/university-placeholder.jpg' %}" alt="{{ university.name }}">
                         {% endif %}
