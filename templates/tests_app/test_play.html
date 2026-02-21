@@ -1550,7 +1550,7 @@
     <!-- ========== TOP BAR ========== -->
     <div class="test-topbar">
         <div class="test-topbar-left">
-            <a href="{% url 'tests_app:question_bank' %}" class="test-back-btn" onclick="return confirmExit()">
+            <a href="{% url 'tests_app:question_bank' %}" class="test-back-btn" onclick="return confirmExit('{% url 'tests_app:question_bank' %}')">
                 <i class="bi bi-chevron-left"></i>
                 Chiqish
             </a>
@@ -2205,11 +2205,31 @@
             <button class="test-modal-btn-cancel" onclick="hideFinishModal()">
                 Davom etish
             </button>
-            <form action="{% url 'tests_app:test_play_finish' uuid=attempt.uuid %}" method="get" style="flex: 1;">
+            <form action="{% url 'tests_app:test_play_finish' uuid=attempt.uuid %}" method="get" style="flex: 1;"
+                  onsubmit="isFinishing = true;">
                 <button type="submit" class="test-modal-btn-confirm" style="width: 100%;">
                     Yakunlash
                 </button>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========== EXIT MODAL ========== -->
+<div class="test-modal-overlay" id="exitModal">
+    <div class="test-modal">
+        <div class="test-modal-icon">🚪</div>
+        <h3>Testni tark etasizmi?</h3>
+        <p>Barcha javoblaringiz saqlanadi. Keyinroq davom ettira olmaysiz.</p>
+        <div class="test-modal-actions">
+            <button class="test-modal-btn-cancel" onclick="hideExitModal()">
+                Qolish
+            </button>
+            <a id="exitModalLink" href="#" class="test-modal-btn-confirm"
+               style="flex:1; display:flex; align-items:center; justify-content:center; text-decoration:none;"
+               onclick="isFinishing = true;">
+                Chiqish
+            </a>
         </div>
     </div>
 </div>
@@ -2326,6 +2346,9 @@
         const currentSlide = document.querySelector('.test-question-slide[data-index="' + index + '"]');
         if (currentSlide) {
             currentSlide.classList.remove('d-none');
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([currentSlide]);
+            }
         }
 
         // Update global index
@@ -2692,8 +2715,16 @@
     // ==========================================
     // CONFIRM EXIT
     // ==========================================
-    window.confirmExit = function() {
-        return confirm('Testni tark etmoqchimisiz? Barcha javoblaringiz saqlanadi.');
+    var isFinishing = false;
+
+    window.confirmExit = function(href) {
+        document.getElementById('exitModalLink').href = href;
+        document.getElementById('exitModal').classList.add('show');
+        return false;
+    };
+
+    window.hideExitModal = function() {
+        document.getElementById('exitModal').classList.remove('show');
     };
 
     // ==========================================
@@ -2782,8 +2813,9 @@
         el.style.webkitUserSelect = 'none';
     });
 
-    // Warn before leaving
+    // Warn before leaving (faqat tasodifiy chiqishda)
     window.addEventListener('beforeunload', function(e) {
+        if (isFinishing) return;
         e.preventDefault();
         e.returnValue = '';
     });

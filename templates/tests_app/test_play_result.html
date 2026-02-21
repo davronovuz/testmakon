@@ -702,7 +702,7 @@
                                 </div>
 
                                 <div class="answer-item-question">
-                                    {{ item.answer.question.text|truncatewords:30 }}
+                                    {{ item.answer.question.text }}
                                 </div>
 
                                 {% if not item.answer.is_correct %}
@@ -710,13 +710,13 @@
                                     {% if item.answer.selected_answer %}
                                     <div class="answer-choice user-selected">
                                         <span class="answer-choice-letter">✗</span>
-                                        <span>Sizning javobingiz: {{ item.answer.selected_answer.text|truncatewords:15 }}</span>
+                                        <span>Sizning javobingiz: {{ item.answer.selected_answer.text }}</span>
                                     </div>
                                     {% endif %}
                                     {% if item.correct_answer %}
                                     <div class="answer-choice correct-answer">
                                         <span class="answer-choice-letter">✓</span>
-                                        <span>To'g'ri javob: {{ item.correct_answer.text|truncatewords:15 }}</span>
+                                        <span>To'g'ri javob: {{ item.correct_answer.text }}</span>
                                     </div>
                                     {% endif %}
                                 </div>
