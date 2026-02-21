@@ -2205,8 +2205,7 @@
             <button class="test-modal-btn-cancel" onclick="hideFinishModal()">
                 Davom etish
             </button>
-            <form action="{% url 'tests_app:test_play_finish' uuid=attempt.uuid %}" method="get" style="flex: 1;"
-                  onsubmit="isFinishing = true;">
+            <form action="{% url 'tests_app:test_play_finish' uuid=attempt.uuid %}" method="get" style="flex: 1;">
                 <button type="submit" class="test-modal-btn-confirm" style="width: 100%;">
                     Yakunlash
                 </button>
@@ -2715,8 +2714,6 @@
     // ==========================================
     // CONFIRM EXIT
     // ==========================================
-    var isFinishing = false;
-
     window.confirmExit = function(href) {
         document.getElementById('exitModalLink').href = href;
         document.getElementById('exitModal').classList.add('show');
@@ -2813,12 +2810,6 @@
         el.style.webkitUserSelect = 'none';
     });
 
-    // Warn before leaving (faqat tasodifiy chiqishda)
-    window.addEventListener('beforeunload', function(e) {
-        if (isFinishing) return;
-        e.preventDefault();
-        e.returnValue = '';
-    });
 
     // ==========================================
     // INITIALIZE
