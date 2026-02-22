@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 import google.generativeai as genai
 
 from .models import (
@@ -32,7 +32,6 @@ def generate_plan_tasks(plan):
     days_count = max(1, (end_date - today).days)
     weekly_days = max(1, min(7, plan.weekly_days))
     daily_hours = max(0.5, plan.daily_hours)
-    tasks_created = []
     subject_index = 0
     order = 0
     for day_offset in range(days_count):
@@ -438,16 +437,15 @@ def study_plan_create(request):
 @login_required
 def study_plan_detail(request, uuid):
     """O'quv reja — countdown, haftalik taqvim, vazifalar kartochkalari."""
-    from datetime import datetime as dt
     plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
 
     today = timezone.localdate()
     week_start_str = request.GET.get('week')
     if week_start_str:
         try:
-            week_start = timezone.datetime.strptime(week_start_str, '%Y-%m-%d').date()
+            week_start = datetime.strptime(week_start_str, '%Y-%m-%d').date()
         except ValueError:
-            week_start = today - timedelta(days=today.weekday() + 1)
+            week_start = today - timedelta(days=(today.weekday() + 1) % 7)
     else:
         week_start = today - timedelta(days=(today.weekday() + 1) % 7)
 
@@ -502,7 +500,7 @@ def study_plan_edit(request, uuid):
         plan.title = (request.POST.get('title') or '').strip() or plan.title
         td = request.POST.get('target_date')
         if td:
-            plan.target_exam_date = timezone.datetime.strptime(td, '%Y-%m-%d').date()
+            plan.target_exam_date = datetime.strptime(td, '%Y-%m-%d').date()
         else:
             plan.target_exam_date = None
         plan.target_score = int(request.POST.get('target_score')) if request.POST.get('target_score') else None
