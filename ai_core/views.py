@@ -94,53 +94,18 @@ def ai_chat(request):
 
 @login_required
 def conversation_detail(request, uuid):
-    """Suhbat tafsilotlari"""
+    """Suhbat sahifasi — faqat ko‘rsatish; xabar yuborish api_chat orqali (AJAX)."""
     conversation = get_object_or_404(
         AIConversation,
         uuid=uuid,
         user=request.user
     )
-
     messages_list = conversation.messages.all().order_by('created_at')
-
-    if request.method == 'POST':
-        user_message = request.POST.get('message', '').strip()
-
-        if user_message:
-            AIMessage.objects.create(
-                conversation=conversation,
-                role='user',
-                content=user_message
-            )
-
-            history = [
-                {"role": msg.role, "content": msg.content}
-                for msg in messages_list
-            ]
-            history.append({"role": "user", "content": user_message})
-
-            ai_response = get_ai_response(history)
-
-            AIMessage.objects.create(
-                conversation=conversation,
-                role='assistant',
-                content=ai_response,
-                model_used='gemini-1.5-flash'
-            )
-
-            if conversation.title == 'Yangi suhbat':
-                conversation.title = user_message[:50]
-
-            conversation.message_count += 2
-            conversation.save()
-
-            return redirect('ai_core:conversation_detail', uuid=uuid)
 
     context = {
         'conversation': conversation,
         'messages': messages_list,
     }
-
     return render(request, 'ai_core/conversation_detail.html', context)
 
 
@@ -506,10 +471,10 @@ def weak_topics(request):
 @login_required
 @require_POST
 def api_chat(request):
-    """Chat API endpoint"""
+    """Chat API — xabar yuborish va AI javob olish (AJAX uchun)."""
     try:
         data = json.loads(request.body)
-        message = data.get('message', '')
+        message = (data.get('message') or '').strip()
         conversation_uuid = data.get('conversation_uuid')
 
         if not message:
@@ -523,7 +488,7 @@ def api_chat(request):
             conversation = AIConversation.objects.create(
                 user=request.user,
                 conversation_type='mentor',
-                title=message[:50]
+                title=message[:50] or 'Yangi suhbat'
             )
 
         AIMessage.objects.create(conversation=conversation, role='user', content=message)
@@ -532,7 +497,6 @@ def api_chat(request):
             {"role": msg.role, "content": msg.content}
             for msg in conversation.messages.all().order_by('created_at')
         ]
-
         ai_response = get_ai_response(history)
 
         AIMessage.objects.create(
@@ -542,15 +506,20 @@ def api_chat(request):
             model_used='gemini-1.5-flash'
         )
 
-
+        new_title = None
+        if conversation.title == 'Yangi suhbat':
+            conversation.title = message[:50] or 'Yangi suhbat'
+            new_title = conversation.title
         conversation.message_count = conversation.messages.count()
         conversation.save()
 
         return JsonResponse({
             'response': ai_response,
-            'conversation_uuid': str(conversation.uuid)
+            'conversation_uuid': str(conversation.uuid),
+            'title': new_title,
         })
-
+    except json.JSONDecodeError as e:
+        return JsonResponse({'error': 'Noto‘g‘ri so‘rov'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
