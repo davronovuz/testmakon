@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rejani tahrirlash | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+{% include 'includes/_sidebar_css.html' %}
+.sp-create-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 2rem; max-width: 640px; }
+[data-theme="dark"] .sp-create-card { background: var(--dark-800); border-color: var(--dark-700); }
+.sp-create-title { font-size: 1.35rem; font-weight: 800; color: var(--dark); margin: 0 0 0.5rem; }
+[data-theme="dark"] .sp-create-title { color: var(--gray-100); }
+.sp-create-desc { font-size: 0.9rem; color: var(--gray-500); margin-bottom: 1.75rem; }
+.sp-section { margin-bottom: 1.75rem; }
+.sp-section-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.sp-label { display: block; font-weight: 600; font-size: 0.88rem; color: var(--dark); margin-bottom: 0.4rem; }
+[data-theme="dark"] .sp-label { color: var(--gray-200); }
+.sp-input { width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--gray-200); border-radius: var(--radius); background: var(--gray-50); font-size: 0.95rem; color: var(--dark); box-sizing: border-box; }
+.sp-input:focus { outline: none; border-color: var(--primary); }
+[data-theme="dark"] .sp-input { background: var(--dark); border-color: var(--dark-600); color: var(--gray-100); }
+.sp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.sp-subjects { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
+.sp-subject-check { position: absolute; opacity: 0; }
+.sp-subject-label { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; border: 2px solid var(--gray-200); border-radius: var(--radius); cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--dark); background: var(--white); transition: all 0.2s; }
+.sp-subject-label:hover { border-color: var(--primary); }
+.sp-subject-check:checked + .sp-subject-label { border-color: var(--primary); background: rgba(139,197,64,0.1); color: var(--primary-dark); }
+[data-theme="dark"] .sp-subject-label { background: var(--dark); border-color: var(--dark-600); color: var(--gray-200); }
+[data-theme="dark"] .sp-subject-check:checked + .sp-subject-label { background: rgba(139,197,64,0.15); border-color: var(--primary); color: var(--primary-light); }
+.sp-hint { font-size: 0.78rem; color: var(--gray-400); margin-top: 0.35rem; }
+.sp-range-wrap { margin-bottom: 0.5rem; }
+.sp-range-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+.sp-range-value { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+.sp-range-input { width: 100%; cursor: pointer; accent-color: var(--primary); }
+.sp-submit { width: 100%; padding: 0.9rem; background: var(--gradient-primary); color: #fff; border: none; border-radius: var(--radius-lg); font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; }
+.sp-submit:hover { box-shadow: var(--shadow-primary); }
+@media (max-width: 540px) { .sp-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tl-layout">
+        {% include 'includes/_sidebar.html' with active='plans' %}
+        <main>
+            <div class="sp-create-card">
+                <h1 class="sp-create-title">Rejani tahrirlash</h1>
+                <p class="sp-create-desc">{{ plan.title }} — sana, fanlar va vaqtni o'zgartiring.</p>
+
+                <form method="post" action="{% url 'ai_core:study_plan_edit' uuid=plan.uuid %}">
+                    {% csrf_token %}
+
+                    <div class="sp-section">
+                        <div class="sp-section-title"><i class="bi bi-1-circle-fill"></i> Imtihon va maqsad</div>
+                        <div class="sp-row">
+                            <div class="sp-group">
+                                <label class="sp-label" for="id_target_date">Imtihon sanasi</label>
+                                <input type="date" name="target_date" id="id_target_date" class="sp-input"
+                                       value="{{ plan.target_exam_date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="sp-group">
+                                <label class="sp-label" for="id_target_score">Maqsadli ball</label>
+                                <input type="number" name="target_score" id="id_target_score" class="sp-input" placeholder="—" min="0" max="300"
+                                       value="{{ plan.target_score|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="sp-group" style="margin-top: 1rem;">
+                            <label class="sp-label" for="id_title">Reja nomi</label>
+                            <input type="text" name="title" id="id_title" class="sp-input" value="{{ plan.title }}">
+                        </div>
+                    </div>
+
+                    <div class="sp-section">
+                        <div class="sp-section-title"><i class="bi bi-2-circle-fill"></i> Fanlar</div>
+                        <div class="sp-subjects">
+                            {% for subject in subjects %}
+                            <div>
+                                <input type="checkbox" class="sp-subject-check" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}"
+                                       {% if subject in plan.subjects.all %}checked{% endif %}>
+                                <label class="sp-subject-label" for="sub{{ subject.id }}">{{ subject.icon|default:"📚"|safe }} {{ subject.name }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="sp-section">
+                        <div class="sp-section-title"><i class="bi bi-3-circle-fill"></i> Vaqt</div>
+                        <div class="sp-range-wrap">
+                            <div class="sp-range-header"><label class="sp-label mb-0">Kunlik soat</label><span class="sp-range-value" id="hoursVal">{{ plan.daily_hours }} soat</span></div>
+                            <input type="range" class="sp-range-input" name="daily_hours" min="0.5" max="6" step="0.5" value="{{ plan.daily_hours }}"
+                                   oninput="document.getElementById('hoursVal').textContent = this.value + ' soat'">
+                        </div>
+                        <div class="sp-range-wrap" style="margin-top: 1rem;">
+                            <div class="sp-range-header"><label class="sp-label mb-0">Haftada kunlar</label><span class="sp-range-value" id="daysVal">{{ plan.weekly_days }} kun</span></div>
+                            <input type="range" class="sp-range-input" name="weekly_days" min="1" max="7" step="1" value="{{ plan.weekly_days }}"
+                                   oninput="document.getElementById('daysVal').textContent = this.value + ' kun'">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="sp-submit"><i class="bi bi-check-lg me-2"></i> Saqlash</button>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

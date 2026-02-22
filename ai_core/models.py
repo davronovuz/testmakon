@@ -316,6 +316,7 @@ class StudyPlanTask(models.Model):
     # Schedule
     scheduled_date = models.DateField('Rejalashtirilgan sana')
     estimated_minutes = models.PositiveIntegerField('Taxminiy vaqt (daqiqa)', default=30)
+    questions_count = models.PositiveIntegerField('Savollar soni', null=True, blank=True)
 
     # Status
     is_completed = models.BooleanField('Bajarilgan', default=False)

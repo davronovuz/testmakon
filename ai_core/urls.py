@@ -31,6 +31,8 @@ urlpatterns = [
     path('study-plan/', views.study_plan_list, name='study_plan_list'),
     path('study-plan/create/', views.study_plan_create, name='study_plan_create'),
     path('study-plan/<uuid:uuid>/', views.study_plan_detail, name='study_plan_detail'),
+    path('study-plan/<uuid:uuid>/edit/', views.study_plan_edit, name='study_plan_edit'),
+    path('study-plan/<uuid:uuid>/delete/', views.study_plan_delete, name='study_plan_delete'),
     path('study-plan/<uuid:uuid>/update/', views.study_plan_update, name='study_plan_update'),
     path('study-plan/task/<int:task_id>/complete/', views.task_complete, name='task_complete'),
 

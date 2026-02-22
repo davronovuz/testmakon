@@ -11,14 +11,53 @@ from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 import json
+from datetime import timedelta
 import google.generativeai as genai
 
 from .models import (
     AIConversation, AIMessage, AIRecommendation,
     StudyPlan, StudyPlanTask, WeakTopicAnalysis
 )
-from tests_app.models import Subject, Topic, TestAttempt, AttemptAnswer
+from tests_app.models import Subject, Topic, TestAttempt, AttemptAnswer, Test
 from universities.models import University, Direction, PassingScore
+
+
+def generate_plan_tasks(plan):
+    """Reja yaratilganda haftalik vazifalarni avtomatik yaratish (4 hafta yoki imtihon sanasigacha)."""
+    subjects = list(plan.subjects.all())
+    if not subjects:
+        return
+    today = timezone.localdate()
+    end_date = plan.target_exam_date if plan.target_exam_date and plan.target_exam_date > today else today + timedelta(days=28)
+    days_count = max(1, (end_date - today).days)
+    weekly_days = max(1, min(7, plan.weekly_days))
+    daily_hours = max(0.5, plan.daily_hours)
+    tasks_created = []
+    subject_index = 0
+    order = 0
+    for day_offset in range(days_count):
+        current_date = today + timedelta(days=day_offset)
+        if current_date > end_date:
+            break
+        weekday = current_date.weekday()
+        if weekday >= weekly_days:
+            continue
+        subject = subjects[subject_index % len(subjects)]
+        subject_index += 1
+        title = f"{subject.name} — mashq"
+        StudyPlanTask.objects.create(
+            study_plan=plan,
+            title=title,
+            task_type='practice',
+            subject=subject,
+            scheduled_date=current_date,
+            estimated_minutes=min(60, int(daily_hours * 60 / 2)),
+            questions_count=10,
+            order=order
+        )
+        order += 1
+    plan.total_tasks = plan.tasks.count()
+    plan.save(update_fields=['total_tasks'])
 
 
 def get_ai_response(messages_list, system_prompt=None):
@@ -366,53 +405,128 @@ def study_plan_list(request):
 
 @login_required
 def study_plan_create(request):
-    """Yangi o'quv reja yaratish"""
+    """Yangi o'quv reja — kerakli ma'lumotlarni so'rab, vazifalarni avtomatik yaratadi."""
     if request.method == 'POST':
-        title = request.POST.get('title')
+        title = (request.POST.get('title') or '').strip() or "O'quv reja"
         target_date = request.POST.get('target_date')
         target_score = request.POST.get('target_score')
         subject_ids = request.POST.getlist('subjects')
         daily_hours = float(request.POST.get('daily_hours', 2))
+        weekly_days = int(request.POST.get('weekly_days', 6))
 
         plan = StudyPlan.objects.create(
             user=request.user,
             title=title,
             target_exam_date=target_date or None,
             target_score=int(target_score) if target_score else None,
-            daily_hours=daily_hours
+            daily_hours=daily_hours,
+            weekly_days=min(7, max(1, weekly_days))
         )
 
         if subject_ids:
             plan.subjects.set(subject_ids)
+            generate_plan_tasks(plan)
 
-        messages.success(request, "O'quv reja yaratildi!")
+        messages.success(request, "O'quv reja yaratildi! Haftalik vazifalar tayyor.")
         return redirect('ai_core:study_plan_detail', uuid=plan.uuid)
 
-    subjects = Subject.objects.filter(is_active=True)
+    subjects = Subject.objects.filter(is_active=True).order_by('order', 'name')
     context = {'subjects': subjects}
     return render(request, 'ai_core/study_plan_create.html', context)
 
 
 @login_required
 def study_plan_detail(request, uuid):
-    """O'quv reja tafsilotlari"""
+    """O'quv reja — countdown, haftalik taqvim, vazifalar kartochkalari."""
+    from datetime import datetime as dt
     plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
-    tasks = plan.tasks.all().order_by('scheduled_date', 'order')
 
-    context = {'plan': plan, 'tasks': tasks}
+    today = timezone.localdate()
+    week_start_str = request.GET.get('week')
+    if week_start_str:
+        try:
+            week_start = timezone.datetime.strptime(week_start_str, '%Y-%m-%d').date()
+        except ValueError:
+            week_start = today - timedelta(days=today.weekday() + 1)
+    else:
+        week_start = today - timedelta(days=(today.weekday() + 1) % 7)
+
+    week_days = []
+    day_names = ['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan']
+    for i in range(7):
+        d = week_start + timedelta(days=i)
+        day_tasks = plan.tasks.filter(scheduled_date=d).order_by('order')
+        week_days.append({
+            'date': d,
+            'day_name': day_names[i],
+            'is_today': d == today,
+            'tasks': day_tasks,
+        })
+
+    prev_week = week_start - timedelta(days=7)
+    next_week = week_start + timedelta(days=7)
+    current_week_start = today - timedelta(days=(today.weekday() + 1) % 7)
+    days_left = None
+    if plan.target_exam_date and plan.target_exam_date >= today:
+        days_left = (plan.target_exam_date - today).days
+
+    context = {
+        'plan': plan,
+        'week_start': week_start,
+        'week_days': week_days,
+        'prev_week': prev_week,
+        'next_week': next_week,
+        'current_week_start': current_week_start,
+        'today': today,
+        'days_left': days_left,
+    }
     return render(request, 'ai_core/study_plan_detail.html', context)
 
 
 @login_required
 def study_plan_update(request, uuid):
-    """O'quv rejani yangilash"""
+    """Reja holati (faol/to'xtatilgan) yangilash."""
     plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
-
     if request.method == 'POST':
         plan.status = request.POST.get('status', plan.status)
         plan.save()
         messages.success(request, "Reja yangilandi")
+    return redirect('ai_core:study_plan_detail', uuid=uuid)
 
+
+@login_required
+def study_plan_edit(request, uuid):
+    """Rejani tahrirlash — imtihon sanasi, fanlar, vaqt."""
+    plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
+    if request.method == 'POST':
+        plan.title = (request.POST.get('title') or '').strip() or plan.title
+        td = request.POST.get('target_date')
+        if td:
+            plan.target_exam_date = timezone.datetime.strptime(td, '%Y-%m-%d').date()
+        else:
+            plan.target_exam_date = None
+        plan.target_score = int(request.POST.get('target_score')) if request.POST.get('target_score') else None
+        plan.daily_hours = float(request.POST.get('daily_hours', plan.daily_hours))
+        plan.weekly_days = min(7, max(1, int(request.POST.get('weekly_days', plan.weekly_days))))
+        plan.save()
+        subject_ids = request.POST.getlist('subjects')
+        if subject_ids is not None:
+            plan.subjects.set(subject_ids)
+        messages.success(request, "Reja saqlandi.")
+        return redirect('ai_core:study_plan_detail', uuid=uuid)
+    subjects = Subject.objects.filter(is_active=True).order_by('order', 'name')
+    context = {'plan': plan, 'subjects': subjects}
+    return render(request, 'ai_core/study_plan_edit.html', context)
+
+
+@login_required
+def study_plan_delete(request, uuid):
+    """Rejani o'chirish."""
+    plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
+    if request.method == 'POST':
+        plan.delete()
+        messages.success(request, "Reja o'chirildi.")
+        return redirect('ai_core:study_plan_list')
     return redirect('ai_core:study_plan_detail', uuid=uuid)
 
 

@@ -1,170 +1,156 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Yangi Reja | TestMakon{% endblock %}
+{% block title %}Yangi o'quv reja | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
 {% include 'includes/_sidebar_css.html' %}
 
-.create-form-card {
+.sp-create-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
     padding: 2rem;
+    max-width: 640px;
+}
+[data-theme="dark"] .sp-create-card {
+    background: var(--dark-800);
+    border-color: var(--dark-700);
 }
 
-.form-section-title {
-    font-size: 1rem;
+.sp-create-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin: 0 0 0.5rem;
+}
+[data-theme="dark"] .sp-create-title { color: var(--gray-100); }
+
+.sp-create-desc {
+    font-size: 0.9rem;
+    color: var(--gray-500);
+    margin-bottom: 1.75rem;
+}
+
+.sp-section {
+    margin-bottom: 1.75rem;
+}
+.sp-section-title {
+    font-size: 0.95rem;
     font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 1.25rem;
+    color: var(--primary-dark);
+    margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
+.sp-section-title i { opacity: 0.9; }
 
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
+.sp-label {
     display: block;
-    font-weight: 700;
-    font-size: 0.9rem;
-    margin-bottom: 0.4rem;
+    font-weight: 600;
+    font-size: 0.88rem;
     color: var(--dark);
+    margin-bottom: 0.4rem;
 }
+[data-theme="dark"] .sp-label { color: var(--gray-200); }
 
-.form-input {
+.sp-input {
     width: 100%;
-    padding: 0.7rem 1rem;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
     background: var(--gray-50);
     font-size: 0.95rem;
     color: var(--dark);
-    transition: border-color 0.15s ease;
+    transition: border-color 0.2s;
     box-sizing: border-box;
 }
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--primary);
+.sp-input:focus { outline: none; border-color: var(--primary); }
+[data-theme="dark"] .sp-input {
+    background: var(--dark);
+    border-color: var(--dark-600);
+    color: var(--gray-100);
 }
 
-.form-row {
+.sp-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: 1rem;
 }
+@media (max-width: 540px) { .sp-row { grid-template-columns: 1fr; } }
 
-.form-divider {
-    border: none;
-    border-top: 1px solid var(--gray-100);
-    margin: 2rem 0;
-}
-
-.subjects-grid {
+.sp-subjects {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.6rem;
 }
-
-.subject-checkbox {
+.sp-subject-check {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
-
-.subject-label {
+.sp-subject-label {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.65rem 1rem;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
+    padding: 0.6rem 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
     cursor: pointer;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--dark);
     background: var(--white);
-    transition: all 0.15s ease;
+    transition: all 0.2s;
     user-select: none;
 }
-
-.subject-label:hover {
+.sp-subject-label:hover { border-color: var(--primary); }
+.sp-subject-check:checked + .sp-subject-label {
     border-color: var(--primary);
-}
-
-.subject-checkbox:checked + .subject-label {
-    border-color: var(--primary);
-    background: rgba(139, 197, 64, 0.08);
+    background: rgba(139, 197, 64, 0.1);
     color: var(--primary-dark);
-    font-weight: 600;
+}
+[data-theme="dark"] .sp-subject-label {
+    background: var(--dark);
+    border-color: var(--dark-600);
+    color: var(--gray-200);
+}
+[data-theme="dark"] .sp-subject-check:checked + .sp-subject-label {
+    background: rgba(139, 197, 64, 0.15);
+    border-color: var(--primary);
+    color: var(--primary-light);
 }
 
-.range-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--gray-400);
-    margin-top: 0.35rem;
-}
+.sp-hint { font-size: 0.78rem; color: var(--gray-400); margin-top: 0.35rem; }
 
-.range-header {
+.sp-range-wrap { margin-bottom: 0.5rem; }
+.sp-range-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.35rem;
 }
+.sp-range-value { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+.sp-range-input { width: 100%; cursor: pointer; accent-color: var(--primary); }
 
-.range-header label {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--dark);
-}
-
-.range-value {
-    font-weight: 700;
-    color: var(--primary);
-    font-size: 0.9rem;
-}
-
-.form-range-input {
+.sp-submit {
     width: 100%;
-    cursor: pointer;
-}
-
-.btn-submit {
-    display: block;
-    width: 100%;
-    padding: 0.85rem;
-    background: var(--primary);
-    color: var(--white);
+    padding: 0.9rem 1.5rem;
+    background: var(--gradient-primary);
+    color: #fff;
     border: none;
     border-radius: var(--radius-lg);
-    font-weight: 700;
+    font-weight: 800;
     font-size: 1rem;
     cursor: pointer;
-    margin-top: 2rem;
-    transition: opacity 0.15s ease;
+    margin-top: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.btn-submit:hover {
-    opacity: 0.85;
-}
-
-@media (max-width: 600px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    .subjects-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    .create-form-card {
-        padding: 1.25rem;
-    }
+.sp-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
 }
 </style>
 {% endblock %}
@@ -172,72 +158,69 @@
 {% block content %}
 <div class="container">
     <div class="tl-layout">
-        {% include 'includes/_sidebar.html' with active='plan_create' %}
+        {% include 'includes/_sidebar.html' with active='plans' %}
         <main>
-            <div class="create-form-card">
+            <div class="sp-create-card">
+                <h1 class="sp-create-title">Yangi o'quv reja</h1>
+                <p class="sp-create-desc">Imtihon sanasi va fanlarni kiriting — haftalik vazifalar avtomatik yaratiladi.</p>
+
                 <form method="post">
                     {% csrf_token %}
 
-                    <div class="form-section-title">
-                        <i class="bi bi-1-circle"></i> Asosiy Ma'lumotlar
-                    </div>
-
-                    <div class="form-group">
-                        <label for="id_title">Reja nomi</label>
-                        <input type="text" name="title" id="id_title" class="form-input"
-                               placeholder="Masalan: IELTS 7.0 yoki OTMga tayyorlov" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="id_target_date">Maqsadli sana</label>
-                            <input type="date" name="target_date" id="id_target_date" class="form-input">
+                    <div class="sp-section">
+                        <div class="sp-section-title"><i class="bi bi-1-circle-fill"></i> Imtihon va maqsad</div>
+                        <div class="sp-row">
+                            <div class="sp-group">
+                                <label class="sp-label" for="id_target_date">Imtihon sanasi</label>
+                                <input type="date" name="target_date" id="id_target_date" class="sp-input" required>
+                                <p class="sp-hint">Reja shu sanagacha tuziladi</p>
+                            </div>
+                            <div class="sp-group">
+                                <label class="sp-label" for="id_target_score">Maqsadli ball (ixtiyoriy)</label>
+                                <input type="number" name="target_score" id="id_target_score" class="sp-input" placeholder="—" min="0" max="300">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="id_target_score">Maqsadli ball</label>
-                            <input type="number" name="target_score" id="id_target_score" class="form-input" placeholder="0">
+                        <div class="sp-group" style="margin-top: 1rem;">
+                            <label class="sp-label" for="id_title">Reja nomi</label>
+                            <input type="text" name="title" id="id_title" class="sp-input" placeholder="Masalan: DTM 2026" value="O'quv reja">
                         </div>
                     </div>
 
-                    <hr class="form-divider">
-
-                    <div class="form-section-title">
-                        <i class="bi bi-2-circle"></i> Fanlarni tanlang
-                    </div>
-
-                    <div class="subjects-grid">
-                        {% for subject in subjects %}
-                        <div>
-                            <input type="checkbox" class="subject-checkbox" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}">
-                            <label class="subject-label" for="sub{{ subject.id }}">
-                                {{ subject.icon|safe }} {{ subject.name }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <hr class="form-divider">
-
-                    <div class="form-section-title">
-                        <i class="bi bi-3-circle"></i> Vaqt taqsimoti
-                    </div>
-
-                    <div class="form-group">
-                        <div class="range-header">
-                            <label>Kunlik shug'ullanish vaqti</label>
-                            <span class="range-value" id="hoursVal">2 soat</span>
-                        </div>
-                        <input type="range" class="form-range-input" name="daily_hours"
-                               min="0.5" max="8" step="0.5" value="2"
-                               oninput="document.getElementById('hoursVal').innerText = this.value + ' soat'">
-                        <div class="range-labels">
-                            <span>30 daq</span>
-                            <span>8 soat</span>
+                    <div class="sp-section">
+                        <div class="sp-section-title"><i class="bi bi-2-circle-fill"></i> Qaysi fanlarni o'zasiz?</div>
+                        <p class="sp-hint" style="margin-bottom: 0.75rem;">Kamida bitta fanni tanlang. Har bir fan uchun haftalik vazifalar qo'shiladi.</p>
+                        <div class="sp-subjects">
+                            {% for subject in subjects %}
+                            <div>
+                                <input type="checkbox" class="sp-subject-check" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}">
+                                <label class="sp-subject-label" for="sub{{ subject.id }}">{{ subject.icon|default:"📚"|safe }} {{ subject.name }}</label>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">
-                        Rejani Yaratish <i class="bi bi-check-lg"></i>
+                    <div class="sp-section">
+                        <div class="sp-section-title"><i class="bi bi-3-circle-fill"></i> Vaqt taqsimoti</div>
+                        <div class="sp-range-wrap">
+                            <div class="sp-range-header">
+                                <label class="sp-label mb-0">Kunlik shug'ullanish vaqti</label>
+                                <span class="sp-range-value" id="hoursVal">2 soat</span>
+                            </div>
+                            <input type="range" class="sp-range-input" name="daily_hours" min="0.5" max="6" step="0.5" value="2"
+                                   oninput="document.getElementById('hoursVal').textContent = this.value + ' soat'">
+                        </div>
+                        <div class="sp-range-wrap" style="margin-top: 1rem;">
+                            <div class="sp-range-header">
+                                <label class="sp-label mb-0">Haftada necha kun o'zasiz?</label>
+                                <span class="sp-range-value" id="daysVal">6 kun</span>
+                            </div>
+                            <input type="range" class="sp-range-input" name="weekly_days" min="1" max="7" step="1" value="6"
+                                   oninput="document.getElementById('daysVal').textContent = this.value + ' kun'">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="sp-submit">
+                        <i class="bi bi-calendar-plus me-2"></i> Rejani yaratish
                     </button>
                 </form>
             </div>
