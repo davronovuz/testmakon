@@ -135,7 +135,7 @@ LOGIN_REDIRECT_URL = 'tests_app:tests_list'
 LOGOUT_REDIRECT_URL = 'core:home'
 
 # AI Settings (Gemini API)
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_API_KEY = os.environ.get('AIzaSyC35T-moJOKoAv7i-DxFCY7BZ6khxxWIt4', '')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 # Telegram Bot
