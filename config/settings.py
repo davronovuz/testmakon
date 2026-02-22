@@ -134,7 +134,8 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'tests_app:tests_list'
 LOGOUT_REDIRECT_URL = 'core:home'
 
-# AI Settings (Anthropic Claude API)
+# AI Settings (Gemini API)
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
 # Telegram Bot

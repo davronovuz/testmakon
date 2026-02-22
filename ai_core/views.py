@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 import json
-import requests
+import google.generativeai as genai
 
 from .models import (
     AIConversation, AIMessage, AIRecommendation,
@@ -22,43 +22,43 @@ from universities.models import University, Direction, PassingScore
 
 
 def get_ai_response(messages_list, system_prompt=None):
-    """Claude API bilan bog'lanish"""
-    api_key = settings.ANTHROPIC_API_KEY
+    """Gemini API bilan bog'lanish"""
+    api_key = settings.GEMINI_API_KEY
 
     if not api_key:
         return "AI xizmati hozircha mavjud emas. Iltimos, keyinroq urinib ko'ring."
 
-    headers = {
-        "Content-Type": "application/json",
-        "x-api-key": api_key,
-        "anthropic-version": "2023-06-01"
-    }
-
-    if system_prompt is None:
-        system_prompt = """Sen TestMakon.uz platformasining AI mentorisan. 
-        Sening vazifang O'zbekistondagi abituriyentlarga universitetga kirish imtihonlariga tayyorlanishda yordam berish.
-        Sen o'zbek tilida javob berasan. Javoblaringni qisqa, aniq va foydali qilib ber."""
-
-    data = {
-        "model": "claude-3-haiku-20240307",
-        "max_tokens": 1024,
-        "system": system_prompt,
-        "messages": messages_list
-    }
-
     try:
-        response = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers=headers,
-            json=data,
-            timeout=30
-        )
+        genai.configure(api_key=api_key)
 
-        if response.status_code == 200:
-            result = response.json()
-            return result['content'][0]['text']
-        else:
-            return "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+        # System promptni sozlash
+        if system_prompt is None:
+            system_prompt = """Sen TestMakon.uz platformasining AI mentorisan. 
+            Sening vazifang O'zbekistondagi abituriyentlarga universitetga kirish imtihonlariga tayyorlanishda yordam berish.
+            Sen o'zbek tilida javob berasan. Javoblaringni qisqa, aniq va foydali qilib ber."""
+
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
+
+        # Tarixni formatlash (Gemini uchun)
+        chat_history = []
+        last_user_message = ""
+
+        for msg in messages_list:
+            role = "user" if msg['role'] == "user" else "model"
+            content = msg['content']
+
+            if role == "user":
+                last_user_message = content
+
+            # Oxirgi xabarni chat_history ga qo'shmaymiz, uni alohida yuboramiz
+            if msg != messages_list[-1]:
+                chat_history.append({"role": role, "parts": [content]})
+
+        chat = model.start_chat(history=chat_history)
+        response = chat.send_message(last_user_message)
+
+        return response.text
+
     except Exception as e:
         return f"Texnik xatolik: {str(e)}"
 
@@ -125,7 +125,7 @@ def conversation_detail(request, uuid):
                 conversation=conversation,
                 role='assistant',
                 content=ai_response,
-                model_used='claude-3-haiku'
+                model_used='gemini-1.5-flash'
             )
 
             if conversation.title == 'Yangi suhbat':
@@ -539,8 +539,9 @@ def api_chat(request):
             conversation=conversation,
             role='assistant',
             content=ai_response,
-            model_used='claude-3-haiku'
+            model_used='gemini-1.5-flash'
         )
+
 
         conversation.message_count = conversation.messages.count()
         conversation.save()
