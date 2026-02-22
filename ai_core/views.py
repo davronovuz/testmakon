@@ -24,11 +24,19 @@ from universities.models import University, Direction, PassingScore
 
 def generate_plan_tasks(plan):
     """Reja yaratilganda haftalik vazifalarni avtomatik yaratish (4 hafta yoki imtihon sanasigacha)."""
+    from datetime import date
     subjects = list(plan.subjects.all())
     if not subjects:
         return
     today = timezone.localdate()
-    end_date = plan.target_exam_date if plan.target_exam_date and plan.target_exam_date > today else today + timedelta(days=28)
+    # target_exam_date ni to'g'ri tekshirish - date obyekti bo'lishi kerak
+    if plan.target_exam_date and isinstance(plan.target_exam_date, date):
+        if plan.target_exam_date > today:
+            end_date = plan.target_exam_date
+        else:
+            end_date = today + timedelta(days=28)
+    else:
+        end_date = today + timedelta(days=28)
     days_count = max(1, (end_date - today).days)
     weekly_days = max(1, min(7, plan.weekly_days))
     daily_hours = max(0.5, plan.daily_hours)
@@ -407,16 +415,23 @@ def study_plan_create(request):
     """Yangi o'quv reja — kerakli ma'lumotlarni so'rab, vazifalarni avtomatik yaratadi."""
     if request.method == 'POST':
         title = (request.POST.get('title') or '').strip() or "O'quv reja"
-        target_date = request.POST.get('target_date')
+        target_date_str = request.POST.get('target_date', '').strip()
         target_score = request.POST.get('target_score')
         subject_ids = request.POST.getlist('subjects')
         daily_hours = float(request.POST.get('daily_hours', 2))
         weekly_days = int(request.POST.get('weekly_days', 6))
 
+        target_exam_date = None
+        if target_date_str:
+            try:
+                target_exam_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                target_exam_date = None
+
         plan = StudyPlan.objects.create(
             user=request.user,
             title=title,
-            target_exam_date=target_date or None,
+            target_exam_date=target_exam_date,
             target_score=int(target_score) if target_score else None,
             daily_hours=daily_hours,
             weekly_days=min(7, max(1, weekly_days))
