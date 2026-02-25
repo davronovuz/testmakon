@@ -4,39 +4,39 @@
 
 {% block extra_css %}
 <style>
-    .auth-wrapper {
+    .auth-page {
         min-height: calc(100vh - 80px);
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 2rem 1rem;
-        background: var(--gray-50);
     }
 
-    .auth-card {
+    .auth-box {
         width: 100%;
-        max-width: 400px;
+        max-width: 380px;
         background: var(--white);
-        border-radius: 16px;
+        border-radius: 20px;
         border: 1px solid var(--gray-200);
-        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
         padding: 2.5rem 2rem;
+        border-top: 3px solid var(--primary);
     }
 
-    .code-input-wrapper {
+    .code-row {
         display: flex;
-        gap: 0.5rem;
+        gap: 8px;
         justify-content: center;
-        margin: 1.25rem 0;
+        margin: 1.5rem 0 1.25rem;
     }
 
-    .code-digit {
-        width: 48px;
-        height: 56px;
+    .code-box {
+        width: 46px;
+        height: 52px;
         text-align: center;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 800;
-        border: 2px solid var(--gray-300);
+        border: 2px solid var(--gray-200);
         border-radius: 10px;
         outline: none;
         transition: border-color 0.2s, box-shadow 0.2s;
@@ -44,17 +44,52 @@
         background: var(--white);
     }
 
-    .code-digit:focus {
+    .code-box:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
-    .code-digit.filled {
+    .code-box.filled {
         border-color: var(--primary);
-        background: rgba(139, 197, 64, 0.05);
     }
 
-    .tg-submit-btn {
+    .btn-tg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.7rem 1rem;
+        background: var(--white);
+        color: var(--dark);
+        border: 1.5px solid var(--gray-200);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-tg:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: rgba(139,197,64,0.04);
+    }
+
+    .btn-tg .tg-icon {
+        width: 28px;
+        height: 28px;
+        background: #229ED9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .btn-submit {
         width: 100%;
         padding: 0.8rem;
         background: var(--gradient-primary);
@@ -64,156 +99,94 @@
         font-weight: 700;
         font-size: 0.95rem;
         cursor: pointer;
-        transition: all 0.25s ease;
+        transition: all 0.25s;
         box-shadow: var(--shadow-primary);
     }
 
-    .tg-submit-btn:hover {
+    .btn-submit:hover {
         transform: translateY(-1px);
-        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
+        box-shadow: 0 12px 30px -8px rgba(139,197,64,0.5);
     }
 
-    .tg-submit-btn:disabled {
-        background: var(--gray-300);
+    .btn-submit:disabled {
+        background: var(--gray-200);
+        color: var(--gray-400);
         box-shadow: none;
         cursor: not-allowed;
         transform: none;
     }
 
-    .tg-bot-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.55rem 1.2rem;
-        background: var(--gradient-primary);
-        color: white;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 0.88rem;
-        text-decoration: none;
-        transition: all 0.25s ease;
-        box-shadow: var(--shadow-primary);
+    .divider-text {
+        position: relative;
+        text-align: center;
+        margin: 1.25rem 0;
+        color: var(--gray-400);
+        font-size: 0.8rem;
     }
 
-    .tg-bot-link:hover {
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
+    .divider-text::before, .divider-text::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 38%;
+        height: 1px;
+        background: var(--gray-200);
     }
 
-    .step-item {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-    }
+    .divider-text::before { left: 0; }
+    .divider-text::after { right: 0; }
 
-    .step-num {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: var(--gradient-primary);
-        color: white;
-        font-size: 0.7rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    @media (max-width: 480px) {
-        .auth-card { padding: 2rem 1.25rem; }
-        .code-digit { width: 42px; height: 50px; font-size: 1.3rem; }
+    @media (max-width: 420px) {
+        .auth-box { padding: 2rem 1.25rem; }
+        .code-box { width: 40px; height: 46px; font-size: 1.2rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-card">
+<div class="auth-page">
+    <div class="auth-box">
 
         <!-- Logo -->
         <div class="text-center mb-4">
-            <a href="{% url 'core:home' %}" class="text-decoration-none">
-                <div class="d-inline-flex align-items-center justify-content-center mb-2"
-                     style="width: 52px; height: 52px; background: var(--gradient-primary); border-radius: 14px; box-shadow: var(--shadow-primary);">
-                    <i class="bi bi-mortarboard-fill text-white fs-5"></i>
+            <a href="{% url 'core:home' %}" class="text-decoration-none d-inline-flex flex-column align-items-center gap-2">
+                <div style="width:48px;height:48px;background:var(--gradient-primary);border-radius:14px;box-shadow:var(--shadow-primary);display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-mortarboard-fill text-white" style="font-size:1.3rem;"></i>
                 </div>
-                <h5 class="fw-bold mb-0" style="color: var(--dark);">TestMakon</h5>
+                <span class="fw-black" style="color:var(--dark);font-size:1.15rem;letter-spacing:-0.02em;">TestMakon</span>
             </a>
-            <p class="mt-1 mb-0" style="color: var(--gray-500); font-size: 0.88rem;">Bepul ro'yxatdan o'ting</p>
+            <p class="mt-1 mb-0" style="color:var(--gray-400);font-size:0.83rem;">Telegram orqali bepul ro'yxatdan o'ting</p>
         </div>
 
-        <!-- Benefits -->
-        <div class="d-flex justify-content-center gap-3 mb-3">
-            <div class="d-flex align-items-center gap-1">
-                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 0.78rem;"></i>
-                <small style="color: var(--gray-500);">Bepul</small>
-            </div>
-            <div class="d-flex align-items-center gap-1">
-                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 0.78rem;"></i>
-                <small style="color: var(--gray-500);">AI Mentor</small>
-            </div>
-            <div class="d-flex align-items-center gap-1">
-                <i class="bi bi-check-circle-fill" style="color: var(--primary); font-size: 0.78rem;"></i>
-                <small style="color: var(--gray-500);">10K+ testlar</small>
-            </div>
-        </div>
+        <!-- Telegram button -->
+        <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="btn-tg">
+            <span class="tg-icon"><i class="bi bi-telegram"></i></span>
+            @testmakonaibot — kod olish
+        </a>
 
-        <hr style="border-color: var(--gray-200); margin: 0 0 1.5rem;">
-
-        <!-- Steps -->
-        <div class="d-flex flex-column gap-2 mb-3">
-            <div class="step-item">
-                <div class="step-num">1</div>
-                <span style="font-size: 0.85rem; color: var(--gray-600);">Telegram botga kiring</span>
-            </div>
-            <div class="step-item">
-                <div class="step-num">2</div>
-                <span style="font-size: 0.85rem; color: var(--gray-600);">Kod oling (1 daqiqa amal qiladi)</span>
-            </div>
-            <div class="step-item">
-                <div class="step-num">3</div>
-                <span style="font-size: 0.85rem; color: var(--gray-600);">Kodni pastga kiriting — tayyor!</span>
-            </div>
-        </div>
-
-        <div class="text-center mb-3">
-            <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="tg-bot-link">
-                <i class="bi bi-telegram"></i> @testmakonaibot
-            </a>
-        </div>
+        <div class="divider-text">kodni kiriting</div>
 
         <!-- Code Form -->
         <form method="post" action="{% url 'accounts:telegram_code_login' %}" id="codeForm">
             {% csrf_token %}
             <input type="hidden" name="code" id="codeHidden">
 
-            <div class="code-input-wrapper">
-                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="0">
-                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="1">
-                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="2">
-                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="3">
-                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="4">
-                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="5">
+            <div class="code-row">
+                {% for i in '012345' %}
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="{{ forloop.counter0 }}">
+                {% endfor %}
             </div>
 
-            <button type="submit" class="tg-submit-btn" id="codeSubmitBtn" disabled>
-                <i class="bi bi-person-plus me-1"></i> Ro'yxatdan o'tish
+            <button type="submit" class="btn-submit" id="codeSubmitBtn" disabled>
+                Ro'yxatdan o'tish
             </button>
         </form>
 
-        <!-- Login Link -->
-        <div class="text-center mt-3">
-            <span style="color: var(--gray-500); font-size: 0.88rem;">Akkountingiz bormi?</span>
-            <a href="{% url 'accounts:login' %}" class="fw-semibold ms-1" style="color: var(--primary); font-size: 0.88rem;">Kirish</a>
-        </div>
-
-        <div class="text-center mt-2">
-            <a href="{% url 'core:home' %}" style="color: var(--gray-400); font-size: 0.82rem;">
-                <i class="bi bi-arrow-left me-1"></i> Bosh sahifaga qaytish
-            </a>
-        </div>
+        <!-- Login link -->
+        <p class="text-center mb-0 mt-3" style="font-size:0.85rem;color:var(--gray-400);">
+            Akkountingiz bormi?
+            <a href="{% url 'accounts:login' %}" style="color:var(--primary);font-weight:600;">Kirish</a>
+        </p>
 
     </div>
 </div>
@@ -221,7 +194,7 @@
 
 {% block extra_js %}
 <script>
-const digits = document.querySelectorAll('.code-digit');
+const digits = document.querySelectorAll('.code-box');
 const codeHidden = document.getElementById('codeHidden');
 const submitBtn = document.getElementById('codeSubmitBtn');
 const codeForm = document.getElementById('codeForm');
@@ -242,7 +215,6 @@ digits.forEach((digit, i) => {
         updateCode();
         if (this.value && i < 5) digits[i + 1].focus();
     });
-
     digit.addEventListener('keydown', function(e) {
         if (e.key === 'Backspace' && !this.value && i > 0) {
             digits[i - 1].focus();
@@ -250,20 +222,13 @@ digits.forEach((digit, i) => {
             updateCode();
         }
     });
-
     digit.addEventListener('paste', function(e) {
         e.preventDefault();
         const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
-        paste.split('').forEach((char, idx) => {
-            if (digits[idx]) digits[idx].value = char;
-        });
+        paste.split('').forEach((char, idx) => { if (digits[idx]) digits[idx].value = char; });
         updateCode();
-        if (paste.length >= 6) {
-            digits[5].focus();
-            setTimeout(() => codeForm.submit(), 300);
-        } else if (digits[paste.length]) {
-            digits[paste.length].focus();
-        }
+        if (paste.length >= 6) { digits[5].focus(); setTimeout(() => codeForm.submit(), 300); }
+        else if (digits[paste.length]) digits[paste.length].focus();
     });
 });
 
