@@ -30,6 +30,15 @@ BACKUP_FILE        = BACKUP_DIR / f"db_backup_{TIMESTAMP}.json"
 SQLITE_FILE        = "./db.sqlite3"
 SQLITE_BACKUP      = BACKUP_DIR / f"db_sqlite_{TIMESTAMP}.sqlite3"
 
+# docker compose v2 (probel) yoki v1 (tire) avtomatik aniqlanadi
+def _detect_compose():
+    r = subprocess.run("docker compose version", shell=True, capture_output=True)
+    if r.returncode == 0:
+        return "docker compose"
+    return "docker-compose"
+
+COMPOSE = _detect_compose()
+
 # ── Yordamchi funksiyalar ────────────────────────────────────
 
 def header(msg):
@@ -86,7 +95,7 @@ def get_count(container, model_path):
 def rollback():
     """Xato bo'lsa SQLite ga qaytish"""
     warn("ROLLBACK boshlandi — SQLite ga qaytilmoqda...")
-    run("docker-compose down", check=False, capture=True, silent=True)
+    run(f"{COMPOSE} down", check=False, capture=True, silent=True)
 
     # Eski docker-compose ni tiklash
     r = run("git stash", check=False, capture=True, silent=True)
@@ -101,7 +110,7 @@ def rollback():
     if result and "stash@{0}" in (result.stdout or ""):
         run("git stash pop", check=False, capture=True, silent=True)
 
-    run("docker-compose up -d --build", check=False)
+    run(f"{COMPOSE} up -d --build", check=False)
     err("Rollback bajarildi. Sayt eski SQLite bilan ishlayapti.")
     err(f"Backup fayl: {BACKUP_FILE}")
 
@@ -117,17 +126,13 @@ def step1_check_prerequisites():
         sys.exit(1)
     ok("Docker mavjud")
 
-    # docker-compose bormi?
-    r = run("docker-compose --version", check=False, capture=True, silent=True)
-    if not r or r.returncode != 0:
-        err("docker-compose topilmadi!")
-        sys.exit(1)
-    ok("docker-compose mavjud")
+    # docker compose bormi?
+    ok(f"Docker Compose: '{COMPOSE}' topildi")
 
     # Web konteyner ishlayaptimi?
     if not container_running(WEB_CONTAINER):
         err(f"{WEB_CONTAINER} konteyner ishlamayapti!")
-        err("Avval saytni ishga tushiring: docker-compose up -d")
+        err(f"Avval saytni ishga tushiring: {COMPOSE} up -d")
         sys.exit(1)
     ok(f"{WEB_CONTAINER} konteyner ishlayapti")
 
@@ -200,11 +205,11 @@ def step4_restart_with_postgres():
     header("4-QADAM: PostgreSQL bilan ishga tushirish")
 
     info("Konteynerlari to'xtatilmoqda...")
-    run("docker-compose down")
+    run(f"{COMPOSE} down")
     ok("Barcha konteynerlar to'xtatildi")
 
     info("Yangi konteynerlar build qilinmoqda (3-5 daqiqa)...")
-    run("docker-compose up -d --build")
+    run(f"{COMPOSE} up -d --build")
     ok("Konteynerlar ishga tushirildi")
 
     # PostgreSQL tayyor bo'lishini kutish
