@@ -4,6 +4,8 @@
 
 {% block extra_css %}
 <style>
+    body { background: #fff !important; }
+
     .auth-page {
         min-height: calc(100vh - 80px);
         display: flex;
@@ -15,10 +17,10 @@
     .auth-box {
         width: 100%;
         max-width: 380px;
-        background: var(--white);
+        background: #fff;
         border-radius: 20px;
-        border: 1px solid var(--gray-200);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.09);
         padding: 2.5rem 2rem;
         border-top: 3px solid var(--primary);
     }
@@ -36,12 +38,12 @@
         text-align: center;
         font-size: 1.4rem;
         font-weight: 800;
-        border: 2px solid var(--gray-200);
+        border: 2px solid #E2E8F0;
         border-radius: 10px;
         outline: none;
         transition: border-color 0.2s, box-shadow 0.2s;
         color: var(--dark);
-        background: var(--white);
+        background: #fff;
     }
 
     .code-box:focus {
@@ -57,12 +59,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
         width: 100%;
-        padding: 0.7rem 1rem;
-        background: var(--white);
+        padding: 0.75rem 1rem;
+        background: #fff;
         color: var(--dark);
-        border: 1.5px solid var(--gray-200);
+        border: 1.5px solid #E2E8F0;
         border-radius: 10px;
         font-weight: 600;
         font-size: 0.9rem;
@@ -79,7 +81,7 @@
     .btn-tg .tg-icon {
         width: 28px;
         height: 28px;
-        background: #229ED9;
+        background: var(--gradient-primary);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -109,8 +111,8 @@
     }
 
     .btn-submit:disabled {
-        background: var(--gray-200);
-        color: var(--gray-400);
+        background: #E2E8F0;
+        color: #94A3B8;
         box-shadow: none;
         cursor: not-allowed;
         transform: none;
@@ -120,7 +122,7 @@
         position: relative;
         text-align: center;
         margin: 1.25rem 0;
-        color: var(--gray-400);
+        color: #94A3B8;
         font-size: 0.8rem;
     }
 
@@ -130,7 +132,7 @@
         top: 50%;
         width: 38%;
         height: 1px;
-        background: var(--gray-200);
+        background: #E2E8F0;
     }
 
     .divider-text::before { left: 0; }
@@ -147,7 +149,6 @@
 <div class="auth-page">
     <div class="auth-box">
 
-        <!-- Logo -->
         <div class="text-center mb-4">
             <a href="{% url 'core:home' %}" class="text-decoration-none d-inline-flex flex-column align-items-center gap-2">
                 <div style="width:48px;height:48px;background:var(--gradient-primary);border-radius:14px;box-shadow:var(--shadow-primary);display:flex;align-items:center;justify-content:center;">
@@ -155,35 +156,33 @@
                 </div>
                 <span class="fw-black" style="color:var(--dark);font-size:1.15rem;letter-spacing:-0.02em;">TestMakon</span>
             </a>
-            <p class="mt-1 mb-0" style="color:var(--gray-400);font-size:0.83rem;">Telegram orqali tizimga kiring</p>
+            <p class="mt-1 mb-0" style="color:#94A3B8;font-size:0.83rem;">Telegram orqali tizimga kiring</p>
         </div>
 
-        <!-- Telegram button -->
-        <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="btn-tg mb-0">
+        <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="btn-tg">
             <span class="tg-icon"><i class="bi bi-telegram"></i></span>
             @testmakonaibot — kod olish
         </a>
 
         <div class="divider-text">kodni kiriting</div>
 
-        <!-- Code Form -->
         <form method="post" action="{% url 'accounts:telegram_code_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" id="codeForm">
             {% csrf_token %}
             <input type="hidden" name="code" id="codeHidden">
-
             <div class="code-row">
-                {% for i in '012345' %}
-                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="{{ forloop.counter0 }}">
-                {% endfor %}
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="0">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="1">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="2">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="3">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="4">
+                <input type="text" class="code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="5">
             </div>
-
             <button type="submit" class="btn-submit" id="codeSubmitBtn" disabled>
                 Kirish
             </button>
         </form>
 
-        <!-- Register link -->
-        <p class="text-center mb-0 mt-3" style="font-size:0.85rem;color:var(--gray-400);">
+        <p class="text-center mb-0 mt-3" style="font-size:0.85rem;color:#94A3B8;">
             Akkountingiz yo'qmi?
             <a href="{% url 'accounts:register' %}" style="color:var(--primary);font-weight:600;">Ro'yxatdan o'tish</a>
         </p>
@@ -231,7 +230,6 @@ digits.forEach((digit, i) => {
         else if (digits[paste.length]) digits[paste.length].focus();
     });
 });
-
 digits[0].focus();
 </script>
 {% endblock %}
