@@ -1,6 +1,13 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: testmakon_redis
+    restart: always
+    expose:
+      - 6379
+
   web:
     build: .
     container_name: testmakon_web
@@ -10,12 +17,30 @@ services:
       - ALLOWED_HOSTS=testmakon.uz,www.testmakon.uz,localhost,127.0.0.1
       - CSRF_TRUSTED_ORIGINS=https://testmakon.uz,https://www.testmakon.uz
       - ANTHROPIC_API_KEY=your-api-key-here
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
       - ./db.sqlite3:/app/db.sqlite3
     expose:
       - 8000
+    depends_on:
+      - redis
+
+  celery:
+    build: .
+    container_name: testmakon_celery
+    restart: always
+    command: celery -A config worker --loglevel=info --concurrency=4
+    environment:
+      - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - ANTHROPIC_API_KEY=your-api-key-here
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+    depends_on:
+      - redis
+      - web
 
   bot:
     build: .
@@ -25,11 +50,13 @@ services:
       - DEBUG=False
       - ALLOWED_HOSTS=testmakon.uz,www.testmakon.uz,localhost,127.0.0.1
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./db.sqlite3:/app/db.sqlite3
     command: python manage.py run_bot
     depends_on:
       - web
+      - redis
 
   nginx:
     image: nginx:alpine
