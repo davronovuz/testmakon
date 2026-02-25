@@ -204,28 +204,50 @@ def step3_git_pull():
 def step4_restart_with_postgres():
     header("4-QADAM: PostgreSQL bilan ishga tushirish")
 
-    info("Konteynerlari to'xtatilmoqda...")
-    run(f"{COMPOSE} down")
+    info("Konteynerlari to'xtatilmoqda (orphan konteynerlar ham)...")
+    run(f"{COMPOSE} down --remove-orphans")
     ok("Barcha konteynerlar to'xtatildi")
 
+    # Eski postgres volume ni tozalash (agar noto'g'ri konfiguratsiya bo'lsa)
+    info("Eski postgres volume tekshirilmoqda...")
+    r = run("docker volume ls --format '{{.Name}}' | grep postgres", check=False, capture=True, silent=True)
+    if r and r.stdout.strip():
+        volumes = r.stdout.strip().split('\n')
+        for vol in volumes:
+            vol = vol.strip()
+            if 'testmakon' in vol and 'postgres' in vol:
+                warn(f"Eski volume topildi: {vol} — o'chirilmoqda...")
+                run(f"docker volume rm {vol}", check=False)
+                ok(f"Volume o'chirildi: {vol}")
+
     info("Yangi konteynerlar build qilinmoqda (3-5 daqiqa)...")
-    run(f"{COMPOSE} up -d --build")
-    ok("Konteynerlar ishga tushirildi")
+    r = run(f"{COMPOSE} up -d --build --remove-orphans", check=False, capture=True, silent=False)
 
     # PostgreSQL tayyor bo'lishini kutish
     info("PostgreSQL tayyor bo'lishini kutmoqda...")
-    for i in range(30):
+    postgres_ok = False
+    for i in range(40):
         r = run(
             f"docker exec {POSTGRES_CONTAINER} pg_isready -U testmakon_user -d testmakon_db",
             check=False, capture=True, silent=True
         )
         if r and r.returncode == 0:
+            postgres_ok = True
             ok("PostgreSQL tayyor!")
             break
+        # Xato sababini ko'rish
+        state = run(f"docker inspect --format='{{{{.State.Status}}}}' {POSTGRES_CONTAINER}",
+                    check=False, capture=True, silent=True)
+        status = state.stdout.strip() if state else "unknown"
+        print(f"     ... {(i+1)*3}s (postgres: {status})", end="\r")
         time.sleep(3)
-        print(f"     ... {(i+1)*3}s", end="\r")
-    else:
-        err("PostgreSQL 90 sekund ichida tayyor bo'lmadi!")
+
+    if not postgres_ok:
+        err("PostgreSQL 120 sekund ichida tayyor bo'lmadi!")
+        # Log ko'rsatish
+        print("\n  --- PostgreSQL logs ---")
+        run(f"docker logs {POSTGRES_CONTAINER} --tail 30", check=False)
+        print("  --- logs end ---\n")
         rollback()
         sys.exit(1)
 
