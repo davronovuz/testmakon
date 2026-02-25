@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: testmakon_postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=testmakon_db
+      - POSTGRES_USER=testmakon_user
+      - POSTGRES_PASSWORD=TestMakon2024!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testmakon_user -d testmakon_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: testmakon_redis
@@ -18,14 +36,17 @@ services:
       - CSRF_TRUSTED_ORIGINS=https://testmakon.uz,https://www.testmakon.uz
       - ANTHROPIC_API_KEY=your-api-key-here
       - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-      - ./db.sqlite3:/app/db.sqlite3
     expose:
       - 8000
     depends_on:
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   celery:
     build: .
@@ -35,12 +56,13 @@ services:
     environment:
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
       - ANTHROPIC_API_KEY=your-api-key-here
-    volumes:
-      - ./db.sqlite3:/app/db.sqlite3
     depends_on:
-      - redis
-      - web
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   bot:
     build: .
@@ -51,12 +73,13 @@ services:
       - ALLOWED_HOSTS=testmakon.uz,www.testmakon.uz,localhost,127.0.0.1
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - REDIS_URL=redis://redis:6379/0
-    volumes:
-      - ./db.sqlite3:/app/db.sqlite3
+      - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
     command: python manage.py run_bot
     depends_on:
-      - web
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   nginx:
     image: nginx:alpine
@@ -85,3 +108,4 @@ services:
 volumes:
   static_volume:
   media_volume:
+  postgres_data:
