@@ -155,10 +155,18 @@ def step2_backup_sqlite():
     run(f"cp {SQLITE_FILE} {SQLITE_BACKUP}")
     ok(f"SQLite fayl nusxalandi: {SQLITE_BACKUP}")
 
-    # dumpdata (JSON backup)
+    # SQLite faylni konteynerga ko'chirish
+    # (docker-compose.yml da DATABASE_URL=postgres bo'lgani uchun override qilish kerak)
+    info("SQLite fayl konteynerga ko'chirilmoqda...")
+    run(f"docker cp {SQLITE_FILE} {WEB_CONTAINER}:/app/db_sqlite_dump.sqlite3")
+    ok("SQLite fayl konteynerga ko'chirildi")
+
+    # dumpdata (JSON backup) — DATABASE_URL ni SQLite ga override qilib
     info("dumpdata boshlandi (bir necha daqiqa ketishi mumkin)...")
     r = run(
-        f"docker exec {WEB_CONTAINER} python manage.py dumpdata "
+        f"docker exec "
+        f"-e DATABASE_URL=sqlite:////app/db_sqlite_dump.sqlite3 "
+        f"{WEB_CONTAINER} python manage.py dumpdata "
         f"--natural-foreign --natural-primary "
         f"--exclude=contenttypes "
         f"--exclude=auth.permission "
@@ -169,6 +177,9 @@ def step2_backup_sqlite():
     )
     print(f"     $ dumpdata ...")
 
+    # Temp SQLite faylni tozalash
+    run(f"docker exec {WEB_CONTAINER} rm -f /app/db_sqlite_dump.sqlite3", check=False, capture=True, silent=True)
+
     if r is None or r.returncode != 0:
         err("dumpdata muvaffaqiyatsiz!")
         if r: print(f"     {r.stderr[:500]}")
@@ -178,20 +189,19 @@ def step2_backup_sqlite():
     run(f"docker cp {WEB_CONTAINER}:/app/db_backup_temp.json {BACKUP_FILE}")
     run(f"docker exec {WEB_CONTAINER} rm /app/db_backup_temp.json", check=False)
 
-    # Validatsiya
+    # Validatsiya va user sonini JSON dan hisoblash
     try:
         with open(BACKUP_FILE) as f:
             data = json.load(f)
         record_count = len(data)
         ok(f"JSON backup saqlandi: {BACKUP_FILE}")
         ok(f"Jami yozuvlar: {record_count:,} ta")
+        user_count = sum(1 for obj in data if obj.get('model') in ('accounts.user', 'auth.user'))
+        info(f"Hozirgi userlar soni: {user_count}")
     except Exception as e:
         err(f"Backup fayli buzilgan: {e}")
         sys.exit(1)
 
-    # Joriy user sonini eslab qolish
-    user_count = get_count(WEB_CONTAINER, "accounts.models.User")
-    info(f"Hozirgi userlar soni: {user_count}")
     return user_count
 
 
