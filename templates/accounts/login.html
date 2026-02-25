@@ -9,71 +9,37 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 2rem 0;
-        background: var(--gradient-hero);
+        padding: 2rem 1rem;
+        background: var(--gray-50);
     }
 
     .auth-card {
         width: 100%;
-        max-width: 420px;
+        max-width: 400px;
         background: var(--white);
-        border-radius: var(--radius-xl);
+        border-radius: 16px;
         border: 1px solid var(--gray-200);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
-    }
-
-    .auth-card-body {
-        padding: 2rem 2rem;
-    }
-
-    /* Telegram section */
-    .tg-section {
-        background: var(--gray-50);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        text-align: center;
-    }
-
-    .tg-bot-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1.25rem;
-        background: var(--gradient-primary);
-        color: white;
-        border-radius: var(--radius);
-        font-weight: 700;
-        font-size: 0.9rem;
-        text-decoration: none;
-        transition: all 0.25s ease;
-        box-shadow: var(--shadow-primary);
-    }
-
-    .tg-bot-link:hover {
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 15px 40px -10px rgba(139, 197, 64, 0.5);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 2.5rem 2rem;
     }
 
     .code-input-wrapper {
         display: flex;
         gap: 0.5rem;
         justify-content: center;
-        margin: 1rem 0;
+        margin: 1.25rem 0;
     }
 
     .code-digit {
-        width: 46px;
-        height: 54px;
+        width: 48px;
+        height: 56px;
         text-align: center;
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         font-weight: 800;
         border: 2px solid var(--gray-300);
-        border-radius: var(--radius);
+        border-radius: 10px;
         outline: none;
-        transition: all 0.2s ease;
+        transition: border-color 0.2s, box-shadow 0.2s;
         color: var(--dark);
         background: var(--white);
     }
@@ -90,11 +56,11 @@
 
     .tg-submit-btn {
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.8rem;
         background: var(--gradient-primary);
         color: white;
         border: none;
-        border-radius: var(--radius);
+        border-radius: 10px;
         font-weight: 700;
         font-size: 0.95rem;
         cursor: pointer;
@@ -104,7 +70,7 @@
 
     .tg-submit-btn:hover {
         transform: translateY(-1px);
-        box-shadow: 0 15px 40px -10px rgba(139, 197, 64, 0.5);
+        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
     }
 
     .tg-submit-btn:disabled {
@@ -114,75 +80,95 @@
         transform: none;
     }
 
+    .tg-bot-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1.2rem;
+        background: var(--gradient-primary);
+        color: white;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        box-shadow: var(--shadow-primary);
+    }
+
+    .tg-bot-link:hover {
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
+    }
+
     @media (max-width: 480px) {
-        .auth-card-body { padding: 1.5rem; }
-        .code-digit { width: 42px; height: 48px; font-size: 1.2rem; }
+        .auth-card { padding: 2rem 1.25rem; }
+        .code-digit { width: 42px; height: 50px; font-size: 1.3rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="auth-wrapper">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="auth-card">
-                    <div class="auth-card-body">
-                        <!-- Logo -->
-                        <div class="text-center mb-4">
-                            <a href="{% url 'core:home' %}" class="text-decoration-none">
-                                <div class="d-inline-flex align-items-center justify-content-center mb-2" style="width: 56px; height: 56px; background: var(--gradient-primary); border-radius: 14px; box-shadow: var(--shadow-primary);">
-                                    <i class="bi bi-mortarboard-fill text-white fs-4"></i>
-                                </div>
-                                <h5 class="fw-bold mb-1" style="color: var(--dark);">TestMakon</h5>
-                            </a>
-                            <p style="color: var(--gray-500); font-size: 0.9rem; margin: 0;">Tizimga kirish</p>
-                        </div>
+    <div class="auth-card">
 
-                        <!-- Telegram Code Section -->
-                        <div class="tg-section">
-                            <p style="font-size: 0.85rem; color: var(--dark-600); margin: 0 0 0.75rem; font-weight: 500;">
-                                Telegram bot orqali 1 daqiqalik kod oling
-                            </p>
-
-                            <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="tg-bot-link mb-3">
-                                <i class="bi bi-telegram"></i> @testmakonaibot
-                            </a>
-
-                            <form method="post" action="{% url 'accounts:telegram_code_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" id="codeForm" class="mt-3">
-                                {% csrf_token %}
-                                <input type="hidden" name="code" id="codeHidden">
-
-                                <div class="code-input-wrapper">
-                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="0">
-                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="1">
-                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="2">
-                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="3">
-                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="4">
-                                    <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="5">
-                                </div>
-
-                                <button type="submit" class="tg-submit-btn" id="codeSubmitBtn" disabled>
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> Kirish
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Register Link -->
-                        <div class="text-center mt-3">
-                            <span style="color: var(--gray-500); font-size: 0.9rem;">Akkountingiz yo'qmi?</span>
-                            <a href="{% url 'accounts:register' %}" class="fw-bold" style="color: var(--primary); font-size: 0.9rem;">Ro'yxatdan o'tish</a>
-                        </div>
-                    </div>
+        <!-- Logo -->
+        <div class="text-center mb-4">
+            <a href="{% url 'core:home' %}" class="text-decoration-none">
+                <div class="d-inline-flex align-items-center justify-content-center mb-2"
+                     style="width: 52px; height: 52px; background: var(--gradient-primary); border-radius: 14px; box-shadow: var(--shadow-primary);">
+                    <i class="bi bi-mortarboard-fill text-white fs-5"></i>
                 </div>
-
-                <div class="text-center mt-3">
-                    <a href="{% url 'core:home' %}" style="color: var(--gray-500); font-size: 0.85rem;">
-                        <i class="bi bi-arrow-left me-1"></i> Bosh sahifaga qaytish
-                    </a>
-                </div>
-            </div>
+                <h5 class="fw-bold mb-0" style="color: var(--dark);">TestMakon</h5>
+            </a>
+            <p class="mt-1 mb-0" style="color: var(--gray-500); font-size: 0.88rem;">Tizimga kirish</p>
         </div>
+
+        <!-- Divider -->
+        <hr style="border-color: var(--gray-200); margin: 0 0 1.5rem;">
+
+        <!-- Instructions -->
+        <p style="font-size: 0.88rem; color: var(--gray-500); text-align: center; margin-bottom: 0.75rem;">
+            Telegram bot orqali 6 xonali kod oling
+        </p>
+
+        <div class="text-center mb-3">
+            <a href="https://t.me/{{ TELEGRAM_BOT_USERNAME|default:'testmakonaibot' }}" target="_blank" class="tg-bot-link">
+                <i class="bi bi-telegram"></i> @testmakonaibot
+            </a>
+        </div>
+
+        <!-- Code Form -->
+        <form method="post" action="{% url 'accounts:telegram_code_login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" id="codeForm">
+            {% csrf_token %}
+            <input type="hidden" name="code" id="codeHidden">
+
+            <div class="code-input-wrapper">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="0">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="1">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="2">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="3">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="4">
+                <input type="text" class="code-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-index="5">
+            </div>
+
+            <button type="submit" class="tg-submit-btn" id="codeSubmitBtn" disabled>
+                <i class="bi bi-box-arrow-in-right me-1"></i> Kirish
+            </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="text-center mt-3">
+            <span style="color: var(--gray-500); font-size: 0.88rem;">Akkountingiz yo'qmi?</span>
+            <a href="{% url 'accounts:register' %}" class="fw-semibold ms-1" style="color: var(--primary); font-size: 0.88rem;">Ro'yxatdan o'tish</a>
+        </div>
+
+        <div class="text-center mt-2">
+            <a href="{% url 'core:home' %}" style="color: var(--gray-400); font-size: 0.82rem;">
+                <i class="bi bi-arrow-left me-1"></i> Bosh sahifaga qaytish
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}
