@@ -23,6 +23,7 @@ Django==5.2.10
 django-cors-headers==4.9.0
 django-import-export==4.4.0
 django-jazzmin==3.0.1
+django-redis==6.0.0
 et_xmlfile==2.0.0
 flower==2.0.1
 frozenlist==1.8.0

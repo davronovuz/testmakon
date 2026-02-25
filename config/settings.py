@@ -94,6 +94,23 @@ DATABASES = {
     )
 }
 
+# Redis Cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': config('REDIS_URL', default='redis://localhost:6379/1'),
+        'TIMEOUT': 300,  # 5 daqiqa default
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'testmakon',
+    }
+}
+
+# Session ham Redis da saqlash (ko'p user uchun tezroq)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
 # Celery + Redis
 CELERY_BROKER_URL        = config('REDIS_URL', default='redis://localhost:6379/0')
 CELERY_RESULT_BACKEND    = config('REDIS_URL', default='redis://localhost:6379/0')

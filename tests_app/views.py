@@ -21,6 +21,7 @@ from .models import (
     UserTopicPerformance, UserSubjectPerformance,
     DailyUserStats, UserActivityLog
 )
+from .tasks import update_question_stats, process_user_stats_after_test
 
 
 # ============================================================
@@ -502,12 +503,9 @@ def test_play_submit(request, uuid):
         }
     )
 
-    # Question statistikasini yangilash
+    # Question statistikasini background'da yangilash (DB lock qilmaydi)
     if created:
-        question.times_answered += 1
-        if is_correct:
-            question.times_correct += 1
-        question.save(update_fields=['times_answered', 'times_correct'])
+        update_question_stats.delay(question.id, is_correct)
 
     # Session da joriy indexni saqlash
     request.session[f'attempt_{uuid}_current'] = current_index
@@ -562,28 +560,8 @@ def test_play_finish(request, uuid):
     attempt.completed_at = timezone.now()
     attempt.save()
 
-    # User statistikasini yangilash
-    user = request.user
-    user.total_tests_taken = F('total_tests_taken') + 1
-    user.total_correct_answers = F('total_correct_answers') + attempt.correct_answers
-    user.total_wrong_answers = F('total_wrong_answers') + attempt.wrong_answers
-    user.xp_points = F('xp_points') + attempt.xp_earned
-    user.save(update_fields=['total_tests_taken', 'total_correct_answers', 'total_wrong_answers', 'xp_points'])
-
-    # Activity log
-    UserActivityLog.objects.create(
-        user=request.user,
-        action='test_complete',
-        details={
-            'test_id': attempt.test.id,
-            'score': attempt.percentage,
-            'correct': attempt.correct_answers,
-            'total': attempt.total_questions,
-            'time_spent': attempt.time_spent,
-            'xp_earned': attempt.xp_earned,
-        },
-        subject=attempt.test.subject
-    )
+    # User stats, XP, activity log — background'da (user kutmaydi)
+    process_user_stats_after_test.delay(attempt.id)
 
     # Session tozalash
     session_key = f'attempt_{uuid}_current'
@@ -1249,68 +1227,114 @@ def topic_test(request, subject_slug, topic_slug):
 @login_required
 def my_results(request):
     """Mening natijalarim"""
+    from django.core.cache import cache
+
     attempts = TestAttempt.objects.filter(
         user=request.user,
         status='completed'
     ).select_related('test', 'test__subject').order_by('-completed_at')
 
-    # Statistika
-    agg = attempts.aggregate(
-        avg_score=Avg('percentage'),
-        total_correct=Sum('correct_answers'),
-        total_xp=Sum('xp_earned'),
-    )
-    stats = {
-        'total': attempts.count(),
-        'avg_score': round(agg['avg_score'] or 0, 1),
-        'total_correct': agg['total_correct'] or 0,
-        'total_xp': agg['total_xp'] or 0,
-    }
+    # Statistika — Redis cache (5 daqiqa)
+    cache_key = f'my_results_{request.user.id}'
+    cached = cache.get(cache_key)
 
-    # Oxirgi 30 kun progress (line chart)
-    today = timezone.now().date()
-    daily_scores = []
-    daily_labels = []
-    for i in range(29, -1, -1):
-        day = today - timedelta(days=i)
-        day_attempts = attempts.filter(completed_at__date=day)
-        avg = day_attempts.aggregate(Avg('percentage'))['percentage__avg']
-        if avg is not None:
-            daily_scores.append(round(avg, 1))
-            daily_labels.append(day.strftime('%d.%m'))
-        elif daily_scores:
-            daily_scores.append(None)
-            daily_labels.append(day.strftime('%d.%m'))
+    if cached:
+        stats = cached['stats']
+        daily_scores = cached['daily_scores']
+        daily_labels = cached['daily_labels']
+        weekly_counts = cached['weekly_counts']
+        weekly_labels = cached['weekly_labels']
+        subject_names = cached['subject_names']
+        subject_counts = cached['subject_counts']
+        subject_colors = cached['subject_colors']
+        subject_avgs = cached['subject_avgs']
+        subject_legend = cached['subject_legend']
+    else:
+        agg = attempts.aggregate(
+            avg_score=Avg('percentage'),
+            total_correct=Sum('correct_answers'),
+            total_xp=Sum('xp_earned'),
+        )
+        stats = {
+            'total': attempts.count(),
+            'avg_score': round(agg['avg_score'] or 0, 1),
+            'total_correct': agg['total_correct'] or 0,
+            'total_xp': agg['total_xp'] or 0,
+        }
 
-    # Haftalik test soni (bar chart — 8 hafta)
-    weekly_counts = []
-    weekly_labels = []
-    for i in range(7, -1, -1):
-        week_start = today - timedelta(days=today.weekday() + 7 * i)
-        week_end = week_start + timedelta(days=6)
-        count = attempts.filter(completed_at__date__gte=week_start, completed_at__date__lte=week_end).count()
-        weekly_counts.append(count)
-        weekly_labels.append(f"{week_start.strftime('%d.%m')}")
+        # Oxirgi 30 kun — bitta query bilan (N+1 o'rniga)
+        today = timezone.now().date()
+        start_date = today - timedelta(days=29)
+        daily_data = {
+            row['day']: row['avg']
+            for row in attempts.filter(completed_at__date__gte=start_date).extra(
+                select={'day': 'date(completed_at)'}
+            ).values('day').annotate(avg=Avg('percentage'))
+        }
+        daily_scores = []
+        daily_labels = []
+        for i in range(29, -1, -1):
+            day = today - timedelta(days=i)
+            avg = daily_data.get(str(day))
+            if avg is not None:
+                daily_scores.append(round(avg, 1))
+                daily_labels.append(day.strftime('%d.%m'))
+            elif daily_scores:
+                daily_scores.append(None)
+                daily_labels.append(day.strftime('%d.%m'))
 
-    # Fan bo'yicha statistika (donut chart)
-    subject_data = attempts.values(
-        'test__subject__name', 'test__subject__color'
-    ).annotate(
-        count=Count('id'),
-        avg_pct=Avg('percentage')
-    ).order_by('-count')[:8]
+        # Haftalik — bitta query bilan
+        week_start_global = today - timedelta(days=today.weekday() + 7 * 7)
+        weekly_raw = {
+            row['day']: row['cnt']
+            for row in attempts.filter(completed_at__date__gte=week_start_global).extra(
+                select={'day': 'date(completed_at)'}
+            ).values('day').annotate(cnt=Count('id'))
+        }
+        weekly_counts = []
+        weekly_labels = []
+        for i in range(7, -1, -1):
+            week_start = today - timedelta(days=today.weekday() + 7 * i)
+            week_end = week_start + timedelta(days=6)
+            count = sum(
+                v for k, v in weekly_raw.items()
+                if week_start <= (type(today).fromisoformat(str(k)) if isinstance(k, str) else k) <= week_end
+            )
+            weekly_counts.append(count)
+            weekly_labels.append(week_start.strftime('%d.%m'))
 
-    subject_names = [s['test__subject__name'] or 'Boshqa' for s in subject_data]
-    subject_counts = [s['count'] for s in subject_data]
-    subject_colors = [s['test__subject__color'] or '#8BC540' for s in subject_data]
-    subject_avgs = [round(s['avg_pct'] or 0, 1) for s in subject_data]
-    # Template legend uchun combined list
-    subject_legend = [
-        {'name': subject_names[i], 'color': subject_colors[i], 'avg': subject_avgs[i], 'count': subject_counts[i]}
-        for i in range(len(subject_names))
-    ]
+        # Fan bo'yicha statistika (donut chart)
+        subject_data = list(attempts.values(
+            'test__subject__name', 'test__subject__color'
+        ).annotate(
+            count=Count('id'),
+            avg_pct=Avg('percentage')
+        ).order_by('-count')[:8])
 
-    # Paginator
+        subject_names = [s['test__subject__name'] or 'Boshqa' for s in subject_data]
+        subject_counts = [s['count'] for s in subject_data]
+        subject_colors = [s['test__subject__color'] or '#8BC540' for s in subject_data]
+        subject_avgs = [round(s['avg_pct'] or 0, 1) for s in subject_data]
+        subject_legend = [
+            {'name': subject_names[i], 'color': subject_colors[i], 'avg': subject_avgs[i], 'count': subject_counts[i]}
+            for i in range(len(subject_names))
+        ]
+
+        # Natijalarni cache ga saqlash (5 daqiqa)
+        cache.set(cache_key, {
+            'stats': stats,
+            'daily_scores': daily_scores,
+            'daily_labels': daily_labels,
+            'weekly_counts': weekly_counts,
+            'weekly_labels': weekly_labels,
+            'subject_names': subject_names,
+            'subject_counts': subject_counts,
+            'subject_colors': subject_colors,
+            'subject_avgs': subject_avgs,
+            'subject_legend': subject_legend,
+        }, timeout=300)
+
+    # Paginator (cache qilinmaydi — sahifa o'zgaradi)
     paginator = Paginator(attempts, 20)
     page = request.GET.get('page', 1)
     attempts_page = paginator.get_page(page)
