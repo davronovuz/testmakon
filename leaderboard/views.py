@@ -6,7 +6,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Avg
+from django.core.cache import cache
 from datetime import timedelta
 
 from .models import (
@@ -45,10 +46,15 @@ def leaderboard_main(request):
 
 
 def global_leaderboard(request):
-    """Umumiy reyting"""
-    users = User.objects.filter(
-        is_active=True
-    ).order_by('-xp_points')[:100]
+    """Umumiy reyting — Redis cache (10 daqiqa)"""
+    users = cache.get('leaderboard:global')
+    if users is None:
+        users = list(
+            User.objects.filter(is_active=True)
+            .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar', 'global_rank')
+            .order_by('-xp_points')[:100]
+        )
+        cache.set('leaderboard:global', users, 60 * 10)
 
     subjects = Subject.objects.filter(is_active=True)
     user_rank = request.user.global_rank if request.user.is_authenticated else None
@@ -64,33 +70,30 @@ def global_leaderboard(request):
 
 
 def weekly_leaderboard(request):
-    """Haftalik reyting"""
+    """Haftalik reyting — Redis cache (10 daqiqa)"""
     today = timezone.now().date()
     week_start = today - timedelta(days=today.weekday())
 
-    # Haftalik XP bo'yicha
-    top_users = TestAttempt.objects.filter(
-        started_at__date__gte=week_start,
-        status='completed'
-    ).values('user').annotate(
-        total_xp=Sum('xp_earned'),
-        tests_count=Count('id')
-    ).order_by('-total_xp')[:100]
+    leaderboard = cache.get('leaderboard:weekly')
+    if leaderboard is None:
+        top_users = TestAttempt.objects.filter(
+            started_at__date__gte=week_start,
+            status='completed'
+        ).values('user').annotate(
+            total_xp=Sum('xp_earned'),
+            tests_count=Count('id')
+        ).order_by('-total_xp')[:100]
 
-    # User ma'lumotlarini olish
-    user_ids = [u['user'] for u in top_users]
-    users = {u.id: u for u in User.objects.filter(id__in=user_ids)}
-
-    leaderboard = []
-    for i, entry in enumerate(top_users, 1):
-        user = users.get(entry['user'])
-        if user:
-            leaderboard.append({
-                'rank': i,
-                'user': user,
-                'xp': entry['total_xp'],
-                'tests': entry['tests_count'],
-            })
+        user_ids = [u['user'] for u in top_users]
+        users_map = {
+            u.id: u for u in User.objects.filter(id__in=user_ids)
+            .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar')
+        }
+        leaderboard = [
+            {'rank': i, 'user': users_map[e['user']], 'xp': e['total_xp'], 'tests': e['tests_count']}
+            for i, e in enumerate(top_users, 1) if e['user'] in users_map
+        ]
+        cache.set('leaderboard:weekly', leaderboard, 60 * 10)
 
     subjects = Subject.objects.filter(is_active=True)
     user_rank = request.user.global_rank if request.user.is_authenticated else None
@@ -107,31 +110,30 @@ def weekly_leaderboard(request):
 
 
 def monthly_leaderboard(request):
-    """Oylik reyting"""
+    """Oylik reyting — Redis cache (10 daqiqa)"""
     today = timezone.now().date()
     month_start = today.replace(day=1)
 
-    top_users = TestAttempt.objects.filter(
-        started_at__date__gte=month_start,
-        status='completed'
-    ).values('user').annotate(
-        total_xp=Sum('xp_earned'),
-        tests_count=Count('id')
-    ).order_by('-total_xp')[:100]
+    leaderboard = cache.get('leaderboard:monthly')
+    if leaderboard is None:
+        top_users = TestAttempt.objects.filter(
+            started_at__date__gte=month_start,
+            status='completed'
+        ).values('user').annotate(
+            total_xp=Sum('xp_earned'),
+            tests_count=Count('id')
+        ).order_by('-total_xp')[:100]
 
-    user_ids = [u['user'] for u in top_users]
-    users = {u.id: u for u in User.objects.filter(id__in=user_ids)}
-
-    leaderboard = []
-    for i, entry in enumerate(top_users, 1):
-        user = users.get(entry['user'])
-        if user:
-            leaderboard.append({
-                'rank': i,
-                'user': user,
-                'xp': entry['total_xp'],
-                'tests': entry['tests_count'],
-            })
+        user_ids = [u['user'] for u in top_users]
+        users_map = {
+            u.id: u for u in User.objects.filter(id__in=user_ids)
+            .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar')
+        }
+        leaderboard = [
+            {'rank': i, 'user': users_map[e['user']], 'xp': e['total_xp'], 'tests': e['tests_count']}
+            for i, e in enumerate(top_users, 1) if e['user'] in users_map
+        ]
+        cache.set('leaderboard:monthly', leaderboard, 60 * 10)
 
     subjects = Subject.objects.filter(is_active=True)
     user_rank = request.user.global_rank if request.user.is_authenticated else None
@@ -254,10 +256,15 @@ def my_stats(request):
     # Test statistikasi
     attempts = TestAttempt.objects.filter(user=user, status='completed')
 
+    agg = attempts.aggregate(
+        total=Count('id'),
+        total_xp=Sum('xp_earned'),
+        avg_score=Avg('percentage'),
+    )
     test_stats = {
-        'total': attempts.count(),
-        'total_xp': sum(a.xp_earned for a in attempts),
-        'avg_score': sum(a.percentage for a in attempts) / attempts.count() if attempts.count() > 0 else 0,
+        'total': agg['total'] or 0,
+        'total_xp': agg['total_xp'] or 0,
+        'avg_score': round(agg['avg_score'] or 0, 1),
     }
 
     # Yutuqlar
@@ -265,18 +272,21 @@ def my_stats(request):
         user=user
     ).select_related('achievement').order_by('-earned_at')[:10]
 
-    # Fan bo'yicha
-    from django.db.models import Avg
-    subject_stats = []
-    for subject in Subject.objects.filter(is_active=True):
-        subject_attempts = attempts.filter(test__subject=subject)
-        if subject_attempts.exists():
-            avg = subject_attempts.aggregate(Avg('percentage'))['percentage__avg']
-            subject_stats.append({
-                'subject': subject,
-                'avg_score': round(avg, 1),
-                'count': subject_attempts.count(),
-            })
+    # Fan bo'yicha — bitta query (N+1 o'rniga)
+    subject_raw = (
+        attempts.values('test__subject__id', 'test__subject__name', 'test__subject__color')
+        .annotate(avg_score=Avg('percentage'), count=Count('id'))
+        .filter(count__gt=0)
+    )
+    subjects_map = {s.id: s for s in Subject.objects.filter(is_active=True)}
+    subject_stats = [
+        {
+            'subject': subjects_map.get(row['test__subject__id']),
+            'avg_score': round(row['avg_score'] or 0, 1),
+            'count': row['count'],
+        }
+        for row in subject_raw if row['test__subject__id'] in subjects_map
+    ]
 
     all_subjects = Subject.objects.filter(is_active=True)
     user_rank = user.global_rank

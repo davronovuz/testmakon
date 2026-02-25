@@ -341,35 +341,38 @@ def profile(request):
     stats['level_progress'] = progress_pct
     stats['xp_remaining'] = xp_remaining
 
-    # Fan bo'yicha statistika (radar chart uchun)
-    subject_stats = []
-    subjects = Subject.objects.filter(is_active=True)[:8]
-    for subject in subjects:
-        attempts = TestAttempt.objects.filter(
-            user=user, test__subject=subject, status='completed'
-        )
-        if attempts.exists():
-            avg_score = attempts.aggregate(Avg('percentage'))['percentage__avg'] or 0
-            subject_stats.append({
-                'name': subject.name,
-                'avg_score': round(avg_score, 1),
-                'count': attempts.count(),
-                'color': subject.color or '#8BC540',
-            })
+    # Fan bo'yicha statistika — bitta query (N+1 o'rniga)
+    from django.db.models import Avg as AvgF, Count as CountF
+    subject_raw = (
+        TestAttempt.objects.filter(user=user, status='completed')
+        .values('test__subject__id', 'test__subject__name', 'test__subject__color')
+        .annotate(avg_score=AvgF('percentage'), count=CountF('id'))
+        .order_by('-count')[:8]
+    )
+    subject_stats = [
+        {
+            'name': row['test__subject__name'] or '',
+            'avg_score': round(row['avg_score'] or 0, 1),
+            'count': row['count'],
+            'color': row['test__subject__color'] or '#8BC540',
+        }
+        for row in subject_raw
+    ]
 
-    # Haftalik faoliyat (oxirgi 7 kun)
+    # Haftalik faoliyat — bitta query (N+1 o'rniga)
     today = timezone.now().date()
-    weekly_data = []
+    week_start = today - timedelta(days=6)
     day_names = ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha', 'Ya']
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        count = TestAttempt.objects.filter(
-            user=user, started_at__date=day, status='completed'
-        ).count()
-        weekly_data.append({
-            'day': day_names[day.weekday()],
-            'count': count,
-        })
+    weekly_raw = {
+        str(row['day']): row['cnt']
+        for row in TestAttempt.objects.filter(
+            user=user, started_at__date__gte=week_start, status='completed'
+        ).extra(select={'day': 'date(started_at)'}).values('day').annotate(cnt=CountF('id'))
+    }
+    weekly_data = [
+        {'day': day_names[(today - timedelta(days=i)).weekday()], 'count': weekly_raw.get(str(today - timedelta(days=i)), 0)}
+        for i in range(6, -1, -1)
+    ]
 
     # Badgelar
     badges = UserBadge.objects.filter(user=user).select_related('badge')[:6]

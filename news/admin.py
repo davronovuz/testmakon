@@ -77,21 +77,18 @@ class NotificationAdmin(admin.ModelAdmin):
                 if form.cleaned_data.get('only_active'):
                     qs = qs.filter(is_active=True)
 
-                notifs = [
-                    Notification(
-                        user=user,
-                        title=form.cleaned_data['title'],
-                        message=form.cleaned_data['message'],
-                        notification_type=form.cleaned_data['notification_type'],
-                        link=form.cleaned_data.get('link', ''),
-                    )
-                    for user in qs
-                ]
-                Notification.objects.bulk_create(notifs, batch_size=500)
-                count = len(notifs)
+                from news.tasks import send_bulk_notifications
+                user_ids = list(qs.values_list('id', flat=True))
+                send_bulk_notifications.delay(
+                    user_ids=user_ids,
+                    title=form.cleaned_data['title'],
+                    message=form.cleaned_data['message'],
+                    notification_type=form.cleaned_data['notification_type'],
+                    link=form.cleaned_data.get('link', ''),
+                )
                 self.message_user(
                     request,
-                    f'✅ {count} ta foydalanuvchiga bildirishnoma muvaffaqiyatli yuborildi!',
+                    f'✅ {len(user_ids)} ta foydalanuvchiga bildirishnoma navbatga qo\'yildi (background)!',
                     messages.SUCCESS
                 )
                 return redirect('../')

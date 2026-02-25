@@ -70,6 +70,10 @@ def process_user_stats_after_test(self, attempt_id):
         # User natijalar cache ni tozalash
         invalidate_results_cache.delay(user.id)
 
+        # Leaderboard cache ham yangilanishi kerak
+        from leaderboard.tasks import invalidate_leaderboard_cache
+        invalidate_leaderboard_cache.delay()
+
         logger.info(f"process_user_stats_after_test OK: attempt_id={attempt_id}, user={user.id}")
 
     except Exception as exc:
