@@ -4,1176 +4,1040 @@
 {% block title %}TestMakon — Universitetga kirish imtihoniga AI bilan tayyorlaning{% endblock %}
 
 {% block extra_css %}
+<!-- AOS.js CSS -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
 <style>
-/* ============================================
-   HERO — DARK 3D
-   ============================================ */
-.hero-3d {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    background: radial-gradient(ellipse at 20% 50%, #0D1F0A 0%, #040D1A 45%, #02080F 100%);
-    overflow: hidden;
-}
-
-#hero-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-}
-
-.hero-3d .hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 6rem 0;
-}
-
-.hero-badge-3d {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(139, 197, 64, 0.12);
-    border: 1px solid rgba(139, 197, 64, 0.28);
-    color: #9DD553;
-    padding: 0.5rem 1.25rem;
-    border-radius: 50px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    margin-bottom: 1.75rem;
-    backdrop-filter: blur(10px);
-    letter-spacing: 0.02em;
-}
-
-.hero-badge-3d .pulse-dot {
-    width: 7px;
-    height: 7px;
-    background: #8BC540;
-    border-radius: 50%;
-    animation: pulse-glow 2s ease-in-out infinite;
-    box-shadow: 0 0 8px rgba(139, 197, 64, 0.8);
-}
-
-@keyframes pulse-glow {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(139, 197, 64, 0.8); }
-    50% { transform: scale(1.4); box-shadow: 0 0 18px rgba(139, 197, 64, 1); }
-}
-
-.hero-title-3d {
-    font-size: clamp(2.4rem, 5vw, 4.2rem);
-    font-weight: 900;
-    line-height: 1.05;
-    letter-spacing: -0.04em;
-    color: #FFFFFF;
-    margin-bottom: 1.5rem;
-}
-
-.hero-title-3d .text-green {
-    background: linear-gradient(135deg, #8BC540 0%, #C8F04A 50%, #8BC540 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    background-size: 200% auto;
-    animation: shimmer 3s linear infinite;
-}
-
-@keyframes shimmer {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-}
-
-.hero-subtitle-3d {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.6);
-    line-height: 1.8;
-    max-width: 500px;
-    margin-bottom: 2.5rem;
-}
-
-.hero-cta-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 3rem;
-}
-
-.btn-hero-primary {
-    background: linear-gradient(135deg, #8BC540, #6BA832);
-    color: white;
-    font-weight: 800;
-    font-size: 1rem;
-    padding: 0.9rem 2rem;
-    border-radius: 14px;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 32px -8px rgba(139, 197, 64, 0.5);
-}
-
-.btn-hero-primary:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 16px 48px -8px rgba(139, 197, 64, 0.7);
-    color: white;
-}
-
-.btn-hero-glass {
-    background: rgba(255, 255, 255, 0.07);
-    color: rgba(255, 255, 255, 0.88);
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 0.9rem 2rem;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-}
-
-.btn-hero-glass:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.28);
-    transform: translateY(-3px);
-    color: white;
-}
-
-.hero-stats-3d {
-    display: flex;
-    gap: 2.5rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.hero-stat-3d-number {
-    font-size: 1.75rem;
-    font-weight: 900;
-    color: #FFFFFF;
-    line-height: 1;
-}
-
-.hero-stat-3d-label {
-    font-size: 0.78rem;
-    color: rgba(255, 255, 255, 0.45);
-    margin-top: 0.25rem;
-}
-
-/* Glass Chat Card */
-.hero-glass-card {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.11);
-    border-radius: 28px;
-    padding: 2rem;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 32px 80px -16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-glass-card::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 29px;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(139, 197, 64, 0.4), transparent 50%, rgba(139, 197, 64, 0.08));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-}
-
-.chat-header-glass {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-}
-
-.chat-avatar-glass {
-    width: 46px;
-    height: 46px;
-    background: linear-gradient(135deg, #8BC540, #6BA832);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.3rem;
-    box-shadow: 0 8px 20px -6px rgba(139, 197, 64, 0.6);
-    flex-shrink: 0;
-}
-
-.chat-name-glass {
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 0.95rem;
-}
-
-.chat-status-glass {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.48);
-}
-
-.online-dot {
-    width: 7px;
-    height: 7px;
-    background: #22C55E;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
-    animation: pulse-online 2s infinite;
-}
-
-@keyframes pulse-online {
-    0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.8); }
-    50% { box-shadow: 0 0 16px rgba(34, 197, 94, 1); }
-}
-
-.bubble-user-glass {
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px 16px 4px 16px;
-    padding: 0.85rem 1.1rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.87rem;
-    color: rgba(255, 255, 255, 0.82);
-    line-height: 1.6;
-    margin-left: 2rem;
-}
-
-.bubble-ai-glass {
-    background: linear-gradient(135deg, rgba(139, 197, 64, 0.13), rgba(139, 197, 64, 0.04));
-    border: 1px solid rgba(139, 197, 64, 0.22);
-    border-radius: 16px 16px 16px 4px;
-    padding: 0.85rem 1.1rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.87rem;
-    color: rgba(255, 255, 255, 0.82);
-    line-height: 1.6;
-    margin-right: 1rem;
-}
-
-.bubble-ai-glass strong { color: #9DD553; }
-
-.typing-glass {
-    display: flex;
-    gap: 4px;
-    padding: 0.6rem 0.5rem;
-}
-
-.typing-glass span {
-    width: 7px;
-    height: 7px;
-    background: #8BC540;
-    border-radius: 50%;
-    animation: typing-bounce 1.4s ease-in-out infinite;
-    box-shadow: 0 0 6px rgba(139, 197, 64, 0.5);
-}
-
-.typing-glass span:nth-child(2) { animation-delay: 0.2s; }
-.typing-glass span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes typing-bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-7px); opacity: 1; }
-}
-
-/* Floating stat badges */
-.float-stat {
-    position: absolute;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(16px);
-    border-radius: 14px;
-    padding: 0.65rem 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-weight: 700;
-    font-size: 0.78rem;
-    color: white;
-    z-index: 3;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.float-stat-top {
-    top: -22px;
-    right: -15px;
-    animation: float-y 4s ease-in-out infinite;
-}
-
-.float-stat-bottom {
-    bottom: -18px;
-    left: -15px;
-    animation: float-y 4s ease-in-out infinite 1.5s;
-}
-
-@keyframes float-y {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-12px); }
-}
-
-.scroll-indicator {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 0.72rem;
-    animation: scroll-hint 2s ease-in-out infinite;
-    z-index: 2;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
-
-@keyframes scroll-hint {
-    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.35; }
-    50% { transform: translateX(-50%) translateY(8px); opacity: 0.7; }
-}
-
-/* ============================================
-   SECTION COMMON
-   ============================================ */
-.section-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(139, 197, 64, 0.1);
-    border: 1px solid rgba(139, 197, 64, 0.22);
-    color: #6BA832;
-    padding: 0.4rem 1rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 1rem;
-}
-
-.section-h2 {
-    font-size: clamp(1.85rem, 3.5vw, 2.75rem);
-    font-weight: 900;
-    color: #0F172A;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    margin-bottom: 0.75rem;
-}
-
-.section-h2 .grad {
-    background: linear-gradient(135deg, #8BC540, #5A9428);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.section-sub {
-    color: #64748B;
-    font-size: 1.05rem;
-    max-width: 560px;
-    margin: 0 auto 3rem;
-    line-height: 1.8;
-}
-
-/* ============================================
-   FEATURES SECTION
-   ============================================ */
-.features-3d {
-    padding: 7rem 0;
-    background: #F8FAFC;
-    position: relative;
-    overflow: hidden;
-}
-
-.features-3d::before {
-    content: '';
-    position: absolute;
-    top: -80px;
-    right: -80px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(139, 197, 64, 0.05) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.feat-card-3d {
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 24px;
-    padding: 2.25rem;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    cursor: default;
-    transform-style: preserve-3d;
-    will-change: transform;
-}
-
-.feat-card-3d::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #8BC540, #6BA832);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
-}
-
-.feat-card-3d::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    background: radial-gradient(ellipse at 50% 0%, rgba(139, 197, 64, 0.05) 0%, transparent 65%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.feat-card-3d:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(139, 197, 64, 0.14);
-}
-
-.feat-card-3d:hover::before { transform: scaleX(1); }
-.feat-card-3d:hover::after { opacity: 1; }
-
-.feat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.7rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    z-index: 1;
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.feat-card-3d:hover .feat-icon { transform: translateY(-4px) scale(1.05); }
-
-.feat-icon-green {
-    background: linear-gradient(145deg, #9DD553 0%, #5A9428 100%);
-    color: white;
-    box-shadow: 0 10px 28px -8px rgba(139, 197, 64, 0.6), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-.feat-icon-blue {
-    background: linear-gradient(145deg, #60A5FA 0%, #1D4ED8 100%);
-    color: white;
-    box-shadow: 0 10px 28px -8px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-.feat-icon-purple {
-    background: linear-gradient(145deg, #A78BFA 0%, #6D28D9 100%);
-    color: white;
-    box-shadow: 0 10px 28px -8px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-.feat-icon-amber {
-    background: linear-gradient(145deg, #FCD34D 0%, #D97706 100%);
-    color: white;
-    box-shadow: 0 10px 28px -8px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-.feat-icon-red {
-    background: linear-gradient(145deg, #FCA5A5 0%, #DC2626 100%);
-    color: white;
-    box-shadow: 0 10px 28px -8px rgba(239, 68, 68, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-.feat-icon-teal {
-    background: linear-gradient(145deg, #5EEAD4 0%, #0D9488 100%);
-    color: white;
-    box-shadow: 0 10px 28px -8px rgba(20, 184, 166, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-}
-
-.feat-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #0F172A;
-    margin-bottom: 0.6rem;
-    position: relative;
-    z-index: 1;
-}
-
-.feat-desc {
-    color: #64748B;
-    font-size: 0.88rem;
-    line-height: 1.75;
-    margin-bottom: 1.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-.feat-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: #6BA832;
-    font-weight: 700;
-    font-size: 0.83rem;
-    text-decoration: none;
-    opacity: 0;
-    transform: translateX(-6px);
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 1;
-}
-
-.feat-card-3d:hover .feat-link { opacity: 1; transform: translateX(0); }
-.feat-link:hover { gap: 0.7rem; color: #6BA832; }
-
-/* ============================================
-   SUBJECTS SECTION
-   ============================================ */
-.subjects-3d {
-    padding: 7rem 0;
-    background: white;
-}
-
-.subj-card {
-    background: white;
-    border: 1px solid #E2E8F0;
-    border-radius: 20px;
-    padding: 1.75rem 1.25rem;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    transform-style: preserve-3d;
-    will-change: transform;
-}
-
-.subj-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 120%, rgba(139, 197, 64, 0.09) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s;
-}
-
-.subj-card:hover {
-    transform: translateY(-6px) scale(1.02);
-    border-color: rgba(139, 197, 64, 0.3);
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-}
-
-.subj-card:hover::after { opacity: 1; }
-
-.subj-emoji {
-    font-size: 2.75rem;
-    display: block;
-    margin-bottom: 0.7rem;
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-    z-index: 1;
-}
-
-.subj-card:hover .subj-emoji { transform: scale(1.2) translateY(-4px); }
-
-.subj-name {
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: #0F172A;
-    margin-bottom: 0.25rem;
-    position: relative;
-    z-index: 1;
-}
-
-.subj-count {
-    font-size: 0.75rem;
-    color: #94A3B8;
-    position: relative;
-    z-index: 1;
-}
-
-/* ============================================
-   STATS SECTION
-   ============================================ */
-.stats-3d {
-    padding: 5rem 0;
-    background: linear-gradient(135deg, #040D1A 0%, #0A1A0A 60%, #040D1A 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-.stats-3d::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(circle at 1px 1px, rgba(139, 197, 64, 0.055) 1px, transparent 0);
-    background-size: 38px 38px;
-    pointer-events: none;
-}
-
-.stats-3d::after {
-    content: '';
-    position: absolute;
-    top: -80px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 600px;
-    height: 280px;
-    background: radial-gradient(ellipse, rgba(139, 197, 64, 0.07) 0%, transparent 70%);
-    pointer-events: none;
-}
-
-.stat-3d-item {
-    text-align: center;
-    position: relative;
-    z-index: 1;
-}
-
-.stat-3d-number {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 900;
-    background: linear-gradient(135deg, #8BC540 0%, #C8F04A 50%, #8BC540 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-}
-
-.stat-3d-label {
-    color: rgba(255, 255, 255, 0.48);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-/* ============================================
-   HOW IT WORKS
-   ============================================ */
-.steps-3d {
-    padding: 7rem 0;
-    background: #F8FAFC;
-}
-
-.step-3d-card { text-align: center; position: relative; }
-
-.step-3d-num {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #8BC540, #5A9428);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    font-weight: 900;
-    color: white;
-    margin: 0 auto 1.5rem;
-    box-shadow: 0 16px 36px -8px rgba(139, 197, 64, 0.5);
-    position: relative;
-}
-
-.step-3d-num::before {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border: 2px dashed rgba(139, 197, 64, 0.3);
-    border-radius: 50%;
-    animation: spin 20s linear infinite;
-}
-
-.step-3d-num::after {
-    content: '';
-    position: absolute;
-    inset: -16px;
-    border: 1px solid rgba(139, 197, 64, 0.1);
-    border-radius: 50%;
-    animation: spin 30s linear infinite reverse;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.step-connector { display: none; }
-
-@media (min-width: 768px) {
-    .step-connector {
-        display: block;
-        position: absolute;
-        top: 40px;
-        left: calc(50% + 55px);
-        width: calc(100% - 110px);
-        height: 2px;
-        background: repeating-linear-gradient(
-            90deg,
-            rgba(139, 197, 64, 0.28) 0px,
-            rgba(139, 197, 64, 0.28) 8px,
-            transparent 8px,
-            transparent 16px
-        );
+    /* ==========================================
+       HERO SECTION
+    ========================================== */
+    .hero {
+        background: linear-gradient(160deg, #F8FAFC 0%, #E8F5E9 40%, #F1F5F9 100%);
+        padding: 5rem 0 6rem;
+        position: relative;
+        overflow: hidden;
     }
-}
 
-.step-3d-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #0F172A;
-    margin-bottom: 0.6rem;
-}
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -200px;
+        right: -150px;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(139, 197, 64, 0.12) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
 
-.step-3d-desc {
-    color: #64748B;
-    font-size: 0.88rem;
-    line-height: 1.75;
-    max-width: 260px;
-    margin: 0 auto;
-}
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -300px;
+        left: -100px;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(139, 197, 64, 0.06) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
 
-/* ============================================
-   PRICING SECTION
-   ============================================ */
-.pricing-3d {
-    padding: 7rem 0;
-    background: white;
-}
+    .hero-badge {
+        background: rgba(139, 197, 64, 0.12);
+        color: var(--primary-dark);
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba(139, 197, 64, 0.25);
+        margin-bottom: 1.5rem;
+    }
 
-.price-card {
-    background: white;
-    border: 2px solid #E2E8F0;
-    border-radius: 28px;
-    padding: 2.5rem 2rem;
-    height: 100%;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
+    .hero-badge .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+        border-radius: 50%;
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
 
-.price-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.12);
-}
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.4); }
+    }
 
-.price-card.popular {
-    background: linear-gradient(145deg, #0F172A, #1A2844);
-    border-color: rgba(139, 197, 64, 0.4);
-    box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(139, 197, 64, 0.18);
-}
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        color: var(--dark);
+        margin-bottom: 1.5rem;
+    }
 
-.price-card.popular:hover {
-    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.38), 0 0 60px -20px rgba(139, 197, 64, 0.28);
-}
+    .hero-title .highlight {
+        position: relative;
+        display: inline;
+    }
 
-.popular-tag {
-    position: absolute;
-    top: -14px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #8BC540, #6BA832);
-    color: white;
-    font-weight: 800;
-    font-size: 0.72rem;
-    padding: 0.4rem 1.25rem;
-    border-radius: 50px;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    box-shadow: 0 6px 20px -4px rgba(139, 197, 64, 0.5);
-}
+    .hero-title .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 0;
+        right: 0;
+        height: 14px;
+        background: rgba(139, 197, 64, 0.25);
+        border-radius: 4px;
+        z-index: -1;
+    }
 
-.price-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 1.25rem;
-}
+    .hero-subtitle {
+        font-size: 1.15rem;
+        color: var(--gray-500);
+        line-height: 1.8;
+        margin-bottom: 2rem;
+        max-width: 520px;
+    }
 
-.price-name {
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-bottom: 0.4rem;
-}
+    .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
 
-.price-card:not(.popular) .price-name { color: #0F172A; }
-.price-card.popular .price-name { color: white; }
+    .hero-stat-number {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
 
-.price-desc {
-    font-size: 0.87rem;
-    margin-bottom: 1.5rem;
-    min-height: 40px;
-}
+    .hero-stat-label {
+        font-size: 0.82rem;
+        color: var(--gray-500);
+        font-weight: 500;
+        margin-top: 0.25rem;
+    }
 
-.price-card:not(.popular) .price-desc { color: #64748B; }
-.price-card.popular .price-desc { color: rgba(255, 255, 255, 0.55); }
+    /* Hero Right - AI Chat Preview */
+    .hero-chat {
+        background: var(--white);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--gray-200);
+        position: relative;
+    }
 
-.price-amount {
-    display: flex;
-    align-items: baseline;
-    gap: 0.25rem;
-    margin-bottom: 1.75rem;
-}
+    .hero-chat::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 25px;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.3), transparent 50%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
 
-.price-value {
-    font-size: 2.75rem;
-    font-weight: 900;
-    line-height: 1;
-}
+    .chat-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
 
-.price-currency { font-size: 1.1rem; font-weight: 700; }
-.price-period { font-size: 0.85rem; font-weight: 500; }
+    .chat-avatar {
+        width: 44px;
+        height: 44px;
+        background: var(--gradient-primary);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        box-shadow: 0 8px 20px -6px rgba(139, 197, 64, 0.5);
+    }
 
-.price-card:not(.popular) .price-value,
-.price-card:not(.popular) .price-currency { color: #0F172A; }
-.price-card:not(.popular) .price-period { color: #94A3B8; }
+    .chat-online {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
 
-.price-card.popular .price-value,
-.price-card.popular .price-currency { color: white; }
-.price-card.popular .price-period { color: rgba(255, 255, 255, 0.45); }
+    .chat-online-dot {
+        width: 7px;
+        height: 7px;
+        background: #22C55E;
+        border-radius: 50%;
+    }
 
-.price-features {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
+    .chat-bubble {
+        border-radius: 16px;
+        padding: 0.9rem 1.15rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.92rem;
+        line-height: 1.6;
+    }
 
-.price-features li {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-size: 0.88rem;
-}
+    .bubble-user {
+        background: var(--gray-100);
+        color: var(--dark);
+        margin-left: 2rem;
+    }
 
-.price-card:not(.popular) .price-features li { color: #334155; }
-.price-card.popular .price-features li { color: rgba(255, 255, 255, 0.8); }
+    .bubble-ai {
+        background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.04) 100%);
+        border-left: 3px solid var(--primary);
+        color: var(--dark-600);
+        margin-right: 1rem;
+    }
 
-.price-check {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.65rem;
-    flex-shrink: 0;
-    background: rgba(139, 197, 64, 0.12);
-    color: #6BA832;
-}
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 0.75rem 1rem;
+    }
 
-.price-card.popular .price-check {
-    background: rgba(139, 197, 64, 0.2);
-    color: #9DD553;
-}
+    .typing-indicator span {
+        width: 7px;
+        height: 7px;
+        background: var(--primary);
+        border-radius: 50%;
+        animation: typing 1.4s ease-in-out infinite;
+    }
 
-.price-features li.disabled { opacity: 0.4; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
-/* ============================================
-   CTA SECTION
-   ============================================ */
-.cta-3d {
-    padding: 7rem 0;
-    background: linear-gradient(135deg, #8BC540 0%, #6BA832 50%, #4A7822 100%);
-    position: relative;
-    overflow: hidden;
-}
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        30% { transform: translateY(-6px); opacity: 1; }
+    }
 
-.cta-3d::before {
-    content: '';
-    position: absolute;
-    top: -30%;
-    right: -10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
-    border-radius: 50%;
-}
+    /* Floating Elements */
+    .float-badge {
+        position: absolute;
+        background: var(--white);
+        border-radius: 14px;
+        padding: 0.7rem 1rem;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: var(--dark);
+        z-index: 2;
+    }
 
-.cta-3d::after {
-    content: '';
-    position: absolute;
-    bottom: -30%;
-    left: -10%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
-    border-radius: 50%;
-}
+    .float-badge-top {
+        top: -20px;
+        right: -15px;
+        animation: float-slow 4s ease-in-out infinite;
+    }
 
-.cta-title-3d {
-    font-size: clamp(1.7rem, 3.5vw, 2.75rem);
-    font-weight: 900;
-    color: white;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 1;
-}
+    .float-badge-bottom {
+        bottom: -15px;
+        left: -15px;
+        animation: float-slow 4s ease-in-out infinite 1.5s;
+    }
 
-.cta-sub-3d {
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1.1rem;
-    margin-bottom: 2.5rem;
-    position: relative;
-    z-index: 1;
-}
+    @keyframes float-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
 
-.btn-cta-white {
-    background: white;
-    color: #6BA832;
-    font-weight: 800;
-    font-size: 1rem;
-    padding: 0.95rem 2.25rem;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 1;
-    border: none;
-}
+    /* ==========================================
+       3D ICON SYSTEM
+    ========================================== */
+    .icon-3d {
+        width: 68px;
+        height: 68px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.85rem;
+        position: relative;
+        margin-bottom: 1.25rem;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+        perspective: 600px;
+    }
 
-.btn-cta-white:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.25);
-    color: #5A9428;
-}
+    .icon-3d::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 10%;
+        right: 10%;
+        height: 12px;
+        border-radius: 50%;
+        filter: blur(8px);
+        opacity: 0.4;
+        z-index: -1;
+    }
 
-.btn-cta-outline {
-    background: transparent;
-    color: white;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 0.95rem 2.25rem;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 2px solid rgba(255, 255, 255, 0.38);
-    position: relative;
-    z-index: 1;
-}
+    .icon-3d:hover {
+        transform: translateY(-4px) rotateX(8deg) rotateY(-8deg);
+    }
 
-.btn-cta-outline:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.7);
-    transform: translateY(-3px);
-    color: white;
-}
+    .icon-3d-green {
+        background: linear-gradient(145deg, #9DD553 0%, #6BA832 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(139, 197, 64, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-green::after { background: rgba(139, 197, 64, 0.4); }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 991px) {
-    .hero-3d .hero-content { padding: 4rem 0; }
-    .hero-stats-3d { gap: 1.5rem; }
-    .hero-stat-3d-number { font-size: 1.4rem; }
-    .float-stat { display: none; }
-}
+    .icon-3d-blue {
+        background: linear-gradient(145deg, #60A5FA 0%, #1D4ED8 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-blue::after { background: rgba(59, 130, 246, 0.4); }
 
-@media (max-width: 767px) {
-    .hero-3d .hero-content { padding: 3rem 0; }
-    .hero-stats-3d { gap: 1.25rem; flex-wrap: wrap; }
-    .hero-glass-card { margin-top: 2rem; }
-    .features-3d, .subjects-3d, .steps-3d, .pricing-3d { padding: 5rem 0; }
-    .cta-3d { padding: 5rem 0; }
-}
+    .icon-3d-purple {
+        background: linear-gradient(145deg, #A78BFA 0%, #6D28D9 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-purple::after { background: rgba(139, 92, 246, 0.4); }
 
-@media (max-width: 575px) {
-    .hero-stats-3d { gap: 1rem; }
-    .price-amount { justify-content: center; }
-}
+    .icon-3d-amber {
+        background: linear-gradient(145deg, #FCD34D 0%, #D97706 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-amber::after { background: rgba(245, 158, 11, 0.4); }
+
+    .icon-3d-red {
+        background: linear-gradient(145deg, #FCA5A5 0%, #DC2626 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(239, 68, 68, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-red::after { background: rgba(239, 68, 68, 0.4); }
+
+    .icon-3d-teal {
+        background: linear-gradient(145deg, #5EEAD4 0%, #0D9488 100%);
+        color: white;
+        box-shadow: 0 8px 24px -6px rgba(20, 184, 166, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .icon-3d-teal::after { background: rgba(20, 184, 166, 0.4); }
+
+    /* ==========================================
+       FEATURES SECTION
+    ========================================== */
+    .features-section {
+        padding: 6rem 0;
+        background: var(--white);
+    }
+
+    .section-label {
+        background: rgba(139, 197, 64, 0.1);
+        color: var(--primary-dark);
+        padding: 0.45rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .section-heading {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+        color: var(--gray-500);
+        font-size: 1.05rem;
+        max-width: 580px;
+        margin: 0 auto 3rem;
+    }
+
+    .feature-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 20px;
+        padding: 2rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.12);
+        border-color: var(--primary-light);
+    }
+
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-card .f-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.6rem;
+    }
+
+    .feature-card .f-desc {
+        color: var(--gray-500);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
+    }
+
+    .feature-card .f-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.85rem;
+        opacity: 0;
+        transform: translateX(-8px);
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .f-link {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .feature-card .f-link:hover { gap: 0.65rem; }
+
+    /* ==========================================
+       SUBJECTS SECTION
+    ========================================== */
+    .subjects-section {
+        padding: 6rem 0;
+        background: var(--gray-100);
+    }
+
+    .subject-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 16px;
+        padding: 1.75rem 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .subject-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-light);
+    }
+
+    .subject-card:hover::after { transform: scaleX(1); }
+
+    .subject-emoji {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 0.75rem;
+        transition: transform 0.3s ease;
+    }
+
+    .subject-card:hover .subject-emoji { transform: scale(1.15); }
+
+    .subject-name {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--dark);
+        margin-bottom: 0.2rem;
+    }
+
+    .subject-count {
+        color: var(--gray-500);
+        font-size: 0.8rem;
+    }
+
+    /* ==========================================
+       STATS SECTION
+    ========================================== */
+    .stats-section {
+        background: linear-gradient(135deg, var(--dark) 0%, #0F172A 100%);
+        padding: 4.5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%238BC540' fill-opacity='0.04'%3E%3Cpath d='M20 20h20v20H20zM0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+
+    .stat-item { text-align: center; position: relative; z-index: 1; }
+
+    .stat-number {
+        font-size: 2.75rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.4rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--gray-400);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    /* ==========================================
+       HOW IT WORKS
+    ========================================== */
+    .steps-section {
+        padding: 6rem 0;
+        background: var(--white);
+    }
+
+    .step-card {
+        text-align: center;
+        position: relative;
+    }
+
+    .step-number {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 900;
+        color: white;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 12px 30px -8px rgba(139, 197, 64, 0.5);
+        position: relative;
+    }
+
+    .step-number::after {
+        content: '';
+        position: absolute;
+        inset: -6px;
+        border: 2px dashed rgba(139, 197, 64, 0.3);
+        border-radius: 50%;
+        animation: spin 25s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .step-connector {
+        display: none;
+    }
+
+    @media (min-width: 768px) {
+        .step-connector {
+            display: block;
+            position: absolute;
+            top: 40px;
+            left: calc(50% + 55px);
+            width: calc(100% - 110px);
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--primary-light) 0px,
+                var(--primary-light) 8px,
+                transparent 8px,
+                transparent 16px
+            );
+        }
+    }
+
+    .step-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.6rem;
+    }
+
+    .step-desc {
+        color: var(--gray-500);
+        font-size: 0.92rem;
+        line-height: 1.7;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    /* ==========================================
+       PRICING SECTION
+    ========================================== */
+    .pricing-section {
+        padding: 6rem 0;
+        background: var(--gray-100);
+    }
+
+    .pricing-card {
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        height: 100%;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.1);
+    }
+
+    .pricing-card.popular {
+        border-color: var(--primary);
+        box-shadow: 0 20px 50px -15px rgba(139, 197, 64, 0.25);
+    }
+
+    .pricing-card.popular:hover {
+        box-shadow: 0 25px 60px -15px rgba(139, 197, 64, 0.35);
+    }
+
+    .popular-badge {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gradient-primary);
+        color: white;
+        font-weight: 800;
+        font-size: 0.75rem;
+        padding: 0.4rem 1.25rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 6px 20px -4px rgba(139, 197, 64, 0.5);
+        white-space: nowrap;
+    }
+
+    .pricing-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .pricing-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .pricing-desc {
+        color: var(--gray-500);
+        font-size: 0.88rem;
+        margin-bottom: 1.5rem;
+        min-height: 40px;
+    }
+
+    .pricing-amount {
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .pricing-currency {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .pricing-value {
+        font-size: 2.75rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .pricing-period {
+        font-size: 0.88rem;
+        color: var(--gray-500);
+        font-weight: 500;
+    }
+
+    .pricing-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .pricing-features li {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        font-size: 0.9rem;
+        color: var(--dark-600);
+    }
+
+    .pricing-features li .check {
+        width: 20px;
+        height: 20px;
+        background: rgba(139, 197, 64, 0.15);
+        color: var(--primary-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        flex-shrink: 0;
+    }
+
+    .pricing-features li.disabled {
+        color: var(--gray-400);
+    }
+
+    .pricing-features li.disabled .check {
+        background: var(--gray-100);
+        color: var(--gray-400);
+    }
+
+    /* ==========================================
+       CTA SECTION
+    ========================================== */
+    .cta-section {
+        background: linear-gradient(135deg, #8BC540 0%, #6BA832 50%, #5A9428 100%);
+        padding: 5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -15%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .cta-section::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: -15%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: white;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-desc {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-btn-white {
+        background: white;
+        color: var(--primary-dark);
+        font-weight: 800;
+        padding: 1rem 2.25rem;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
+        border: none;
+    }
+
+    .cta-btn-white:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.3);
+        color: var(--primary-dark);
+    }
+
+    .cta-btn-outline {
+        background: transparent;
+        color: white;
+        font-weight: 700;
+        padding: 1rem 2.25rem;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-btn-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.7);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* ==========================================
+       RESPONSIVE
+    ========================================== */
+    @media (max-width: 991px) {
+        .hero { padding: 3.5rem 0 4rem; }
+        .hero-title { font-size: 2.75rem; }
+        .hero-stats { gap: 1.5rem; }
+        .hero-stat-number { font-size: 1.4rem; }
+        .section-heading { font-size: 2rem; }
+        .cta-title { font-size: 2rem; }
+        .float-badge { display: none; }
+    }
+
+    @media (max-width: 767px) {
+        .hero { padding: 2.5rem 0 3rem; }
+        .hero-title { font-size: 2.15rem; }
+        .hero-subtitle { font-size: 1rem; }
+        .hero-stats { gap: 1.25rem; flex-wrap: wrap; }
+        .hero-stat-number { font-size: 1.25rem; }
+        .hero-chat { margin-top: 2rem; }
+        .section-heading { font-size: 1.7rem; }
+        .stat-number { font-size: 2rem; }
+        .pricing-card { padding: 2rem 1.5rem; }
+        .pricing-value { font-size: 2.25rem; }
+        .cta-title { font-size: 1.7rem; }
+        .step-number { width: 65px; height: 65px; font-size: 1.5rem; }
+        .step-number::after { inset: -5px; }
+    }
+
+    @media (max-width: 575px) {
+        .hero-title { font-size: 1.85rem; }
+        .hero-stats { gap: 1rem; }
+        .pricing-amount { justify-content: center; }
+        .features-section, .subjects-section, .steps-section, .pricing-section { padding: 4rem 0; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ========== HERO 3D ========== -->
-<section class="hero-3d">
-    <canvas id="hero-canvas"></canvas>
-
-    <div class="container hero-content">
+<!-- ========== HERO ========== -->
+<section class="hero">
+    <div class="container">
         <div class="row align-items-center g-5">
-
-            <!-- Left -->
-            <div class="col-lg-6" id="hero-left">
-                <div class="hero-badge-3d">
-                    <span class="pulse-dot"></span>
-                    5,200+ talaba tayyorlanmoqda
-                </div>
-
-                <h1 class="hero-title-3d">
-                    Imtihonda <span class="text-green">189+ ball</span> olish —
-                    AI bilan haqiqat
+            <div class="col-lg-6" data-aos="fade-right" data-aos-duration="800">
+                <h1 class="hero-title">
+                    Imtihonda <span class="highlight">189+ ball</span> olish  — <span class="text-gradient">AI bilan </span>
                 </h1>
 
-                <p class="hero-subtitle-3d">
-                    Shaxsiy AI mentor va real DTM simulyatsiyasi. Har bir xatoyingizni tahlil qilamiz, zaif tomonlaringizni kuchli qilamiz.
+                <p class="hero-subtitle">
+                    Shaxsiy AI mentor va real DTM . Har bir xatoyingizni tahlil qilamiz, zaif tomonlaringizni kuchli qilamiz.
                 </p>
 
-                <div class="hero-cta-group">
-                    <a href="{% url 'accounts:register' %}" class="btn-hero-primary">
-                        Bepul boshlash <i class="bi bi-arrow-right"></i>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
+                        Bepul boshlash <i class="bi bi-arrow-right ms-1"></i>
                     </a>
-                    <a href="{% url 'tests_app:tests_list' %}" class="btn-hero-glass">
-                        <i class="bi bi-play-circle"></i> Demo test
+                    <a href="{% url 'tests_app:tests_list' %}" class="btn btn-outline btn-lg">
+                        <i class="bi bi-play-circle me-1"></i> Demo test
                     </a>
                 </div>
 
-                <div class="hero-stats-3d">
-                    <div>
-                        <div class="hero-stat-3d-number">5,200+</div>
-                        <div class="hero-stat-3d-label">Faol talabalar</div>
-                    </div>
-                    <div>
-                        <div class="hero-stat-3d-number">189.4</div>
-                        <div class="hero-stat-3d-label">O'rt. ball o'sishi</div>
-                    </div>
-                    <div>
-                        <div class="hero-stat-3d-number">98%</div>
-                        <div class="hero-stat-3d-label">Mamnunlik</div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Right - Glass Chat -->
-            <div class="col-lg-6" id="hero-right">
+            <div class="col-lg-6" data-aos="fade-left" data-aos-duration="800" data-aos-delay="200">
                 <div class="position-relative">
-                    <div class="float-stat float-stat-top">
-                        <span style="font-size:1.1rem;">🏆</span>
-                        <div>
-                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">O'rtacha natija</div>
-                            <div>+42 ball</div>
-                        </div>
-                    </div>
 
-                    <div class="hero-glass-card">
-                        <div class="chat-header-glass">
-                            <div class="chat-avatar-glass">
+                    <!-- AI Chat Preview -->
+                    <div class="hero-chat">
+                        <div class="chat-header">
+                            <div class="chat-avatar">
                                 <i class="bi bi-robot"></i>
                             </div>
                             <div>
-                                <div class="chat-name-glass">AI Mentor</div>
-                                <div class="chat-status-glass">
-                                    <span class="online-dot"></span> Doimo online
+                                <div style="font-weight: 800; color: var(--dark); font-size: 0.95rem;">AI Mentor</div>
+                                <div class="chat-online">
+                                    <span class="chat-online-dot"></span>
+                                    <small style="color: var(--gray-500); font-size: 0.78rem;">Doimo online</small>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bubble-user-glass">
+                        <div class="chat-bubble bubble-user">
                             Matematikadan 68% oldim. Qaysi mavzularni qayta o'qishim kerak?
                         </div>
 
-                        <div class="bubble-ai-glass">
-                            <strong>Tahlil:</strong> Geometriya (42%) va trigonometriya (55%) zaif. Quyidagi reja bo'yicha 2 haftada 85%+ ga chiqasiz:<br><br>
+                        <div class="chat-bubble bubble-ai">
+                            <strong>Tahlil:</strong> Sizda geometriya (42%) va trigonometriya (55%) zaif. Quyidagi reja bo'yicha 2 haftada 85%+ ga chiqasiz:<br><br>
                             📌 <strong>1-hafta:</strong> Geometriya asoslari + 50 ta mashq<br>
                             📌 <strong>2-hafta:</strong> Trigonometriya formulalari + amaliyot
                         </div>
 
-                        <div class="typing-glass">
+                        <div class="typing-indicator">
                             <span></span><span></span><span></span>
-                        </div>
-                    </div>
-
-                    <div class="float-stat float-stat-bottom">
-                        <span style="font-size:1.1rem;">⚡</span>
-                        <div>
-                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">Real DTM format</div>
-                            <div>5 fan · 150 savol</div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-    </div>
-
-    <div class="scroll-indicator">
-        <span>Quyiga aylantiring</span>
-        <i class="bi bi-chevron-double-down"></i>
     </div>
 </section>
 
 <!-- ========== FEATURES ========== -->
-<section class="features-3d">
+<section class="features-section">
     <div class="container">
-        <div class="text-center" id="features-head">
-            <span class="section-tag"><i class="bi bi-stars"></i> Imkoniyatlar</span>
-            <h2 class="section-h2">Boshqa platformalarda <span class="grad">yo'q</span> narsalar</h2>
-            <p class="section-sub">TestMakon oddiy test sayti emas. AI sizning har bir xatoyingizni tahlil qilib, shaxsiy reja tuzadi.</p>
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Imkoniyatlar</span>
+            <h2 class="section-heading">Boshqa platformalarda <span class="text-gradient">yo'q</span> narsalar</h2>
+            <p class="section-desc">TestMakon oddiy test sayti emas. AI sizning har bir xatoyingizni tahlil qilib, shaxsiy reja tuzadi.</p>
         </div>
 
-        <div class="row g-4" id="features-grid">
-            <div class="col-md-6 col-lg-4">
-                <div class="feat-card-3d tilt-card">
-                    <div class="feat-icon feat-icon-green"><i class="bi bi-robot"></i></div>
-                    <h4 class="feat-title">AI Mentor — 24/7 o'qituvchi</h4>
-                    <p class="feat-desc">Tushunmagan mavzuni yozing — AI darhol tushuntiradi. Formulalar, misollar, qadam-baqadam yechimlar. Hech qachon charchamaydi.</p>
-                    <a href="{% url 'ai_core:ai_mentor' %}" class="feat-link">Sinab ko'ring <i class="bi bi-arrow-right"></i></a>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+                <div class="feature-card">
+                    <div class="icon-3d icon-3d-green">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <h4 class="f-title">AI Mentor — 24/7 o'qituvchi</h4>
+                    <p class="f-desc">Tushunmagan mavzuni yozing — AI darhol tushuntiradi. Formulalar, misollar, qadam-baqadam yechimlar. Hech qachon charchamaydi.</p>
+                    <a href="{% url 'ai_core:ai_mentor' %}" class="f-link">
+                        Sinab ko'ring <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
-                <div class="feat-card-3d tilt-card">
-                    <div class="feat-icon feat-icon-blue"><i class="bi bi-graph-up-arrow"></i></div>
-                    <h4 class="feat-title">Xatolarni AI tahlil qiladi</h4>
-                    <p class="feat-desc">Har bir testdan keyin AI zaif mavzularingizni topadi. Qayerda ko'p xato qilasiz, nimani takrorlashingiz kerak — aniq ko'rsatadi.</p>
-                    <a href="#" class="feat-link">Batafsil <i class="bi bi-arrow-right"></i></a>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+                <div class="feature-card">
+                    <div class="icon-3d icon-3d-blue">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h4 class="f-title">Xatolarni AI tahlil qiladi</h4>
+                    <p class="f-desc">Har bir testdan keyin AI zaif mavzularingizni topadi. Qayerda ko'p xato qilasiz, nimani takrorlashingiz kerak — aniq ko'rsatadi.</p>
+                    <a href="#" class="f-link">
+                        Batafsil <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
-                <div class="feat-card-3d tilt-card">
-                    <div class="feat-icon feat-icon-purple"><i class="bi bi-mortarboard"></i></div>
-                    <h4 class="feat-title">Qaysi universitetga o'taman?</h4>
-                    <p class="feat-desc">Balingizni kiriting — o'tgan yil statistikasi asosida qaysi yo'nalishlarga o'tish imkoniyatingiz borligini ko'ring.</p>
-                    <a href="{% url 'ai_core:ai_advisor' %}" class="feat-link">Hisoblash <i class="bi bi-arrow-right"></i></a>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
+                <div class="feature-card">
+                    <div class="icon-3d icon-3d-purple">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                    <h4 class="f-title">Qaysi universitetga o'taman?</h4>
+                    <p class="f-desc">Balingizni kiriting — o'tgan yil statistikasi asosida qaysi yo'nalishlarga o'tish imkoniyatingiz borligini ko'ring.</p>
+                    <a href="{% url 'ai_core:ai_advisor' %}" class="f-link">
+                        Hisoblash <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
-                <div class="feat-card-3d tilt-card">
-                    <div class="feat-icon feat-icon-amber"><i class="bi bi-trophy"></i></div>
-                    <h4 class="feat-title">Do'stlar bilan bellashing</h4>
-                    <p class="feat-desc">1v1 duel, haftalik turnirlar va umumiy reyting. Raqobat motivatsiya beradi — g'oliblarga maxsus sovrinlar.</p>
-                    <a href="{% url 'competitions:competitions_list' %}" class="feat-link">Musobaqaga kirish <i class="bi bi-arrow-right"></i></a>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+                <div class="feature-card">
+                    <div class="icon-3d icon-3d-amber">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <h4 class="f-title">Do'stlar bilan bellashing</h4>
+                    <p class="f-desc">1v1 duel, haftalik turnirlar va umumiy reyting. Raqobat motivatsiya beradi — g'oliblarga maxsus sovrinlar.</p>
+                    <a href="{% url 'competitions:competitions_list' %}" class="f-link">
+                        Musobaqaga kirish <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
-                <div class="feat-card-3d tilt-card">
-                    <div class="feat-icon feat-icon-red"><i class="bi bi-lightning-charge"></i></div>
-                    <h4 class="feat-title">Real DTM formati</h4>
-                    <p class="feat-desc">3.5 soat, 5 fan, 30 ta savol — haqiqiy imtihon sharoitida mashq qiling. Vaqt tugashi, stress va haqiqiy natija.</p>
-                    <a href="{% url 'tests_app:tests_list' %}" class="feat-link">Test boshlash <i class="bi bi-arrow-right"></i></a>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+                <div class="feature-card">
+                    <div class="icon-3d icon-3d-red">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <h4 class="f-title">Real DTM formati</h4>
+                    <p class="f-desc">3.5 soat, 5 fan, 30 ta savol — haqiqiy imtihon sharoitida mashq qiling. Vaqt tugashi, stress va haqiqiy natija.</p>
+                    <a href="{% url 'tests_app:tests_list' %}" class="f-link">
+                        Test boshlash <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4">
-                <div class="feat-card-3d tilt-card">
-                    <div class="feat-icon feat-icon-teal"><i class="bi bi-bar-chart"></i></div>
-                    <h4 class="feat-title">O'zbekiston bo'ylab reyting</h4>
-                    <p class="feat-desc">Butun mamlakat bo'ylab nechanchi o'rindaligingizni bilib oling. Maktab, tuman va viloyat reytingida ko'rining.</p>
-                    <a href="{% url 'leaderboard:global_leaderboard' %}" class="feat-link">Reytingni ko'rish <i class="bi bi-arrow-right"></i></a>
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="200">
+                <div class="feature-card">
+                    <div class="icon-3d icon-3d-teal">
+                        <i class="bi bi-bar-chart"></i>
+                    </div>
+                    <h4 class="f-title">O'zbekiston bo'ylab reyting</h4>
+                    <p class="f-desc">Butun mamlakat bo'ylab nechanchi o'rindaligingizni bilib oling. Maktab, tuman va viloyat reytingida ko'rining.</p>
+                    <a href="{% url 'leaderboard:global_leaderboard' %}" class="f-link">
+                        Reytingni ko'rish <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -1181,138 +1045,108 @@
 </section>
 
 <!-- ========== SUBJECTS ========== -->
-<section class="subjects-3d">
+<section class="subjects-section">
     <div class="container">
-        <div class="text-center" id="subjects-head">
-            <span class="section-tag"><i class="bi bi-book"></i> Fanlar</span>
-            <h2 class="section-h2">Barcha DTM fanlari <span class="grad">bir joyda</span></h2>
-            <p class="section-sub">Qaysi fandan tayyorlanasiz? Har bir fanda minglab savollar va batafsil yechimlar mavjud.</p>
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Fanlar</span>
+            <h2 class="section-heading">Barcha DTM fanlari <span class="text-gradient">bir joyda</span></h2>
+            <p class="section-desc">Qaysi fandan tayyorlanasiz? Har bir fanda minglab savollar va batafsil yechimlar mavjud.</p>
         </div>
 
-        <div class="row g-3" id="subjects-grid">
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">📐</span>
-                    <h6 class="subj-name">Matematika</h6>
-                    <span class="subj-count">2,500+ savol</span>
+        <div class="row g-3">
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="0">
+                <div class="subject-card">
+                    <span class="subject-emoji">📐</span>
+                    <h6 class="subject-name">Matematika</h6>
+                    <span class="subject-count">2,500+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">⚡</span>
-                    <h6 class="subj-name">Fizika</h6>
-                    <span class="subj-count">2,100+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="50">
+                <div class="subject-card">
+                    <span class="subject-emoji">⚡</span>
+                    <h6 class="subject-name">Fizika</h6>
+                    <span class="subject-count">2,100+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">🧪</span>
-                    <h6 class="subj-name">Kimyo</h6>
-                    <span class="subj-count">1,800+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="100">
+                <div class="subject-card">
+                    <span class="subject-emoji">🧪</span>
+                    <h6 class="subject-name">Kimyo</h6>
+                    <span class="subject-count">1,800+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">🧬</span>
-                    <h6 class="subj-name">Biologiya</h6>
-                    <span class="subj-count">1,900+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="150">
+                <div class="subject-card">
+                    <span class="subject-emoji">🧬</span>
+                    <h6 class="subject-name">Biologiya</h6>
+                    <span class="subject-count">1,900+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">🇬🇧</span>
-                    <h6 class="subj-name">Ingliz tili</h6>
-                    <span class="subj-count">2,000+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="200">
+                <div class="subject-card">
+                    <span class="subject-emoji">🇬🇧</span>
+                    <h6 class="subject-name">Ingliz tili</h6>
+                    <span class="subject-count">2,000+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">📖</span>
-                    <h6 class="subj-name">Ona tili</h6>
-                    <span class="subj-count">1,500+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="250">
+                <div class="subject-card">
+                    <span class="subject-emoji">📖</span>
+                    <h6 class="subject-name">Ona tili</h6>
+                    <span class="subject-count">1,500+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">🌍</span>
-                    <h6 class="subj-name">Tarix</h6>
-                    <span class="subj-count">1,700+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="300">
+                <div class="subject-card">
+                    <span class="subject-emoji">🌍</span>
+                    <h6 class="subject-name">Tarix</h6>
+                    <span class="subject-count">1,700+ savol</span>
                 </div>
             </div>
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="subj-card tilt-card">
-                    <span class="subj-emoji">🇷🇺</span>
-                    <h6 class="subj-name">Rus tili</h6>
-                    <span class="subj-count">1,400+ savol</span>
+            <div class="col-6 col-md-4 col-lg-3" data-aos="zoom-in" data-aos-duration="400" data-aos-delay="350">
+                <div class="subject-card">
+                    <span class="subject-emoji">🇷🇺</span>
+                    <h6 class="subject-name">Rus tili</h6>
+                    <span class="subject-count">1,400+ savol</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ========== STATS ========== -->
-<section class="stats-3d">
-    <div class="container">
-        <div class="row g-4 justify-content-center">
-            <div class="col-6 col-md-3">
-                <div class="stat-3d-item">
-                    <div class="stat-3d-number" data-count="5200" data-suffix="+">0</div>
-                    <div class="stat-3d-label">Faol talabalar</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-3d-item">
-                    <div class="stat-3d-number" data-count="150000" data-suffix="+">0</div>
-                    <div class="stat-3d-label">Yechilgan testlar</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-3d-item">
-                    <div class="stat-3d-number" data-count="12000" data-suffix="+">0</div>
-                    <div class="stat-3d-label">Savollar bazasi</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-3d-item">
-                    <div class="stat-3d-number" data-count="98" data-suffix="%">0</div>
-                    <div class="stat-3d-label">Mamnunlik</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
 
 <!-- ========== HOW IT WORKS ========== -->
-<section class="steps-3d">
+<section class="steps-section">
     <div class="container">
-        <div class="text-center" id="steps-head">
-            <span class="section-tag"><i class="bi bi-lightning"></i> Qanday ishlaydi?</span>
-            <h2 class="section-h2">3 qadamda <span class="grad">natijaga</span> erishing</h2>
-            <p class="section-sub">Ro'yxatdan o'ting va 1 daqiqada birinchi testingizni yeching</p>
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Qanday ishlaydi?</span>
+            <h2 class="section-heading">3 qadamda <span class="text-gradient">natijaga</span> erishing</h2>
+            <p class="section-desc">Ro'yxatdan o'ting va 1 daqiqada birinchi testingizni yeching</p>
         </div>
 
-        <div class="row g-5 mt-2" id="steps-grid">
-            <div class="col-md-4">
-                <div class="step-3d-card">
-                    <div class="step-3d-num">1</div>
+        <div class="row g-5 mt-2">
+            <div class="col-md-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+                <div class="step-card">
+                    <div class="step-number">1</div>
                     <div class="step-connector"></div>
-                    <h4 class="step-3d-title">Ro'yxatdan o'ting</h4>
-                    <p class="step-3d-desc">Telefon raqamingiz bilan 30 soniyada. Hech qanday to'lov, hech qanday karta.</p>
+                    <h4 class="step-title">Ro'yxatdan o'ting</h4>
+                    <p class="step-desc">Telefon raqamingiz bilan 30 soniyada. Hech qanday to'lov, hech qanday karta.</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="step-3d-card">
-                    <div class="step-3d-num">2</div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="150">
+                <div class="step-card">
+                    <div class="step-number">2</div>
                     <div class="step-connector"></div>
-                    <h4 class="step-3d-title">Fanlaringizni tanlang</h4>
-                    <p class="step-3d-desc">Imtihon topshiradigan fanlarni belgilang. AI sizga shaxsiy reja tuzib beradi.</p>
+                    <h4 class="step-title">Fanlaringizni tanlang</h4>
+                    <p class="step-desc">Imtihon topshiradigan fanlarni belgilang. AI sizga shaxsiy reja tuzib beradi.</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="step-3d-card">
-                    <div class="step-3d-num">3</div>
-                    <h4 class="step-3d-title">Har kuni mashq qiling</h4>
-                    <p class="step-3d-desc">Testlar yeching, AI tahlillarini o'qing, zaif tomonlarni kuchaytiring. Natija 2 haftada ko'rinadi.</p>
+            <div class="col-md-4" data-aos="fade-up" data-aos-duration="600" data-aos-delay="300">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4 class="step-title">Har kuni mashq qiling</h4>
+                    <p class="step-desc">Testlar yeching, AI tahlillarini o'qing, zaif tomonlarni kuchaytiring. Natija 2 haftada ko'rinadi.</p>
                 </div>
             </div>
         </div>
@@ -1320,62 +1154,72 @@
 </section>
 
 <!-- ========== PRICING ========== -->
-<section class="pricing-3d">
+<section class="pricing-section">
     <div class="container">
-        <div class="text-center" id="pricing-head">
-            <span class="section-tag"><i class="bi bi-gem"></i> Narxlar</span>
-            <h2 class="section-h2">Oyiga atigi <span class="grad">30,000 so'm</span></h2>
-            <p class="section-sub">Bepul rejada ham ko'p narsa bor. Premium esa imtihonga 100% tayyor qiladi.</p>
+        <div class="text-center" data-aos="fade-up" data-aos-duration="600">
+            <span class="section-label">Narxlar</span>
+            <h2 class="section-heading">Oyiga atigi <span class="text-gradient">30,000 so'm</span></h2>
+            <p class="section-desc">Bepul rejada ham ko'p narsa bor. Premium esa imtihonga 100% tayyor qiladi.</p>
         </div>
 
-        <div class="row g-4 justify-content-center" id="pricing-grid">
-            <div class="col-md-6 col-lg-5">
-                <div class="price-card">
-                    <div class="price-icon" style="background:#F1F5F9;color:#475569;">
+        <div class="row g-4 justify-content-center">
+            <!-- Free -->
+            <div class="col-md-6 col-lg-5" data-aos="fade-up" data-aos-duration="600" data-aos-delay="0">
+                <div class="pricing-card">
+                    <div class="pricing-icon" style="background: var(--gray-100); color: var(--dark-600);">
                         <i class="bi bi-gift"></i>
                     </div>
-                    <h3 class="price-name">Bepul</h3>
-                    <p class="price-desc">Platformani sinab ko'rish uchun</p>
-                    <div class="price-amount">
-                        <span class="price-value">0</span>
-                        <span class="price-currency">so'm</span>
-                        <span class="price-period">/ oyiga</span>
+                    <h3 class="pricing-name">Bepul</h3>
+                    <p class="pricing-desc">Platformani sinab ko'rish uchun</p>
+
+                    <div class="pricing-amount">
+                        <span class="pricing-value">0</span>
+                        <span class="pricing-currency">so'm</span>
+                        <span class="pricing-period">/ oyiga</span>
                     </div>
-                    <ul class="price-features">
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Testlar yechish</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Umumiy reyting</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Musobaqalar</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Asosiy statistika</li>
-                        <li class="disabled"><span class="price-check"><i class="bi bi-x"></i></span> AI Mentor</li>
-                        <li class="disabled"><span class="price-check"><i class="bi bi-x"></i></span> Shaxsiy tahlil</li>
-                        <li class="disabled"><span class="price-check"><i class="bi bi-x"></i></span> DTM simulyatsiya</li>
+
+                    <ul class="pricing-features">
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Testlar yechish</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Umumiy reyting</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Musobaqalar</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Asosiy statistika</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> AI Mentor</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Shaxsiy tahlil</li>
+                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> DTM simulyatsiya</li>
                     </ul>
-                    <a href="{% url 'accounts:register' %}" class="btn btn-outline w-100">Bepul boshlash</a>
+
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline w-100">
+                        Bepul boshlash
+                    </a>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-5">
-                <div class="price-card popular">
-                    <div class="popular-tag">💎 Premium</div>
-                    <div class="price-icon feat-icon-green" style="width:56px;height:56px;border-radius:16px;font-size:1.5rem;">
+            <!-- Premium -->
+            <div class="col-md-6 col-lg-5" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+                <div class="pricing-card popular">
+                    <div class="popular-badge">💎 Premium</div>
+                    <div class="pricing-icon icon-3d-green" style="width: 56px; height: 56px; border-radius: 16px; font-size: 1.5rem;">
                         <i class="bi bi-lightning-charge-fill"></i>
                     </div>
-                    <h3 class="price-name">Premium</h3>
-                    <p class="price-desc">DTM ga eng qisqa yo'l</p>
-                    <div class="price-amount">
-                        <span class="price-value">30,000</span>
-                        <span class="price-currency">so'm</span>
-                        <span class="price-period">/ oyiga</span>
+                    <h3 class="pricing-name">Premium</h3>
+                    <p class="pricing-desc">DTM ga eng qisqa yo'l</p>
+
+                    <div class="pricing-amount">
+                        <span class="pricing-value">30,000</span>
+                        <span class="pricing-currency">so'm</span>
+                        <span class="pricing-period">/ oyiga</span>
                     </div>
-                    <ul class="price-features">
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> <strong>Cheksiz testlar</strong></li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> AI Mentor — cheksiz</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Shaxsiy zaiflik tahlili</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> DTM simulyatsiya</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Universitet tavsiyasi (AI)</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Reklama yo'q</li>
-                        <li><span class="price-check"><i class="bi bi-check2"></i></span> Sertifikat + PDF</li>
+
+                    <ul class="pricing-features">
+                        <li><span class="check"><i class="bi bi-check2"></i></span> <strong>Cheksiz testlar</strong></li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> AI Mentor — cheksiz</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Shaxsiy zaiflik tahlili</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> DTM simulyatsiya</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Universitet tavsiyasi (AI)</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Reklama yo'q</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Sertifikat + PDF</li>
                     </ul>
+
                     <a href="{% url 'subscriptions:pricing' %}" class="btn btn-primary w-100">
                         Sotib olish <i class="bi bi-arrow-right ms-1"></i>
                     </a>
@@ -1386,16 +1230,16 @@
 </section>
 
 <!-- ========== CTA ========== -->
-<section class="cta-3d">
+<section class="cta-section">
     <div class="container">
-        <div class="text-center" id="cta-content">
-            <h2 class="cta-title-3d">Imtihon kuni hech narsaga afsuslanmang</h2>
-            <p class="cta-sub-3d">Hozir boshlang — 2 haftada farqni ko'rasiz. 5,200+ abituriyent allaqachon natija olmoqda.</p>
+        <div class="text-center" data-aos="zoom-in" data-aos-duration="600">
+            <h2 class="cta-title">Imtihon kuni hech narsaga afsuslanmang</h2>
+            <p class="cta-desc">Hozir boshlang — 2 haftada farqni ko'rasiz. 5 200+ abituriyent allaqachon natija olmoqda.</p>
             <div class="d-flex flex-wrap justify-content-center gap-3">
-                <a href="{% url 'accounts:register' %}" class="btn-cta-white">
+                <a href="{% url 'accounts:register' %}" class="cta-btn-white">
                     Bepul ro'yxatdan o'tish <i class="bi bi-arrow-right"></i>
                 </a>
-                <a href="{% url 'ai_core:ai_mentor' %}" class="btn-cta-outline">
+                <a href="{% url 'ai_core:ai_mentor' %}" class="cta-btn-outline">
                     <i class="bi bi-robot"></i> AI Mentorni sinash
                 </a>
             </div>
@@ -1406,245 +1250,13 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Three.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- GSAP + ScrollTrigger -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
+<!-- AOS.js -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 <script>
-// ============================================================
-// THREE.JS — HERO PARTICLE + GEOMETRY SYSTEM
-// ============================================================
-(function () {
-    const canvas = document.getElementById('hero-canvas');
-    if (!canvas) return;
-
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    camera.position.z = 5;
-
-    function resize() {
-        const section = canvas.parentElement;
-        const w = section.offsetWidth;
-        const h = section.offsetHeight;
-        renderer.setSize(w, h);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    // --- Particles ---
-    const count = 180;
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
-    const palette = [
-        new THREE.Color(0x8BC540),
-        new THREE.Color(0x6BA832),
-        new THREE.Color(0xB5E060),
-        new THREE.Color(0xFBBF24),
-        new THREE.Color(0xffffff),
-    ];
-    for (let i = 0; i < count; i++) {
-        pos[i * 3]     = (Math.random() - 0.5) * 22;
-        pos[i * 3 + 1] = (Math.random() - 0.5) * 14;
-        pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
-        const c = palette[Math.floor(Math.random() * palette.length)];
-        col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
-    }
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    pGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    const pMat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 0.65, sizeAttenuation: true });
-    const particles = new THREE.Points(pGeo, pMat);
-    scene.add(particles);
-
-    // --- Wireframe Sphere 1 ---
-    const s1 = new THREE.Mesh(
-        new THREE.SphereGeometry(1.3, 18, 18),
-        new THREE.MeshBasicMaterial({ color: 0x8BC540, wireframe: true, transparent: true, opacity: 0.055 })
-    );
-    s1.position.set(4, 1, -2);
-    scene.add(s1);
-
-    // --- Wireframe Sphere 2 ---
-    const s2 = new THREE.Mesh(
-        new THREE.SphereGeometry(0.85, 16, 16),
-        new THREE.MeshBasicMaterial({ color: 0xFBBF24, wireframe: true, transparent: true, opacity: 0.045 })
-    );
-    s2.position.set(-4.5, -1.5, -3);
-    scene.add(s2);
-
-    // --- Torus ---
-    const torus = new THREE.Mesh(
-        new THREE.TorusGeometry(2.2, 0.25, 8, 36),
-        new THREE.MeshBasicMaterial({ color: 0x8BC540, wireframe: true, transparent: true, opacity: 0.038 })
-    );
-    torus.position.set(0, 0, -5);
-    scene.add(torus);
-
-    // --- Icosahedron ---
-    const ico = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.9, 1),
-        new THREE.MeshBasicMaterial({ color: 0xB5E060, wireframe: true, transparent: true, opacity: 0.06 })
-    );
-    ico.position.set(-2.5, 2, -1);
-    scene.add(ico);
-
-    // --- Mouse Parallax ---
-    let mx = 0, my = 0;
-    document.addEventListener('mousemove', function (e) {
-        mx = (e.clientX / window.innerWidth - 0.5) * 2;
-        my = (e.clientY / window.innerHeight - 0.5) * 2;
+    AOS.init({
+        once: true,
+        offset: 80,
+        easing: 'ease-out-cubic'
     });
-
-    let t = 0;
-    function animate() {
-        requestAnimationFrame(animate);
-        t += 0.005;
-
-        particles.rotation.y = t * 0.04;
-        particles.rotation.x = t * 0.018;
-
-        camera.position.x += (mx * 0.4 - camera.position.x) * 0.03;
-        camera.position.y += (-my * 0.25 - camera.position.y) * 0.03;
-        camera.lookAt(0, 0, 0);
-
-        s1.rotation.y += 0.006; s1.rotation.x += 0.003;
-        s1.position.y = 1 + Math.sin(t * 0.8) * 0.28;
-
-        s2.rotation.y -= 0.005; s2.rotation.z += 0.004;
-        s2.position.y = -1.5 + Math.sin(t * 0.6 + 1) * 0.22;
-
-        torus.rotation.x = t * 0.25;
-        torus.rotation.z = t * 0.08;
-
-        ico.rotation.y += 0.007;
-        ico.rotation.x += 0.004;
-        ico.position.y = 2 + Math.sin(t * 1.1) * 0.2;
-
-        renderer.render(scene, camera);
-    }
-    animate();
-})();
-
-// ============================================================
-// GSAP SETUP
-// ============================================================
-gsap.registerPlugin(ScrollTrigger);
-
-// --- Hero Entrance ---
-gsap.timeline({ delay: 0.15 })
-    .from('#hero-left .hero-badge-3d',   { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' })
-    .from('#hero-left .hero-title-3d',   { opacity: 0, y: 50, duration: 0.8, ease: 'power3.out' }, '-=0.35')
-    .from('#hero-left .hero-subtitle-3d',{ opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }, '-=0.4')
-    .from('#hero-left .hero-cta-group',  { opacity: 0, y: 25, duration: 0.7, ease: 'power3.out' }, '-=0.4')
-    .from('#hero-left .hero-stats-3d',   { opacity: 0, y: 20, duration: 0.6, ease: 'power3.out' }, '-=0.35')
-    .from('#hero-right',                 { opacity: 0, x: 60, duration: 1,   ease: 'power3.out' }, '-=0.7');
-
-// --- Parallax on Hero ---
-gsap.to('#hero-right', {
-    scrollTrigger: { trigger: '.hero-3d', start: 'top top', end: 'bottom top', scrub: 1 },
-    y: -80, ease: 'none'
-});
-gsap.to('#hero-left', {
-    scrollTrigger: { trigger: '.hero-3d', start: 'top top', end: 'bottom top', scrub: 1 },
-    y: -40, ease: 'none'
-});
-
-// --- Features ---
-gsap.from('#features-head', {
-    scrollTrigger: { trigger: '#features-head', start: 'top 82%' },
-    opacity: 0, y: 50, duration: 0.8, ease: 'power3.out'
-});
-gsap.from('#features-grid .col-md-6', {
-    scrollTrigger: { trigger: '#features-grid', start: 'top 80%' },
-    opacity: 0, y: 55, duration: 0.7, ease: 'power3.out', stagger: 0.1
-});
-
-// --- Subjects ---
-gsap.from('#subjects-head', {
-    scrollTrigger: { trigger: '#subjects-head', start: 'top 82%' },
-    opacity: 0, y: 40, duration: 0.7, ease: 'power3.out'
-});
-gsap.from('#subjects-grid .col-6', {
-    scrollTrigger: { trigger: '#subjects-grid', start: 'top 82%' },
-    opacity: 0, scale: 0.85, y: 25, duration: 0.55, ease: 'back.out(1.3)', stagger: 0.06
-});
-
-// --- Stats Counter ---
-function runCounter(el) {
-    const target = parseInt(el.getAttribute('data-count'));
-    const suffix = el.getAttribute('data-suffix') || '';
-    const dur = 1800;
-    const step = target / (dur / 16);
-    let current = 0;
-    const timer = setInterval(function () {
-        current += step;
-        if (current >= target) { current = target; clearInterval(timer); }
-        el.textContent = Math.floor(current).toLocaleString() + suffix;
-    }, 16);
-}
-const io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-        if (e.isIntersecting) { runCounter(e.target); io.unobserve(e.target); }
-    });
-}, { threshold: 0.5 });
-document.querySelectorAll('.stat-3d-number[data-count]').forEach(function (el) { io.observe(el); });
-
-// --- Steps ---
-gsap.from('#steps-head', {
-    scrollTrigger: { trigger: '#steps-head', start: 'top 82%' },
-    opacity: 0, y: 40, duration: 0.7, ease: 'power3.out'
-});
-gsap.from('#steps-grid .col-md-4', {
-    scrollTrigger: { trigger: '#steps-grid', start: 'top 78%' },
-    opacity: 0, y: 50, duration: 0.7, ease: 'power3.out', stagger: 0.15
-});
-
-// --- Pricing ---
-gsap.from('#pricing-head', {
-    scrollTrigger: { trigger: '#pricing-head', start: 'top 82%' },
-    opacity: 0, y: 40, duration: 0.7, ease: 'power3.out'
-});
-gsap.from('#pricing-grid .col-md-6', {
-    scrollTrigger: { trigger: '#pricing-grid', start: 'top 80%' },
-    opacity: 0, y: 60, duration: 0.8, ease: 'power3.out', stagger: 0.15
-});
-
-// --- CTA ---
-gsap.from('#cta-content', {
-    scrollTrigger: { trigger: '#cta-content', start: 'top 82%' },
-    opacity: 0, scale: 0.94, y: 40, duration: 0.8, ease: 'back.out(1.5)'
-});
-
-// ============================================================
-// 3D CARD TILT (GSAP)
-// ============================================================
-document.querySelectorAll('.tilt-card').forEach(function (card) {
-    card.addEventListener('mousemove', function (e) {
-        const r = card.getBoundingClientRect();
-        const x = e.clientX - r.left;
-        const y = e.clientY - r.top;
-        const rx = ((y - r.height / 2) / r.height) * -10;
-        const ry = ((x - r.width  / 2) / r.width)  *  10;
-        gsap.to(card, {
-            rotateX: rx, rotateY: ry,
-            duration: 0.35, ease: 'power2.out',
-            transformPerspective: 900, transformOrigin: 'center center'
-        });
-    });
-    card.addEventListener('mouseleave', function () {
-        gsap.to(card, {
-            rotateX: 0, rotateY: 0,
-            duration: 0.55, ease: 'elastic.out(1, 0.5)'
-        });
-    });
-});
 </script>
 {% endblock %}
