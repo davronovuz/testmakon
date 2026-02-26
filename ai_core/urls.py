@@ -45,6 +45,7 @@ urlpatterns = [
 
     # API
     path('api/chat/', views.api_chat, name='api_chat'),
+    path('api/task/<str:task_id>/', views.api_task_status, name='api_task_status'),
     path('api/quick-answer/', views.api_quick_answer, name='api_quick_answer'),
     path('api/analyze/', views.api_analyze, name='api_analyze'),
 ]

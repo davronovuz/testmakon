@@ -592,6 +592,30 @@
         if (title && chatTitleText) chatTitleText.textContent = title.length > 40 ? title.slice(0, 40) + '…' : title;
     }
 
+    const TASK_STATUS_URL = '{% url "ai_core:api_task_status" task_id="TASK_ID_PLACEHOLDER" %}';
+
+    function pollTaskStatus(taskId) {
+        const url = TASK_STATUS_URL.replace('TASK_ID_PLACEHOLDER', taskId);
+        fetch(url)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.status === 'done') {
+                    addMessage('assistant', data.response, true);
+                    if (data.title) updateTitle(data.title);
+                    setLoading(false);
+                } else if (data.status === 'error') {
+                    setError('AI javob berishda xatolik yuz berdi');
+                    setLoading(false);
+                } else {
+                    setTimeout(function() { pollTaskStatus(taskId); }, 1500);
+                }
+            })
+            .catch(function() {
+                setError('Ulanishda xatolik');
+                setLoading(false);
+            });
+    }
+
     function sendMessage() {
         const text = (chatInput.value || '').trim();
         if (!text) return;
@@ -600,7 +624,6 @@
         chatInput.style.height = 'auto';
 
         addMessage('user', text, false);
-
         setLoading(true);
 
         fetch(API_URL, {
@@ -621,13 +644,16 @@
             });
         })
         .then(function(data) {
-            addMessage('assistant', data.response, true);
-            if (data.title) updateTitle(data.title);
+            if (data.task_id) {
+                pollTaskStatus(data.task_id);
+            } else if (data.response) {
+                addMessage('assistant', data.response, true);
+                if (data.title) updateTitle(data.title);
+                setLoading(false);
+            }
         })
         .catch(function(err) {
             setError(err.message || 'Javob olinmadi');
-        })
-        .finally(function() {
             setLoading(false);
         });
     }

@@ -12,12 +12,12 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 import json
 from datetime import timedelta, datetime
-import google.generativeai as genai
 
 from .models import (
     AIConversation, AIMessage, AIRecommendation,
     StudyPlan, StudyPlanTask, WeakTopicAnalysis
 )
+from .utils import get_ai_response
 from tests_app.models import Subject, Topic, TestAttempt, AttemptAnswer, Test
 from universities.models import University, Direction, PassingScore
 
@@ -66,47 +66,6 @@ def generate_plan_tasks(plan):
     plan.total_tasks = plan.tasks.count()
     plan.save(update_fields=['total_tasks'])
 
-
-def get_ai_response(messages_list, system_prompt=None):
-    """Gemini API bilan bog'lanish"""
-    api_key = settings.GEMINI_API_KEY
-
-    if not api_key:
-        return "AI xizmati hozircha mavjud emas. Iltimos, keyinroq urinib ko'ring."
-
-    try:
-        genai.configure(api_key=api_key)
-
-        # System promptni sozlash
-        if system_prompt is None:
-            system_prompt = """Sen TestMakon.uz platformasining AI mentorisan. 
-            Sening vazifang O'zbekistondagi abituriyentlarga universitetga kirish imtihonlariga tayyorlanishda yordam berish.
-            Sen o'zbek tilida javob berasan. Javoblaringni qisqa, aniq va foydali qilib ber."""
-
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
-
-        # Tarixni formatlash (Gemini uchun)
-        chat_history = []
-        last_user_message = ""
-
-        for msg in messages_list:
-            role = "user" if msg['role'] == "user" else "model"
-            content = msg['content']
-
-            if role == "user":
-                last_user_message = content
-
-            # Oxirgi xabarni chat_history ga qo'shmaymiz, uni alohida yuboramiz
-            if msg != messages_list[-1]:
-                chat_history.append({"role": role, "parts": [content]})
-
-        chat = model.start_chat(history=chat_history)
-        response = chat.send_message(last_user_message)
-
-        return response.text
-
-    except Exception as e:
-        return f"Texnik xatolik: {str(e)}"
 
 
 @login_required
@@ -196,17 +155,12 @@ def ai_explain_topic(request):
         Mavzuni {"juda sodda, bolalar tushunadigan tilda" if detail_level == "simple" else "batafsil, misollar bilan"} tushuntir.
         O'zbek tilida javob ber."""
 
-        messages_list = [
-            {"role": "user", "content": f"Menga '{topic_name}' mavzusini tushuntir."}
-        ]
-
-        explanation = get_ai_response(messages_list, system_prompt)
-
         conversation = AIConversation.objects.create(
             user=request.user,
             conversation_type='tutor',
             title=f"{subject_name}: {topic_name}",
-            subject=subject
+            subject=subject,
+            system_prompt=system_prompt
         )
 
         AIMessage.objects.create(
@@ -215,11 +169,9 @@ def ai_explain_topic(request):
             content=f"Menga '{topic_name}' mavzusini tushuntir."
         )
 
-        AIMessage.objects.create(
-            conversation=conversation,
-            role='assistant',
-            content=explanation
-        )
+        # Celery task orqali tushuntirish olamiz
+        from .tasks import ai_explain_topic_task
+        ai_explain_topic_task.delay(conversation.id)
 
         return redirect('ai_core:conversation_detail', uuid=conversation.uuid)
 
@@ -246,58 +198,18 @@ def ai_analyze_test(request, attempt_uuid):
         }
         return render(request, 'ai_core/test_analysis.html', context)
 
-    answers = AttemptAnswer.objects.filter(attempt=attempt).select_related(
-        'question', 'question__topic', 'question__subject'
-    )
-
-    topic_stats = {}
-    for ans in answers:
-        topic_name = ans.question.topic.name if ans.question.topic else "Umumiy"
-        if topic_name not in topic_stats:
-            topic_stats[topic_name] = {'correct': 0, 'total': 0}
-        topic_stats[topic_name]['total'] += 1
-        if ans.is_correct:
-            topic_stats[topic_name]['correct'] += 1
-
-    weak_topics = []
-    strong_topics = []
-
-    for topic, stats in topic_stats.items():
-        percentage = (stats['correct'] / stats['total']) * 100
-        if percentage < 60:
-            weak_topics.append({'topic': topic, 'percentage': percentage})
-        elif percentage >= 80:
-            strong_topics.append({'topic': topic, 'percentage': percentage})
-
-    system_prompt = """Sen test natijalarini tahlil qiluvchi AI mentorisan.
-    Abituriyentga qisqa, aniq va foydali tavsiyalar ber. O'zbek tilida javob ber."""
-
-    analysis_prompt = f"""
-    Test natijasi: {attempt.percentage}%
-    To'g'ri javoblar: {attempt.correct_answers}/{attempt.total_questions}
-    Mavzular: {json.dumps(topic_stats, ensure_ascii=False)}
-    Sust mavzular: {[t['topic'] for t in weak_topics]}
-
-    Qisqa tahlil va tavsiyalar ber.
-    """
-
-    messages_list = [{"role": "user", "content": analysis_prompt}]
-    ai_analysis = get_ai_response(messages_list, system_prompt)
-
-    attempt.ai_analysis = ai_analysis
-    attempt.weak_topics = weak_topics
-    attempt.strong_topics = strong_topics
-    attempt.ai_recommendations = [f"{t['topic']} mavzusini takrorlang" for t in weak_topics[:3]]
-    attempt.save()
+    # Tahlil yo'q — Celery task ishga tushiramiz
+    from .tasks import ai_analyze_test_task
+    task = ai_analyze_test_task.delay(attempt.id)
 
     context = {
         'attempt': attempt,
-        'analysis': ai_analysis,
-        'recommendations': attempt.ai_recommendations,
-        'weak_topics': weak_topics,
-        'strong_topics': strong_topics,
+        'analysis': None,
+        'task_id': task.id,
+        'recommendations': [],
+        'weak_topics': [],
+        'strong_topics': [],
     }
-
     return render(request, 'ai_core/test_analysis.html', context)
 
 
@@ -598,14 +510,14 @@ def weak_topics(request):
 @login_required
 @require_POST
 def api_chat(request):
-    """Chat API — xabar yuborish va AI javob olish (AJAX uchun)."""
+    """Chat API — xabar saqlaydi, Celery task ishga tushiradi, task_id qaytaradi."""
     try:
         data = json.loads(request.body)
-        message = (data.get('message') or '').strip()
-        conversation_uuid = data.get('conversation_uuid')
+        message = (data.get(‘message’) or ‘’).strip()
+        conversation_uuid = data.get(‘conversation_uuid’)
 
         if not message:
-            return JsonResponse({'error': 'Xabar bo\'sh'}, status=400)
+            return JsonResponse({‘error’: ‘Xabar bo\’sh’}, status=400)
 
         if conversation_uuid:
             conversation = get_object_or_404(
@@ -614,41 +526,41 @@ def api_chat(request):
         else:
             conversation = AIConversation.objects.create(
                 user=request.user,
-                conversation_type='mentor',
-                title=message[:50] or 'Yangi suhbat'
+                conversation_type=’mentor’,
+                title=message[:50] or ‘Yangi suhbat’
             )
 
-        AIMessage.objects.create(conversation=conversation, role='user', content=message)
+        # Foydalanuvchi xabarini darhol saqlaymiz
+        AIMessage.objects.create(conversation=conversation, role=’user’, content=message)
 
-        history = [
-            {"role": msg.role, "content": msg.content}
-            for msg in conversation.messages.all().order_by('created_at')
-        ]
-        ai_response = get_ai_response(history)
-
-        AIMessage.objects.create(
-            conversation=conversation,
-            role='assistant',
-            content=ai_response,
-            model_used='gemini-1.5-flash'
-        )
-
-        new_title = None
-        if conversation.title == 'Yangi suhbat':
-            conversation.title = message[:50] or 'Yangi suhbat'
-            new_title = conversation.title
-        conversation.message_count = conversation.messages.count()
-        conversation.save()
+        # Celery task ishga tushiramiz — AI javobini background da olamiz
+        from .tasks import ai_chat_task
+        task = ai_chat_task.delay(conversation.id)
 
         return JsonResponse({
-            'response': ai_response,
-            'conversation_uuid': str(conversation.uuid),
-            'title': new_title,
+            ‘task_id’: task.id,
+            ‘status’: ‘pending’,
+            ‘conversation_uuid’: str(conversation.uuid),
         })
-    except json.JSONDecodeError as e:
-        return JsonResponse({'error': 'Noto‘g‘ri so‘rov'}, status=400)
+
+    except json.JSONDecodeError:
+        return JsonResponse({‘error’: ‘Noto\’g\’ri so\’rov’}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({‘error’: str(e)}, status=500)
+
+
+@login_required
+def api_task_status(request, task_id):
+    """Celery task holatini tekshirish (frontend polling uchun)."""
+    from celery.result import AsyncResult
+    result = AsyncResult(task_id)
+
+    if result.successful():
+        return JsonResponse({‘status’: ‘done’, **result.get()})
+    elif result.failed():
+        return JsonResponse({‘status’: ‘error’, ‘error’: ‘AI javob berishda xatolik yuz berdi’})
+    else:
+        return JsonResponse({‘status’: ‘pending’})
 
 
 @login_required

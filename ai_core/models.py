@@ -58,6 +58,9 @@ class AIConversation(models.Model):
         related_name='ai_conversations'
     )
 
+    # System prompt (tutor uchun)
+    system_prompt = models.TextField('System prompt', blank=True)
+
     # Stats
     message_count = models.PositiveIntegerField('Xabarlar soni', default=0)
 
