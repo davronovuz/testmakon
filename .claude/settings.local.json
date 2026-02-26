@@ -6,7 +6,9 @@
       "Bash(pip show:*)",
       "Bash(python3 -m pip:*)",
       "Bash(pip3 install:*)",
-      "Bash(source:*)"
+      "Bash(source:*)",
+      "Bash(tail:*)",
+      "Bash(git add:*)"
     ]
   }
 }
