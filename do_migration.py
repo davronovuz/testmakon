@@ -120,12 +120,58 @@ except Exception as e:
 hdr("4. Ma'lumotlar PostgreSQL ga yuklanmoqda")
 
 run(f"docker cp {BACKUP_JSON} {WEB}:/app/_backup_load.json")
+
+# Signal yaratgan duplicate key larni o'tkazib yuboradigan load script
+LOAD_PY = '''\
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+import django
+django.setup()
+from django.core import serializers
+
+print("Loading fixture...", flush=True)
+with open("/app/_backup_load.json") as f:
+    raw = f.read()
+
+objects = list(serializers.deserialize(
+    "json", raw,
+    use_natural_foreign_keys=True,
+    use_natural_primary_keys=True,
+    ignorenonexistent=True,
+))
+print(f"Jami: {len(objects)} ta object", flush=True)
+
+saved = skipped = errors = 0
+for obj in objects:
+    try:
+        obj.save()
+        saved += 1
+    except Exception as e:
+        msg = str(e)
+        if "duplicate" in msg.lower() or "already exists" in msg.lower() or "unique" in msg.lower():
+            skipped += 1
+        else:
+            errors += 1
+            if errors <= 5:
+                print(f"ERR: {obj.object.__class__.__name__} pk={obj.object.pk}: {msg[:120]}")
+
+print(f"Saqlandi: {saved}, Duplicate (o\'tkazildi): {skipped}, Xato: {errors}")
+if errors == 0:
+    print("STATUS: OK")
+else:
+    print("STATUS: ERRORS")
+'''
+
+with open("/tmp/_load.py", "w") as f:
+    f.write(LOAD_PY)
+run(f"docker cp /tmp/_load.py {WEB}:/app/_load.py")
+
 info("Loaddata ishlamoqda (bir necha daqiqa)...")
-r = run(f"docker exec {WEB} python manage.py loaddata /app/_backup_load.json", capture=True)
-if r.returncode != 0:
+r = run(f"docker exec {WEB} python /app/_load.py", capture=True)
+print("  ", r.stdout.strip().replace("\n", "\n   "))
+if r.returncode != 0 or "STATUS: OK" not in r.stdout:
     err("Loaddata muvaffaqiyatsiz!")
-    print("STDOUT:", r.stdout[-400:])
-    print("STDERR:", r.stderr[-600:])
+    print(r.stderr[-400:])
     sys.exit(1)
 ok("Ma'lumotlar yuklandi!")
 
