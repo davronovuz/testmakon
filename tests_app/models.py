@@ -8,6 +8,8 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 import uuid
+from PIL import Image
+import os
 
 
 class Subject(models.Model):
@@ -38,6 +40,15 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image:
+            path = self.image.path
+            img = Image.open(path)
+            if img.width > 400 or img.height > 400:
+                img.thumbnail((400, 400), Image.LANCZOS)
+                img.save(path, optimize=True, quality=85)
 
 
 class Topic(models.Model):
