@@ -12,10 +12,10 @@ def analyze_test_results(self, user_id, test_result_id):
     """
     try:
         from accounts.models import User
-        from tests_app.models import TestResult
+        from tests_app.models import TestAttempt
 
         user = User.objects.get(id=user_id)
-        result = TestResult.objects.get(id=test_result_id)
+        result = TestAttempt.objects.get(id=test_result_id)
 
         # AI tahlil logikasi shu yerga
         logger.info(f"AI tahlil boshlandi: user={user_id}, result={test_result_id}")
