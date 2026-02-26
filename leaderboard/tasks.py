@@ -34,7 +34,7 @@ def warm_leaderboard_cache():
     # Global
     users = list(
         User.objects.filter(is_active=True)
-        .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar', 'global_rank')
+        .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar', 'global_rank', 'region', 'total_tests_taken')
         .order_by('-xp_points')[:100]
     )
     cache.set('leaderboard:global', users, LEADERBOARD_CACHE_TTL)
@@ -50,7 +50,7 @@ def warm_leaderboard_cache():
     user_ids = [u['user'] for u in weekly_raw]
     users_map = {
         u.id: u for u in User.objects.filter(id__in=user_ids)
-        .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar')
+        .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar')
     }
     weekly = [
         {'rank': i + 1, 'user': users_map[e['user']], 'xp': e['total_xp'], 'tests': e['tests_count']}
@@ -68,7 +68,7 @@ def warm_leaderboard_cache():
     user_ids = [u['user'] for u in monthly_raw]
     users_map = {
         u.id: u for u in User.objects.filter(id__in=user_ids)
-        .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar')
+        .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar')
     }
     monthly = [
         {'rank': i + 1, 'user': users_map[e['user']], 'xp': e['total_xp'], 'tests': e['tests_count']}

@@ -51,7 +51,7 @@ def global_leaderboard(request):
     if users is None:
         users = list(
             User.objects.filter(is_active=True)
-            .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar', 'global_rank')
+            .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar', 'global_rank', 'region', 'total_tests_taken')
             .order_by('-xp_points')[:100]
         )
         cache.set('leaderboard:global', users, 60 * 10)
@@ -87,7 +87,7 @@ def weekly_leaderboard(request):
         user_ids = [u['user'] for u in top_users]
         users_map = {
             u.id: u for u in User.objects.filter(id__in=user_ids)
-            .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar')
+            .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar')
         }
         leaderboard = [
             {'rank': i, 'user': users_map[e['user']], 'xp': e['total_xp'], 'tests': e['tests_count']}
@@ -127,7 +127,7 @@ def monthly_leaderboard(request):
         user_ids = [u['user'] for u in top_users]
         users_map = {
             u.id: u for u in User.objects.filter(id__in=user_ids)
-            .only('id', 'first_name', 'last_name', 'username', 'xp_points', 'level', 'avatar')
+            .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar')
         }
         leaderboard = [
             {'rank': i, 'user': users_map[e['user']], 'xp': e['total_xp'], 'tests': e['tests_count']}
