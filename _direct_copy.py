@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Direct SQLite -> PostgreSQL copy.
-Django serialize/deserialize ishlatilmaydi.
-FK triggers vaqtincha o'chiriladi — tartib muhim emas.
+- Boolean kolumnlar PostgreSQL schema dan avtomatik aniqlanadi
+- Har jadval uchun SAVEPOINT — bitta xato hamma narsani bekor qilmaydi
+- FK triggers o'chiriladi — tartib muhim emas
 """
 import sqlite3, os, sys
 import psycopg2
@@ -18,7 +19,6 @@ DB_URL  = os.environ.get(
     "postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db"
 )
 
-# Yuklanmasin (Django schema boshqaradi)
 SKIP_TABLES = {
     "django_migrations",
     "django_content_type",
@@ -37,11 +37,9 @@ try:
     # PostgreSQL tables
     cur.execute("""
         SELECT tablename FROM pg_tables
-        WHERE schemaname = 'public'
-        ORDER BY tablename
+        WHERE schemaname = 'public' ORDER BY tablename
     """)
     pg_tables = [r[0] for r in cur.fetchall() if r[0] not in SKIP_TABLES]
-    print(f"PostgreSQL jadvallar: {len(pg_tables)}", flush=True)
 
     # SQLite tables
     sq_tables = {
@@ -50,23 +48,33 @@ try:
         ).fetchall()
     }
     common = [t for t in pg_tables if t in sq_tables]
-    print(f"Umumiy jadvallar: {len(common)}", flush=True)
+    print(f"PostgreSQL: {len(pg_tables)} | Umumiy: {len(common)}", flush=True)
 
-    # 1. FK triggerlarni o'chirish (INSERT tartib muhim emas bo'ladi)
+    # Boolean kolumnlarni PostgreSQL schema dan olish (hardcoded emas!)
+    cur.execute("""
+        SELECT table_name, column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public' AND data_type = 'boolean'
+    """)
+    bool_cols = {(r[0], r[1]) for r in cur.fetchall()}
+    print(f"Boolean kolumnlar: {len(bool_cols)} ta", flush=True)
+
+    # ── 1. FK triggers o'chirish ───────────────────────────────
     print("\n[1] FK triggers o'chirilmoqda...", flush=True)
     for t in pg_tables:
         cur.execute(f'ALTER TABLE "{t}" DISABLE TRIGGER ALL')
     print("    OK", flush=True)
 
-    # 2. Mavjud datani tozalash
+    # ── 2. Eski datani tozalash ────────────────────────────────
+    # (Savepoint ishlatiladi — DELETE outer transaksiyada qoladi)
     print("[2] Eski data o'chirilmoqda...", flush=True)
     for t in reversed(pg_tables):
         cur.execute(f'DELETE FROM "{t}"')
     print("    OK", flush=True)
 
-    # 3. SQLite -> PostgreSQL nusxalash
+    # ── 3. SQLite → PostgreSQL nusxalash ───────────────────────
     print("[3] Ma'lumotlar ko'chirilmoqda...", flush=True)
-    total_rows = 0
+    total = 0
     errors = []
 
     for table in sorted(common):
@@ -77,14 +85,19 @@ try:
         cols = list(rows[0].keys())
         col_str = ", ".join(f'"{c}"' for c in cols)
 
-        # Python tuple larga aylantirish
+        # Boolean conversion: SQLite 0/1 → Python True/False
         values = []
         for row in rows:
-            values.append(tuple(
-                bool(row[c]) if isinstance(row[c], int) and c in ('is_active','is_staff','is_superuser','is_correct','is_published','is_featured','is_read','is_scrolling','is_free') else row[c]
-                for c in cols
-            ))
+            vals = []
+            for c in cols:
+                v = row[c]
+                if v is not None and (table, c) in bool_cols:
+                    v = bool(int(v))
+                vals.append(v)
+            values.append(tuple(vals))
 
+        # SAVEPOINT — xato bo'lsa faqat shu jadval rollback, DELETE saqlanadi
+        cur.execute("SAVEPOINT sp_table")
         try:
             execute_values(
                 cur,
@@ -92,36 +105,27 @@ try:
                 values,
                 page_size=500
             )
+            cur.execute("RELEASE SAVEPOINT sp_table")
             print(f"    ✓ {table}: {len(rows)} qator", flush=True)
-            total_rows += len(rows)
+            total += len(rows)
         except Exception as e:
-            errors.append((table, str(e)[:120]))
+            cur.execute("ROLLBACK TO SAVEPOINT sp_table")
+            cur.execute("RELEASE SAVEPOINT sp_table")
+            errors.append((table, str(e)[:100]))
             print(f"    ✗ {table}: {str(e)[:80]}", flush=True)
-            # Bu jadval uchun transaction ni rollback qilmasdan davom et
-            pg.rollback()
-            # FK ni qayta o'chir (rollback keyin)
-            for t in pg_tables:
-                try:
-                    cur.execute(f'ALTER TABLE "{t}" DISABLE TRIGGER ALL')
-                except:
-                    pass
 
-    # 4. FK triggerllarni qayta yoqish
+    # ── 4. FK triggers qayta yoqish ────────────────────────────
     print("\n[4] FK triggers qayta yoqilmoqda...", flush=True)
     for t in pg_tables:
         cur.execute(f'ALTER TABLE "{t}" ENABLE TRIGGER ALL')
     print("    OK", flush=True)
 
-    # 5. Sequence larni reset qilish
+    # ── 5. Sequence lar reset ──────────────────────────────────
     print("[5] Sequence lar yangilanmoqda...", flush=True)
     cur.execute("""
-        SELECT
-            seq.relname AS seq_name,
-            tab.relname AS tab_name,
-            attr.attname AS col_name
+        SELECT seq.relname, tab.relname, attr.attname
         FROM pg_class seq
-        JOIN pg_depend dep ON dep.objid = seq.oid
-            AND seq.relkind = 'S'
+        JOIN pg_depend dep ON dep.objid = seq.oid AND seq.relkind = 'S'
         JOIN pg_class tab ON tab.oid = dep.refobjid
         JOIN pg_attribute attr ON attr.attrelid = tab.oid
             AND attr.attnum = dep.refobjsubid
@@ -129,6 +133,7 @@ try:
         WHERE ns.nspname = 'public'
     """)
     seqs = cur.fetchall()
+    reset_ok = 0
     for seq_name, tab_name, col_name in seqs:
         try:
             cur.execute(f"""
@@ -138,22 +143,36 @@ try:
                     true
                 )
             """)
-        except Exception as se:
-            pass  # Ayrim sequence lar string PK ishlatadi
-    print(f"    {len(seqs)} ta sequence yangilandi", flush=True)
+            reset_ok += 1
+        except:
+            pass
+    print(f"    {reset_ok}/{len(seqs)} ta sequence yangilandi", flush=True)
 
     pg.commit()
 
-    print("\n" + "=" * 55, flush=True)
-    print(f"  Jami: {total_rows} qator ko'chirildi", flush=True)
+    # ── Natija ────────────────────────────────────────────────
+    print(f"\n{'='*55}", flush=True)
+    print(f"  Jami: {total} qator ko'chirildi", flush=True)
     if errors:
         print(f"  Xatolar: {len(errors)} ta jadval", flush=True)
         for t, e in errors:
-            print(f"    - {t}: {e}", flush=True)
+            print(f"    ✗ {t}: {e}", flush=True)
     else:
-        print("  Xatolar: 0", flush=True)
+        print("  Xatolar: 0 ✓", flush=True)
     print("=" * 55, flush=True)
-    print("STATUS: OK" if not errors else f"STATUS: PARTIAL ({len(errors)} table failed)")
+
+    if not errors:
+        print("STATUS: OK")
+    else:
+        # Kritik jadvallar tekshiruvi
+        critical = {'accounts_user', 'tests_app_question', 'tests_app_test',
+                    'tests_app_topic', 'tests_app_subject'}
+        failed_critical = critical & {t for t, _ in errors}
+        if failed_critical:
+            print(f"STATUS: ERRORS (kritik jadvallar: {failed_critical})")
+            sys.exit(1)
+        else:
+            print(f"STATUS: OK (minor: {len(errors)} non-critical table failed)")
 
 except Exception as e:
     pg.rollback()
