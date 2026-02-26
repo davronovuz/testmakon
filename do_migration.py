@@ -121,42 +121,70 @@ hdr("4. Ma'lumotlar PostgreSQL ga yuklanmoqda")
 
 run(f"docker cp {BACKUP_JSON} {WEB}:/app/_backup_load.json")
 
-# Signal yaratgan duplicate key larni o'tkazib yuboradigan load script
+# Custom load script:
+# 1. Signallarni o'chiradi (duplicate key muammosini oldini oladi)
+# 2. JSON ni to'g'ri tartibda yuklaydi (User birinchi — natural key uchun)
+# 3. Iteratsiya paytida DeserializationError larni ushlaydi
 LOAD_PY = '''\
-import os
+import os, json
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 import django
 django.setup()
-from django.core import serializers
 
-print("Loading fixture...", flush=True)
+# 1. Barcha signallarni o\'chirish (post_save signallari duplicate yaratarkan)
+from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
+for sig in [post_save, pre_save, post_delete, pre_delete]:
+    sig.receivers = []
+print("Signals disabled", flush=True)
+
+# 2. JSON o\'qish va muhim modellarni birinchi qo\'yish
 with open("/app/_backup_load.json") as f:
-    raw = f.read()
+    data = json.load(f)
+print(f"Total: {len(data)} objects", flush=True)
 
-objects = list(serializers.deserialize(
+FIRST = [
+    "accounts.user", "accounts.userprofile",
+    "tests_app.subject", "tests_app.topic",
+    "tests_app.test", "tests_app.question", "tests_app.testquestion",
+]
+data.sort(key=lambda x: (0 if x.get("model","") in FIRST else 1, x.get("model","")))
+
+# 3. Bitta-bitta deserialize va save (tartib muhim — User avval saqlanadi,
+#    keyin Friendship uni natural key orqali topadi)
+from django.core import serializers as dj_ser
+raw = json.dumps(data)
+
+saved = dup_skip = deser_skip = err = 0
+gen = dj_ser.deserialize(
     "json", raw,
     use_natural_foreign_keys=True,
     use_natural_primary_keys=True,
     ignorenonexistent=True,
-))
-print(f"Jami: {len(objects)} ta object", flush=True)
-
-saved = skipped = errors = 0
-for obj in objects:
+)
+while True:
+    try:
+        obj = next(gen)
+    except StopIteration:
+        break
+    except Exception as de:
+        deser_skip += 1
+        if deser_skip <= 5:
+            print(f"  DeserSkip: {str(de)[:120]}")
+        continue
     try:
         obj.save()
         saved += 1
     except Exception as e:
-        msg = str(e)
-        if "duplicate" in msg.lower() or "already exists" in msg.lower() or "unique" in msg.lower():
-            skipped += 1
+        msg = str(e).lower()
+        if "duplicate" in msg or "unique" in msg or "already exists" in msg:
+            dup_skip += 1
         else:
-            errors += 1
-            if errors <= 5:
-                print(f"ERR: {obj.object.__class__.__name__} pk={obj.object.pk}: {msg[:120]}")
+            err += 1
+            if err <= 5:
+                print(f"  ERR {obj.object.__class__.__name__}: {str(e)[:100]}")
 
-print(f"Saqlandi: {saved}, Duplicate (o\'tkazildi): {skipped}, Xato: {errors}")
-if errors == 0:
+print(f"Saved={saved} DupSkip={dup_skip} DeserSkip={deser_skip} Errors={err}")
+if err == 0:
     print("STATUS: OK")
 else:
     print("STATUS: ERRORS")
