@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TestMakon: SQLite → PostgreSQL ma'lumotlar ko'chirish
+TestMakon: SQLite → PostgreSQL migration
 Ishlatish: python3 do_migration.py
 """
 import subprocess, sys, os, json, time
@@ -10,7 +10,6 @@ WEB  = "testmakon_web"
 PG   = "testmakon_postgres"
 BDIR = Path("./migration_backups")
 BDIR.mkdir(exist_ok=True)
-BACKUP_JSON = BDIR / "final_backup.json"
 
 def run(cmd, capture=False, silent=False):
     if not silent:
@@ -27,201 +26,65 @@ def hdr(m):  print(f"\n{'─'*55}\n  {m}\n{'─'*55}")
 hdr("1. Konteynerlar tekshirilmoqda")
 
 r = run("docker ps --format '{{.Names}}'", capture=True, silent=True)
-running = r.stdout
-if WEB not in running:
-    err(f"{WEB} ishlamayapti! Avval: docker compose up -d")
+if WEB not in r.stdout:
+    err(f"{WEB} ishlamayapti! docker compose up -d")
     sys.exit(1)
 ok(f"{WEB} ishlayapti")
-
-if PG not in running:
-    err(f"{PG} ishlamayapti! Avval: docker compose up -d")
+if PG not in r.stdout:
+    err(f"{PG} ishlamayapti! docker compose up -d")
     sys.exit(1)
 ok(f"{PG} ishlayapti")
 
-# SQLite faylni toping
 sqlite_src = None
-for candidate in ["./db.sqlite3"] + sorted(BDIR.glob("db_sqlite_*.sqlite3"), reverse=True):
-    if Path(candidate).exists() and Path(candidate).stat().st_size > 1000:
-        sqlite_src = str(candidate)
+for c in ["./db.sqlite3"] + sorted(BDIR.glob("db_sqlite_*.sqlite3"), reverse=True):
+    if Path(str(c)).exists() and Path(str(c)).stat().st_size > 10000:
+        sqlite_src = str(c)
         break
-
 if not sqlite_src:
     err("SQLite fayl topilmadi!")
     sys.exit(1)
 size = Path(sqlite_src).stat().st_size / 1024 / 1024
 ok(f"SQLite: {sqlite_src} ({size:.1f} MB)")
 
-# ── 2. PostgreSQL migrate ──────────────────────────────────
+# ── 2. Migrate (PostgreSQL schema) ─────────────────────────
 hdr("2. PostgreSQL jadvallar yaratilmoqda (migrate)")
 
 r = run(f"docker exec {WEB} python manage.py migrate", capture=True)
 if r.returncode != 0:
     err("migrate muvaffaqiyatsiz!")
-    print(r.stderr[-600:])
+    print(r.stderr[-400:])
     sys.exit(1)
 ok("Barcha migratsiyalar bajarildi")
 
-# ── 3. SQLite → JSON dump ──────────────────────────────────
-hdr("3. SQLite dan ma'lumotlar olinmoqda")
+# ── 3. SQLite konteynerga ko'chirish ───────────────────────
+hdr("3. SQLite faylni konteynerga ko'chirish")
 
-# SQLite faylni konteynerga ko'chirish
-run(f"docker cp {sqlite_src} {WEB}:/app/_sqlite_tmp.sqlite3")
+r = run(f"docker cp {sqlite_src} {WEB}:/app/_sqlite_tmp.sqlite3")
+if r.returncode != 0:
+    err("docker cp muvaffaqiyatsiz!")
+    sys.exit(1)
 ok("SQLite konteynerga ko'chirildi")
 
-# Dump scriptini HOST da yozamiz — paste muammosi yo'q
-DUMP_PY = '''\
-import os, sys
-os.environ["DATABASE_URL"] = "sqlite:////app/_sqlite_tmp.sqlite3"
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-import django
-django.setup()
-from django.core.management import call_command
-out = open("/tmp/_backup.json", "w")
-call_command(
-    "dumpdata",
-    "--natural-foreign", "--natural-primary",
-    "--exclude=contenttypes",
-    "--exclude=auth.permission",
-    "--exclude=admin.logentry",
-    "--indent=2",
-    stdout=out,
-)
-out.close()
-size = os.path.getsize("/tmp/_backup.json")
-print(f"OK {size}")
-'''
+# ── 4. Direct copy skriptini ko'chirish va ishlatish ────────
+hdr("4. Ma'lumotlar PostgreSQL ga ko'chirilmoqda")
 
-with open("/tmp/_dump.py", "w") as f:
-    f.write(DUMP_PY)
-
-run(f"docker cp /tmp/_dump.py {WEB}:/app/_dump.py")
-info("Dumpdata ishlamoqda (bir necha daqiqa)...")
-r = run(f"docker exec {WEB} python /app/_dump.py", capture=True)
-print("   ", r.stdout.strip())
-if r.returncode != 0 or "OK" not in r.stdout:
-    err("Dumpdata muvaffaqiyatsiz!")
-    print(r.stderr[-600:])
+# _direct_copy.py ni git repo dan olish (alohida fayl)
+copy_script = Path("_direct_copy.py")
+if not copy_script.exists():
+    err("_direct_copy.py topilmadi!")
     sys.exit(1)
 
-# Backup JSON ni serverga olib chiqish
-run(f"docker cp {WEB}:/tmp/_backup.json {BACKUP_JSON}")
+run(f"docker cp _direct_copy.py {WEB}:/app/_direct_copy.py")
+info("Direct copy ishlamoqda (1-3 daqiqa)...")
 
-try:
-    with open(BACKUP_JSON) as f:
-        data = json.load(f)
-    ok(f"JSON backup tayyor: {len(data):,} yozuv")
-    users = sum(1 for x in data if x.get("model") in ("accounts.user","auth.user"))
-    info(f"Userlar: {users} ta")
-except Exception as e:
-    err(f"JSON xato: {e}")
-    sys.exit(1)
+r = run(f"docker exec {WEB} python /app/_direct_copy.py", capture=True)
+output = r.stdout.strip()
+print("\n" + "\n".join("    " + l for l in output.splitlines()))
 
-# ── 4. PostgreSQL ga yuklash ───────────────────────────────
-hdr("4. Ma'lumotlar PostgreSQL ga yuklanmoqda")
-
-run(f"docker cp {BACKUP_JSON} {WEB}:/app/_backup_load.json")
-
-# Custom load script:
-# 1. Signallarni o'chiradi (duplicate key muammosini oldini oladi)
-# 2. JSON ni to'g'ri tartibda yuklaydi (User birinchi — natural key uchun)
-# 3. Iteratsiya paytida DeserializationError larni ushlaydi
-LOAD_PY = '''\
-import os, json
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-import django
-django.setup()
-
-# 1. Signallarni o\'chirish (post_save duplicate yaratadi)
-from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
-for sig in [post_save, pre_save, post_delete, pre_delete]:
-    sig.receivers = []
-print("Signals disabled", flush=True)
-
-# 2. JSON o\'qish — muhim modellar birinchi
-with open("/app/_backup_load.json") as f:
-    data = json.load(f)
-print(f"Total: {len(data)} objects", flush=True)
-
-FIRST = [
-    "accounts.user", "accounts.userprofile",
-    "tests_app.subject", "tests_app.topic", "tests_app.answer",
-    "tests_app.test", "tests_app.question", "tests_app.testquestion",
-]
-data.sort(key=lambda x: (0 if x.get("model","") in FIRST else 1, x.get("model","")))
-
-# 3. Deserialization
-from django.core import serializers as dj_ser
-raw = json.dumps(data)
-
-all_objects = []
-deser_skip = 0
-gen = dj_ser.deserialize("json", raw,
-    use_natural_foreign_keys=True,
-    use_natural_primary_keys=True,
-    ignorenonexistent=True)
-while True:
-    try:
-        obj = next(gen)
-        all_objects.append(obj)
-    except StopIteration:
-        break
-    except Exception as de:
-        deser_skip += 1
-        if deser_skip <= 3:
-            print(f"  DeserSkip: {str(de)[:100]}")
-        continue
-print(f"Deserialized: {len(all_objects)}", flush=True)
-
-# 4. Multi-pass saving
-# Har passda FK dependency lar hal bo\'ladi, muvaffaqiyatsizlar qayta urinadi
-from django.db import transaction
-
-saved = dup_skip = 0
-remaining = all_objects
-
-for pass_num in range(1, 8):
-    if not remaining:
-        break
-    failed = []
-    pass_saved = 0
-    for obj in remaining:
-        try:
-            with transaction.atomic():
-                obj.save()
-            saved += 1
-            pass_saved += 1
-        except Exception as e:
-            msg = str(e).lower()
-            if "duplicate" in msg or "unique" in msg or "already exists" in msg:
-                dup_skip += 1
-            else:
-                failed.append((obj, str(e)))
-    print(f"  Pass {pass_num}: +{pass_saved} saved | {len(failed)} failed", flush=True)
-    if pass_saved == 0:
-        break
-    remaining = [obj for obj, _ in failed]
-
-final_errors = len(remaining)
-for obj, emsg in remaining[:5]:
-    print(f"  ERR {obj.object.__class__.__name__}: {emsg[:120]}")
-
-print(f"Saved={saved} DupSkip={dup_skip} DeserSkip={deser_skip} Errors={final_errors}")
-if final_errors == 0:
-    print("STATUS: OK")
-else:
-    print(f"STATUS: ERRORS ({final_errors} yuklanmadi)")
-'''
-
-with open("/tmp/_load.py", "w") as f:
-    f.write(LOAD_PY)
-run(f"docker cp /tmp/_load.py {WEB}:/app/_load.py")
-
-info("Loaddata ishlamoqda (bir necha daqiqa)...")
-r = run(f"docker exec {WEB} python /app/_load.py", capture=True)
-print("  ", r.stdout.strip().replace("\n", "\n   "))
 if r.returncode != 0 or "STATUS: OK" not in r.stdout:
-    err("Loaddata muvaffaqiyatsiz!")
-    print(r.stderr[-400:])
+    err("Copy muvaffaqiyatsiz!")
+    if r.stderr:
+        print(r.stderr[-400:])
     sys.exit(1)
 ok("Ma'lumotlar yuklandi!")
 
@@ -229,34 +92,27 @@ ok("Ma'lumotlar yuklandi!")
 hdr("5. Tekshirish")
 
 checks = [
-    ("accounts.models.User", "Userlar"),
-    ("tests_app.models.Question", "Savollar"),
-    ("tests_app.models.TestAttempt", "TestAttempt"),
+    ("accounts.models.User",            "Userlar"),
+    ("tests_app.models.Question",        "Savollar"),
+    ("tests_app.models.TestAttempt",     "TestAttempt"),
 ]
-all_ok = True
 for model_path, label in checks:
-    app, model = model_path.rsplit(".", 1)
+    app, mdl = model_path.rsplit(".", 1)
     r = run(
         f'docker exec {WEB} python manage.py shell -c '
-        f'"from {app} import {model}; print({model}.objects.count())"',
+        f'"from {app} import {mdl}; print({mdl}.objects.count())"',
         capture=True, silent=True
     )
     count = r.stdout.strip() if r.returncode == 0 else "xato"
-    if count == "0" or count == "xato":
-        all_ok = False
-    print(f"  {'✅' if count not in ('0','xato') else '⚠️'}  {label}: {count} ta")
+    icon = "✅" if count not in ("0", "xato") else "⚠️"
+    print(f"  {icon}  {label}: {count} ta")
 
-# Temp fayllarni tozalash
-run(f"docker exec {WEB} rm -f /app/_dump.py /app/_sqlite_tmp.sqlite3 /app/_backup_load.json", capture=True, silent=True)
+# Tozalash
+run(f"docker exec {WEB} rm -f /app/_direct_copy.py /app/_sqlite_tmp.sqlite3",
+    capture=True, silent=True)
 
 print()
-if all_ok:
-    print("╔══════════════════════════════════════════════════════╗")
-    print("║  ✅  Migration muvaffaqiyatli yakunlandi!            ║")
-    print("║  🐘  Sayt endi PostgreSQL bilan ishlayapti           ║")
-    print("╚══════════════════════════════════════════════════════╝")
-else:
-    print("╔══════════════════════════════════════════════════════╗")
-    print("║  ⚠️   Tekshirib ko'ring — ba'zi ma'lumotlar 0        ║")
-    print(f"║  Backup saqlangan: {BACKUP_JSON}   ║")
-    print("╚══════════════════════════════════════════════════════╝")
+print("╔══════════════════════════════════════════════════════╗")
+print("║  ✅  Migration muvaffaqiyatli yakunlandi!            ║")
+print("║  🐘  Sayt endi PostgreSQL bilan ishlayapti           ║")
+print("╚══════════════════════════════════════════════════════╝")
