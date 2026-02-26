@@ -131,63 +131,85 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 import django
 django.setup()
 
-# 1. Barcha signallarni o\'chirish (post_save signallari duplicate yaratarkan)
+# 1. Signallarni o\'chirish (post_save duplicate yaratadi)
 from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
 for sig in [post_save, pre_save, post_delete, pre_delete]:
     sig.receivers = []
 print("Signals disabled", flush=True)
 
-# 2. JSON o\'qish va muhim modellarni birinchi qo\'yish
+# 2. JSON o\'qish — muhim modellar birinchi
 with open("/app/_backup_load.json") as f:
     data = json.load(f)
 print(f"Total: {len(data)} objects", flush=True)
 
 FIRST = [
     "accounts.user", "accounts.userprofile",
-    "tests_app.subject", "tests_app.topic",
+    "tests_app.subject", "tests_app.topic", "tests_app.answer",
     "tests_app.test", "tests_app.question", "tests_app.testquestion",
 ]
 data.sort(key=lambda x: (0 if x.get("model","") in FIRST else 1, x.get("model","")))
 
-# 3. Bitta-bitta deserialize va save (tartib muhim — User avval saqlanadi,
-#    keyin Friendship uni natural key orqali topadi)
+# 3. Deserialization
 from django.core import serializers as dj_ser
 raw = json.dumps(data)
 
-saved = dup_skip = deser_skip = err = 0
-gen = dj_ser.deserialize(
-    "json", raw,
+all_objects = []
+deser_skip = 0
+gen = dj_ser.deserialize("json", raw,
     use_natural_foreign_keys=True,
     use_natural_primary_keys=True,
-    ignorenonexistent=True,
-)
+    ignorenonexistent=True)
 while True:
     try:
         obj = next(gen)
+        all_objects.append(obj)
     except StopIteration:
         break
     except Exception as de:
         deser_skip += 1
-        if deser_skip <= 5:
-            print(f"  DeserSkip: {str(de)[:120]}")
+        if deser_skip <= 3:
+            print(f"  DeserSkip: {str(de)[:100]}")
         continue
-    try:
-        obj.save()
-        saved += 1
-    except Exception as e:
-        msg = str(e).lower()
-        if "duplicate" in msg or "unique" in msg or "already exists" in msg:
-            dup_skip += 1
-        else:
-            err += 1
-            if err <= 5:
-                print(f"  ERR {obj.object.__class__.__name__}: {str(e)[:100]}")
+print(f"Deserialized: {len(all_objects)}", flush=True)
 
-print(f"Saved={saved} DupSkip={dup_skip} DeserSkip={deser_skip} Errors={err}")
-if err == 0:
+# 4. Multi-pass saving
+# Har passda FK dependency lar hal bo\'ladi, muvaffaqiyatsizlar qayta urinadi
+from django.db import transaction
+
+saved = dup_skip = 0
+remaining = all_objects
+
+for pass_num in range(1, 8):
+    if not remaining:
+        break
+    failed = []
+    pass_saved = 0
+    for obj in remaining:
+        try:
+            with transaction.atomic():
+                obj.save()
+            saved += 1
+            pass_saved += 1
+        except Exception as e:
+            msg = str(e).lower()
+            if "duplicate" in msg or "unique" in msg or "already exists" in msg:
+                dup_skip += 1
+            else:
+                failed.append((obj, str(e)))
+    print(f"  Pass {pass_num}: +{pass_saved} saved | {len(failed)} failed", flush=True)
+    if pass_saved == 0:
+        break
+    remaining = [obj for obj, _ in failed]
+
+final_errors = len(remaining)
+for obj, emsg in remaining[:5]:
+    print(f"  ERR {obj.object.__class__.__name__}: {emsg[:120]}")
+
+print(f"Saved={saved} DupSkip={dup_skip} DeserSkip={deser_skip} Errors={final_errors}")
+if final_errors == 0:
     print("STATUS: OK")
 else:
-    print("STATUS: ERRORS")
+    print(f"STATUS: ERRORS ({final_errors} yuklanmadi)")
 '''
 
 with open("/tmp/_load.py", "w") as f:
