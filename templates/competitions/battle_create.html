@@ -503,10 +503,10 @@
                            '<span class="bc-friend-name">' + u.name + '</span>' +
                            '<i class="bi bi-check-circle-fill bc-friend-check"></i></div>';
                 } else {
-                    return '<div class="bc-friend" style="opacity:0.5;cursor:default;" title="Do'stingiz emas">' +
+                    return '<div class="bc-friend" style="opacity:0.5;cursor:default;" title="Do\u0027stingiz emas">' +
                            '<div class="bc-friend-avatar">' + init + '</div>' +
                            '<span class="bc-friend-name">' + u.name + '</span>' +
-                           '<a href="/accounts/friends/add/' + u.id + '/" class="ms-auto" style="font-size:0.75rem;color:var(--primary);">+ Do'st</a></div>';
+                           '<a href="/accounts/friends/add/' + u.id + '/" class="ms-auto" style="font-size:0.75rem;color:var(--primary);">+ Doʻst</a></div>';
                 }
             }).join('');
         }).catch(function(){});
