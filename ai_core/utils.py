@@ -20,12 +20,16 @@ def get_ai_response(messages_list, system_prompt=None):
 
         if system_prompt is None:
             system_prompt = """Sen TestMakon.uz platformasining AI mentorisan.
-            Sening vazifang O'zbekistondagi abituriyentlarga universitetga kirish imtihonlariga tayyorlanishda yordam berish.
-            Sen o'zbek tilida javob berasan. Javoblaringni qisqa, aniq va foydali qilib ber."""
+Sening vazifang O'zbekistondagi abituriyentlarga universitetga kirish imtihonlariga tayyorlanishda yordam berish.
+Sen o'zbek tilida javob berasan. Javoblaringni qisqa, aniq va foydali qilib ber."""
 
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
+        # system_instruction eski versiyalarda yo'q — history ga prepend qilamiz
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
-        chat_history = []
+        chat_history = [
+            {"role": "user", "parts": [system_prompt]},
+            {"role": "model", "parts": ["Tushundim. Sizga yordam berishga tayyorman."]},
+        ]
         last_user_message = ""
 
         for msg in messages_list:
