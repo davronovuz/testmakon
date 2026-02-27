@@ -1,345 +1,292 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
-{% block title %}{{ topic.name }} - Mashq | TestMakon{% endblock %}
+{% block title %}{{ topic.name }} — Mashq | TestMakon{% endblock %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-    /* ========== HEADER ========== */
-    .pt-header {
-        padding: 2.5rem 0;
-        color: white;
+    *, *::before, *::after { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important; }
+    body { background: var(--gray-50); }
+
+    /* ── HERO ─────────────────────────────────────────── */
+    .ph-hero {
+        background: white; border-bottom: 1px solid #E8F0FE;
+        padding: 1.25rem 0 1.5rem; position: relative; overflow: hidden;
+    }
+    .ph-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: radial-gradient(ellipse 80% 60% at 70% 50%, {{ subject.color }}08 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .ph-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.73rem; font-weight: 600; color: #94A3B8; margin-bottom: 1rem;
+    }
+    .ph-breadcrumb a { color: #94A3B8; text-decoration: none; transition: color .15s; }
+    .ph-breadcrumb a:hover { color: var(--primary-dark); }
+    .ph-breadcrumb i { font-size: 0.6rem; }
+
+    .ph-body { display: flex; align-items: center; gap: 16px; }
+    .ph-icon {
+        width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; font-size: 1.7rem;
+        box-shadow: 0 6px 20px {{ subject.color }}25;
+    }
+    .ph-title { font-size: 1.35rem; font-weight: 900; color: #0F172A; margin: 0 0 4px; letter-spacing: -.03em; }
+    .ph-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ph-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: #F1F5F9; border-radius: 8px; padding: 4px 10px;
+        font-size: 0.75rem; font-weight: 600; color: #64748B;
+    }
+    .ph-chip i { font-size: 0.72rem; color: #94A3B8; }
+    .ph-chip.green { background: rgba(139,197,64,0.1); color: var(--primary-dark); }
+    .ph-chip.green i { color: var(--primary); }
+
+    /* ── LAYOUT ───────────────────────────────────────── */
+    .ps-wrap { padding: 1.5rem 0 4rem; }
+    .ps-layout {
+        display: grid; grid-template-columns: 1fr 340px;
+        gap: 18px; align-items: start;
+    }
+    @media (max-width: 960px) {
+        .ps-layout { grid-template-columns: 1fr; }
+        .ps-right { order: -1; }
+        .ps-right-inner { position: static !important; }
     }
 
-    /* Subject gradients */
-    .pt-header.matematika { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
-    .pt-header.fizika { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
-    .pt-header.kimyo { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
-    .pt-header.biologiya { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
-    .pt-header.ingliz-tili { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
-    .pt-header.tarix { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); }
-    .pt-header.geografiya { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
-    .pt-header.ona-tili { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
-    .pt-header.default { background: linear-gradient(135deg, #64748B 0%, #475569 100%); }
-
-    .pt-breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
-        opacity: 0.9;
+    /* ── CARDS ────────────────────────────────────────── */
+    .ps-card {
+        background: white; border: 1px solid #E8F0FE;
+        border-radius: 18px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.03);
+        margin-bottom: 14px;
     }
-
-    .pt-breadcrumb a {
-        color: white;
-        opacity: 0.8;
+    .ps-card:last-child { margin-bottom: 0; }
+    .ps-card-head {
+        padding: 14px 18px; border-bottom: 1px solid #F1F5F9;
+        display: flex; align-items: center; gap: 8px;
     }
-
-    .pt-breadcrumb a:hover {
-        opacity: 1;
+    .ps-card-head-ico {
+        width: 28px; height: 28px; border-radius: 8px;
+        background: rgba(139,197,64,0.1); color: var(--primary-dark);
+        display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
     }
+    .ps-card-head-title { font-size: 0.88rem; font-weight: 800; color: #0F172A; }
+    .ps-card-body { padding: 16px 18px; }
 
-    .pt-header h1 {
-        font-size: 2rem;
-        color: white;
-        margin-bottom: 0.5rem;
-    }
-
-    .pt-header-meta {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        margin-top: 1rem;
-    }
-
-    .pt-header-stat {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-        background: rgba(255,255,255,0.15);
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius);
-    }
-
-    /* ========== CONTENT ========== */
-    .pt-content {
-        padding: 2.5rem 0 4rem;
-    }
-
-    .pt-grid {
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 2rem;
-    }
-
-    @media (max-width: 992px) {
-        .pt-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== CARDS ========== */
-    .pt-card {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        border: 1px solid var(--gray-200);
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
-    .pt-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-    .pt-card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .pt-card-title i {
-        color: var(--primary);
-    }
-
-    .pt-card-body {
-        padding: 1.5rem;
-    }
-
-    /* ========== SUBTOPICS ========== */
-    .pt-subtopics-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .pt-subtopic-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 1.25rem;
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        transition: all 0.2s;
-    }
-
-    .pt-subtopic-item:hover {
-        background: var(--gray-100);
-    }
-
-    .pt-subtopic-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    .pt-subtopic-count {
-        font-size: 0.85rem;
-        color: var(--gray-500);
-        background: var(--white);
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-    }
-
-    /* ========== USER PROGRESS ========== */
-    .pt-progress-card {
+    /* ── PROGRESS CARD ────────────────────────────────── */
+    .ps-progress-card {
         background: var(--gradient-primary);
-        color: white;
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        border-radius: 18px; padding: 18px 20px; margin-bottom: 14px;
+        box-shadow: 0 4px 20px rgba(139,197,64,.3);
+    }
+    .ps-prog-top {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    }
+    .ps-prog-label { font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,.85); }
+    .ps-prog-score { font-size: 1.6rem; font-weight: 900; color: white; }
+    .ps-prog-bar {
+        height: 6px; background: rgba(255,255,255,.25);
+        border-radius: 3px; overflow: hidden; margin-bottom: 10px;
+    }
+    .ps-prog-fill { height: 100%; background: white; border-radius: 3px; }
+    .ps-prog-stats {
+        display: flex; justify-content: space-between;
+        font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,.8);
     }
 
-    .pt-progress-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
+    /* ── SUBTOPICS ────────────────────────────────────── */
+    .ps-subtopics { display: flex; flex-direction: column; gap: 3px; }
+    .ps-subtopic-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 9px 12px; border-radius: 10px;
+        background: #F8FAFC; border: 1px solid #F1F5F9;
+        transition: background .12s;
+    }
+    .ps-subtopic-row:hover { background: #F1F5F9; }
+    .ps-subtopic-name { font-size: 0.82rem; font-weight: 600; color: #1E293B; }
+    .ps-subtopic-cnt {
+        font-size: 0.68rem; font-weight: 700; color: #94A3B8;
+        background: white; padding: 2px 9px; border-radius: 10px;
+        border: 1px solid #E2E8F0;
     }
 
-    .pt-progress-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        opacity: 0.9;
+    /* ── TIP ──────────────────────────────────────────── */
+    .ps-tip {
+        display: flex; gap: 12px; padding: 14px 16px;
+        background: #FFFBEB; border-radius: 12px;
+        border: 1px solid #FDE68A;
+    }
+    .ps-tip-ico { font-size: 1.1rem; flex-shrink: 0; color: #D97706; }
+    .ps-tip-title { font-size: 0.8rem; font-weight: 800; color: #92400E; margin-bottom: 2px; }
+    .ps-tip-text { font-size: 0.75rem; color: #78350F; line-height: 1.45; margin: 0; }
+
+    /* ── DESCRIPTION ──────────────────────────────────── */
+    .ps-desc-text {
+        font-size: 0.85rem; color: #475569; line-height: 1.6; margin: 0;
     }
 
-    .pt-progress-score {
-        font-size: 1.5rem;
-        font-weight: 800;
+    /* ── SETTINGS PANEL ───────────────────────────────── */
+    .ps-right-inner { position: sticky; top: 84px; }
+    .ps-settings-card {
+        background: white; border: 1px solid #E8F0FE;
+        border-radius: 18px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+    }
+    .ps-settings-head {
+        padding: 14px 20px; border-bottom: 1px solid #F1F5F9;
+        display: flex; align-items: center; gap: 9px;
+    }
+    .ps-settings-head-ico {
+        width: 30px; height: 30px; border-radius: 8px;
+        background: rgba(139,197,64,0.1); color: var(--primary-dark);
+        display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+    }
+    .ps-settings-head-title { font-size: 0.88rem; font-weight: 800; color: #0F172A; }
+    .ps-settings-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 18px; }
+
+    .ps-field-label {
+        font-size: 0.68rem; font-weight: 800; color: #94A3B8;
+        text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px;
     }
 
-    .pt-progress-bar {
-        height: 8px;
-        background: rgba(255,255,255,0.3);
-        border-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 1rem;
+    /* Count */
+    .ps-count-wrap {
+        display: flex; align-items: center;
+        border: 1.5px solid #E2E8F0; border-radius: 12px; overflow: hidden;
+        background: white; transition: border-color .2s, box-shadow .2s;
     }
-
-    .pt-progress-fill {
-        height: 100%;
-        background: white;
-        border-radius: 4px;
+    .ps-count-wrap:focus-within {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(139,197,64,.1);
     }
-
-    .pt-progress-stats {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.85rem;
+    .ps-count-btn {
+        width: 42px; height: 44px; background: #F8FAFC; border: none;
+        color: #64748B; font-size: 1.2rem; font-weight: 700;
+        cursor: pointer; transition: all .15s; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
     }
-
-    .pt-progress-stats span {
-        opacity: 0.9;
+    .ps-count-btn:hover { background: rgba(139,197,64,0.08); color: var(--primary-dark); }
+    .ps-count-btn:active { background: rgba(139,197,64,0.15); }
+    .ps-count-input {
+        flex: 1; border: none; text-align: center; background: transparent;
+        font-size: 1.05rem; font-weight: 800; color: #0F172A; outline: none; padding: 10px 0;
     }
+    .ps-count-hint { font-size: 0.68rem; color: #94A3B8; font-weight: 500; margin-top: 6px; }
 
-    /* ========== START FORM ========== */
-    .pt-form-group {
-        margin-bottom: 1.5rem;
+    /* Select */
+    .ps-select-wrap { position: relative; }
+    .ps-select-wrap i.select-ico {
+        position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+        font-size: 0.88rem; color: #64748B; pointer-events: none; z-index: 1;
     }
-
-    .pt-form-label {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.75rem;
-        display: block;
+    .ps-select-wrap i.select-arr {
+        position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+        font-size: 0.7rem; color: #94A3B8; pointer-events: none;
     }
-
-    .pt-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
+    .ps-select {
+        width: 100%; padding: 11px 36px 11px 38px;
+        border: 1.5px solid #E2E8F0; border-radius: 12px;
+        background: #F8FAFC; color: #1E293B;
+        font-size: 0.85rem; font-weight: 700; appearance: none;
+        cursor: pointer; transition: all .2s; outline: none;
     }
-
-    .pt-option {
-        padding: 0.6rem 1.25rem;
-        background: var(--gray-100);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        cursor: pointer;
-        transition: all 0.2s;
+    .ps-select:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(139,197,64,.1); background: white;
     }
+    .ps-select:hover { border-color: #CBD5E1; background: white; }
 
-    .pt-option:hover {
-        background: var(--gray-200);
+    /* Summary */
+    .ps-summary {
+        background: #F8FAFC; border: 1px solid #E8F0FE;
+        border-radius: 12px; padding: 12px 14px;
     }
-
-    .pt-option.selected {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: white;
+    .ps-sum-row {
+        display: flex; align-items: center; justify-content: space-between;
+        font-size: 0.77rem; padding: 6px 0;
     }
+    .ps-sum-row + .ps-sum-row { border-top: 1px solid #E8F0FE; }
+    .ps-sum-label { color: #94A3B8; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    .ps-sum-label i { font-size: 0.68rem; }
+    .ps-sum-val { color: #0F172A; font-weight: 800; }
 
-    .pt-start-btn {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1rem;
+    /* Start btn */
+    .ps-start-btn {
+        width: 100%; padding: 14px; border: none; border-radius: 13px;
         background: var(--gradient-primary);
-        border: none;
-        color: white;
-        border-radius: var(--radius-lg);
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
+        color: white; font-size: 0.97rem; font-weight: 800; letter-spacing: -.01em;
+        cursor: pointer; transition: all .2s;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: 0 4px 20px rgba(139,197,64,.4);
+        animation: pulse-g 3s ease-in-out infinite;
     }
-
-    .pt-start-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
-    }
-
-    /* ========== TIP CARD ========== */
-    .pt-tip {
-        display: flex;
-        gap: 1rem;
-        padding: 1rem;
-        background: #FEF3C7;
-        border-radius: var(--radius);
-        border-left: 4px solid #F59E0B;
-    }
-
-    .pt-tip-icon {
-        font-size: 1.25rem;
-        color: #D97706;
-    }
-
-    .pt-tip-content h4 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0 0 0.25rem;
-    }
-
-    .pt-tip-content p {
-        font-size: 0.85rem;
-        color: var(--dark-600);
-        margin: 0;
+    .ps-start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(139,197,64,.5); animation: none; }
+    .ps-start-btn:active { transform: none; }
+    @keyframes pulse-g {
+        0%,100% { box-shadow: 0 4px 20px rgba(139,197,64,.4); }
+        50%      { box-shadow: 0 4px 28px rgba(139,197,64,.6); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="pt-header {{ subject.slug|default:'default' }}">
+
+<!-- Hero -->
+<div class="ph-hero">
     <div class="container">
-        <div class="pt-breadcrumb">
-            <a href="{% url 'tests_app:practice_select' %}">Mashq</a>
+        <div class="ph-breadcrumb">
+            <a href="{% url 'tests_app:tests_list' %}">Testlar</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="{% url 'tests_app:question_bank' %}">Savol banki</a>
             <i class="bi bi-chevron-right"></i>
             <a href="{% url 'tests_app:practice_subject' subject_slug=subject.slug %}">{{ subject.name }}</a>
             <i class="bi bi-chevron-right"></i>
             <span>{{ topic.name }}</span>
         </div>
-        <h1>{{ topic.name }}</h1>
-
-        <div class="pt-header-meta">
-            <div class="pt-header-stat">
-                <i class="bi bi-journal-text"></i>
-                {{ questions_count }} savol
+        <div class="ph-body">
+            <div class="ph-icon" style="background: {{ subject.color }}15;">
+                {% subject_icon subject 56 %}
             </div>
-            {% if subtopics %}
-            <div class="pt-header-stat">
-                <i class="bi bi-diagram-3"></i>
-                {{ subtopics.count }} bo'lim
+            <div>
+                <h1 class="ph-title">{{ topic.name }}</h1>
+                <div class="ph-meta">
+                    <div class="ph-chip"><i class="bi bi-journal-text"></i> {{ questions_count }} ta savol</div>
+                    {% if subtopics %}
+                    <div class="ph-chip"><i class="bi bi-diagram-3"></i> {{ subtopics.count }} bo'lim</div>
+                    {% endif %}
+                    {% if user_progress %}
+                    <div class="ph-chip green"><i class="bi bi-graph-up"></i> {{ user_progress.score }}% natija</div>
+                    {% endif %}
+                </div>
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
 <!-- Content -->
-<div class="pt-content">
+<div class="ps-wrap">
     <div class="container">
-        <div class="pt-grid">
-            <!-- Main -->
-            <div class="pt-main">
+        <div class="ps-layout">
+
+            <!-- LEFT -->
+            <div>
+                <!-- Subtopics -->
                 {% if subtopics %}
-                <div class="pt-card">
-                    <div class="pt-card-header">
-                        <h3 class="pt-card-title">
-                            <i class="bi bi-diagram-3"></i>
-                            Bo'limlar
-                        </h3>
+                <div class="ps-card">
+                    <div class="ps-card-head">
+                        <div class="ps-card-head-ico"><i class="bi bi-diagram-3-fill"></i></div>
+                        <span class="ps-card-head-title">Bo'limlar</span>
                     </div>
-                    <div class="pt-card-body">
-                        <div class="pt-subtopics-list">
-                            {% for subtopic in subtopics %}
-                            <div class="pt-subtopic-item">
-                                <span class="pt-subtopic-name">{{ subtopic.name }}</span>
-                                <span class="pt-subtopic-count">{{ subtopic.questions_count }} savol</span>
+                    <div class="ps-card-body">
+                        <div class="ps-subtopics">
+                            {% for sub in subtopics %}
+                            <div class="ps-subtopic-row">
+                                <span class="ps-subtopic-name">{{ sub.name }}</span>
+                                <span class="ps-subtopic-cnt">{{ sub.questions_count }} savol</span>
                             </div>
                             {% endfor %}
                         </div>
@@ -347,123 +294,180 @@
                 </div>
                 {% endif %}
 
+                <!-- Description -->
                 {% if topic.description %}
-                <div class="pt-card">
-                    <div class="pt-card-header">
-                        <h3 class="pt-card-title">
-                            <i class="bi bi-info-circle"></i>
-                            Mavzu haqida
-                        </h3>
+                <div class="ps-card">
+                    <div class="ps-card-head">
+                        <div class="ps-card-head-ico"><i class="bi bi-info-circle-fill"></i></div>
+                        <span class="ps-card-head-title">Mavzu haqida</span>
                     </div>
-                    <div class="pt-card-body">
-                        <p class="mb-0">{{ topic.description }}</p>
+                    <div class="ps-card-body">
+                        <p class="ps-desc-text">{{ topic.description }}</p>
                     </div>
                 </div>
                 {% endif %}
 
                 <!-- Tip -->
-                <div class="pt-tip">
-                    <div class="pt-tip-icon">
-                        <i class="bi bi-lightbulb-fill"></i>
-                    </div>
-                    <div class="pt-tip-content">
-                        <h4>Maslahat</h4>
-                        <p>Avval oson savollardan boshlang, keyin qiyinroqlariga o'ting. Har kuni kamida 20 ta savol yeching.</p>
+                <div class="ps-tip">
+                    <div class="ps-tip-ico"><i class="bi bi-lightbulb-fill"></i></div>
+                    <div>
+                        <div class="ps-tip-title">Maslahat</div>
+                        <p class="ps-tip-text">Avval oson savollardan boshlang, keyin qiyinroqlariga o'ting. Har kuni kamida 20 ta savol yeching.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div class="pt-sidebar">
-                {% if user_progress %}
-                <div class="pt-progress-card">
-                    <div class="pt-progress-header">
-                        <span class="pt-progress-title">Sizning progressingiz</span>
-                        <span class="pt-progress-score">{{ user_progress.score }}%</span>
-                    </div>
-                    <div class="pt-progress-bar">
-                        <div class="pt-progress-fill" style="width: {{ user_progress.score }}%"></div>
-                    </div>
-                    <div class="pt-progress-stats">
-                        <span>{{ user_progress.solved }} yechilgan</span>
-                        <span>{{ user_progress.correct }} to'g'ri</span>
-                    </div>
-                </div>
-                {% endif %}
+            <!-- RIGHT -->
+            <div class="ps-right">
+                <div class="ps-right-inner">
 
-                <div class="pt-card">
-                    <div class="pt-card-header">
-                        <h3 class="pt-card-title">
-                            <i class="bi bi-play-circle"></i>
-                            Mashq boshlash
-                        </h3>
+                    <!-- Progress -->
+                    {% if user_progress %}
+                    <div class="ps-progress-card">
+                        <div class="ps-prog-top">
+                            <span class="ps-prog-label">Sizning progressingiz</span>
+                            <span class="ps-prog-score">{{ user_progress.score }}%</span>
+                        </div>
+                        <div class="ps-prog-bar">
+                            <div class="ps-prog-fill" style="width: {{ user_progress.score }}%"></div>
+                        </div>
+                        <div class="ps-prog-stats">
+                            <span>{{ user_progress.solved }} yechilgan</span>
+                            <span>{{ user_progress.correct }} to'g'ri</span>
+                        </div>
                     </div>
-                    <div class="pt-card-body">
-                        <form action="{% url 'tests_app:practice_start' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="subject_id" value="{{ subject.id }}">
-                            <input type="hidden" name="topic_id" value="{{ topic.id }}">
-                            <input type="hidden" name="question_count" id="countInput" value="10">
-                            <input type="hidden" name="difficulty" id="difficultyInput" value="all">
-                            <input type="hidden" name="mode" id="modeInput" value="practice">
+                    {% endif %}
 
-                            <div class="pt-form-group">
-                                <label class="pt-form-label">Savollar soni</label>
-                                <div class="pt-options">
-                                    <div class="pt-option selected" data-name="count" data-value="10">10</div>
-                                    <div class="pt-option" data-name="count" data-value="20">20</div>
-                                    <div class="pt-option" data-name="count" data-value="30">30</div>
-                                    {% if questions_count >= 50 %}
-                                    <div class="pt-option" data-name="count" data-value="50">50</div>
-                                    {% endif %}
+                    <!-- Settings -->
+                    <div class="ps-settings-card">
+                        <div class="ps-settings-head">
+                            <div class="ps-settings-head-ico"><i class="bi bi-sliders2-vertical"></i></div>
+                            <span class="ps-settings-head-title">Test sozlamalari</span>
+                        </div>
+                        <div class="ps-settings-body">
+                            <form action="{% url 'tests_app:practice_start' %}" method="post" id="practiceForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="subject_id"     value="{{ subject.id }}">
+                                <input type="hidden" name="topic_id"       value="{{ topic.id }}">
+                                <input type="hidden" name="question_count" id="countInput"      value="10">
+                                <input type="hidden" name="difficulty"     id="difficultyInput" value="all">
+                                <input type="hidden" name="mode"           id="modeInput"       value="practice">
+
+                                <!-- Count -->
+                                <div>
+                                    <div class="ps-field-label">Savollar soni</div>
+                                    <div class="ps-count-wrap">
+                                        <button type="button" class="ps-count-btn" id="countMinus">−</button>
+                                        <input type="number" class="ps-count-input" id="countDisplay"
+                                               value="10" min="5" max="{{ questions_count }}">
+                                        <button type="button" class="ps-count-btn" id="countPlus">+</button>
+                                    </div>
+                                    <div class="ps-count-hint">5 dan {{ questions_count }} tagacha</div>
                                 </div>
-                            </div>
 
-                            <div class="pt-form-group">
-                                <label class="pt-form-label">Qiyinlik</label>
-                                <div class="pt-options">
-                                    <div class="pt-option selected" data-name="difficulty" data-value="all">Barchasi</div>
-                                    <div class="pt-option" data-name="difficulty" data-value="easy">🟢 Oson</div>
-                                    <div class="pt-option" data-name="difficulty" data-value="medium">🟡 O'rta</div>
-                                    <div class="pt-option" data-name="difficulty" data-value="hard">🔴 Qiyin</div>
+                                <!-- Difficulty -->
+                                <div>
+                                    <div class="ps-field-label">Qiyinlik darajasi</div>
+                                    <div class="ps-select-wrap">
+                                        <i class="bi bi-bar-chart-fill select-ico"></i>
+                                        <select class="ps-select" id="diffSelect">
+                                            <option value="all">🔘 Barchasi</option>
+                                            <option value="easy">🟢 Oson</option>
+                                            <option value="medium">🟡 O'rta</option>
+                                            <option value="hard">🔴 Qiyin</option>
+                                        </select>
+                                        <i class="bi bi-chevron-down select-arr"></i>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="pt-form-group">
-                                <label class="pt-form-label">Rejim</label>
-                                <div class="pt-options">
-                                    <div class="pt-option selected" data-name="mode" data-value="practice">⏸️ Oddiy</div>
-                                    <div class="pt-option" data-name="mode" data-value="timed">⏱️ Vaqt bilan</div>
+                                <!-- Mode -->
+                                <div>
+                                    <div class="ps-field-label">Mashq turi</div>
+                                    <div class="ps-select-wrap">
+                                        <i class="bi bi-play-circle-fill select-ico"></i>
+                                        <select class="ps-select" id="modeSelect">
+                                            <option value="practice">✅ Oddiy mashq</option>
+                                            <option value="timed">⏱️ Vaqt bilan</option>
+                                            <option value="exam">🎓 Imtihon rejimi</option>
+                                        </select>
+                                        <i class="bi bi-chevron-down select-arr"></i>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <button type="submit" class="pt-start-btn">
-                                <i class="bi bi-play-fill"></i>
-                                Boshlash
-                            </button>
-                        </form>
+                                <!-- Summary -->
+                                <div class="ps-summary">
+                                    <div class="ps-sum-row">
+                                        <span class="ps-sum-label"><i class="bi bi-bookmark-fill"></i> Mavzu</span>
+                                        <span class="ps-sum-val">{{ topic.name|truncatechars:18 }}</span>
+                                    </div>
+                                    <div class="ps-sum-row">
+                                        <span class="ps-sum-label"><i class="bi bi-list-ol"></i> Savollar</span>
+                                        <span class="ps-sum-val" id="sumCount">10 ta</span>
+                                    </div>
+                                    <div class="ps-sum-row">
+                                        <span class="ps-sum-label"><i class="bi bi-clock"></i> Taxminiy</span>
+                                        <span class="ps-sum-val" id="sumTime">~20 daqiqa</span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="ps-start-btn">
+                                    <i class="bi bi-play-circle-fill"></i> Mashqni boshlash
+                                </button>
+                            </form>
+                        </div>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.querySelectorAll('.pt-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const name = this.dataset.name;
-            const value = this.dataset.value;
+(function () {
+    const maxCount = {{ questions_count }};
 
-            // Update UI
-            this.parentElement.querySelectorAll('.pt-option').forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
+    /* ── Count ─── */
+    const countDisplay = document.getElementById('countDisplay');
+    const countInput   = document.getElementById('countInput');
+    const sumCount     = document.getElementById('sumCount');
 
-            // Update hidden input
-            document.getElementById(name + 'Input').value = value;
-        });
+    function setCount(v) {
+        v = Math.max(5, Math.min(maxCount || 200, parseInt(v) || 10));
+        countDisplay.value = v;
+        countInput.value   = v;
+        sumCount.textContent = v + ' ta';
+        updateTime();
+    }
+    document.getElementById('countMinus').addEventListener('click', () => setCount(parseInt(countDisplay.value) - 5));
+    document.getElementById('countPlus').addEventListener('click',  () => setCount(parseInt(countDisplay.value) + 5));
+    countDisplay.addEventListener('change', () => setCount(countDisplay.value));
+    countDisplay.addEventListener('input',  () => {
+        countInput.value = countDisplay.value;
+        sumCount.textContent = (countDisplay.value || '?') + ' ta';
+        updateTime();
     });
+
+    /* ── Selects ─── */
+    document.getElementById('diffSelect').addEventListener('change', function () {
+        document.getElementById('difficultyInput').value = this.value;
+    });
+    document.getElementById('modeSelect').addEventListener('change', function () {
+        document.getElementById('modeInput').value = this.value;
+        updateTime();
+    });
+
+    /* ── Time ─── */
+    function updateTime() {
+        const count = parseInt(countInput.value) || 10;
+        const mode  = document.getElementById('modeInput').value;
+        const mins  = mode === 'exam' ? count : count * 2;
+        document.getElementById('sumTime').textContent = '~' + mins + ' daqiqa';
+    }
+})();
 </script>
 {% endblock %}
