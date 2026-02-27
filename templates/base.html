@@ -2450,5 +2450,89 @@
     </script>
 
     {% block extra_js %}{% endblock %}
+
+    {% if user.is_authenticated %}
+    <!-- WebSocket — Real-time bildirishnomalar -->
+    <script>
+    (function() {
+      'use strict';
+      var protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      var wsUrl = protocol + '://' + window.location.host + '/ws/notifications/';
+      var ws = null;
+      var reconnectDelay = 3000;
+      var pingInterval = null;
+
+      function connect() {
+        try { ws = new WebSocket(wsUrl); } catch(e) { return; }
+        ws.onopen = function() {
+          reconnectDelay = 3000;
+          clearInterval(pingInterval);
+          pingInterval = setInterval(function() {
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({type:'ping'}));
+          }, 30000);
+        };
+        ws.onclose = function(e) {
+          clearInterval(pingInterval);
+          if (e.code !== 4001) setTimeout(connect, reconnectDelay = Math.min(reconnectDelay * 1.5, 30000));
+        };
+        ws.onerror = function() {};
+        ws.onmessage = function(event) {
+          try { handleWsMessage(JSON.parse(event.data)); } catch(e) {}
+        };
+      }
+
+      function handleWsMessage(data) {
+        if (data.type === 'pong') return;
+        if (data.type === 'friend_request_received') {
+          showPopup({icon:'bi-person-plus-fill',color:'#8BC540',title:"Yangi do\'stlik so\'rovi",
+            body:'<strong>'+data.from_user.name+'</strong> sizga do\'stlik so\'rovi yubordi',
+            actions:[{label:"Ko\'rish",href:'/accounts/friends/requests/',cls:'btn-ws-primary'}]});
+        } else if (data.type === 'friend_request_accepted') {
+          showPopup({icon:'bi-people-fill',color:'#8BC540',title:"Do\'stlik qabul qilindi!",
+            body:'<strong>'+data.from_user.name+'</strong> sizning so\'rovingizni qabul qildi',actions:[]});
+        } else if (data.type === 'battle_invite') {
+          showBattlePopup(data);
+        } else if (data.type === 'match_found') {
+          showPopup({icon:'bi-lightning-charge-fill',color:'#FBBF24',title:"Raqib topildi!",
+            body:'<strong>'+data.opponent.name+'</strong> bilan jang boshlandi!',
+            actions:[{label:"Jangga o\'tish",href:'/competitions/battle/'+data.battle_uuid+'/play/',cls:'btn-ws-primary'}],
+            autoClose:false});
+        } else if (data.type === 'online_status') {
+          document.dispatchEvent(new CustomEvent('ws:online_status',{detail:data}));
+        }
+      }
+
+      function showPopup(opts) {
+        var el = document.getElementById('ws-notif-popup');
+        if (el) el.remove();
+        var actions = (opts.actions||[]).map(function(a){
+          return '<a href="'+a.href+'" class="'+(a.cls||'')+'">'+a.label+'</a>';
+        }).join('');
+        el = document.createElement('div');
+        el.id = 'ws-notif-popup';
+        el.innerHTML = '<div class="ws-pi"><div class="ws-icon" style="background:'+opts.color+'20;color:'+opts.color+'"><i class="bi '+opts.icon+'"></i></div><div class="ws-body"><div class="ws-title">'+opts.title+'</div><div class="ws-text">'+opts.body+'</div>'+(actions?'<div class="ws-actions">'+actions+'</div>':'')+'</div><button class="ws-close" onclick="this.closest('#ws-notif-popup').remove()"><i class="bi bi-x-lg"></i></button></div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(function(){el.classList.add('ws-show');});
+        if (opts.autoClose !== false) setTimeout(function(){el.classList.remove('ws-show');setTimeout(function(){el.remove();},400);},6000);
+      }
+
+      function showBattlePopup(data) {
+        var el = document.getElementById('ws-battle-popup');
+        if (el) el.remove();
+        el = document.createElement('div');
+        el.id = 'ws-battle-popup';
+        el.innerHTML = '<div class="ws-pi ws-battle-pi"><div class="ws-icon" style="background:#FBBF2420;color:#FBBF24"><i class="bi bi-lightning-charge-fill"></i></div><div class="ws-body"><div class="ws-title">\u2694\uFE0F Jang taklifi!</div><div class="ws-text"><strong>'+data.from_user.name+'</strong> siz bilan \"'+data.subject+'\" bo\'yicha jangga chaqirmoqda</div><div class="ws-actions"><a href="/competitions/battle/'+data.battle_uuid+'/accept/" class="btn-ws-primary"><i class="bi bi-lightning-charge-fill"></i> Qabul</a><button onclick="document.getElementById(\'ws-battle-popup\').remove()" class="btn-ws-secondary">Rad</button></div></div><button class="ws-close" onclick="this.closest(\'#ws-battle-popup\').remove()"><i class="bi bi-x-lg"></i></button></div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(function(){el.classList.add('ws-show');});
+        setTimeout(function(){el.classList.remove('ws-show');setTimeout(function(){el.remove();},400);},(data.expires_in||60)*1000);
+      }
+
+      var css = '#ws-notif-popup,#ws-battle-popup{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;max-width:360px;width:calc(100% - 3rem);transform:translateY(120%);opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease}.ws-show{transform:translateY(0)!important;opacity:1!important}.ws-pi{background:white;border-radius:16px;padding:1rem;display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #e2e8f0;position:relative}.ws-battle-pi{border-left:3px solid #FBBF24}.ws-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}.ws-body{flex:1;min-width:0}.ws-title{font-weight:700;font-size:.9rem;color:#0F172A;margin-bottom:.2rem}.ws-text{font-size:.82rem;color:#475569;line-height:1.4}.ws-actions{margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap}.btn-ws-primary{background:linear-gradient(135deg,#8BC540,#6BA832);color:white!important;border:none;padding:.35rem .85rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}.btn-ws-secondary{background:#f1f5f9;color:#64748b;border:none;padding:.35rem .85rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer}.ws-close{position:absolute;top:.5rem;right:.5rem;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:.75rem;padding:.2rem;line-height:1}@media(max-width:480px){#ws-notif-popup,#ws-battle-popup{bottom:0;right:0;left:0;max-width:100%;width:100%}.ws-pi{border-radius:16px 16px 0 0}}';
+      var s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
+
+      connect();
+    })();
+    </script>
+    {% endif %}
 </body>
 </html>

@@ -143,6 +143,10 @@ class User(AbstractUser):
     total_wrong_answers = models.PositiveIntegerField('Noto\'g\'ri javoblar', default=0)
     average_score = models.FloatField('O\'rtacha ball', default=0.0)
 
+    # Battle rating
+    rating = models.PositiveIntegerField('Battle reytingi', default=1000, db_index=True)
+    last_online = models.DateTimeField('Oxirgi online vaqt', null=True, blank=True)
+
     # Competition stats
     competitions_participated = models.PositiveIntegerField('Musobaqalar soni', default=0)
     competitions_won = models.PositiveIntegerField('Yutilgan musobaqalar', default=0)
@@ -182,6 +186,18 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def is_online(self):
+        """Redis da onlinemi tekshirish (5 daqiqa ichida faol)"""
+        try:
+            from django.core.cache import cache
+            return bool(cache.get(f'online:{self.id}'))
+        except Exception:
+            if self.last_online:
+                from django.utils import timezone
+                return (timezone.now() - self.last_online).total_seconds() < 300
+            return False
 
     @property
     def full_name(self):

@@ -347,10 +347,17 @@
                     </div>
 
                     <!-- Friends list -->
-                    <div class="bc-friends" id="friendsSection">
+                    <div id="friendsSection" style="display:none;">
+                      <div style="position:relative;margin-bottom:0.75rem;">
+                        <i class="bi bi-search" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:#94a3b8;"></i>
+                        <input type="text" id="bcFriendSearch" placeholder="Do'st qidirish..." autocomplete="off"
+                          style="width:100%;padding:0.6rem 0.75rem 0.6rem 2.25rem;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.88rem;outline:none;"
+                          oninput="bcSearchFriend(this.value)">
+                      </div>
+                      <div class="bc-friends show" id="bcFriendsList">
                         {% if friends %}
                             {% for friend in friends %}
-                            <div class="bc-friend" data-id="{{ friend.id }}" onclick="selectFriend({{ friend.id }})">
+                            <div class="bc-friend" data-id="{{ friend.id }}" data-name="{{ friend.first_name }} {{ friend.last_name }}" onclick="selectFriend({{ friend.id }}, '{{ friend.first_name }}')">
                                 <div class="bc-friend-avatar">{{ friend.first_name|default:"?"|slice:":1" }}</div>
                                 <span class="bc-friend-name">{{ friend.first_name }} {{ friend.last_name|default:"" }}</span>
                                 <i class="bi bi-check-circle-fill bc-friend-check"></i>
@@ -358,9 +365,12 @@
                             {% endfor %}
                         {% else %}
                             <div class="bc-no-friends">
-                                <i class="bi bi-people"></i> Hozircha do'stlar yo'q
+                                <i class="bi bi-people"></i> Hozircha do'stlar yo'q.
+                                <a href="/accounts/friends/" style="color:var(--primary);">Do'st qo'shish &rarr;</a>
                             </div>
                         {% endif %}
+                      </div>
+                      <div id="bcFriendSearchResults" class="bc-friends show" style="display:none;"></div>
                     </div>
                 </div>
 
@@ -434,7 +444,7 @@
         });
 
         document.getElementById('botSection').classList.toggle('show', type === 'bot');
-        document.getElementById('friendsSection').classList.toggle('show', type === 'friend');
+        document.getElementById('friendsSection').style.display = (type === 'friend') ? '' : 'none';
 
         // Reset friend selection
         document.querySelectorAll('.bc-friend').forEach(function(el) { el.classList.remove('active'); });
@@ -453,7 +463,7 @@
     };
 
     // Friend
-    window.selectFriend = function(id) {
+    window.selectFriend = function(id, name) {
         state.opponentId = id;
         document.getElementById('opponentId').value = id;
 
@@ -462,6 +472,44 @@
         });
 
         checkReady();
+    };
+
+    // Friend search (AJAX)
+    window.bcSearchFriend = function(q) {
+        var listEl = document.getElementById('bcFriendsList');
+        var resultsEl = document.getElementById('bcFriendSearchResults');
+        if (!q || q.length < 2) {
+            listEl.style.display = '';
+            resultsEl.style.display = 'none';
+            resultsEl.innerHTML = '';
+            return;
+        }
+        listEl.style.display = 'none';
+        resultsEl.style.display = 'flex';
+        fetch('/accounts/friends/search/?q=' + encodeURIComponent(q), {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        }).then(function(r){ return r.json(); }).then(function(data) {
+            var users = data.users || [];
+            if (!users.length) {
+                resultsEl.innerHTML = '<div class="bc-no-friends"><i class="bi bi-search"></i> Topilmadi</div>';
+                return;
+            }
+            resultsEl.innerHTML = users.map(function(u) {
+                var init = (u.name||'?')[0].toUpperCase();
+                var isFriend = (u.friendship_status === 'sent' || u.friendship_status === 'received' || u.friendship_status === 'accepted');
+                if (isFriend) {
+                    return '<div class="bc-friend" data-id="' + u.id + '" onclick="selectFriend(' + u.id + ', \'' + u.name + '\')">' +
+                           '<div class="bc-friend-avatar">' + init + '</div>' +
+                           '<span class="bc-friend-name">' + u.name + '</span>' +
+                           '<i class="bi bi-check-circle-fill bc-friend-check"></i></div>';
+                } else {
+                    return '<div class="bc-friend" style="opacity:0.5;cursor:default;" title="Do'stingiz emas">' +
+                           '<div class="bc-friend-avatar">' + init + '</div>' +
+                           '<span class="bc-friend-name">' + u.name + '</span>' +
+                           '<a href="/accounts/friends/add/' + u.id + '/" class="ms-auto" style="font-size:0.75rem;color:var(--primary);">+ Do'st</a></div>';
+                }
+            }).join('');
+        }).catch(function(){});
     };
 
     // Subject
@@ -517,6 +565,21 @@
             btn.innerHTML = '<i class="bi bi-lightning-fill"></i> Jangga chiqish';
         }
     }
+    // URL dan opponent ID ni olish (?opponent=ID)
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        var opponentId = params.get('opponent');
+        if (opponentId) {
+            selectType('friend');
+            // Do'stlar ro'yxatidan topish
+            var friendEl = document.querySelector('.bc-friend[data-id="' + opponentId + '"]');
+            if (friendEl) {
+                selectFriend(parseInt(opponentId));
+                friendEl.classList.add('active');
+                friendEl.scrollIntoView({behavior:'smooth',block:'center'});
+            }
+        }
+    })();
 })();
 </script>
 {% endblock %}

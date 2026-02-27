@@ -855,6 +855,31 @@ def battle_create(request):
             messages.success(request, f"Bot ({battle.get_bot_difficulty_display()}) bilan jang boshlandi!")
             return redirect('competitions:battle_play', uuid=battle.uuid)
 
+        # Do'stga WebSocket orqali battle invite yuborish
+        if opponent and opponent_type == 'friend':
+            try:
+                from asgiref.sync import async_to_sync
+                from channels.layers import get_channel_layer
+                from accounts.models import Friendship as FriendshipModel
+                channel_layer = get_channel_layer()
+                if channel_layer:
+                    async_to_sync(channel_layer.group_send)(
+                        f'user_{opponent.id}',
+                        {
+                            'type': 'battle.invite',
+                            'battle_uuid': str(battle.uuid),
+                            'from_user': {
+                                'id': request.user.id,
+                                'name': f'{request.user.first_name} {request.user.last_name}',
+                                'avatar': request.user.get_avatar_url(),
+                            },
+                            'subject': subject.name if subject else 'Har qanday fan',
+                            'expires_in': 60,
+                        }
+                    )
+            except Exception:
+                pass
+
         messages.success(request, "Jang taklifi yuborildi!")
         return redirect('competitions:battle_detail', uuid=battle.uuid)
 
@@ -1519,18 +1544,18 @@ def api_online_friends(request):
     """Online do'stlar API"""
     friends = get_user_friends(request.user)
 
+    from django.core.cache import cache
     data = []
     for friend in friends:
-        # Online status check (simplified)
-        is_online = False
-        if hasattr(friend, 'last_activity'):
-            is_online = (timezone.now() - friend.last_activity).total_seconds() < 300
+        # Redis orqali online status tekshirish
+        is_online = bool(cache.get(f'online:{friend.id}'))
 
         data.append({
             'id': friend.id,
             'name': friend.full_name if hasattr(friend, 'full_name') else friend.first_name,
             'avatar': friend.get_avatar_url() if hasattr(friend, 'get_avatar_url') else None,
             'is_online': is_online,
+            'rating': getattr(friend, 'rating', 1000),
         })
 
     return JsonResponse({'friends': data})

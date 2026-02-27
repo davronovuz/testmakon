@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', 'testmakon.uz', 'www.testmakon.u
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -30,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'import_export',
+    'channels',
 
     # Local apps
     'core.apps.CoreConfig',
@@ -52,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.OnlinePresenceMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -76,6 +79,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
+
+# Django Channels — Redis Channel Layer (DB 2, alohida)
+_redis_url = config('REDIS_URL', default='redis://localhost:6379/0')
+# Channels uchun alohida DB (DB 2)
+_channel_redis_url = _redis_url.rsplit('/', 1)[0] + '/2'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [_channel_redis_url],
+            'capacity': 1500,
+            'expiry': 10,
+        },
+    },
+}
 
 
 CSRF_TRUSTED_ORIGINS = [

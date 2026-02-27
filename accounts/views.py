@@ -525,8 +525,16 @@ def friends_list(request):
         friend = f.to_user if f.from_user == request.user else f.from_user
         friends.append(friend)
 
-    context = {'friends': friends}
-    return render(request, 'accounts/friends_list.html', context)
+    pending_requests = Friendship.objects.filter(
+        to_user=request.user, status='pending'
+    ).select_related('from_user')
+
+    context = {
+        'friends': friends,
+        'pending_requests': pending_requests,
+        'pending_count': pending_requests.count(),
+    }
+    return render(request, 'accounts/friends.html', context)
 
 
 @login_required
@@ -563,12 +571,12 @@ def friend_add(request, user_id):
     if existing:
         messages.warning(request, "So'rov allaqachon yuborilgan")
     else:
-        Friendship.objects.create(
+        friendship = Friendship.objects.create(
             from_user=request.user,
             to_user=to_user,
             status='pending'
         )
-        # to_user ga bildirishnoma yuborish
+        # DB bildirishnoma
         try:
             from news.models import Notification
             Notification.objects.create(
@@ -581,6 +589,28 @@ def friend_add(request, user_id):
             )
         except Exception:
             pass
+
+        # WebSocket real-time xabar
+        try:
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            channel_layer = get_channel_layer()
+            if channel_layer:
+                async_to_sync(channel_layer.group_send)(
+                    f'user_{to_user.id}',
+                    {
+                        'type': 'friend.request',
+                        'from_user': {
+                            'id': request.user.id,
+                            'name': request.user.get_full_name() or request.user.first_name,
+                            'avatar': request.user.get_avatar_url(),
+                        },
+                        'friendship_id': friendship.id,
+                    }
+                )
+        except Exception:
+            pass
+
         messages.success(request, f"{to_user.first_name}ga do'stlik so'rovi yuborildi")
 
     return redirect('accounts:friends_list')
@@ -604,6 +634,26 @@ def friend_accept(request, request_id):
         activity_type='friend_add',
         description=f"{friendship.from_user.first_name} bilan do'st bo'ldingiz"
     )
+
+    # WebSocket — so'rov yuborganga xabar
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                f'user_{friendship.from_user.id}',
+                {
+                    'type': 'friend.accepted',
+                    'from_user': {
+                        'id': request.user.id,
+                        'name': request.user.get_full_name() or request.user.first_name,
+                        'avatar': request.user.get_avatar_url(),
+                    },
+                }
+            )
+    except Exception:
+        pass
 
     messages.success(request, f"{friendship.from_user.first_name} bilan do'st bo'ldingiz!")
     return redirect('accounts:friend_requests')
@@ -642,7 +692,7 @@ def friend_remove(request, user_id):
 
 @login_required
 def friend_search(request):
-    """Do'st qidirish"""
+    """Do'st qidirish — JSON yoki HTML"""
     query = request.GET.get('q', '')
     users = []
 
@@ -652,6 +702,34 @@ def friend_search(request):
             Q(last_name__icontains=query) |
             Q(phone_number__icontains=query)
         ).exclude(id=request.user.id)[:20]
+
+    # AJAX so'rovi bo'lsa JSON qaytarish
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Mavjud do'stlik holati
+        from django.db.models import Q as Qq
+        sent_ids = set(Friendship.objects.filter(
+            from_user=request.user, status__in=['pending', 'accepted']
+        ).values_list('to_user_id', flat=True))
+        received_ids = set(Friendship.objects.filter(
+            to_user=request.user, status__in=['pending', 'accepted']
+        ).values_list('from_user_id', flat=True))
+
+        results = []
+        for u in users:
+            status = None
+            if u.id in sent_ids:
+                status = 'sent'
+            elif u.id in received_ids:
+                status = 'received'
+
+            results.append({
+                'id': u.id,
+                'name': f"{u.first_name} {u.last_name}",
+                'avatar': u.get_avatar_url(),
+                'level': u.get_level_display() if hasattr(u, 'get_level_display') else u.level,
+                'friendship_status': status,
+            })
+        return JsonResponse({'users': results})
 
     context = {'query': query, 'users': users}
     return render(request, 'accounts/friend_search.html', context)

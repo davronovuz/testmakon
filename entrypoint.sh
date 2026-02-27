@@ -12,5 +12,8 @@ python manage.py migrate --noinput
 echo "==> rasmlarni kichraytirish..."
 python manage.py compress_images || echo "  compress_images xato berdi, davom etilmoqda..."
 
-echo "==> gunicorn ishga tushmoqda..."
-exec gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 config.wsgi:application
+echo "==> staticfiles..."
+python manage.py collectstatic --noinput || echo "  collectstatic xato, davom etilmoqda..."
+
+echo "==> daphne (ASGI + WebSocket) ishga tushmoqda..."
+exec daphne -b 0.0.0.0 -p 8000 config.asgi:application

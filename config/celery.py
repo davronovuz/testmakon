@@ -18,6 +18,10 @@ app.conf.beat_schedule = {
         'task': 'leaderboard.tasks.warm_leaderboard_cache',
         'schedule': crontab(minute='*/10'),
     },
+    'process-matchmaking': {
+        'task': 'competitions.tasks.process_matchmaking_queue',
+        'schedule': 5.0,  # har 5 soniya
+    },
 }
 app.conf.timezone = 'Asia/Tashkent'
 
