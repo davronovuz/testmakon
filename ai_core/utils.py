@@ -8,7 +8,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 GEMINI_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
+    "https://generativelanguage.googleapis.com/v1/models/"
     "gemini-1.5-flash:generateContent"
 )
 
