@@ -405,27 +405,16 @@
     <div class="ai-gen-card">
         <span class="ai-gen-robot">🤖</span>
         <h2 class="ai-gen-title">AI reja tuzmoqda...</h2>
-        <p class="ai-gen-desc">Test natijalari va sust mavzular tahlil qilinmoqda. Taxminan <strong>30–60 soniya</strong> kuting.</p>
-        <div class="ai-gen-steps">
-            <div class="ai-gen-step active" id="genStep1">
-                <div class="ai-gen-step-dot"></div>
-                Ma'lumotlar tahlil qilinmoqda
+        <p class="ai-gen-desc">Taxminan <strong>30–60 soniya</strong> kuting.</p>
+        <div style="margin-bottom:1.25rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;">
+                <div style="width:10px;height:10px;border-radius:50%;background:var(--primary);flex-shrink:0;animation:dotPulse 1.2s ease-in-out infinite;"></div>
+                <span id="genStepText" style="font-size:0.88rem;font-weight:600;color:var(--dark-600);">Boshlanmoqda...</span>
+                <span id="genPctText" style="margin-left:auto;font-size:0.88rem;font-weight:700;color:var(--primary);">0%</span>
             </div>
-            <div class="ai-gen-step" id="genStep2">
-                <div class="ai-gen-step-dot"></div>
-                Sust mavzular aniqlanmoqda
+            <div class="ai-gen-progress">
+                <div class="ai-gen-progress-fill" id="genProgressFill" style="width:0%;"></div>
             </div>
-            <div class="ai-gen-step" id="genStep3">
-                <div class="ai-gen-step-dot"></div>
-                Kunlik vazifalar tuzilmoqda
-            </div>
-            <div class="ai-gen-step" id="genStep4">
-                <div class="ai-gen-step-dot"></div>
-                Reja yakunlanmoqda
-            </div>
-        </div>
-        <div class="ai-gen-progress">
-            <div class="ai-gen-progress-fill" id="genProgressFill"></div>
         </div>
     </div>
 </div>
@@ -590,26 +579,16 @@
 (function() {
     const taskId = '{{ generating_task_id }}';
     const statusUrl = '{% url "ai_core:api_task_status" task_id="PLACEHOLDER" %}'.replace('PLACEHOLDER', taskId);
-    const steps = ['genStep1', 'genStep2', 'genStep3', 'genStep4'];
     const progressFill = document.getElementById('genProgressFill');
-    let currentStep = 0;
+    const stepText = document.getElementById('genStepText');
+    const pctText = document.getElementById('genPctText');
     let pollCount = 0;
 
-    // Animate steps over time
-    function advanceStep() {
-        if (currentStep < steps.length - 1) {
-            document.getElementById(steps[currentStep]).classList.remove('active');
-            document.getElementById(steps[currentStep]).classList.add('done');
-            currentStep++;
-            document.getElementById(steps[currentStep]).classList.add('active');
-            if (progressFill) {
-                progressFill.style.width = ((currentStep + 1) / steps.length * 80) + '%';
-            }
-        }
+    function setProgress(pct, step) {
+        if (progressFill) progressFill.style.width = pct + '%';
+        if (stepText && step) stepText.textContent = step;
+        if (pctText) pctText.textContent = pct + '%';
     }
-    // Advance steps cosmetically every 4 seconds
-    const stepTimer = setInterval(advanceStep, 4000);
-    if (progressFill) progressFill.style.width = '15%';
 
     function poll() {
         pollCount++;
@@ -617,29 +596,23 @@
             .then(r => r.json())
             .then(function(data) {
                 if (data.status === 'done') {
-                    clearInterval(stepTimer);
-                    // Complete all steps
-                    steps.forEach(function(id) {
-                        document.getElementById(id).classList.remove('active');
-                        document.getElementById(id).classList.add('done');
-                    });
-                    if (progressFill) progressFill.style.width = '100%';
+                    setProgress(100, "Tayyor!");
                     setTimeout(function() {
                         window.location.href = window.location.pathname;
-                    }, 600);
+                    }, 500);
                 } else if (data.status === 'error') {
-                    clearInterval(stepTimer);
-                    document.getElementById('genOverlay').innerHTML = '<div class="ai-gen-card"><span style="font-size:3rem;">⚠️</span><h2 class="ai-gen-title" style="margin-top:1rem;">Xatolik yuz berdi</h2><p class="ai-gen-desc">Sahifa yangalanmoqda...</p></div>';
+                    document.getElementById('genOverlay').innerHTML = '<div class="ai-gen-card"><span style="font-size:3rem;">⚠️</span><h2 class="ai-gen-title" style="margin-top:1rem;">Xatolik yuz berdi</h2><p class="ai-gen-desc">Sahifa yangilanmoqda...</p></div>';
                     setTimeout(function() { window.location.href = window.location.pathname; }, 2500);
                 } else {
-                    setTimeout(poll, 2500);
+                    if (data.current !== undefined) setProgress(data.current, data.step);
+                    setTimeout(poll, 2000);
                 }
             })
             .catch(function() {
-                if (pollCount < 60) setTimeout(poll, 3000);
+                if (pollCount < 90) setTimeout(poll, 3000);
             });
     }
-    setTimeout(poll, 2500);
+    setTimeout(poll, 2000);
 })();
 {% endif %}
 

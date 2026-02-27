@@ -619,16 +619,24 @@ def api_chat(request):
 
 @login_required
 def api_task_status(request, task_id):
-    """Celery task holatini tekshirish (frontend polling uchun)."""
+    """Celery task holatini tekshirish — PROGRESS, done, error qaytaradi."""
     from celery.result import AsyncResult
     result = AsyncResult(task_id)
 
-    if result.successful():
+    if result.state == 'PROGRESS':
+        meta = result.info or {}
+        return JsonResponse({
+            'status': 'pending',
+            'current': meta.get('current', 0),
+            'total': meta.get('total', 100),
+            'step': meta.get('step', ''),
+        })
+    elif result.successful():
         return JsonResponse({'status': 'done', **result.get()})
     elif result.failed():
-        return JsonResponse({'status': 'error', 'error': 'AI javob berishda xatolik yuz berdi'})
+        return JsonResponse({'status': 'error'})
     else:
-        return JsonResponse({'status': 'pending'})
+        return JsonResponse({'status': 'pending', 'current': 0, 'total': 100, 'step': 'Navbat kutilmoqda...'})
 
 
 @login_required

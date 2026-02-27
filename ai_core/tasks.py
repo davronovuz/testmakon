@@ -190,210 +190,29 @@ def send_notification_email(self, user_id, subject, message):
         raise self.retry(exc=exc)
 
 
-@shared_task(bind=True, max_retries=2, default_retry_delay=60)
+@shared_task(bind=True, max_retries=2, default_retry_delay=30)
 def generate_ai_study_plan_task(self, plan_id):
     """
-    AI foydalanuvchi ma'lumotlariga qarab reja vazifalarini tuzadi.
-    study_plan_create view tomonidan chaqiriladi.
+    AI o'quv reja — Celery thin wrapper.
+    Barcha biznes logika: ai_core/services.py → StudyPlanService.
     """
-    try:
-        from .models import StudyPlan, StudyPlanTask
-        from .utils import get_ai_response
-        from tests_app.models import TestAttempt
-        from ai_core.models import WeakTopicAnalysis
-
-        plan = StudyPlan.objects.get(id=plan_id)
-        user = plan.user
-        subjects = list(plan.subjects.all())
-        today = timezone.localdate()
-
-        # 1. Fan bo'yicha natijalar
-        subject_stats = {}
-        for attempt in TestAttempt.objects.filter(
-            user=user, status='completed'
-        ).select_related('test__subject').order_by('-completed_at')[:30]:
-            subj = attempt.test.subject if attempt.test else None
-            if subj:
-                key = subj.name
-                if key not in subject_stats:
-                    subject_stats[key] = {'scores': []}
-                subject_stats[key]['scores'].append(attempt.percentage)
-
-        for key, val in subject_stats.items():
-            scores = val['scores']
-            val['avg'] = round(sum(scores) / len(scores), 1)
-            val['count'] = len(scores)
-            del val['scores']
-
-        # 2. Sust mavzular (top 5 — kichik prompt)
-        weak_data = [
-            {'fan': wt.subject.name, 'mavzu': wt.topic.name, 'aniqlik': round(wt.accuracy_rate, 1)}
-            for wt in WeakTopicAnalysis.objects.filter(
-                user=user, subject__in=subjects
-            ).select_related('subject', 'topic').order_by('accuracy_rate')[:5]
-        ]
-
-        # 3. Umumiy muddatni hisoblash
-        if plan.target_exam_date and plan.target_exam_date > today:
-            total_days = (plan.target_exam_date - today).days
-        else:
-            total_days = 28
-        weekly_days = max(1, min(7, plan.weekly_days))
-        num_weeks = max(1, (total_days + 6) // 7)
-
-        # 4. AI ga FAQAT 1 haftalik shablon so'raymiz
-        #    Keyin biz uni num_weeks marta takrorlaymiz — reja necha oylik bo'lmasin to'liq
-        subject_names = [s.name for s in subjects]
-        day_names = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
-        active_days = day_names[:weekly_days]
-
-        system_prompt = (
-            "Sen TestMakon.uz AI o'quv reja tuzuvchisan. "
-            "Javobni FAQAT sof JSON formatida ber, boshqa hech narsa yozma."
+    def on_progress(percent, step):
+        self.update_state(
+            state='PROGRESS',
+            meta={'current': percent, 'total': 100, 'step': step},
         )
-        user_prompt = f"""Foydalanuvchi ma'lumotlari:
-- Fanlar: {', '.join(subject_names)}
-- Kunlik: {plan.daily_hours} soat
-- Dars kunlari: {', '.join(active_days)} ({weekly_days} kun)
-- Maqsad: {plan.target_score or 'DTM'} ball
-- Fan natijalari: {json.dumps(subject_stats, ensure_ascii=False)}
-- Sust mavzular: {json.dumps(weak_data, ensure_ascii=False)}
 
-Faqat 1 haftalik shablon tuz ({weekly_days} ta vazifa, birer kunlik).
-Har vazifada sust mavzularga e'tibor ber.
-day_index: 0=Dushanba, 1=Seshanba, ... {weekly_days-1}={active_days[-1]}
-
-JSON:
-{{
-  "analysis": "2 gaplik tahlil",
-  "week_template": [
-    {{
-      "day_index": 0,
-      "title": "Sarlavha",
-      "subject": "Fan nomi (ro'yxatdan)",
-      "task_type": "study|practice|review|test",
-      "difficulty": "easy|medium|hard",
-      "minutes": {int(plan.daily_hours * 60)},
-      "notes": "1 gap izoh",
-      "is_weak_topic": false
-    }}
-  ]
-}}"""
-
-        response = get_ai_response([{"role": "user", "content": user_prompt}], system_prompt)
-
-        # JSON ajratish
-        match = re.search(r'\{[\s\S]*\}', response)
-        if not match:
-            raise ValueError("AI JSON javob bermadi")
-
-        data = json.loads(match.group())
-        week_template = data.get('week_template', [])
-        if not week_template:
-            raise ValueError("AI week_template bo'sh")
-
-        # Subject map
-        subject_map = {s.name.lower(): s for s in subjects}
-
-        # Shablonni butun muddatga takrorlash
-        tasks_created = 0
-        for week_num in range(num_weeks):
-            for item in week_template:
-                day_index = int(item.get('day_index', 0))
-                if day_index >= weekly_days:
-                    continue
-                day_offset = week_num * 7 + day_index
-                scheduled = today + timedelta(days=day_offset)
-                if scheduled > today + timedelta(days=total_days):
-                    break
-
-                subj_name = (item.get('subject') or '').lower()
-                subj_obj = subject_map.get(subj_name)
-                if not subj_obj:
-                    for k, v in subject_map.items():
-                        if k in subj_name or subj_name in k:
-                            subj_obj = v
-                            break
-                if not subj_obj and subjects:
-                    subj_obj = subjects[tasks_created % len(subjects)]
-
-                StudyPlanTask.objects.create(
-                    study_plan=plan,
-                    title=item.get('title', "O'quv vazifasi"),
-                    task_type=item.get('task_type', 'practice'),
-                    subject=subj_obj,
-                    scheduled_date=scheduled,
-                    estimated_minutes=int(item.get('minutes', 45)),
-                    questions_count=10 if item.get('task_type') in ['test', 'practice'] else None,
-                    ai_notes=item.get('notes', ''),
-                    difficulty=item.get('difficulty', 'medium'),
-                    weak_topic_focus=bool(item.get('is_weak_topic', False)),
-                    order=tasks_created,
-                )
-                tasks_created += 1
-
-        plan.total_tasks = tasks_created
-        plan.is_ai_generated = True
-        plan.ai_analysis = data.get('analysis', '')
-        plan.save(update_fields=['total_tasks', 'is_ai_generated', 'ai_analysis'])
-
-        if tasks_created == 0:
-            logger.warning(f"AI 0 vazifa yaratdi, fallback: plan={plan_id}")
-            _create_basic_tasks(plan, subjects, today, total_days)
-
-        logger.info(f"AI reja tuzildi: plan={plan_id}, {tasks_created} vazifa, {num_weeks} hafta")
-        return {'status': 'done', 'tasks_created': plan.total_tasks}
+    try:
+        from .services import StudyPlanService
+        on_progress(5, "Boshlanmoqda...")
+        service = StudyPlanService(plan_id, progress_callback=on_progress)
+        tasks_created = service.run()
+        return {'status': 'done', 'tasks_created': tasks_created}
 
     except Exception as exc:
-        logger.error(f"generate_ai_study_plan_task xatolik: {exc}")
-        # Retry o'rniga fallback — plan bo'sh qolmasin
-        try:
-            from .models import StudyPlan
-            plan = StudyPlan.objects.get(id=plan_id)
-            if plan.total_tasks == 0:
-                subjects = list(plan.subjects.all())
-                today = timezone.localdate()
-                if plan.target_exam_date and plan.target_exam_date > today:
-                    days_count = min(28, (plan.target_exam_date - today).days)
-                else:
-                    days_count = 28
-                _create_basic_tasks(plan, subjects, today, days_count)
-                logger.info(f"Fallback reja tuzildi: plan={plan_id}")
-        except Exception as fb_exc:
-            logger.error(f"Fallback xatolik: {fb_exc}")
+        logger.error(f"generate_ai_study_plan_task xatolik: plan={plan_id} — {exc}")
         raise self.retry(exc=exc)
 
-
-def _create_basic_tasks(plan, subjects, today, days_count):
-    """AI ishlamasa oddiy haftalik vazifalar yaratadi."""
-    from .models import StudyPlanTask
-    if not subjects:
-        return
-    task_types = ['study', 'practice', 'review', 'test', 'practice', 'study']
-    subj_idx = 0
-    order = 0
-    weekly_days = max(1, min(7, plan.weekly_days))
-    for day_offset in range(days_count):
-        current_date = today + timedelta(days=day_offset)
-        if current_date.weekday() >= weekly_days:
-            continue
-        subject = subjects[subj_idx % len(subjects)]
-        task_type = task_types[subj_idx % len(task_types)]
-        subj_idx += 1
-        StudyPlanTask.objects.create(
-            study_plan=plan,
-            title=f"{subject.name} — {task_type}",
-            task_type=task_type,
-            subject=subject,
-            scheduled_date=current_date,
-            estimated_minutes=int(plan.daily_hours * 60 // 2),
-            questions_count=10 if task_type in ('test', 'practice') else None,
-            difficulty='medium',
-            order=order,
-        )
-        order += 1
-    plan.total_tasks = plan.tasks.count()
-    plan.save(update_fields=['total_tasks'])
 
 
 @shared_task
