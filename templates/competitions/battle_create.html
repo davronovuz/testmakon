@@ -565,13 +565,20 @@
             btn.innerHTML = '<i class="bi bi-lightning-fill"></i> Jangga chiqish';
         }
     }
-    // URL dan opponent ID ni olish (?opponent=ID)
+    // URL parametrlarni o'qish (?type=friend, ?opponent=ID)
     (function() {
         var params = new URLSearchParams(window.location.search);
+        var typeParam = params.get('type');
         var opponentId = params.get('opponent');
+
+        // ?type=friend|bot|random
+        if (typeParam && ['friend','bot','random'].includes(typeParam)) {
+            selectType(typeParam);
+        }
+
+        // ?opponent=ID — do'stni avtomatik tanlash
         if (opponentId) {
             selectType('friend');
-            // Do'stlar ro'yxatidan topish
             var friendEl = document.querySelector('.bc-friend[data-id="' + opponentId + '"]');
             if (friendEl) {
                 selectFriend(parseInt(opponentId));
