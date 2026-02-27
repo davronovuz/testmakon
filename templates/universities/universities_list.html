@@ -7,272 +7,167 @@
 <style>
     {% include 'includes/_sidebar_css.html' %}
 
-    /* ===== STATS BAR ===== */
+    /* ===== STATS ===== */
     .unis-stats {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
+        display: flex; gap: .85rem; margin-bottom: 1.1rem;
     }
-    .unis-stat-card {
-        flex: 1;
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 0.9rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
+    .unis-stat {
+        flex:1; background:var(--white); border:1px solid var(--gray-200);
+        border-radius:var(--radius-lg); padding:.8rem 1rem;
+        display:flex; align-items:center; gap:.65rem;
     }
-    .unis-stat-icon {
-        width: 38px; height: 38px;
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; flex-shrink: 0;
+    .unis-stat-ic {
+        width:36px;height:36px;border-radius:9px;flex-shrink:0;
+        display:flex;align-items:center;justify-content:center;font-size:.95rem;
     }
-    .unis-stat-icon.blue   { background: #DBEAFE; color: #2563EB; }
-    .unis-stat-icon.green  { background: #D1FAE5; color: #059669; }
-    .unis-stat-icon.orange { background: #FED7AA; color: #EA580C; }
-    .unis-stat-num   { font-size: 1.25rem; font-weight: 800; color: var(--dark); line-height: 1; }
-    .unis-stat-label { font-size: 0.68rem; color: var(--gray-500); margin-top: 2px; }
+    .ic-blue{background:#DBEAFE;color:#2563EB} .ic-green{background:#D1FAE5;color:#059669} .ic-amber{background:#FEF3C7;color:#D97706}
+    .unis-stat-num{font-size:1.15rem;font-weight:800;color:var(--dark);line-height:1}
+    .unis-stat-lbl{font-size:.65rem;color:var(--gray-500);margin-top:2px}
 
     /* ===== FILTER BAR ===== */
-    .unis-filters {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        align-items: center;
+    .unis-bar {
+        background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);
+        padding:.7rem .9rem;margin-bottom:1rem;
+        display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;
     }
     .f-btn {
-        padding: 0.35rem 0.8rem;
-        border: 1.5px solid var(--gray-200);
-        border-radius: 8px;
-        font-size: 0.76rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        background: var(--gray-50);
-        cursor: pointer;
-        transition: all 0.15s;
-        white-space: nowrap;
+        padding:.32rem .75rem;border:1.5px solid var(--gray-200);border-radius:8px;
+        font-size:.75rem;font-weight:600;color:var(--dark-600);background:var(--gray-50);
+        cursor:pointer;transition:all .15s;white-space:nowrap;
     }
-    .f-btn:hover  { border-color: var(--primary); color: var(--primary); }
-    .f-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-    .f-sep { width: 1px; height: 24px; background: var(--gray-200); flex-shrink: 0; }
-    .f-select {
-        padding: 0.35rem 0.7rem;
-        border: 1.5px solid var(--gray-200);
-        border-radius: 8px;
-        font-size: 0.76rem; font-weight: 500;
-        background: var(--gray-50); color: var(--dark);
-        cursor: pointer; max-width: 175px;
+    .f-btn:hover{border-color:var(--primary);color:var(--primary)}
+    .f-btn.active{background:var(--gradient-primary);border-color:var(--primary);color:#fff}
+    .f-sep{width:1px;height:22px;background:var(--gray-200);flex-shrink:0}
+    .f-sel {
+        padding:.32rem .65rem;border:1.5px solid var(--gray-200);border-radius:8px;
+        font-size:.75rem;font-weight:500;background:var(--gray-50);color:var(--dark);
+        cursor:pointer;max-width:175px;
     }
-    .f-select:focus { outline: none; border-color: var(--primary); }
-    .f-search {
-        position: relative;
-        margin-left: auto;
-        flex: 0 0 220px;
+    .f-sel:focus{outline:none;border-color:var(--primary)}
+    .f-search{position:relative;flex:0 0 220px;margin-left:auto}
+    .f-search input{
+        width:100%;padding:.35rem .75rem .35rem 2rem;
+        border:1.5px solid var(--gray-200);border-radius:8px;
+        font-size:.75rem;background:var(--gray-50);color:var(--dark);
     }
-    .f-search input {
-        width: 100%;
-        padding: 0.38rem 0.75rem 0.38rem 2rem;
-        border: 1.5px solid var(--gray-200);
-        border-radius: 8px;
-        font-size: 0.76rem;
-        background: var(--gray-50); color: var(--dark);
-    }
-    .f-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); background: #fff; }
-    .f-search i { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 0.78rem; }
+    .f-search input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px var(--primary-glow)}
+    .f-search i{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:.78rem}
 
-    /* ===== RESULT LINE ===== */
-    .unis-result {
-        font-size: 0.76rem;
-        color: var(--gray-400);
-        margin-bottom: 0.85rem;
-        min-height: 18px;
-    }
-    .unis-result strong { color: var(--dark-600); }
+    /* ===== RESULT INFO ===== */
+    .unis-info{font-size:.75rem;color:var(--gray-400);margin-bottom:.8rem;min-height:16px}
+    .unis-info strong{color:var(--dark-600)}
 
     /* ===== GRID ===== */
-    .unis-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.85rem;
-    }
-    @media (max-width: 1100px) { .unis-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px)  { .unis-grid { grid-template-columns: 1fr; gap: 0.65rem; } }
+    .unis-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem}
+    @media(max-width:900px){.unis-grid{grid-template-columns:1fr}}
 
-    /* ===== UNIVERSITY CARD ===== */
+    /* ===== CARD ===== */
     .uni-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-        text-decoration: none;
-        transition: all 0.2s;
-        position: relative;
-        overflow: hidden;
+        background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);
+        overflow:hidden;display:flex;flex-direction:column;text-decoration:none;
+        transition:all .22s;
     }
-    .uni-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0;
-        width: 3px; height: 100%;
-        background: var(--gradient-primary);
-        border-radius: 0 0 0 var(--radius-lg);
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
-    .uni-card:hover {
-        border-color: var(--gray-300);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        transform: translateY(-2px);
-        text-decoration: none;
-    }
-    .uni-card:hover::before { opacity: 1; }
+    .uni-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--gray-300);text-decoration:none}
 
-    /* Card header: logo + type */
-    .uni-card-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.5rem;
-    }
-    .uni-card-logo {
-        width: 46px; height: 46px;
-        border-radius: 11px;
-        flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; font-weight: 800;
-        overflow: hidden;
-    }
-    .uni-card-logo img { width: 100%; height: 100%; object-fit: contain; }
-    /* Background colors by type */
-    .uni-card-logo.state   { background: #DBEAFE; color: #1D4ED8; }
-    .uni-card-logo.private { background: #FEE2E2; color: #DC2626; }
-    .uni-card-logo.foreign { background: #EDE9FE; color: #6D28D9; }
-    .uni-card-logo.joint   { background: #FEF3C7; color: #B45309; }
+    /* Banner */
+    .uni-banner{position:relative;height:120px;overflow:hidden;flex-shrink:0}
+    .uni-banner img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+    .uni-card:hover .uni-banner img{transform:scale(1.04)}
+    /* Gradient fallback banners */
+    .uni-banner.g0{background:linear-gradient(135deg,#e8f5d9,#c8e8a0)}
+    .uni-banner.g1{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
+    .uni-banner.g2{background:linear-gradient(135deg,#fde68a,#fcd34d)}
+    .uni-banner.g3{background:linear-gradient(135deg,#e9d5ff,#c4b5fd)}
+    .uni-banner.g4{background:linear-gradient(135deg,#fed7aa,#fdba74)}
+    .uni-banner.g5{background:linear-gradient(135deg,#d1fae5,#6ee7b7)}
 
-    .uni-card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; }
-    .badge-type {
-        font-size: 0.62rem;
-        font-weight: 700;
-        padding: 0.18rem 0.5rem;
-        border-radius: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        white-space: nowrap;
-    }
-    .badge-type.state   { background: #DBEAFE; color: #1D4ED8; }
-    .badge-type.private { background: #FEE2E2; color: #DC2626; }
-    .badge-type.foreign { background: #EDE9FE; color: #6D28D9; }
-    .badge-type.joint   { background: #FEF3C7; color: #B45309; }
-    .badge-featured {
-        font-size: 0.6rem;
-        font-weight: 700;
-        padding: 0.15rem 0.45rem;
-        border-radius: 4px;
-        background: #FEF9C3; color: #A16207;
+    /* Banner decorative initials */
+    .uni-banner-letters{
+        position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+        font-size:3.5rem;font-weight:900;opacity:.12;color:#000;
+        white-space:nowrap;letter-spacing:-2px;user-select:none;
     }
 
-    /* Card name */
-    .uni-card-name {
-        font-size: 0.86rem;
-        font-weight: 700;
-        color: var(--dark);
-        line-height: 1.38;
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+    /* Logo */
+    .uni-logo-wrap{
+        position:absolute;bottom:-18px;left:1rem;
+        width:44px;height:44px;background:var(--white);
+        border:2px solid var(--gray-200);border-radius:11px;
+        display:flex;align-items:center;justify-content:center;
+        overflow:hidden;z-index:2;flex-shrink:0;
+        box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    .uni-logo-wrap img{width:100%;height:100%;object-fit:contain}
+    .uni-logo-letters{font-size:.95rem;font-weight:800;color:var(--primary);line-height:1}
+
+    /* Type badge on banner */
+    .uni-type-badge{
+        position:absolute;top:.5rem;right:.5rem;
+        font-size:.6rem;font-weight:700;padding:.18rem .5rem;
+        border-radius:5px;text-transform:uppercase;letter-spacing:.3px;
+    }
+    .tb-state{background:#DBEAFE;color:#1D4ED8}
+    .tb-private{background:#FEE2E2;color:#DC2626}
+    .tb-foreign{background:#EDE9FE;color:#6D28D9}
+    .tb-joint{background:#FEF3C7;color:#B45309}
+    .uni-feat-badge{
+        position:absolute;top:.5rem;left:.5rem;
+        font-size:.6rem;font-weight:700;padding:.18rem .48rem;
+        border-radius:5px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;
     }
 
-    /* Card footer */
-    .uni-card-foot {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        padding-top: 0.55rem;
-        border-top: 1px solid var(--gray-100);
-        margin-top: auto;
+    /* Body */
+    .uni-body{padding:1.35rem 1rem .9rem;flex:1;display:flex;flex-direction:column;gap:.45rem}
+    .uni-name{
+        font-size:.88rem;font-weight:700;color:var(--dark);line-height:1.38;margin:0;
+        display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
     }
-    .uni-card-region {
-        display: flex; align-items: center; gap: 0.3rem;
-        font-size: 0.72rem; color: var(--gray-500);
+    .uni-meta{
+        display:flex;align-items:center;justify-content:space-between;
+        gap:.5rem;margin-top:auto;
+        padding-top:.45rem;border-top:1px solid var(--gray-100);
     }
-    .uni-card-region i { font-size: 0.72rem; color: var(--gray-400); }
-    .uni-card-dirs {
-        display: flex; align-items: center; gap: 0.3rem;
-        font-size: 0.72rem; font-weight: 700;
-        color: var(--primary);
-        background: #f0fae3;
-        padding: 0.2rem 0.55rem;
-        border-radius: 6px;
-        white-space: nowrap;
+    .uni-region{display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--gray-500)}
+    .uni-region i{font-size:.72rem}
+    .uni-dirs{
+        display:flex;align-items:center;gap:.28rem;
+        font-size:.7rem;font-weight:700;color:var(--primary);
+        background:#f0fae3;padding:.2rem .55rem;border-radius:6px;white-space:nowrap;
     }
 
     /* ===== SKELETON ===== */
-    @keyframes sk { 0%,100%{opacity:1} 50%{opacity:.5} }
-    .sk-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        padding: 1rem;
-        display: flex; flex-direction: column; gap: 0.65rem;
-    }
-    .sk-row { display: flex; justify-content: space-between; align-items: center; }
-    .sk-box { border-radius: 8px; background: var(--gray-100); animation: sk 1.2s ease infinite; }
+    @keyframes sk{0%,100%{opacity:1}50%{opacity:.45}}
+    .sk-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden}
+    .sk-banner{height:120px;background:var(--gray-100);animation:sk 1.3s ease infinite}
+    .sk-body{padding:1.35rem 1rem .9rem;display:flex;flex-direction:column;gap:.5rem}
+    .sk-ln{border-radius:5px;background:var(--gray-100);animation:sk 1.3s ease infinite}
 
     /* ===== EMPTY ===== */
-    .unis-empty {
-        grid-column: 1/-1;
-        text-align: center;
-        padding: 3rem 1.5rem;
-        background: var(--white);
-        border: 1px dashed var(--gray-300);
-        border-radius: var(--radius-lg);
+    .unis-empty{
+        grid-column:1/-1;text-align:center;
+        padding:3.5rem 1.5rem;background:var(--white);
+        border:1px dashed var(--gray-300);border-radius:var(--radius-lg);
     }
-    .unis-empty-icon { font-size: 2.5rem; opacity: .3; margin-bottom: .75rem; }
-    .unis-empty h4 { font-size: .9rem; font-weight: 700; color: var(--dark); margin-bottom: .3rem; }
-    .unis-empty p  { color: var(--gray-400); font-size: .8rem; margin: 0; }
+    .unis-empty-ic{font-size:2.5rem;opacity:.3;margin-bottom:.6rem}
+    .unis-empty h4{font-size:.92rem;font-weight:700;color:var(--dark);margin-bottom:.3rem}
+    .unis-empty p{color:var(--gray-400);font-size:.8rem;margin:0}
 
     /* ===== PAGINATION ===== */
-    .unis-pager {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.3rem;
-        margin-top: 1.5rem;
-        flex-wrap: wrap;
+    .unis-pager{display:flex;justify-content:center;align-items:center;gap:.3rem;margin-top:1.5rem;flex-wrap:wrap}
+    .pg{
+        min-width:32px;height:32px;padding:0 .4rem;border:1px solid var(--gray-200);
+        border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
+        font-size:.78rem;font-weight:600;color:var(--dark-600);background:var(--white);
+        cursor:pointer;transition:all .15s;user-select:none;
     }
-    .pg-btn {
-        min-width: 32px; height: 32px; padding: 0 0.4rem;
-        border: 1px solid var(--gray-200);
-        border-radius: 8px;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 0.78rem; font-weight: 600;
-        color: var(--dark-600); background: var(--white);
-        cursor: pointer; transition: all 0.15s; user-select: none;
-    }
-    .pg-btn:hover:not(.dis):not(.on) { border-color: var(--primary); color: var(--primary); }
-    .pg-btn.on  { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .pg-btn.dis { opacity: .38; pointer-events: none; }
+    .pg:hover:not(.dis):not(.on){border-color:var(--primary);color:var(--primary)}
+    .pg.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .pg.dis{opacity:.35;pointer-events:none}
 
     /* ===== MOBILE ===== */
-    @media (max-width: 600px) {
-        .unis-stats { gap: .6rem; }
-        .unis-stat-card { padding: .7rem; gap: .5rem; }
-        .unis-stat-num { font-size: 1rem; }
-        .f-search { flex: 0 0 100%; margin-left: 0; }
-        .f-sep { display: none; }
+    @media(max-width:600px){
+        .unis-stats{gap:.5rem} .unis-stat{padding:.65rem .75rem}
+        .unis-bar{gap:.4rem} .f-search{flex:0 0 100%;margin-left:0} .f-sep{display:none}
     }
 </style>
 {% endblock %}
@@ -285,57 +180,39 @@
         <main>
             <!-- Stats -->
             <div class="unis-stats">
-                <div class="unis-stat-card">
-                    <div class="unis-stat-icon blue"><i class="bi bi-building"></i></div>
-                    <div>
-                        <div class="unis-stat-num" id="statTotal">{{ total_count }}</div>
-                        <div class="unis-stat-label">Jami OTM</div>
-                    </div>
+                <div class="unis-stat">
+                    <div class="unis-stat-ic ic-blue"><i class="bi bi-building"></i></div>
+                    <div><div class="unis-stat-num">{{ total_count }}</div><div class="unis-stat-lbl">Jami OTM</div></div>
                 </div>
-                <div class="unis-stat-card">
-                    <div class="unis-stat-icon green"><i class="bi bi-bank"></i></div>
-                    <div>
-                        <div class="unis-stat-num">{{ state_count }}</div>
-                        <div class="unis-stat-label">Davlat</div>
-                    </div>
+                <div class="unis-stat">
+                    <div class="unis-stat-ic ic-green"><i class="bi bi-bank"></i></div>
+                    <div><div class="unis-stat-num">{{ state_count }}</div><div class="unis-stat-lbl">Davlat</div></div>
                 </div>
-                <div class="unis-stat-card">
-                    <div class="unis-stat-icon orange"><i class="bi bi-buildings"></i></div>
-                    <div>
-                        <div class="unis-stat-num">{{ private_count }}</div>
-                        <div class="unis-stat-label">Xususiy</div>
-                    </div>
+                <div class="unis-stat">
+                    <div class="unis-stat-ic ic-amber"><i class="bi bi-buildings"></i></div>
+                    <div><div class="unis-stat-num">{{ private_count }}</div><div class="unis-stat-lbl">Xususiy</div></div>
                 </div>
             </div>
 
-            <!-- Filters -->
-            <div class="unis-filters">
-                <button class="f-btn active" data-t="all"><i class="bi bi-grid-3x3-gap me-1"></i>Barchasi</button>
+            <!-- Filter bar -->
+            <div class="unis-bar">
+                <button class="f-btn active" data-t="all">Barchasi</button>
                 <button class="f-btn" data-t="state"><i class="bi bi-bank me-1"></i>Davlat</button>
                 <button class="f-btn" data-t="private"><i class="bi bi-buildings me-1"></i>Xususiy</button>
                 <button class="f-btn" data-t="foreign"><i class="bi bi-globe me-1"></i>Xorijiy</button>
-
                 <div class="f-sep"></div>
-
-                <select class="f-select" id="rsel">
+                <select class="f-sel" id="rsel">
                     <option value="all">📍 Barcha hududlar</option>
-                    {% for r in regions %}
-                    <option value="{{ r }}">{{ r }}</option>
-                    {% endfor %}
+                    {% for r in regions %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
                 </select>
-
                 <div class="f-search">
                     <i class="bi bi-search"></i>
                     <input type="text" id="qinp" placeholder="OTM nomi..." autocomplete="off">
                 </div>
             </div>
 
-            <div class="unis-result" id="resInfo"></div>
-
-            <!-- Grid -->
+            <div class="unis-info" id="uInfo"></div>
             <div class="unis-grid" id="uGrid"></div>
-
-            <!-- Pagination -->
             <div class="unis-pager" id="uPager"></div>
         </main>
     </div>
@@ -345,165 +222,141 @@
 {% block extra_js %}
 <script>
 (function(){
-    const API  = "{% url 'universities:api_filter' %}";
-    let state  = { t:'all', r:'all', q:'', p:1 };
-    let timer  = null;
-    let busy   = false;
+    const API = "{% url 'universities:api_filter' %}";
+    const TYPE_LABEL = {state:'Davlat',private:'Xususiy',foreign:'Xorijiy filial',joint:"Qo'shma"};
+    const TYPE_CLS   = {state:'tb-state',private:'tb-private',foreign:'tb-foreign',joint:'tb-joint'};
+    const GRADIENTS  = ['g0','g1','g2','g3','g4','g5'];
+
+    let st = {t:'all',r:'all',q:'',p:1};
+    let timer = null, busy = false;
 
     const grid  = document.getElementById('uGrid');
     const pager = document.getElementById('uPager');
-    const info  = document.getElementById('resInfo');
+    const info  = document.getElementById('uInfo');
     const rsel  = document.getElementById('rsel');
     const qinp  = document.getElementById('qinp');
 
-    // ── Type buttons
     document.querySelectorAll('.f-btn').forEach(b => {
         b.addEventListener('click', () => {
             document.querySelectorAll('.f-btn').forEach(x => x.classList.remove('active'));
             b.classList.add('active');
-            state.t = b.dataset.t;
-            state.p = 1;
-            load();
+            st.t = b.dataset.t; st.p = 1; load();
         });
     });
-
-    // ── Region select
-    rsel.addEventListener('change', () => { state.r = rsel.value; state.p = 1; load(); });
-
-    // ── Search (debounce)
+    rsel.addEventListener('change', () => { st.r = rsel.value; st.p = 1; load(); });
     qinp.addEventListener('input', () => {
         clearTimeout(timer);
-        timer = setTimeout(() => { state.q = qinp.value.trim(); state.p = 1; load(); }, 320);
+        timer = setTimeout(() => { st.q = qinp.value.trim(); st.p = 1; load(); }, 320);
     });
 
-    // ── Skeleton
-    function showSkeleton() {
+    function skeleton() {
         grid.innerHTML = Array(6).fill(0).map(() => `
             <div class="sk-card">
-                <div class="sk-row">
-                    <div class="sk-box" style="width:46px;height:46px;border-radius:11px"></div>
-                    <div class="sk-box" style="width:55px;height:18px;border-radius:5px"></div>
+                <div class="sk-banner"></div>
+                <div class="sk-body">
+                    <div class="sk-ln" style="height:14px;width:80%"></div>
+                    <div class="sk-ln" style="height:12px;width:55%"></div>
+                    <div style="display:flex;justify-content:space-between;padding-top:.4rem">
+                        <div class="sk-ln" style="height:12px;width:38%"></div>
+                        <div class="sk-ln" style="height:20px;width:90px;border-radius:6px"></div>
+                    </div>
                 </div>
-                <div class="sk-box" style="height:14px;width:85%;border-radius:6px"></div>
-                <div class="sk-box" style="height:12px;width:60%;border-radius:6px"></div>
-                <div style="border-top:1px solid var(--gray-100);padding-top:.55rem;display:flex;justify-content:space-between">
-                    <div class="sk-box" style="height:12px;width:40%;border-radius:6px"></div>
-                    <div class="sk-box" style="height:22px;width:90px;border-radius:6px"></div>
-                </div>
-            </div>
-        `).join('');
-        pager.innerHTML = '';
-        info.textContent = '';
+            </div>`).join('');
+        pager.innerHTML = ''; info.textContent = '';
     }
 
-    // ── Fetch
     function load() {
         if (busy) return;
-        busy = true;
-        showSkeleton();
-
-        const p = new URLSearchParams({ type: state.t, region: state.r, q: state.q, page: state.p });
-        history.replaceState(null, '', '?' + p);
-
-        fetch(API + '?' + p)
-            .then(r => r.json())
-            .then(d => { busy = false; render(d); renderPager(d); })
-            .catch(() => {
-                busy = false;
-                grid.innerHTML = `<div class="unis-empty"><div class="unis-empty-icon">⚠️</div><h4>Xatolik</h4><p>Sahifani yangilang</p></div>`;
-            });
+        busy = true; skeleton();
+        const p = new URLSearchParams({type:st.t, region:st.r, q:st.q, page:st.p});
+        history.replaceState(null,'','?'+p);
+        fetch(API+'?'+p)
+            .then(r=>r.json())
+            .then(d=>{ busy=false; render(d); paginate(d); })
+            .catch(()=>{ busy=false; grid.innerHTML='<div class="unis-empty"><div class="unis-empty-ic">⚠️</div><h4>Xatolik yuz berdi</h4><p>Sahifani yangilang</p></div>'; });
     }
 
-    // ── Render cards
-    function logoHtml(u) {
-        if (u.logo_url) return `<img src="${u.logo_url}" alt="">`;
-        const letters = (u.short_name || u.name).replace(/[^A-Za-zА-Яа-яA-ZA-Za-z0-9']/g,'').slice(0,2).toUpperCase() || u.name.slice(0,2).toUpperCase();
-        return letters;
+    function initials(str) {
+        if (!str) return '??';
+        // O'zMU → OM, TATU → TA, "Buxoro davlat" → BD
+        const words = str.trim().split(/\s+/);
+        if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+        return str.slice(0,2).toUpperCase();
     }
-    const TYPE_LABEL = { state:'Davlat', private:'Xususiy', foreign:'Xorijiy filial', joint:"Qo'shma" };
+
+    function gradClass(id) { return GRADIENTS[id % GRADIENTS.length]; }
 
     function render(d) {
         if (!d.universities.length) {
-            grid.innerHTML = `
-                <div class="unis-empty">
-                    <div class="unis-empty-icon">🏫</div>
-                    <h4>OTM topilmadi</h4>
-                    <p>Boshqa filtr tanlang yoki qidiruvni o'zgartiring</p>
-                </div>`;
-            info.innerHTML = '';
-            return;
+            grid.innerHTML = `<div class="unis-empty"><div class="unis-empty-ic">🏫</div><h4>OTM topilmadi</h4><p>Boshqa filtr tanlang yoki qidiruvni o'zgartiring</p></div>`;
+            info.innerHTML = ''; return;
         }
         info.innerHTML = `<strong>${d.total}</strong> ta OTM topildi`;
+
         grid.innerHTML = d.universities.map(u => {
-            const tc = u.university_type || 'state';
-            const tl = TYPE_LABEL[tc] || 'Davlat';
+            const tc  = u.university_type || 'state';
+            const tl  = TYPE_LABEL[tc] || 'Davlat';
+            const tcl = TYPE_CLS[tc] || 'tb-state';
+            const gc  = gradClass(u.id);
+            const lets = initials(u.short_name || u.name);
+
+            const bannerInner = u.cover_url
+                ? `<img src="${u.cover_url}" alt="" loading="lazy">`
+                : `<span class="uni-banner-letters">${lets}</span>`;
+
+            const logoInner = u.logo_url
+                ? `<img src="${u.logo_url}" alt="" loading="lazy">`
+                : `<span class="uni-logo-letters">${lets}</span>`;
+
             return `
             <a href="/universities/${u.slug}/" class="uni-card">
-                <div class="uni-card-head">
-                    <div class="uni-card-logo ${tc}">${logoHtml(u)}</div>
-                    <div class="uni-card-badges">
-                        <span class="badge-type ${tc}">${tl}</span>
-                        ${u.is_featured ? '<span class="badge-featured">⭐ Top</span>' : ''}
-                    </div>
+                <div class="uni-banner ${u.cover_url ? '' : gc}">
+                    ${bannerInner}
+                    ${u.is_featured ? '<span class="uni-feat-badge"><i class="bi bi-star-fill"></i> Top</span>' : ''}
+                    <span class="uni-type-badge ${tcl}">${tl}</span>
+                    <div class="uni-logo-wrap">${logoInner}</div>
                 </div>
-                <h3 class="uni-card-name">${u.name}</h3>
-                <div class="uni-card-foot">
-                    <span class="uni-card-region">
-                        <i class="bi bi-geo-alt"></i>
-                        ${u.region || "Noma'lum"}
-                    </span>
-                    <span class="uni-card-dirs">
-                        <i class="bi bi-journal-bookmark-fill"></i>
-                        ${u.directions_count} yo'nalish
-                    </span>
+                <div class="uni-body">
+                    <h3 class="uni-name">${u.name}</h3>
+                    <div class="uni-meta">
+                        <span class="uni-region"><i class="bi bi-geo-alt"></i>${u.region || "—"}</span>
+                        <span class="uni-dirs"><i class="bi bi-journal-bookmark-fill"></i>${u.directions_count} yo'nalish</span>
+                    </div>
                 </div>
             </a>`;
         }).join('');
     }
 
-    // ── Render pagination
-    function renderPager(d) {
+    function paginate(d) {
         if (d.num_pages <= 1) { pager.innerHTML = ''; return; }
         const cur = d.page, tot = d.num_pages;
-
         const pages = [];
-        for (let i = 1; i <= tot; i++) {
-            if (i === 1 || i === tot || (i >= cur-2 && i <= cur+2)) pages.push(i);
-            else if (pages.at(-1) !== '…') pages.push('…');
+        for (let i=1;i<=tot;i++){
+            if (i===1||i===tot||(i>=cur-2&&i<=cur+2)) pages.push(i);
+            else if (pages.at(-1)!=='…') pages.push('…');
         }
-
-        let h = `<button class="pg-btn ${d.has_prev?'':'dis'}" data-p="${cur-1}"><i class="bi bi-chevron-left"></i></button>`;
+        let h = `<button class="pg ${d.has_prev?'':'dis'}" data-p="${cur-1}"><i class="bi bi-chevron-left"></i></button>`;
         pages.forEach(pg => {
-            if (pg === '…') h += `<span class="pg-btn dis">…</span>`;
-            else h += `<button class="pg-btn ${pg===cur?'on':''}" data-p="${pg}">${pg}</button>`;
+            h += pg==='…'
+                ? `<span class="pg dis">…</span>`
+                : `<button class="pg ${pg===cur?'on':''}" data-p="${pg}">${pg}</button>`;
         });
-        h += `<button class="pg-btn ${d.has_next?'':'dis'}" data-p="${cur+1}"><i class="bi bi-chevron-right"></i></button>`;
+        h += `<button class="pg ${d.has_next?'':'dis'}" data-p="${cur+1}"><i class="bi bi-chevron-right"></i></button>`;
         pager.innerHTML = h;
-
-        pager.querySelectorAll('.pg-btn:not(.dis):not(.on)').forEach(b => {
-            b.addEventListener('click', () => {
-                state.p = parseInt(b.dataset.p);
-                load();
-                window.scrollTo({top:0, behavior:'smooth'});
-            });
+        pager.querySelectorAll('.pg:not(.dis):not(.on)').forEach(b => {
+            b.addEventListener('click',()=>{ st.p=+b.dataset.p; load(); window.scrollTo({top:0,behavior:'smooth'}); });
         });
     }
 
-    // ── Init from URL
-    (function() {
-        const sp = new URLSearchParams(location.search);
-        if (sp.get('type'))   state.t = sp.get('type');
-        if (sp.get('region')) state.r = sp.get('region');
-        if (sp.get('q'))      state.q = sp.get('q');
-        if (sp.get('page'))   state.p = parseInt(sp.get('page')) || 1;
-        if (state.r !== 'all') rsel.value = state.r;
-        if (state.q)           qinp.value = state.q;
-        if (state.t !== 'all') {
-            document.querySelectorAll('.f-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.t === state.t);
-            });
-        }
-    })();
+    // Restore state from URL
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('type'))   st.t = sp.get('type');
+    if (sp.get('region')) st.r = sp.get('region');
+    if (sp.get('q'))      st.q = sp.get('q');
+    if (sp.get('page'))   st.p = parseInt(sp.get('page'))||1;
+    if (st.r!=='all') rsel.value = st.r;
+    if (st.q) qinp.value = st.q;
+    if (st.t!=='all') document.querySelectorAll('.f-btn').forEach(b=>b.classList.toggle('active', b.dataset.t===st.t));
 
     load();
 })();

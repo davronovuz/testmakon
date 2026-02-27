@@ -95,7 +95,7 @@ def api_filter(request):
     qs = qs.order_by('-is_featured', '-is_partner', 'name')
 
     total = qs.count()
-    per_page = 12
+    per_page = 16
     paginator = Paginator(qs, per_page)
     page_obj  = paginator.get_page(page)
 
