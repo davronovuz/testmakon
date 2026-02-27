@@ -2835,7 +2835,32 @@
         '.wm-btn-battle:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(251,191,36,.44);color:#fff}'+
         '.wm-btn-green{background:linear-gradient(135deg,#8BC540,#6BA832)!important;box-shadow:0 4px 16px rgba(139,197,64,.3)!important}'+
         '.wm-btn-green:hover{box-shadow:0 6px 22px rgba(139,197,64,.44)!important}'+
-        '@media(max-width:480px){.wm-modal-btns{flex-direction:column}.wm-btn-yes,.wm-btn-no,.wm-btn-battle{justify-content:center}}';
+        /* MOBILE */
+        '@media(max-width:600px){'+
+          /* Toast */
+          '#ws-toast{bottom:0;right:0;left:0;max-width:100%;width:100%}'+
+          '.wt-inner{border-radius:16px 16px 0 0}'+
+          /* Battle/Match → bottom-sheet on mobile */
+          '.wm-overlay-center{align-items:flex-end;padding:0}'+
+          '.wm-battle-card,.wm-match-card{border-radius:24px 24px 0 0;max-width:100%;transform:translateY(110%);opacity:1;padding:1.25rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom,0px))}'+
+          '.wm-overlay.wm-show .wm-battle-card,.wm-overlay.wm-show .wm-match-card{transform:translateY(0);opacity:1}'+
+          /* Smaller avatars */
+          '.wm-bav{width:52px;height:52px;font-size:1.1rem}'+
+          '.wm-vs-dot{width:30px;height:30px;font-size:.65rem}'+
+          '.wm-battle-vs{gap:.75rem}'+
+          '.wm-bname{font-size:.8rem}'+
+          '.wm-bsub{font-size:.68rem}'+
+          '.wm-btimer-text{font-size:1.3rem}'+
+          '.wm-match-big{font-size:3.2rem}'+
+          '.wm-match-sub{font-size:.82rem;margin-bottom:1rem}'+
+          /* Buttons full-width */
+          '.wm-modal-btns{flex-direction:column;gap:.6rem}'+
+          '.wm-btn-yes,.wm-btn-no,.wm-btn-battle{justify-content:center;width:100%;box-sizing:border-box}'+
+          /* Friend sheet */
+          '.wm-friend-sheet{padding:1.25rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom,0px))}'+
+          '.wm-friend-av{width:62px;height:62px;font-size:1.3rem}'+
+          '.wm-friend-name{font-size:1rem}'+
+        '}';
 
       var wmStyle = document.createElement('style');
       wmStyle.textContent = wmCss;

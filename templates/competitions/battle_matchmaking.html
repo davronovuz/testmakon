@@ -370,11 +370,27 @@
   }
 
   @media(max-width: 480px) {
-    .mm-card { padding: 2rem 1.25rem; }
-    .mm-radar { width: 140px; height: 140px; }
-    .mm-radar-center { inset: 42px; font-size: 1.4rem; }
-    .mm-radar-ring:nth-child(2) { inset: 15px; }
-    .mm-radar-ring:nth-child(3) { inset: 30px; }
+    .mm-page { padding: 1rem 0.75rem; align-items: flex-start; padding-top: 1.5rem; }
+    .mm-card { padding: 1.75rem 1.25rem 2rem; border-radius: 20px; }
+    .mm-radar { width: 130px; height: 130px; margin-bottom: 1.5rem; }
+    .mm-radar-center { inset: 38px; font-size: 1.3rem; }
+    .mm-radar-ring:nth-child(2) { inset: 14px; }
+    .mm-radar-ring:nth-child(3) { inset: 28px; }
+    .mm-title { font-size: 1.1rem; }
+    .mm-subtitle { font-size: 0.82rem; margin-bottom: 1.1rem; }
+    .mm-vs { gap: 1rem; margin-bottom: 1.25rem; }
+    .mm-avatar { width: 54px; height: 54px; font-size: 1.2rem; }
+    .mm-pname { font-size: 0.78rem; }
+    .mm-psub { font-size: 0.68rem; }
+    .mm-vs-badge { width: 34px; height: 34px; font-size: 0.68rem; }
+    .mm-btns { flex-direction: column; gap: 0.5rem; }
+    .mm-btn-cancel, .mm-btn-play, .mm-btn-retry {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .mm-tip { font-size: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; }
+    .mm-found-cd-num { font-size: 3rem; }
   }
 </style>
 {% endblock %}
