@@ -4,295 +4,476 @@
 {% block title %}{{ subject.name }} — Mashq | TestMakon{% endblock %}
 
 {% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-    {% include 'includes/_sidebar_css.html' %}
+    *, *::before, *::after { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important; }
 
-    body { background: var(--gray-50); }
+    body { background: #F0F7FF; }
 
-    /* ===== PAGE HEADER ===== */
-    .ps-hero {
-        background: var(--white);
-        border-bottom: 1px solid var(--gray-200);
-        padding: 1.25rem 0 0;
-        margin-bottom: 1.5rem;
+    /* ========================================================
+       HERO
+    ======================================================== */
+    .ph-hero {
+        background: white;
+        border-bottom: 1px solid #E8F0FE;
+        padding: 1.5rem 0 1.75rem;
+        position: relative;
+        overflow: hidden;
     }
-    .ps-breadcrumb {
+    .ph-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse 80% 60% at 70% 50%, {{ subject.color }}08 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .ph-breadcrumb {
         display: flex; align-items: center; gap: 6px;
-        font-size: 0.78rem; color: var(--gray-400); font-weight: 500;
-        margin-bottom: 1rem;
+        font-size: 0.73rem; font-weight: 600; color: #94A3B8;
+        margin-bottom: 1.25rem;
     }
-    .ps-breadcrumb a { color: var(--gray-400); text-decoration: none; transition: color 0.15s; }
-    .ps-breadcrumb a:hover { color: var(--primary-dark); }
-    .ps-breadcrumb i { font-size: 0.65rem; }
+    .ph-breadcrumb a { color: #94A3B8; text-decoration: none; transition: color .15s; }
+    .ph-breadcrumb a:hover { color: #16a34a; }
+    .ph-breadcrumb i { font-size: 0.6rem; }
 
-    .ps-hero-inner {
-        display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;
-    }
-    .ps-hero-left { display: flex; align-items: center; gap: 14px; padding-bottom: 1.25rem; }
-    .ps-hero-icon {
-        width: 52px; height: 52px; border-radius: 14px;
+    .ph-hero-body { display: flex; align-items: center; gap: 18px; }
+    .ph-icon-wrap {
+        width: 64px; height: 64px; border-radius: 18px; flex-shrink: 0;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem; flex-shrink: 0;
+        font-size: 1.8rem;
+        box-shadow: 0 8px 24px {{ subject.color }}30;
     }
-    .ps-hero-title {
-        font-size: 1.4rem; font-weight: 900; color: var(--dark); margin: 0 0 3px;
+    .ph-title {
+        font-size: 1.55rem; font-weight: 900; color: #0F172A; margin: 0 0 5px;
+        letter-spacing: -0.03em;
     }
-    .ps-hero-meta {
-        font-size: 0.78rem; color: var(--gray-500); font-weight: 500;
-        display: flex; align-items: center; gap: 10px;
+    .ph-meta {
+        display: flex; align-items: center; gap: 14px;
+        font-size: 0.78rem; font-weight: 600; color: #64748B;
     }
-    .ps-hero-meta span { display: inline-flex; align-items: center; gap: 4px; }
-    .ps-hero-tabs {
-        display: flex; gap: 2px;
+    .ph-meta-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: #F1F5F9; border-radius: 8px; padding: 4px 10px;
     }
-    .ps-hero-tab {
-        padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px 8px 0 0;
-        cursor: pointer; transition: all 0.15s; color: var(--gray-400);
-        border: none; background: transparent;
-    }
-    .ps-hero-tab.active {
-        color: var(--primary-dark); background: var(--gray-50);
-        box-shadow: inset 0 -2px 0 var(--primary);
-    }
+    .ph-meta-chip i { font-size: 0.75rem; color: #94A3B8; }
 
-    /* ===== LAYOUT ===== */
+    /* ========================================================
+       LAYOUT
+    ======================================================== */
+    .ps-wrap { padding: 1.75rem 0 4rem; }
+
     .ps-layout {
         display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 16px;
+        grid-template-columns: 1fr 360px;
+        gap: 20px;
         align-items: start;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 960px) {
         .ps-layout { grid-template-columns: 1fr; }
-        .ps-sidebar { position: static !important; order: -1; }
-        .ps-hero-tabs { display: none; }
+        .ps-right { order: -1; }
+    }
+    @media (max-width: 640px) {
+        .ps-wrap { padding-top: 1.25rem; }
     }
 
-    /* ===== TOPICS CARD ===== */
-    .ps-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 14px;
-        overflow: hidden;
-    }
-    .ps-card-head {
-        padding: 14px 16px;
-        border-bottom: 1px solid var(--gray-100);
-        display: flex; align-items: center; justify-content: space-between;
-    }
-    .ps-card-head-title {
-        font-size: 0.82rem; font-weight: 800; color: var(--dark);
-        display: flex; align-items: center; gap: 6px;
-    }
-    .ps-card-head-title i { color: var(--primary); }
-    .ps-card-head-cnt {
-        font-size: 0.72rem; font-weight: 600; color: var(--gray-400);
-        background: var(--gray-100); padding: 3px 10px; border-radius: 20px;
+    /* ========================================================
+       LEFT — TOPICS
+    ======================================================== */
+    .ps-topics-card {
+        background: white; border: 1px solid #E8F0FE;
+        border-radius: 20px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
     }
 
-    /* ===== ALL TOPICS OPTION ===== */
-    .ps-all-item {
-        display: flex; align-items: center; gap: 12px;
-        padding: 14px 16px;
-        cursor: pointer; transition: background 0.15s;
-        border-bottom: 1px solid var(--gray-100);
-        background: #FAFCFF;
+    /* Card header */
+    .ps-topics-header {
+        padding: 18px 20px 16px;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-    .ps-all-item:hover { background: rgba(139,197,64,0.04); }
-    .ps-all-item.selected { background: rgba(139,197,64,0.07); }
-    .ps-all-radio {
-        width: 18px; height: 18px; border-radius: 50%;
-        border: 2px solid var(--gray-300); flex-shrink: 0;
+    .ps-topics-title {
+        font-size: 0.9rem; font-weight: 800; color: #0F172A;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .ps-topics-title-icon {
+        width: 30px; height: 30px; border-radius: 8px;
+        background: #F0FDF4; color: #16a34a;
         display: flex; align-items: center; justify-content: center;
-        transition: all 0.15s;
+        font-size: 0.85rem;
     }
-    .ps-all-item.selected .ps-all-radio {
-        border-color: var(--primary); background: var(--primary);
-    }
-    .ps-all-item.selected .ps-all-radio::after {
-        content: ''; width: 6px; height: 6px;
-        background: white; border-radius: 50%;
-    }
-    .ps-all-label { font-size: 0.88rem; font-weight: 700; color: var(--dark); flex: 1; }
-    .ps-all-badge {
-        font-size: 0.7rem; font-weight: 700;
-        background: rgba(139,197,64,0.12); color: var(--primary-dark);
-        padding: 3px 10px; border-radius: 20px;
+    .ps-total-badge {
+        background: #F8FAFC; border: 1px solid #E2E8F0;
+        color: #64748B; font-size: 0.72rem; font-weight: 700;
+        padding: 4px 12px; border-radius: 20px;
     }
 
-    /* ===== TOPIC LIST ===== */
-    .ps-topics-list { padding: 8px; display: flex; flex-direction: column; gap: 3px; }
-
-    .ps-topic {
-        display: flex; align-items: center; gap: 10px;
-        padding: 10px 10px; border-radius: 10px;
-        cursor: pointer; transition: all 0.15s;
-        border: 1.5px solid transparent;
-        position: relative;
+    /* Search */
+    .ps-search-wrap {
+        padding: 12px 16px;
+        border-bottom: 1px solid #F1F5F9;
     }
-    .ps-topic:hover { background: var(--gray-50); border-color: var(--gray-200); }
-    .ps-topic.selected {
-        background: rgba(139,197,64,0.07);
-        border-color: rgba(139,197,64,0.35);
+    .ps-search {
+        display: flex; align-items: center; gap: 8px;
+        background: #F8FAFC; border: 1.5px solid #E8F0FE;
+        border-radius: 12px; padding: 0 14px;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    .ps-search:focus-within {
+        border-color: #86efac; box-shadow: 0 0 0 3px rgba(34,197,94,.1);
+        background: white;
+    }
+    .ps-search i { color: #94A3B8; font-size: 0.85rem; flex-shrink: 0; }
+    .ps-search input {
+        flex: 1; border: none; background: transparent; padding: 10px 0;
+        font-size: 0.82rem; font-weight: 500; color: #0F172A;
+        outline: none;
+    }
+    .ps-search input::placeholder { color: #CBD5E1; }
+
+    /* All topics banner */
+    .ps-all-banner {
+        margin: 12px 16px;
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 16px; border-radius: 14px;
+        border: 2px solid #E2E8F0; cursor: pointer;
+        transition: all .2s; background: #FAFCFF;
+        position: relative; overflow: hidden;
+    }
+    .ps-all-banner::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(135deg, rgba(34,197,94,.06) 0%, transparent 60%);
+        opacity: 0; transition: opacity .2s;
+    }
+    .ps-all-banner:hover { border-color: #86efac; background: #f0fdf4; }
+    .ps-all-banner:hover::before { opacity: 1; }
+    .ps-all-banner.selected {
+        border-color: #22c55e; background: #f0fdf4;
+        box-shadow: 0 0 0 4px rgba(34,197,94,.1);
+    }
+    .ps-all-banner.selected::before { opacity: 1; }
+
+    .ps-all-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(34,197,94,.3);
+    }
+    .ps-all-info { flex: 1; min-width: 0; }
+    .ps-all-name { font-size: 0.9rem; font-weight: 800; color: #0F172A; margin-bottom: 2px; }
+    .ps-all-desc { font-size: 0.72rem; color: #64748B; font-weight: 500; }
+    .ps-all-cnt {
+        background: rgba(34,197,94,.15); color: #15803d;
+        font-size: 0.72rem; font-weight: 800;
+        padding: 5px 12px; border-radius: 20px; white-space: nowrap;
+    }
+    .ps-all-check {
+        width: 20px; height: 20px; border-radius: 50%;
+        border: 2px solid #CBD5E1; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: all .2s;
+    }
+    .ps-all-banner.selected .ps-all-check {
+        border-color: #22c55e; background: #22c55e;
+    }
+    .ps-all-banner.selected .ps-all-check::after {
+        content: ''; display: block;
+        width: 5px; height: 8px;
+        border: 2px solid white; border-top: none; border-left: none;
+        transform: rotate(45deg) translate(-1px, -1px);
     }
 
-    .ps-topic-num {
-        width: 26px; height: 26px; border-radius: 7px;
-        background: var(--gray-100); color: var(--gray-400);
+    /* Topics grid */
+    .ps-topics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 0 16px 16px;
+    }
+    @media (max-width: 640px) {
+        .ps-topics-grid { grid-template-columns: 1fr; }
+    }
+
+    .ps-topic-card {
+        border: 1.5px solid #E8F0FE; border-radius: 14px;
+        padding: 14px; cursor: pointer;
+        transition: all .2s; background: white;
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    .ps-topic-card::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(135deg, rgba(34,197,94,.05) 0%, transparent 50%);
+        opacity: 0; transition: opacity .2s;
+    }
+    .ps-topic-card:hover {
+        border-color: #86efac;
+        box-shadow: 0 4px 16px rgba(34,197,94,.12);
+        transform: translateY(-2px);
+    }
+    .ps-topic-card:hover::before { opacity: 1; }
+    .ps-topic-card.selected {
+        border-color: #22c55e;
+        background: #f0fdf4;
+        box-shadow: 0 0 0 3px rgba(34,197,94,.12), 0 4px 16px rgba(34,197,94,.15);
+    }
+    .ps-topic-card.selected::before { opacity: 1; }
+    .ps-topic-card.hidden { display: none; }
+
+    .ps-tc-top {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+    }
+    .ps-tc-num {
+        width: 28px; height: 28px; border-radius: 8px;
+        background: #F1F5F9; color: #94A3B8;
         font-size: 0.7rem; font-weight: 800;
         display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0; transition: all 0.15s;
+        flex-shrink: 0; transition: all .2s;
     }
-    .ps-topic.selected .ps-topic-num {
-        background: var(--primary); color: white;
+    .ps-topic-card.selected .ps-tc-num {
+        background: #22c55e; color: white;
+        box-shadow: 0 2px 8px rgba(34,197,94,.4);
+    }
+    .ps-tc-check {
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 1.5px solid #CBD5E1; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: all .2s; margin-top: 1px;
+    }
+    .ps-topic-card.selected .ps-tc-check {
+        border-color: #22c55e; background: #22c55e;
+    }
+    .ps-topic-card.selected .ps-tc-check::after {
+        content: ''; display: block;
+        width: 4px; height: 6px;
+        border: 1.5px solid white; border-top: none; border-left: none;
+        transform: rotate(45deg) translate(-1px, -1px);
     }
 
-    .ps-topic-body { flex: 1; min-width: 0; }
-    .ps-topic-name {
-        font-size: 0.83rem; font-weight: 700; color: var(--dark);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .ps-topic.selected .ps-topic-name { color: var(--primary-dark); }
-
-    .ps-topic-cnt {
-        font-size: 0.68rem; font-weight: 700;
-        color: var(--gray-400); background: var(--gray-100);
-        padding: 2px 8px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;
-    }
-    .ps-topic.selected .ps-topic-cnt {
-        background: rgba(139,197,64,0.15); color: var(--primary-dark);
-    }
-
-    /* ===== SIDEBAR ===== */
-    .ps-sidebar { position: sticky; top: 88px; }
-
-    .ps-settings-card {
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: 14px;
+    .ps-tc-name {
+        font-size: 0.8rem; font-weight: 700; color: #1E293B;
+        line-height: 1.35; flex: 1;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         overflow: hidden;
     }
+    .ps-topic-card.selected .ps-tc-name { color: #15803d; }
+
+    .ps-tc-bottom {
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .ps-tc-cnt {
+        font-size: 0.68rem; font-weight: 700; color: #64748B;
+        background: #F1F5F9; padding: 3px 9px; border-radius: 8px;
+        display: inline-flex; align-items: center; gap: 3px;
+        transition: all .2s;
+    }
+    .ps-tc-cnt i { font-size: 0.6rem; }
+    .ps-topic-card.selected .ps-tc-cnt {
+        background: rgba(34,197,94,.15); color: #15803d;
+    }
+
+    /* Empty / no results */
+    .ps-no-results {
+        grid-column: 1 / -1; text-align: center;
+        padding: 2.5rem 1rem; color: #94A3B8;
+    }
+    .ps-no-results i { font-size: 2rem; margin-bottom: 8px; display: block; }
+    .ps-no-results p { font-size: 0.82rem; font-weight: 600; margin: 0; }
+
+    /* ========================================================
+       RIGHT — SETTINGS
+    ======================================================== */
+    .ps-right { position: sticky; top: 84px; }
+
+    .ps-settings-card {
+        background: white; border: 1px solid #E8F0FE;
+        border-radius: 20px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
+    }
     .ps-settings-head {
-        padding: 14px 16px;
-        border-bottom: 1px solid var(--gray-100);
-        font-size: 0.82rem; font-weight: 800; color: var(--dark);
-        display: flex; align-items: center; gap: 6px;
-    }
-    .ps-settings-head i { color: var(--gray-400); }
-    .ps-settings-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
-
-    /* Setting group */
-    .ps-sg-label {
-        font-size: 0.7rem; font-weight: 800; color: var(--gray-400);
-        text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
-    }
-    .ps-sg-options { display: flex; gap: 6px; flex-wrap: wrap; }
-    .ps-sg-pill {
-        padding: 6px 12px; border-radius: 8px;
-        border: 1.5px solid var(--gray-200); background: var(--white);
-        font-size: 0.78rem; font-weight: 700; color: var(--dark-600);
-        cursor: pointer; transition: all 0.15s; user-select: none;
-    }
-    .ps-sg-pill:hover { border-color: var(--gray-300); background: var(--gray-50); }
-    .ps-sg-pill.active {
-        border-color: var(--primary); background: rgba(139,197,64,0.1);
-        color: var(--primary-dark);
-    }
-
-    /* Difficulty specific */
-    .ps-sg-pill[data-val="easy"] { border-left: 3px solid #10B981; }
-    .ps-sg-pill[data-val="medium"] { border-left: 3px solid #F59E0B; }
-    .ps-sg-pill[data-val="hard"] { border-left: 3px solid #EF4444; }
-    .ps-sg-pill[data-val="all"] { border-left: 3px solid var(--gray-300); }
-
-    /* Mode pills */
-    .ps-mode-list { display: flex; flex-direction: column; gap: 5px; }
-    .ps-mode-item {
+        padding: 18px 22px 16px;
+        border-bottom: 1px solid #F1F5F9;
         display: flex; align-items: center; gap: 10px;
-        padding: 9px 12px; border-radius: 10px;
-        border: 1.5px solid var(--gray-200);
-        cursor: pointer; transition: all 0.15s; user-select: none;
     }
-    .ps-mode-item:hover { border-color: var(--gray-300); background: var(--gray-50); }
-    .ps-mode-item.active {
-        border-color: var(--primary); background: rgba(139,197,64,0.08);
-    }
-    .ps-mode-icon {
-        width: 30px; height: 30px; border-radius: 8px;
+    .ps-settings-head-icon {
+        width: 32px; height: 32px; border-radius: 9px;
+        background: #F0FDF4; color: #16a34a;
         display: flex; align-items: center; justify-content: center;
-        font-size: 0.9rem; flex-shrink: 0;
-        background: var(--gray-100); color: var(--gray-400);
-        transition: all 0.15s;
+        font-size: 0.9rem;
     }
-    .ps-mode-item.active .ps-mode-icon { background: rgba(139,197,64,0.15); color: var(--primary-dark); }
-    .ps-mode-body { flex: 1; }
-    .ps-mode-title { font-size: 0.8rem; font-weight: 800; color: var(--dark); margin-bottom: 1px; }
-    .ps-mode-desc { font-size: 0.68rem; color: var(--gray-400); font-weight: 500; }
-    .ps-mode-check {
-        width: 16px; height: 16px; border-radius: 50%;
-        border: 2px solid var(--gray-300); flex-shrink: 0; transition: all 0.15s;
+    .ps-settings-head-title {
+        font-size: 0.9rem; font-weight: 800; color: #0F172A;
+    }
+    .ps-settings-body {
+        padding: 20px 22px;
+        display: flex; flex-direction: column; gap: 22px;
+    }
+
+    /* Setting section */
+    .ps-ss-label {
+        font-size: 0.68rem; font-weight: 800; color: #94A3B8;
+        text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+
+    /* Count pills */
+    .ps-count-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px;
+    }
+    .ps-count-pill {
+        padding: 9px 4px; border-radius: 10px;
+        border: 1.5px solid #E2E8F0; background: #F8FAFC;
+        font-size: 0.88rem; font-weight: 800; color: #475569;
+        cursor: pointer; transition: all .18s; text-align: center;
+        user-select: none;
+    }
+    .ps-count-pill:hover { border-color: #86efac; color: #15803d; background: #f0fdf4; }
+    .ps-count-pill.active {
+        border-color: #22c55e; background: #22c55e; color: white;
+        box-shadow: 0 4px 12px rgba(34,197,94,.35);
+    }
+
+    /* Difficulty pills */
+    .ps-diff-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px;
+    }
+    .ps-diff-pill {
+        padding: 8px 10px; border-radius: 10px; text-align: center;
+        border: 1.5px solid #E2E8F0; background: #F8FAFC;
+        font-size: 0.78rem; font-weight: 700; color: #475569;
+        cursor: pointer; transition: all .18s; user-select: none;
+        display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .ps-diff-pill:hover { background: #F1F5F9; border-color: #CBD5E1; }
+    .ps-diff-pill.active { color: white; border-color: transparent; }
+    .ps-diff-pill[data-val="all"].active  { background: #475569; }
+    .ps-diff-pill[data-val="easy"].active { background: #22c55e; box-shadow: 0 3px 10px rgba(34,197,94,.35); }
+    .ps-diff-pill[data-val="medium"].active { background: #f59e0b; box-shadow: 0 3px 10px rgba(245,158,11,.35); }
+    .ps-diff-pill[data-val="hard"].active   { background: #ef4444; box-shadow: 0 3px 10px rgba(239,68,68,.35); }
+
+    .ps-diff-dot {
+        width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .ps-diff-pill[data-val="all"]    .ps-diff-dot { background: #94A3B8; }
+    .ps-diff-pill[data-val="easy"]   .ps-diff-dot { background: #22c55e; }
+    .ps-diff-pill[data-val="medium"] .ps-diff-dot { background: #f59e0b; }
+    .ps-diff-pill[data-val="hard"]   .ps-diff-dot { background: #ef4444; }
+    .ps-diff-pill.active .ps-diff-dot { background: rgba(255,255,255,.6); }
+
+    /* Mode cards */
+    .ps-mode-list { display: flex; flex-direction: column; gap: 8px; }
+    .ps-mode-card {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 14px; border-radius: 14px;
+        border: 1.5px solid #E2E8F0; cursor: pointer;
+        transition: all .18s; user-select: none;
+        background: #FAFCFF;
+    }
+    .ps-mode-card:hover { border-color: #86efac; background: #f7fef9; }
+    .ps-mode-card.active {
+        border-color: #22c55e; background: #f0fdf4;
+        box-shadow: 0 0 0 3px rgba(34,197,94,.1);
+    }
+    .ps-mode-ico {
+        width: 38px; height: 38px; border-radius: 11px;
+        background: #F1F5F9; color: #64748B;
         display: flex; align-items: center; justify-content: center;
+        font-size: 1.05rem; flex-shrink: 0; transition: all .18s;
     }
-    .ps-mode-item.active .ps-mode-check { border-color: var(--primary); background: var(--primary); }
-    .ps-mode-item.active .ps-mode-check::after {
-        content: ''; width: 5px; height: 5px; background: white; border-radius: 50%;
+    .ps-mode-card.active .ps-mode-ico {
+        background: rgba(34,197,94,.15); color: #16a34a;
+    }
+    .ps-mode-card[data-mode="timed"].active .ps-mode-ico { background: rgba(245,158,11,.12); color: #d97706; }
+    .ps-mode-card[data-mode="exam"].active .ps-mode-ico  { background: rgba(99,102,241,.12); color: #4f46e5; }
+
+    .ps-mode-info { flex: 1; }
+    .ps-mode-name { font-size: 0.82rem; font-weight: 800; color: #1E293B; margin-bottom: 2px; }
+    .ps-mode-desc { font-size: 0.68rem; color: #94A3B8; font-weight: 500; }
+    .ps-mode-card.active .ps-mode-name { color: #15803d; }
+    .ps-mode-card[data-mode="timed"].active .ps-mode-name { color: #b45309; }
+    .ps-mode-card[data-mode="exam"].active .ps-mode-name  { color: #4338ca; }
+
+    .ps-mode-radio {
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 2px solid #CBD5E1; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: all .18s;
+    }
+    .ps-mode-card.active .ps-mode-radio { border-color: #22c55e; background: #22c55e; }
+    .ps-mode-card[data-mode="timed"].active .ps-mode-radio { border-color: #f59e0b; background: #f59e0b; }
+    .ps-mode-card[data-mode="exam"].active .ps-mode-radio  { border-color: #6366f1; background: #6366f1; }
+    .ps-mode-card.active .ps-mode-radio::after {
+        content: ''; display: block;
+        width: 5px; height: 5px; background: white; border-radius: 50%;
     }
 
     /* Summary */
     .ps-summary {
-        background: var(--gray-50); border-radius: 10px;
-        padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;
+        background: #F8FAFC; border: 1px solid #E8F0FE;
+        border-radius: 14px; padding: 14px 16px;
+        display: flex; flex-direction: column; gap: 8px;
     }
     .ps-sum-row {
         display: flex; align-items: center; justify-content: space-between;
         font-size: 0.78rem;
     }
-    .ps-sum-label { color: var(--gray-400); font-weight: 500; }
-    .ps-sum-val { color: var(--dark); font-weight: 800; }
+    .ps-sum-row + .ps-sum-row { border-top: 1px solid #E8F0FE; padding-top: 8px; }
+    .ps-sum-label { color: #94A3B8; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    .ps-sum-label i { font-size: 0.7rem; }
+    .ps-sum-val { color: #0F172A; font-weight: 800; font-size: 0.8rem; }
 
     /* Start button */
     .ps-start-btn {
-        width: 100%; padding: 13px;
-        background: var(--gradient-primary); border: none;
-        color: white; border-radius: 12px;
-        font-size: 0.95rem; font-weight: 800;
-        cursor: pointer; transition: all 0.2s;
+        width: 100%; padding: 15px;
+        background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+        border: none; color: white; border-radius: 14px;
+        font-size: 1rem; font-weight: 800; letter-spacing: -0.01em;
+        cursor: pointer; transition: all .2s;
         display: flex; align-items: center; justify-content: center; gap: 8px;
-        box-shadow: 0 4px 14px rgba(139,197,64,0.3);
+        box-shadow: 0 4px 20px rgba(34,197,94,.4);
+        animation: pulse-btn 3s ease-in-out infinite;
     }
-    .ps-start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,197,64,0.4); }
+    .ps-start-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(34,197,94,.5);
+        animation: none;
+    }
     .ps-start-btn:active { transform: translateY(0); }
+    .ps-start-btn i { font-size: 1.05rem; }
 
-    /* Empty */
-    .ps-empty {
-        padding: 3rem 2rem; text-align: center;
-        color: var(--gray-400); font-size: 0.85rem;
+    @keyframes pulse-btn {
+        0%, 100% { box-shadow: 0 4px 20px rgba(34,197,94,.4); }
+        50%       { box-shadow: 0 4px 28px rgba(34,197,94,.65); }
     }
-    .ps-empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
 </style>
 {% endblock %}
 
 {% block content %}
+
 <!-- Hero -->
-<div class="ps-hero">
+<div class="ph-hero">
     <div class="container">
-        <div class="ps-breadcrumb">
+        <div class="ph-breadcrumb">
             <a href="{% url 'tests_app:tests_list' %}">Testlar</a>
             <i class="bi bi-chevron-right"></i>
             <a href="{% url 'tests_app:question_bank' %}">Savol banki</a>
             <i class="bi bi-chevron-right"></i>
             <span>{{ subject.name }}</span>
         </div>
-        <div class="ps-hero-inner">
-            <div class="ps-hero-left">
-                <div class="ps-hero-icon" style="background: {{ subject.color }}18;">
-                    {% subject_icon subject 52 %}
-                </div>
-                <div>
-                    <h1 class="ps-hero-title">{{ subject.name }}</h1>
-                    <div class="ps-hero-meta">
-                        <span><i class="bi bi-journal-text"></i> {{ total_questions }} ta savol</span>
-                        <span><i class="bi bi-collection"></i> {{ topics.count }} ta mavzu</span>
+        <div class="ph-hero-body">
+            <div class="ph-icon-wrap" style="background: {{ subject.color }}15;">
+                {% subject_icon subject 60 %}
+            </div>
+            <div>
+                <h1 class="ph-title">{{ subject.name }}</h1>
+                <div class="ph-meta">
+                    <div class="ph-meta-chip">
+                        <i class="bi bi-journal-text"></i>
+                        <span>{{ total_questions }} ta savol</span>
+                    </div>
+                    <div class="ph-meta-chip">
+                        <i class="bi bi-collection"></i>
+                        <span>{{ topics.count }} ta mavzu</span>
                     </div>
                 </div>
             </div>
@@ -300,195 +481,266 @@
     </div>
 </div>
 
-<!-- Content -->
-<div class="container pb-5">
-    <form action="{% url 'tests_app:practice_start' %}" method="post" id="practiceForm">
-        {% csrf_token %}
-        <input type="hidden" name="subject_id" value="{{ subject.id }}">
-        <input type="hidden" name="topic_id" id="topicInput" value="">
-        <input type="hidden" name="question_count" id="countInput" value="10">
-        <input type="hidden" name="difficulty" id="difficultyInput" value="all">
-        <input type="hidden" name="mode" id="modeInput" value="practice">
+<!-- Main -->
+<div class="ps-wrap">
+    <div class="container">
+        <form action="{% url 'tests_app:practice_start' %}" method="post" id="practiceForm">
+            {% csrf_token %}
+            <input type="hidden" name="subject_id"      value="{{ subject.id }}">
+            <input type="hidden" name="topic_id"        id="topicInput"      value="">
+            <input type="hidden" name="question_count"  id="countInput"      value="10">
+            <input type="hidden" name="difficulty"      id="difficultyInput" value="all">
+            <input type="hidden" name="mode"            id="modeInput"       value="practice">
 
-        <div class="ps-layout">
-            <!-- Topics -->
-            <div>
-                <div class="ps-card">
-                    <div class="ps-card-head">
-                        <div class="ps-card-head-title">
-                            <i class="bi bi-collection"></i> Mavzu tanlang
-                        </div>
-                        <span class="ps-card-head-cnt">{{ topics.count }} mavzu</span>
-                    </div>
+            <div class="ps-layout">
 
-                    <!-- All topics -->
-                    <div class="ps-all-item selected" data-topic="">
-                        <div class="ps-all-radio"></div>
-                        <span class="ps-all-label">📚 Barcha mavzular</span>
-                        <span class="ps-all-badge">{{ total_questions }} savol</span>
-                    </div>
+                <!-- ===== LEFT: TOPICS ===== -->
+                <div class="ps-left">
+                    <div class="ps-topics-card">
 
-                    <!-- Topic list -->
-                    {% if topics %}
-                    <div class="ps-topics-list">
-                        {% for topic in topics %}
-                        <div class="ps-topic" data-topic="{{ topic.id }}" data-name="{{ topic.name }}">
-                            <div class="ps-topic-num">{{ forloop.counter }}</div>
-                            <div class="ps-topic-body">
-                                <div class="ps-topic-name">{{ topic.name }}</div>
+                        <div class="ps-topics-header">
+                            <div class="ps-topics-title">
+                                <div class="ps-topics-title-icon"><i class="bi bi-collection-fill"></i></div>
+                                Mavzu tanlang
                             </div>
-                            <span class="ps-topic-cnt">{{ topic.questions_count }}</span>
+                            <span class="ps-total-badge">{{ topics.count }} mavzu</span>
                         </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="ps-empty">
-                        <i class="bi bi-inbox"></i>
-                        Mavzular qo'shilmagan
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
 
-            <!-- Sidebar -->
-            <div class="ps-sidebar">
-                <div class="ps-settings-card">
-                    <div class="ps-settings-head">
-                        <i class="bi bi-sliders2"></i> Test sozlamalari
-                    </div>
-                    <div class="ps-settings-body">
-
-                        <!-- Count -->
-                        <div>
-                            <div class="ps-sg-label">Savollar soni</div>
-                            <div class="ps-sg-options">
-                                <div class="ps-sg-pill active" data-group="count" data-val="10">10</div>
-                                <div class="ps-sg-pill" data-group="count" data-val="20">20</div>
-                                <div class="ps-sg-pill" data-group="count" data-val="30">30</div>
-                                <div class="ps-sg-pill" data-group="count" data-val="50">50</div>
+                        <!-- Search -->
+                        <div class="ps-search-wrap">
+                            <div class="ps-search">
+                                <i class="bi bi-search"></i>
+                                <input type="text" id="topicSearch" placeholder="Mavzu qidirish..." autocomplete="off">
                             </div>
                         </div>
 
-                        <!-- Difficulty -->
-                        <div>
-                            <div class="ps-sg-label">Qiyinlik darajasi</div>
-                            <div class="ps-sg-options">
-                                <div class="ps-sg-pill active" data-group="diff" data-val="all">Barchasi</div>
-                                <div class="ps-sg-pill" data-group="diff" data-val="easy">Oson</div>
-                                <div class="ps-sg-pill" data-group="diff" data-val="medium">O'rta</div>
-                                <div class="ps-sg-pill" data-group="diff" data-val="hard">Qiyin</div>
+                        <!-- All topics -->
+                        <div class="ps-all-banner selected" id="allTopics" data-topic="">
+                            <div class="ps-all-icon">📚</div>
+                            <div class="ps-all-info">
+                                <div class="ps-all-name">Barcha mavzular</div>
+                                <div class="ps-all-desc">Barcha mavzulardan aralash savollar</div>
                             </div>
+                            <span class="ps-all-cnt">{{ total_questions }} savol</span>
+                            <div class="ps-all-check"></div>
                         </div>
 
-                        <!-- Mode -->
-                        <div>
-                            <div class="ps-sg-label">Mashq turi</div>
-                            <div class="ps-mode-list">
-                                <div class="ps-mode-item active" data-mode="practice">
-                                    <div class="ps-mode-icon"><i class="bi bi-journal-check"></i></div>
-                                    <div class="ps-mode-body">
-                                        <div class="ps-mode-title">Oddiy mashq</div>
-                                        <div class="ps-mode-desc">Javobni ko'rsatadi</div>
-                                    </div>
-                                    <div class="ps-mode-check"></div>
+                        <!-- Topics grid -->
+                        <div class="ps-topics-grid" id="topicsGrid">
+                            {% for topic in topics %}
+                            <div class="ps-topic-card"
+                                 data-topic="{{ topic.id }}"
+                                 data-name="{{ topic.name }}"
+                                 data-search="{{ topic.name|lower }}">
+                                <div class="ps-tc-top">
+                                    <div class="ps-tc-num">{{ forloop.counter }}</div>
+                                    <div class="ps-tc-name">{{ topic.name }}</div>
+                                    <div class="ps-tc-check"></div>
                                 </div>
-                                <div class="ps-mode-item" data-mode="timed">
-                                    <div class="ps-mode-icon"><i class="bi bi-stopwatch"></i></div>
-                                    <div class="ps-mode-body">
-                                        <div class="ps-mode-title">Vaqt bilan</div>
-                                        <div class="ps-mode-desc">Savol boshiga 2 daqiqa</div>
-                                    </div>
-                                    <div class="ps-mode-check"></div>
-                                </div>
-                                <div class="ps-mode-item" data-mode="exam">
-                                    <div class="ps-mode-icon"><i class="bi bi-mortarboard"></i></div>
-                                    <div class="ps-mode-body">
-                                        <div class="ps-mode-title">Imtihon rejimi</div>
-                                        <div class="ps-mode-desc">Oxirida natija ko'rinadi</div>
-                                    </div>
-                                    <div class="ps-mode-check"></div>
+                                <div class="ps-tc-bottom">
+                                    <span class="ps-tc-cnt">
+                                        <i class="bi bi-journal-text"></i>
+                                        {{ topic.questions_count }} savol
+                                    </span>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Summary -->
-                        <div class="ps-summary">
-                            <div class="ps-sum-row">
-                                <span class="ps-sum-label">Mavzu</span>
-                                <span class="ps-sum-val" id="sumTopic">Barcha</span>
+                            {% empty %}
+                            <div class="ps-no-results">
+                                <i class="bi bi-inbox"></i>
+                                <p>Mavzular qo'shilmagan</p>
                             </div>
-                            <div class="ps-sum-row">
-                                <span class="ps-sum-label">Savollar</span>
-                                <span class="ps-sum-val" id="sumCount">10 ta</span>
-                            </div>
-                            <div class="ps-sum-row">
-                                <span class="ps-sum-label">Taxminiy vaqt</span>
-                                <span class="ps-sum-val" id="sumTime">~20 daq</span>
+                            {% endfor %}
+                            <div class="ps-no-results" id="noResults" style="display:none;">
+                                <i class="bi bi-search"></i>
+                                <p>Hech narsa topilmadi</p>
                             </div>
                         </div>
 
-                        <button type="submit" class="ps-start-btn">
-                            <i class="bi bi-play-fill"></i> Mashqni boshlash
-                        </button>
                     </div>
                 </div>
+
+                <!-- ===== RIGHT: SETTINGS ===== -->
+                <div class="ps-right">
+                    <div class="ps-settings-card">
+                        <div class="ps-settings-head">
+                            <div class="ps-settings-head-icon">
+                                <i class="bi bi-sliders2-vertical"></i>
+                            </div>
+                            <div class="ps-settings-head-title">Test sozlamalari</div>
+                        </div>
+                        <div class="ps-settings-body">
+
+                            <!-- Question count -->
+                            <div>
+                                <div class="ps-ss-label">Savollar soni</div>
+                                <div class="ps-count-grid">
+                                    <div class="ps-count-pill active" data-group="count" data-val="10">10</div>
+                                    <div class="ps-count-pill" data-group="count" data-val="20">20</div>
+                                    <div class="ps-count-pill" data-group="count" data-val="30">30</div>
+                                    <div class="ps-count-pill" data-group="count" data-val="50">50</div>
+                                </div>
+                            </div>
+
+                            <!-- Difficulty -->
+                            <div>
+                                <div class="ps-ss-label">Qiyinlik darajasi</div>
+                                <div class="ps-diff-grid">
+                                    <div class="ps-diff-pill active" data-group="diff" data-val="all">
+                                        <span class="ps-diff-dot"></span> Barchasi
+                                    </div>
+                                    <div class="ps-diff-pill" data-group="diff" data-val="easy">
+                                        <span class="ps-diff-dot"></span> Oson
+                                    </div>
+                                    <div class="ps-diff-pill" data-group="diff" data-val="medium">
+                                        <span class="ps-diff-dot"></span> O'rta
+                                    </div>
+                                    <div class="ps-diff-pill" data-group="diff" data-val="hard">
+                                        <span class="ps-diff-dot"></span> Qiyin
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mode -->
+                            <div>
+                                <div class="ps-ss-label">Mashq turi</div>
+                                <div class="ps-mode-list">
+                                    <div class="ps-mode-card active" data-mode="practice">
+                                        <div class="ps-mode-ico"><i class="bi bi-journal-check"></i></div>
+                                        <div class="ps-mode-info">
+                                            <div class="ps-mode-name">Oddiy mashq</div>
+                                            <div class="ps-mode-desc">Har javobdan so'ng natija</div>
+                                        </div>
+                                        <div class="ps-mode-radio"></div>
+                                    </div>
+                                    <div class="ps-mode-card" data-mode="timed">
+                                        <div class="ps-mode-ico"><i class="bi bi-stopwatch-fill"></i></div>
+                                        <div class="ps-mode-info">
+                                            <div class="ps-mode-name">Vaqt bilan</div>
+                                            <div class="ps-mode-desc">Har savolga 2 daqiqa</div>
+                                        </div>
+                                        <div class="ps-mode-radio"></div>
+                                    </div>
+                                    <div class="ps-mode-card" data-mode="exam">
+                                        <div class="ps-mode-ico"><i class="bi bi-mortarboard-fill"></i></div>
+                                        <div class="ps-mode-info">
+                                            <div class="ps-mode-name">Imtihon rejimi</div>
+                                            <div class="ps-mode-desc">Oxirida umumiy natija</div>
+                                        </div>
+                                        <div class="ps-mode-radio"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="ps-summary">
+                                <div class="ps-sum-row">
+                                    <span class="ps-sum-label"><i class="bi bi-bookmark-fill"></i> Mavzu</span>
+                                    <span class="ps-sum-val" id="sumTopic">Barcha mavzular</span>
+                                </div>
+                                <div class="ps-sum-row">
+                                    <span class="ps-sum-label"><i class="bi bi-list-ol"></i> Savollar</span>
+                                    <span class="ps-sum-val" id="sumCount">10 ta</span>
+                                </div>
+                                <div class="ps-sum-row">
+                                    <span class="ps-sum-label"><i class="bi bi-clock"></i> Taxminiy vaqt</span>
+                                    <span class="ps-sum-val" id="sumTime">~20 daqiqa</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="ps-start-btn">
+                                <i class="bi bi-play-circle-fill"></i>
+                                Mashqni boshlash
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Topic selection
-    const allItem = document.querySelector('.ps-all-item');
-    const topics = document.querySelectorAll('.ps-topic');
+(function () {
+    const allBanner  = document.getElementById('allTopics');
+    const topicCards = document.querySelectorAll('.ps-topic-card');
+    const topicInput = document.getElementById('topicInput');
+    const sumTopic   = document.getElementById('sumTopic');
 
-    function selectTopic(el, id, name) {
-        allItem.classList.remove('selected');
-        topics.forEach(t => t.classList.remove('selected'));
-        el.classList.add('selected');
-        document.getElementById('topicInput').value = id;
-        document.getElementById('sumTopic').textContent = name;
+    /* ── Topic selection ─────────────────────────────── */
+    function clearTopics() {
+        allBanner.classList.remove('selected');
+        topicCards.forEach(c => c.classList.remove('selected'));
     }
-
-    allItem.addEventListener('click', () => selectTopic(allItem, '', 'Barcha'));
-    topics.forEach(t => {
-        t.addEventListener('click', () => selectTopic(t, t.dataset.topic, t.dataset.name));
+    allBanner.addEventListener('click', () => {
+        clearTopics();
+        allBanner.classList.add('selected');
+        topicInput.value = '';
+        sumTopic.textContent = 'Barcha mavzular';
     });
-
-    // Count & Difficulty pills
-    document.querySelectorAll('.ps-sg-pill').forEach(pill => {
-        pill.addEventListener('click', function () {
-            const group = this.dataset.group;
-            document.querySelectorAll(`.ps-sg-pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
-            this.classList.add('active');
-
-            if (group === 'count') {
-                document.getElementById('countInput').value = this.dataset.val;
-                document.getElementById('sumCount').textContent = this.dataset.val + ' ta';
-                updateTime();
-            } else {
-                document.getElementById('difficultyInput').value = this.dataset.val;
-            }
+    topicCards.forEach(card => {
+        card.addEventListener('click', () => {
+            clearTopics();
+            card.classList.add('selected');
+            topicInput.value = card.dataset.topic;
+            const name = card.dataset.name;
+            sumTopic.textContent = name.length > 18 ? name.slice(0, 18) + '…' : name;
         });
     });
 
-    // Mode
-    document.querySelectorAll('.ps-mode-item').forEach(item => {
-        item.addEventListener('click', function () {
-            document.querySelectorAll('.ps-mode-item').forEach(i => i.classList.remove('active'));
+    /* ── Search ──────────────────────────────────────── */
+    document.getElementById('topicSearch').addEventListener('input', function () {
+        const q = this.value.trim().toLowerCase();
+        let visible = 0;
+        topicCards.forEach(card => {
+            const match = card.dataset.search.includes(q);
+            card.classList.toggle('hidden', !match);
+            if (match) visible++;
+        });
+        document.getElementById('noResults').style.display = visible === 0 && q ? 'block' : 'none';
+    });
+
+    /* ── Count pills ─────────────────────────────────── */
+    document.querySelectorAll('.ps-count-pill').forEach(pill => {
+        pill.addEventListener('click', function () {
+            document.querySelectorAll('.ps-count-pill').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('countInput').value = this.dataset.val;
+            document.getElementById('sumCount').textContent = this.dataset.val + ' ta';
+            updateTime();
+        });
+    });
+
+    /* ── Difficulty pills ────────────────────────────── */
+    document.querySelectorAll('.ps-diff-pill').forEach(pill => {
+        pill.addEventListener('click', function () {
+            document.querySelectorAll('.ps-diff-pill').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('difficultyInput').value = this.dataset.val;
+        });
+    });
+
+    /* ── Mode cards ──────────────────────────────────── */
+    document.querySelectorAll('.ps-mode-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.ps-mode-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             document.getElementById('modeInput').value = this.dataset.mode;
             updateTime();
         });
     });
 
+    /* ── Time estimate ───────────────────────────────── */
     function updateTime() {
         const count = parseInt(document.getElementById('countInput').value);
-        const mode = document.getElementById('modeInput').value;
-        const mins = mode === 'exam' ? count : count * 2;
-        document.getElementById('sumTime').textContent = `~${mins} daq`;
+        const mode  = document.getElementById('modeInput').value;
+        const mins  = mode === 'exam' ? count : count * 2;
+        document.getElementById('sumTime').textContent = `~${mins} daqiqa`;
     }
+})();
 </script>
 {% endblock %}
