@@ -225,49 +225,57 @@ def generate_ai_study_plan_task(self, plan_id):
             val['count'] = len(scores)
             del val['scores']
 
-        # 2. Sust mavzular
+        # 2. Sust mavzular (top 5 — kichik prompt)
         weak_data = [
-            {'subject': wt.subject.name, 'topic': wt.topic.name, 'accuracy': round(wt.accuracy_rate, 1)}
+            {'fan': wt.subject.name, 'mavzu': wt.topic.name, 'aniqlik': round(wt.accuracy_rate, 1)}
             for wt in WeakTopicAnalysis.objects.filter(
                 user=user, subject__in=subjects
-            ).select_related('subject', 'topic').order_by('accuracy_rate')[:12]
+            ).select_related('subject', 'topic').order_by('accuracy_rate')[:5]
         ]
 
-        # 3. Kunlar soni (max 28 kun — katta prompt AI ni sekinlashtiradi)
+        # 3. Umumiy muddatni hisoblash
         if plan.target_exam_date and plan.target_exam_date > today:
-            days_count = min(28, (plan.target_exam_date - today).days)
+            total_days = (plan.target_exam_date - today).days
         else:
-            days_count = 28
+            total_days = 28
+        weekly_days = max(1, min(7, plan.weekly_days))
+        num_weeks = max(1, (total_days + 6) // 7)
 
+        # 4. AI ga FAQAT 1 haftalik shablon so'raymiz
+        #    Keyin biz uni num_weeks marta takrorlaymiz — reja necha oylik bo'lmasin to'liq
         subject_names = [s.name for s in subjects]
+        day_names = ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba']
+        active_days = day_names[:weekly_days]
+
         system_prompt = (
-            "Sen TestMakon.uz ning AI o'quv reja tuzuvchisan. "
-            "Foydalanuvchi ma'lumotlariga qarab maqsadli kunlik vazifalar rej tuz. "
+            "Sen TestMakon.uz AI o'quv reja tuzuvchisan. "
             "Javobni FAQAT sof JSON formatida ber, boshqa hech narsa yozma."
         )
-        user_prompt = f"""Foydalanuvchi:
-- Fanlar: {subject_names}
-- Kun soni: {days_count} kun
-- Kunlik: {plan.daily_hours} soat, haftada {plan.weekly_days} kun
-- Maqsad: {plan.target_score or 'belgilanmagan'} ball
+        user_prompt = f"""Foydalanuvchi ma'lumotlari:
+- Fanlar: {', '.join(subject_names)}
+- Kunlik: {plan.daily_hours} soat
+- Dars kunlari: {', '.join(active_days)} ({weekly_days} kun)
+- Maqsad: {plan.target_score or 'DTM'} ball
+- Fan natijalari: {json.dumps(subject_stats, ensure_ascii=False)}
+- Sust mavzular: {json.dumps(weak_data, ensure_ascii=False)}
 
-Test natijalari: {json.dumps(subject_stats, ensure_ascii=False)}
-Sust mavzular: {json.dumps(weak_data, ensure_ascii=False)}
+Faqat 1 haftalik shablon tuz ({weekly_days} ta vazifa, birer kunlik).
+Har vazifada sust mavzularga e'tibor ber.
+day_index: 0=Dushanba, 1=Seshanba, ... {weekly_days-1}={active_days[-1]}
 
-Quyidagi JSON formatda javob ber:
+JSON:
 {{
-  "analysis": "Foydalanuvchi haqida 2-3 gaplik tahlil",
-  "tasks": [
+  "analysis": "2 gaplik tahlil",
+  "week_template": [
     {{
-      "day_offset": 0,
-      "title": "Vazifa sarlavhasi",
-      "subject": "Fan nomi",
-      "topic": "Mavzu yoki null",
+      "day_index": 0,
+      "title": "Sarlavha",
+      "subject": "Fan nomi (ro'yxatdan)",
       "task_type": "study|practice|review|test",
       "difficulty": "easy|medium|hard",
-      "minutes": 45,
-      "notes": "Nega bu vazifa muhim (1 gap)",
-      "is_weak_topic": true
+      "minutes": {int(plan.daily_hours * 60)},
+      "notes": "1 gap izoh",
+      "is_weak_topic": false
     }}
   ]
 }}"""
@@ -280,60 +288,60 @@ Quyidagi JSON formatda javob ber:
             raise ValueError("AI JSON javob bermadi")
 
         data = json.loads(match.group())
+        week_template = data.get('week_template', [])
+        if not week_template:
+            raise ValueError("AI week_template bo'sh")
 
-        # Subject/topic map
+        # Subject map
         subject_map = {s.name.lower(): s for s in subjects}
-        topic_map = {}
-        for s in subjects:
-            for t in s.topics.all():
-                topic_map[t.name.lower()] = t
 
+        # Shablonni butun muddatga takrorlash
         tasks_created = 0
-        for item in data.get('tasks', []):
-            day_offset = int(item.get('day_offset', 0))
-            # weekly_days ga qarab skip
-            scheduled = today + timedelta(days=day_offset)
-            if scheduled.weekday() >= plan.weekly_days:
-                continue
+        for week_num in range(num_weeks):
+            for item in week_template:
+                day_index = int(item.get('day_index', 0))
+                if day_index >= weekly_days:
+                    continue
+                day_offset = week_num * 7 + day_index
+                scheduled = today + timedelta(days=day_offset)
+                if scheduled > today + timedelta(days=total_days):
+                    break
 
-            subj_name = (item.get('subject') or '').lower()
-            subj_obj = subject_map.get(subj_name)
-            if not subj_obj:
-                for k, v in subject_map.items():
-                    if k in subj_name or subj_name in k:
-                        subj_obj = v
-                        break
+                subj_name = (item.get('subject') or '').lower()
+                subj_obj = subject_map.get(subj_name)
+                if not subj_obj:
+                    for k, v in subject_map.items():
+                        if k in subj_name or subj_name in k:
+                            subj_obj = v
+                            break
+                if not subj_obj and subjects:
+                    subj_obj = subjects[tasks_created % len(subjects)]
 
-            topic_name = (item.get('topic') or '').lower()
-            topic_obj = topic_map.get(topic_name) if topic_name else None
-
-            StudyPlanTask.objects.create(
-                study_plan=plan,
-                title=item.get('title', "O'quv vazifasi"),
-                task_type=item.get('task_type', 'practice'),
-                subject=subj_obj,
-                topic=topic_obj,
-                scheduled_date=scheduled,
-                estimated_minutes=int(item.get('minutes', 30)),
-                questions_count=10 if item.get('task_type') in ['test', 'practice'] else None,
-                ai_notes=item.get('notes', ''),
-                difficulty=item.get('difficulty', 'medium'),
-                weak_topic_focus=bool(item.get('is_weak_topic', False)),
-                order=tasks_created,
-            )
-            tasks_created += 1
+                StudyPlanTask.objects.create(
+                    study_plan=plan,
+                    title=item.get('title', "O'quv vazifasi"),
+                    task_type=item.get('task_type', 'practice'),
+                    subject=subj_obj,
+                    scheduled_date=scheduled,
+                    estimated_minutes=int(item.get('minutes', 45)),
+                    questions_count=10 if item.get('task_type') in ['test', 'practice'] else None,
+                    ai_notes=item.get('notes', ''),
+                    difficulty=item.get('difficulty', 'medium'),
+                    weak_topic_focus=bool(item.get('is_weak_topic', False)),
+                    order=tasks_created,
+                )
+                tasks_created += 1
 
         plan.total_tasks = tasks_created
         plan.is_ai_generated = True
         plan.ai_analysis = data.get('analysis', '')
         plan.save(update_fields=['total_tasks', 'is_ai_generated', 'ai_analysis'])
 
-        # Agar AI 0 ta vazifa yaratsa — oddiy fallback reja tuz
         if tasks_created == 0:
-            logger.warning(f"AI 0 vazifa yaratdi, fallback ishlatilmoqda: plan={plan_id}")
-            _create_basic_tasks(plan, subjects, today, days_count)
+            logger.warning(f"AI 0 vazifa yaratdi, fallback: plan={plan_id}")
+            _create_basic_tasks(plan, subjects, today, total_days)
 
-        logger.info(f"AI reja tuzildi: plan={plan_id}, {tasks_created} vazifa")
+        logger.info(f"AI reja tuzildi: plan={plan_id}, {tasks_created} vazifa, {num_weeks} hafta")
         return {'status': 'done', 'tasks_created': plan.total_tasks}
 
     except Exception as exc:
