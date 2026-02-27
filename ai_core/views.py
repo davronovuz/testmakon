@@ -78,9 +78,29 @@ def ai_mentor(request):
 
     subjects = Subject.objects.filter(is_active=True)
 
+    # AI tavsiyalar (oxirgi 5 ta, o'qilmagan)
+    recommendations = AIRecommendation.objects.filter(
+        user=request.user,
+        is_dismissed=False,
+    ).order_by('-created_at')[:6]
+
+    # Sust mavzular (yuqori prioritet)
+    weak_topics = WeakTopicAnalysis.objects.filter(
+        user=request.user
+    ).select_related('subject', 'topic').order_by('accuracy_rate')[:5]
+
+    # Analytics summary
+    try:
+        analytics = request.user.analytics_summary
+    except Exception:
+        analytics = None
+
     context = {
         'conversations': conversations,
         'subjects': subjects,
+        'recommendations': recommendations,
+        'weak_topics': weak_topics,
+        'analytics': analytics,
     }
 
     return render(request, 'ai_core/ai_mentor.html', context)

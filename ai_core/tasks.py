@@ -17,17 +17,24 @@ def ai_chat_task(self, conversation_id):
     """
     Gemini API ni background da chaqirish.
     api_chat view tomonidan chaqiriladi.
+    User profili system_prompt ga inject qilinadi — shaxsiy AI mentor.
     """
     try:
         from .models import AIConversation, AIMessage
-        from .utils import get_ai_response
+        from .utils import get_ai_response, get_user_ai_context
 
-        conversation = AIConversation.objects.get(id=conversation_id)
+        conversation = AIConversation.objects.select_related('user').get(id=conversation_id)
 
         messages = list(conversation.messages.all().order_by('created_at'))
         history = [{"role": msg.role, "content": msg.content} for msg in messages]
 
-        ai_response = get_ai_response(history)
+        # Foydalanuvchi kontekstini system_prompt ga inject qilish
+        if conversation.system_prompt:
+            system_prompt = conversation.system_prompt
+        else:
+            system_prompt = get_user_ai_context(conversation.user)
+
+        ai_response = get_ai_response(history, system_prompt=system_prompt)
 
         ai_msg = AIMessage.objects.create(
             conversation=conversation,
@@ -488,4 +495,181 @@ def create_task_smart_test(self, task_id, user_id):
 
     except Exception as exc:
         logger.error(f"create_task_smart_test xatolik: {exc}")
+        raise self.retry(exc=exc)
+
+
+@shared_task(bind=True, max_retries=2, default_retry_delay=60)
+def generate_university_recommendation(self, user_id, attempt_id):
+    """
+    Qatlam 3+4: Smart AI Advisor + DTM → Universitet tavsiyasi.
+    Test tugagandan keyin foydalanuvchi uchun:
+    1. Sust mavzular bo'yicha aniq tavsiyalar
+    2. DTM ball bashorati asosida mos universitetlar tavsiyasi
+    3. Shaxsiy motivatsion xat
+    Natijalar AIRecommendation modeliga saqlanadi.
+    """
+    try:
+        from .models import AIRecommendation, WeakTopicAnalysis
+        from .utils import get_ai_response
+        from tests_app.models import TestAttempt, UserSubjectPerformance, UserAnalyticsSummary
+        from universities.models import University, Direction, PassingScore
+        from accounts.models import User
+
+        user = User.objects.select_related('target_university', 'target_direction').get(id=user_id)
+        attempt = TestAttempt.objects.select_related('test', 'test__subject').get(id=attempt_id)
+
+        # --- User konteksti yig'ish ---
+        try:
+            summary = user.analytics_summary
+            predicted_dtm = summary.predicted_dtm_score
+            overall_accuracy = summary.overall_accuracy
+        except Exception:
+            predicted_dtm = 0
+            overall_accuracy = attempt.percentage
+
+        # Fan natijalari
+        subject_perfs = list(
+            UserSubjectPerformance.objects.filter(user=user).select_related('subject').order_by('average_score')
+        )
+        subject_data = [
+            {'fan': sp.subject.name, 'ball': round(sp.average_score, 1), 'eng_yaxshi': round(sp.best_score, 1)}
+            for sp in subject_perfs
+        ]
+
+        # Sust mavzular
+        weak_topics = list(
+            WeakTopicAnalysis.objects.filter(user=user).select_related('subject', 'topic').order_by('accuracy_rate')[:8]
+        )
+        weak_data = [
+            {'fan': wt.subject.name, 'mavzu': wt.topic.name, 'aniqlik': round(wt.accuracy_rate, 1)}
+            for wt in weak_topics
+        ]
+
+        # Maqsadli universitet
+        target_uni_name = str(user.target_university) if user.target_university else "belgilanmagan"
+        target_dir_name = str(user.target_direction) if user.target_direction else "belgilanmagan"
+
+        # Mos universitetlar (predicted_dtm asosida)
+        matched_universities = []
+        if predicted_dtm > 0:
+            try:
+                passing_scores = PassingScore.objects.filter(
+                    grant_score__lte=predicted_dtm + 30,
+                    grant_score__gte=max(0, predicted_dtm - 60),
+                ).select_related('direction__university').order_by('grant_score')[:10]
+
+                for ps in passing_scores:
+                    uni = ps.direction.university
+                    score = ps.grant_score or 0
+                    chance = "Yuqori" if predicted_dtm >= score else ("O'rta" if predicted_dtm >= score - 20 else "Past")
+                    matched_universities.append({
+                        'universitet': str(uni),
+                        'yo_nalish': str(ps.direction),
+                        'o_tish_bali': score,
+                        'imkoniyat': chance,
+                    })
+            except Exception:
+                pass
+
+        # --- Gemini dan AI tahlil so'rash ---
+        system_prompt = """Sen O'zbekistonda DTM (Davlat Test Markazi) imtihoniga tayyorlanuvchi abituriyentlarga
+professional maslahat beruvchi AI advisorsan. Javoblarni O'zbek tilida ber.
+Qisqa, aniq, ilhomlantiradigan va AMALIY tavsiyalar ber. Juda ko'p matn yozma."""
+
+        user_prompt = f"""Foydalanuvchi: {user.get_full_name() or user.username}
+So'nggi test natijalari: {attempt.percentage:.0f}% ({attempt.correct_answers}/{attempt.total_questions})
+Umumiy aniqlik: {overall_accuracy:.0f}%
+Bashorat DTM ball: {predicted_dtm}/189
+Maqsad: {target_uni_name} — {target_dir_name}
+
+Fan natijalari:
+{json.dumps(subject_data, ensure_ascii=False, indent=2)}
+
+Sust mavzular:
+{json.dumps(weak_data, ensure_ascii=False, indent=2)}
+
+Mos universitetlar (DTM ball asosida):
+{json.dumps(matched_universities[:5], ensure_ascii=False, indent=2)}
+
+Quyidagilarni ber:
+1. **Holat tahlili** (2-3 gap): Hozirgi natijalar yaxshi/yomonmi?
+2. **3 ta konkret vazifa**: Eng sust mavzular uchun bugun nima qilish kerak?
+3. **Universitet tavsiyasi**: Bashorat ball asosida eng mos 2-3 ta universitet/yo'nalish
+4. **Motivatsiya** (1-2 gap): Qisqa ilhomlantiradigan so'z
+
+Javobni markdown formatda ber. Qisqa, o'tkir, amaliy bo'lsin."""
+
+        ai_advice = get_ai_response(
+            [{"role": "user", "content": user_prompt}],
+            system_prompt=system_prompt
+        )
+
+        # --- AIRecommendation saqlash ---
+        # 1. Umumiy tavsiya
+        AIRecommendation.objects.create(
+            user=user,
+            recommendation_type='strategy',
+            priority='high',
+            title=f"AI Tahlil: {attempt.percentage:.0f}% — {attempt.test.title if attempt.test else 'Test'} natijasi",
+            content=ai_advice,
+            subject=attempt.test.subject if attempt.test else None,
+        )
+
+        # 2. Har bir sust mavzu uchun alohida tavsiya (eskisini o'chirib yangisini yozish)
+        for wt_obj in weak_topics[:3]:
+            # Eski o'qilmagan topik tavsiyasini o'chirish
+            AIRecommendation.objects.filter(
+                user=user,
+                topic=wt_obj.topic,
+                recommendation_type='topic',
+                is_dismissed=False,
+            ).delete()
+            # Yangi tavsiya yaratish
+            AIRecommendation.objects.create(
+                user=user,
+                recommendation_type='topic',
+                priority='high' if wt_obj.accuracy_rate < 40 else 'medium',
+                title=f"{wt_obj.topic.name} — {wt_obj.accuracy_rate:.0f}% aniqlik",
+                content=(
+                    f"{wt_obj.topic.name} mavzusida {wt_obj.accuracy_rate:.0f}% aniqlik. "
+                    f"Jami {wt_obj.total_questions} ta savoldan {wt_obj.correct_answers} tasi to'g'ri. "
+                    f"Bu mavzuni ustuvor o'rganing va qayta mashq qiling."
+                ),
+                subject=wt_obj.subject,
+                topic=wt_obj.topic,
+            )
+
+        # 3. Universitet tavsiyasi (agar mos universitetlar topilsa)
+        if matched_universities:
+            top_match = matched_universities[0]
+            gap = abs(predicted_dtm - top_match['o_tish_bali'])
+            gap_text = (
+                f"Agar {gap:.0f} ball qo'shsangiz, maqsadingizga erisha olasiz!"
+                if predicted_dtm < top_match['o_tish_bali']
+                else f"Siz allaqachon o'tish baliga {gap:.0f} ball ustisiz!"
+            )
+            AIRecommendation.objects.create(
+                user=user,
+                recommendation_type='university',
+                priority='medium',
+                title=f"Siz uchun mos universitet: {top_match['universitet']}",
+                content=(
+                    f"DTM ball bashoratingiz {predicted_dtm} ball.\n"
+                    f"{top_match['universitet']} — {top_match['yo_nalish']} yo'nalishi "
+                    f"(o'tish bali: {top_match['o_tish_bali']:.0f}).\n"
+                    f"Imkoniyat: {top_match['imkoniyat']}.\n"
+                    f"{gap_text}"
+                ),
+                action_url='/universities/',
+                action_text="Universitetlarni ko'rish",
+            )
+
+        logger.info(
+            f"generate_university_recommendation OK: user={user_id}, "
+            f"dtm={predicted_dtm}, matched={len(matched_universities)}"
+        )
+        return {'status': 'done', 'recommendations_created': len(weak_topics[:3]) + 2}
+
+    except Exception as exc:
+        logger.error(f"generate_university_recommendation xato: user_id={user_id}, {exc}")
         raise self.retry(exc=exc)

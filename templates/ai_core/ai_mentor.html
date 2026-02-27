@@ -199,6 +199,111 @@
         max-width: 300px;
         margin: 0 auto 1.5rem;
     }
+
+    /* Analytics Summary Card */
+    .analytics-summary {
+        background: var(--gradient-primary);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        color: white;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 767px) {
+        .analytics-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .analytics-stat {
+        text-align: center;
+    }
+
+    .analytics-stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .analytics-stat-label {
+        font-size: 0.78rem;
+        opacity: 0.85;
+        font-weight: 500;
+    }
+
+    /* Recommendations */
+    .recommendation-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .recommendation-card:hover {
+        border-color: var(--primary-light);
+        box-shadow: var(--shadow);
+    }
+
+    .recommendation-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .rec-icon-high { background: rgba(239,68,68,0.12); color: #DC2626; }
+    .rec-icon-medium { background: rgba(251,191,36,0.15); color: #D97706; }
+    .rec-icon-low { background: var(--primary-glow); color: var(--primary-dark); }
+
+    .recommendation-body { flex: 1; min-width: 0; }
+    .recommendation-title { font-weight: 700; color: var(--dark); font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .recommendation-text { font-size: 0.82rem; color: var(--gray-500); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* Weak topic pills */
+    .weak-topic-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        margin-bottom: 0.5rem;
+    }
+
+    .weak-accuracy {
+        font-weight: 700;
+        font-size: 0.95rem;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .weak-bar {
+        flex: 1;
+        height: 6px;
+        background: var(--gray-200);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .weak-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: var(--gradient-primary);
+    }
 </style>
 {% endblock %}
 
@@ -207,6 +312,28 @@
     <div class="tl-layout">
         {% include 'includes/_sidebar.html' with active='mentor' %}
         <main>
+            <!-- Analytics Summary (agar ma'lumot bo'lsa) -->
+            {% if analytics and analytics.total_tests_completed > 0 %}
+            <div class="analytics-summary">
+                <div class="analytics-stat">
+                    <div class="analytics-stat-value">{{ analytics.predicted_dtm_score }}</div>
+                    <div class="analytics-stat-label">DTM Ball Bashorati</div>
+                </div>
+                <div class="analytics-stat">
+                    <div class="analytics-stat-value">{{ analytics.overall_accuracy|floatformat:0 }}%</div>
+                    <div class="analytics-stat-label">Umumiy Aniqlik</div>
+                </div>
+                <div class="analytics-stat">
+                    <div class="analytics-stat-value">{{ analytics.total_tests_completed }}</div>
+                    <div class="analytics-stat-label">Ishlangan Testlar</div>
+                </div>
+                <div class="analytics-stat">
+                    <div class="analytics-stat-value">{{ analytics.weak_topics_count }}</div>
+                    <div class="analytics-stat-label">Sust Mavzular</div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Feature Cards -->
             <div class="feature-grid">
                 <a href="{% url 'ai_core:ai_tutor' %}" class="feature-card">
@@ -241,6 +368,57 @@
                     <p class="feature-desc">Xatolaringiz ustida ishlab, natijangizni oshiring.</p>
                 </a>
             </div>
+
+            <!-- AI Tavsiyalar -->
+            {% if recommendations %}
+            <div class="section-header">
+                <h5 class="section-title"><i class="bi bi-stars" style="color:var(--primary);"></i> AI Tavsiyalar</h5>
+                <span style="font-size:0.8rem;color:var(--gray-500);">{{ recommendations|length }} ta</span>
+            </div>
+            {% for rec in recommendations %}
+            <div class="recommendation-card">
+                <div class="recommendation-icon {% if rec.priority == 'high' or rec.priority == 'critical' %}rec-icon-high{% elif rec.priority == 'medium' %}rec-icon-medium{% else %}rec-icon-low{% endif %}">
+                    {% if rec.recommendation_type == 'university' %}<i class="bi bi-bank2"></i>
+                    {% elif rec.recommendation_type == 'topic' %}<i class="bi bi-exclamation-triangle"></i>
+                    {% elif rec.recommendation_type == 'strategy' %}<i class="bi bi-graph-up"></i>
+                    {% else %}<i class="bi bi-lightbulb"></i>{% endif %}
+                </div>
+                <div class="recommendation-body">
+                    <div class="recommendation-title">{{ rec.title }}</div>
+                    <p class="recommendation-text">{{ rec.content|truncatechars:100 }}</p>
+                </div>
+                {% if rec.action_url %}
+                <a href="{{ rec.action_url }}" style="font-size:0.8rem;color:var(--primary);font-weight:600;white-space:nowrap;">
+                    {{ rec.action_text|default:"Ko'rish" }} <i class="bi bi-arrow-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div style="margin-bottom:1.5rem;"></div>
+            {% endif %}
+
+            <!-- Sust Mavzular -->
+            {% if weak_topics %}
+            <div class="section-header">
+                <h5 class="section-title"><i class="bi bi-exclamation-circle" style="color:#DC2626;"></i> Sust Mavzular</h5>
+                <a href="{% url 'ai_core:weak_topics' %}" class="section-link">Barchasini ko'rish <i class="bi bi-arrow-right"></i></a>
+            </div>
+            {% for wt in weak_topics %}
+            <div class="weak-topic-item">
+                <div>
+                    <div style="font-weight:600;font-size:0.88rem;color:var(--dark);">{{ wt.topic.name }}</div>
+                    <div style="font-size:0.78rem;color:var(--gray-500);">{{ wt.subject.name }}</div>
+                </div>
+                <div class="weak-bar">
+                    <div class="weak-bar-fill" style="width:{{ wt.accuracy_rate|floatformat:0 }}%;background:{% if wt.accuracy_rate < 40 %}#ef4444{% elif wt.accuracy_rate < 60 %}#f59e0b{% else %}var(--primary){% endif %};"></div>
+                </div>
+                <div class="weak-accuracy" style="color:{% if wt.accuracy_rate < 40 %}#DC2626{% elif wt.accuracy_rate < 60 %}#D97706{% else %}var(--primary-dark){% endif %};">
+                    {{ wt.accuracy_rate|floatformat:0 }}%
+                </div>
+            </div>
+            {% endfor %}
+            <div style="margin-bottom:1.5rem;"></div>
+            {% endif %}
 
             <!-- Recent Activity -->
             {% if conversations %}
