@@ -405,7 +405,7 @@
     <div class="ai-gen-card">
         <span class="ai-gen-robot">🤖</span>
         <h2 class="ai-gen-title">AI reja tuzmoqda...</h2>
-        <p class="ai-gen-desc">Sizning test natijalari va sust mavzularingiz tahlil qilinmoqda. Bu bir necha soniya oladi.</p>
+        <p class="ai-gen-desc">Test natijalari va sust mavzular tahlil qilinmoqda. Taxminan <strong>30–60 soniya</strong> kuting.</p>
         <div class="ai-gen-steps">
             <div class="ai-gen-step active" id="genStep1">
                 <div class="ai-gen-step-dot"></div>
@@ -498,6 +498,21 @@
 
                 <!-- Right: Calendar -->
                 <div class="sp-calendar">
+                    {% if plan.total_tasks == 0 and not generating_task_id %}
+                    <div style="padding:2.5rem 1.5rem;text-align:center;">
+                        <div style="font-size:2.5rem;margin-bottom:1rem;">📭</div>
+                        <h3 style="font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:0.4rem;">Reja hali bo'sh</h3>
+                        <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:1.25rem;max-width:320px;margin-left:auto;margin-right:auto;">
+                            AI vazifalar yaratib bo'lmadi yoki hali yaratilmagan. Qayta urinib ko'ring.
+                        </p>
+                        <form method="post" action="{% url 'ai_core:regenerate_ai_plan' uuid=plan.uuid %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="padding:0.65rem 1.5rem;background:var(--gradient-primary);color:#fff;border:none;border-radius:var(--radius-lg);font-weight:700;font-size:0.9rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;">
+                                <i class="bi bi-stars"></i> AI bilan qayta tuzish
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
                     <div class="sp-cal-header">
                         <h2 class="sp-cal-title">Haftalik jadval</h2>
                         <div class="sp-cal-nav">
@@ -560,6 +575,7 @@
                         </div>
                         {% endfor %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </main>

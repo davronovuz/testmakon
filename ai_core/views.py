@@ -475,6 +475,23 @@ def study_plan_edit(request, uuid):
 
 
 @login_required
+@require_POST
+def regenerate_ai_plan(request, uuid):
+    """Rejani AI bilan qayta tuzish (eski vazifalarni o'chirib, yangisini yaratish)."""
+    plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
+    plan.tasks.all().delete()
+    plan.total_tasks = 0
+    plan.completed_tasks = 0
+    plan.is_ai_generated = False
+    plan.ai_analysis = ''
+    plan.save(update_fields=['total_tasks', 'completed_tasks', 'is_ai_generated', 'ai_analysis'])
+    from .tasks import generate_ai_study_plan_task
+    task = generate_ai_study_plan_task.delay(plan.id)
+    detail_url = reverse('ai_core:study_plan_detail', kwargs={'uuid': plan.uuid})
+    return redirect(f'{detail_url}?generating={task.id}')
+
+
+@login_required
 def study_plan_delete(request, uuid):
     """Rejani o'chirish."""
     plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)

@@ -233,9 +233,9 @@ def generate_ai_study_plan_task(self, plan_id):
             ).select_related('subject', 'topic').order_by('accuracy_rate')[:12]
         ]
 
-        # 3. Kunlar soni
+        # 3. Kunlar soni (max 28 kun — katta prompt AI ni sekinlashtiradi)
         if plan.target_exam_date and plan.target_exam_date > today:
-            days_count = (plan.target_exam_date - today).days
+            days_count = min(28, (plan.target_exam_date - today).days)
         else:
             days_count = 28
 
@@ -328,12 +328,64 @@ Quyidagi JSON formatda javob ber:
         plan.ai_analysis = data.get('analysis', '')
         plan.save(update_fields=['total_tasks', 'is_ai_generated', 'ai_analysis'])
 
+        # Agar AI 0 ta vazifa yaratsa — oddiy fallback reja tuz
+        if tasks_created == 0:
+            logger.warning(f"AI 0 vazifa yaratdi, fallback ishlatilmoqda: plan={plan_id}")
+            _create_basic_tasks(plan, subjects, today, days_count)
+
         logger.info(f"AI reja tuzildi: plan={plan_id}, {tasks_created} vazifa")
-        return {'status': 'done', 'tasks_created': tasks_created}
+        return {'status': 'done', 'tasks_created': plan.total_tasks}
 
     except Exception as exc:
         logger.error(f"generate_ai_study_plan_task xatolik: {exc}")
+        # Retry o'rniga fallback — plan bo'sh qolmasin
+        try:
+            from .models import StudyPlan
+            plan = StudyPlan.objects.get(id=plan_id)
+            if plan.total_tasks == 0:
+                subjects = list(plan.subjects.all())
+                today = timezone.localdate()
+                if plan.target_exam_date and plan.target_exam_date > today:
+                    days_count = min(28, (plan.target_exam_date - today).days)
+                else:
+                    days_count = 28
+                _create_basic_tasks(plan, subjects, today, days_count)
+                logger.info(f"Fallback reja tuzildi: plan={plan_id}")
+        except Exception as fb_exc:
+            logger.error(f"Fallback xatolik: {fb_exc}")
         raise self.retry(exc=exc)
+
+
+def _create_basic_tasks(plan, subjects, today, days_count):
+    """AI ishlamasa oddiy haftalik vazifalar yaratadi."""
+    from .models import StudyPlanTask
+    if not subjects:
+        return
+    task_types = ['study', 'practice', 'review', 'test', 'practice', 'study']
+    subj_idx = 0
+    order = 0
+    weekly_days = max(1, min(7, plan.weekly_days))
+    for day_offset in range(days_count):
+        current_date = today + timedelta(days=day_offset)
+        if current_date.weekday() >= weekly_days:
+            continue
+        subject = subjects[subj_idx % len(subjects)]
+        task_type = task_types[subj_idx % len(task_types)]
+        subj_idx += 1
+        StudyPlanTask.objects.create(
+            study_plan=plan,
+            title=f"{subject.name} — {task_type}",
+            task_type=task_type,
+            subject=subject,
+            scheduled_date=current_date,
+            estimated_minutes=int(plan.daily_hours * 60 // 2),
+            questions_count=10 if task_type in ('test', 'practice') else None,
+            difficulty='medium',
+            order=order,
+        )
+        order += 1
+    plan.total_tasks = plan.tasks.count()
+    plan.save(update_fields=['total_tasks'])
 
 
 @shared_task

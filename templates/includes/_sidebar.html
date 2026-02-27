@@ -41,17 +41,9 @@
             <i class="bi bi-chevron-down tl-chevron"></i>
         </button>
         <div class="tl-group-body">
-            <a href="{% url 'ai_core:ai_mentor' %}" class="tl-nav-item {% if active == 'mentor' %}active{% endif %}">
+            <a href="{% url 'ai_core:ai_mentor' %}" class="tl-nav-item {% if active == 'mentor' or active == 'conversations' or active == 'tutor' %}active{% endif %}">
                 <i class="bi bi-robot"></i>
                 <span>AI Mentor</span>
-            </a>
-            <a href="{% url 'ai_core:conversations_list' %}" class="tl-nav-item {% if active == 'conversations' %}active{% endif %}">
-                <i class="bi bi-chat-dots-fill"></i>
-                <span>Suhbatlar</span>
-            </a>
-            <a href="{% url 'ai_core:ai_tutor' %}" class="tl-nav-item {% if active == 'tutor' %}active{% endif %}">
-                <i class="bi bi-book-half"></i>
-                <span>AI Repetitor</span>
             </a>
             <a href="{% url 'ai_core:ai_advisor' %}" class="tl-nav-item {% if active == 'advisor' %}active{% endif %}">
                 <i class="bi bi-bank2"></i>

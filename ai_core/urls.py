@@ -35,6 +35,7 @@ urlpatterns = [
     path('study-plan/<uuid:uuid>/edit/', views.study_plan_edit, name='study_plan_edit'),
     path('study-plan/<uuid:uuid>/delete/', views.study_plan_delete, name='study_plan_delete'),
     path('study-plan/<uuid:uuid>/update/', views.study_plan_update, name='study_plan_update'),
+    path('study-plan/<uuid:uuid>/regenerate/', views.regenerate_ai_plan, name='regenerate_ai_plan'),
     path('study-plan/task/<int:task_id>/complete/', views.task_complete, name='task_complete'),
     path('study-plan/task/<int:task_id>/start-test/', views.start_task_test, name='start_task_test'),
 
