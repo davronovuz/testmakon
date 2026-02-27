@@ -23,7 +23,7 @@ class University(models.Model):
     # Basic info
     name = models.CharField('Nomi', max_length=300)
     short_name = models.CharField('Qisqa nomi', max_length=200, blank=True)
-    slug = models.SlugField('Slug', unique=True)
+    slug = models.SlugField('Slug', unique=True, max_length=200)
 
     university_type = models.CharField(
         'Turi',
