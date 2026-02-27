@@ -17,6 +17,7 @@ from django.http import JsonResponse
 from django.db.models import Q, Avg, Count, Min, Max, Sum
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET, require_POST
+from django.core.cache import cache
 
 from .models import University, Faculty, Direction, PassingScore, UniversityReview
 
@@ -27,57 +28,108 @@ from .models import University, Faculty, Direction, PassingScore, UniversityRevi
 
 def universities_list(request):
     """
-    Universitetlar ro'yxati - Akam.uz uslubida
+    Universitetlar ro'yxati — AJAX filter bilan.
     Template: universities/universities_list.html
     """
-    universities = University.objects.filter(is_active=True).order_by(
-        '-is_featured', '-is_partner', 'name'
+    # Regions for filter dropdown (DB'dan)
+    regions = list(
+        University.objects.filter(is_active=True)
+        .values_list('region', flat=True)
+        .distinct()
+        .order_by('region')
     )
+    regions = [r for r in regions if r]
 
-    # Filters
-    university_type = request.GET.get('type')
-    region = request.GET.get('region')
-    search = request.GET.get('q')
-
-    if university_type and university_type != 'all':
-        universities = universities.filter(university_type=university_type)
-
-    if region and region != 'all':
-        universities = universities.filter(region__icontains=region)
-
-    if search:
-        universities = universities.filter(
-            Q(name__icontains=search) |
-            Q(short_name__icontains=search)
-        )
-
-    # Statistics
-    total_count = universities.count()
-    state_count = universities.filter(university_type='state').count()
-    private_count = universities.filter(university_type='private').count()
-
-    # Pagination
-    paginator = Paginator(universities, 12)
-    page = request.GET.get('page', 1)
-    universities = paginator.get_page(page)
-
-    # Regions for filter
-    regions = University.objects.filter(is_active=True).values_list(
-        'region', flat=True
-    ).distinct().order_by('region')
+    # Stats (cache'dan yoki DB'dan)
+    stats = cache.get('unis_page_stats')
+    if not stats:
+        base = University.objects.filter(is_active=True)
+        stats = {
+            'total': base.count(),
+            'state': base.filter(university_type='state').count(),
+            'private': base.filter(university_type='private').count(),
+        }
+        cache.set('unis_page_stats', stats, 600)
 
     context = {
-        'universities': universities,
-        'regions': [r for r in regions if r],
-        'total_count': total_count,
-        'state_count': state_count,
-        'private_count': private_count,
-        'current_type': university_type,
-        'current_region': region,
-        'search': search,
+        'regions': regions,
+        'total_count': stats['total'],
+        'state_count': stats['state'],
+        'private_count': stats['private'],
+    }
+    return render(request, 'universities/universities_list.html', context)
+
+
+@require_GET
+def api_filter(request):
+    """
+    AJAX filter endpoint — universitetlar ro'yxati.
+    GET /universities/api/filter/?type=state&region=Toshkent&q=...&page=1
+    Redis'da 5 daqiqa cache'lanadi.
+    """
+    uni_type = request.GET.get('type', '').strip()
+    region   = request.GET.get('region', '').strip()
+    search   = request.GET.get('q', '').strip()
+    try:
+        page = max(1, int(request.GET.get('page', 1)))
+    except (ValueError, TypeError):
+        page = 1
+
+    # Cache key
+    cache_key = f"unis_list_{uni_type}_{region}_{search}_{page}"
+    cached = cache.get(cache_key)
+    if cached:
+        return JsonResponse(cached)
+
+    qs = University.objects.filter(is_active=True).annotate(
+        dir_count=Count('directions', distinct=True)
+    )
+
+    if uni_type and uni_type != 'all':
+        qs = qs.filter(university_type=uni_type)
+    if region and region != 'all':
+        qs = qs.filter(region=region)
+    if search:
+        qs = qs.filter(Q(name__icontains=search) | Q(short_name__icontains=search))
+
+    qs = qs.order_by('-is_featured', '-is_partner', 'name')
+
+    total = qs.count()
+    per_page = 12
+    paginator = Paginator(qs, per_page)
+    page_obj  = paginator.get_page(page)
+
+    unis = []
+    for u in page_obj:
+        unis.append({
+            'id':               u.id,
+            'name':             u.name,
+            'short_name':       u.short_name or '',
+            'slug':             u.slug,
+            'region':           u.region or '',
+            'university_type':  u.university_type,
+            'type_display':     u.get_university_type_display(),
+            'directions_count': u.dir_count,
+            'rating':           u.rating or 0,
+            'is_featured':      u.is_featured,
+            'is_partner':       u.is_partner,
+            'logo_url':         u.logo.url if u.logo else None,
+            'cover_url':        u.cover_image.url if u.cover_image else None,
+        })
+
+    data = {
+        'universities':  unis,
+        'total':         total,
+        'page':          page,
+        'num_pages':     paginator.num_pages,
+        'has_next':      page_obj.has_next(),
+        'has_prev':      page_obj.has_previous(),
+        'next_page':     page + 1 if page_obj.has_next() else None,
+        'prev_page':     page - 1 if page_obj.has_previous() else None,
     }
 
-    return render(request, 'universities/universities_list.html', context)
+    cache.set(cache_key, data, 300)  # 5 daqiqa
+    return JsonResponse(data)
 
 
 # ============================================================

@@ -140,6 +140,13 @@ CELERY_TIMEZONE          = 'Asia/Tashkent'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT    = 30 * 60  # 30 daqiqa max
 
+CELERY_BEAT_SCHEDULE = {
+    'cache-university-stats': {
+        'task': 'universities.cache_university_stats',
+        'schedule': 3600.0,  # har soatda
+    },
+}
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

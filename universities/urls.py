@@ -32,6 +32,9 @@ urlpatterns = [
     # API ENDPOINTS (slug dan oldin bo'lishi kerak!)
     # ============================================================
 
+    # Filter API (AJAX)
+    path('api/filter/', views.api_filter, name='api_filter'),
+
     # Search API
     path('api/search/', views.api_search, name='api_search'),
 
