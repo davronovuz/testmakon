@@ -332,6 +332,31 @@
   }
   .mm-btn-retry.show { display: inline-flex; }
 
+  /* ── Found countdown ── */
+  .mm-found-cd {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+  .mm-found-cd.show { display: flex; }
+  .mm-found-cd-num {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #8BC540;
+    line-height: 1;
+    animation: mm-numtick 0.35s ease;
+  }
+  .mm-found-cd-label {
+    font-size: 0.78rem;
+    color: #94A3B8;
+    margin-top: 0.2rem;
+  }
+  @keyframes mm-numtick {
+    0% { transform: scale(1.4); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
   /* ── Tips ── */
   .mm-tip {
     margin-top: 1.75rem;
@@ -417,13 +442,19 @@
         <i class="bi bi-exclamation-circle-fill"></i> Raqib topilmadi
       </div>
 
+      <!-- Found countdown (hidden until match) -->
+      <div class="mm-found-cd" id="foundCd">
+        <div class="mm-found-cd-num" id="foundCdNum">5</div>
+        <div class="mm-found-cd-label">soniyada boshlanadi</div>
+      </div>
+
       <!-- Buttons -->
       <div class="mm-btns">
         <button class="mm-btn-cancel" id="cancelBtn" onclick="doCancel()">
           <i class="bi bi-x-lg"></i> Bekor qilish
         </button>
         <a href="#" class="mm-btn-play" id="playBtn">
-          <i class="bi bi-lightning-charge-fill"></i> Jangga kirish!
+          <i class="bi bi-lightning-charge-fill"></i> Hozir boshlash
         </a>
         <a href="{% url 'competitions:battle_create' %}?type=random" class="mm-btn-retry" id="retryBtn">
           <i class="bi bi-arrow-clockwise"></i> Qayta urinish
@@ -463,6 +494,8 @@
   var timerWrap  = document.getElementById('timerWrap');
   var tipEl      = document.getElementById('tipEl');
   var radarIcon  = document.getElementById('radarIcon');
+  var foundCd    = document.getElementById('foundCd');
+  var foundCdNum = document.getElementById('foundCdNum');
 
   var tips = [
     '💡 Eng tez javob bergan o\'yinchi teng ball bo\'lsa g\'olib bo\'ladi.',
@@ -549,8 +582,8 @@
     opSub.textContent  = 'Raqib topildi!';
 
     // Title
-    mmTitle.textContent = '🎉 Raqib topildi!';
-    mmSub.textContent   = name + ' bilan jang boshlanmoqda';
+    mmTitle.textContent = '\uD83C\uDF89 Raqib topildi!';
+    mmSub.textContent   = name + ' bilan jang ' + 5 + ' soniyada boshlanadi';
 
     // Status
     stSearch.style.display = 'none';
@@ -559,18 +592,34 @@
     // Timer off
     timerWrap.style.display = 'none';
     cancelBtn.style.display  = 'none';
+    tipEl.style.display = 'none';
 
     // Emoji
-    radarIcon.textContent = '🏆';
+    radarIcon.textContent = '\uD83C\uDFC6';
 
     // Play button
     playBtn.href = '/competitions/battle/' + uuid + '/play/';
     playBtn.classList.add('show');
 
-    // Auto-redirect after 3s
-    setTimeout(function () {
-      window.location.href = playBtn.href;
-    }, 3000);
+    // Countdown 5 → 0
+    var secs = 5;
+    foundCd.classList.add('show');
+    foundCdNum.textContent = secs;
+
+    var cd = setInterval(function () {
+      secs--;
+      foundCdNum.style.animation = 'none';
+      // retrigger animation
+      void foundCdNum.offsetWidth;
+      foundCdNum.style.animation = '';
+      if (secs > 0) {
+        foundCdNum.textContent = secs;
+        mmSub.textContent = name + ' bilan jang ' + secs + ' soniyada boshlanadi';
+      } else {
+        clearInterval(cd);
+        window.location.href = playBtn.href;
+      }
+    }, 1000);
   }
 
   /* ── showTimeout ── */

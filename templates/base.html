@@ -2481,46 +2481,44 @@
         };
       }
 
+      // ════════════════════════════════════════
+      //  WS MESSAGE DISPATCHER
+      // ════════════════════════════════════════
       function handleWsMessage(data) {
         if (data.type === 'pong') return;
         if (data.type === 'friend_request_received') {
-          showPopup({icon:'bi-person-plus-fill',color:'#8BC540',title:"Yangi do\'stlik so\'rovi",
-            body:'<strong>'+data.from_user.name+'</strong> sizga do\'stlik so\'rovi yubordi',
-            actions:[{label:"Ko\'rish",href:'/accounts/friends/requests/',cls:'btn-ws-primary'}]});
+          showFriendModal(data);
         } else if (data.type === 'friend_request_accepted') {
-          showPopup({icon:'bi-people-fill',color:'#8BC540',title:"Do\'stlik qabul qilindi!",
-            body:'<strong>'+data.from_user.name+'</strong> sizning so\'rovingizni qabul qildi',actions:[]});
+          showToast({icon:'bi-people-fill', color:'#8BC540',
+            title:'Do\'stlik qabul qilindi!',
+            body:'<strong>'+escHtml((data.from_user||{}).name||'')+'</strong> sizning so\'rovingizni qabul qildi'});
         } else if (data.type === 'battle_invite') {
-          showBattlePopup(data);
+          showBattleModal(data);
         } else if (data.type === 'match_found') {
-          showPopup({icon:'bi-lightning-charge-fill',color:'#FBBF24',title:"Raqib topildi!",
-            body:'<strong>'+data.opponent.name+'</strong> bilan jang boshlandi!',
-            actions:[{label:"Jangga o\'tish",href:'/competitions/battle/'+data.battle_uuid+'/play/',cls:'btn-ws-primary'}],
-            autoClose:false});
+          // Matchmaking sahifasiga event yuborish
+          document.dispatchEvent(new CustomEvent('ws:match_found_raw', {detail: data}));
+          // Boshqa sahifada bo'lsa — modal ko'rsatish
+          if (!document.getElementById('mmCard')) showMatchFoundModal(data);
         } else if (data.type === 'online_status') {
-          document.dispatchEvent(new CustomEvent('ws:online_status',{detail:data}));
+          document.dispatchEvent(new CustomEvent('ws:online_status', {detail: data}));
         } else if (data.type === 'notification') {
           handleIncomingNotification(data.notification);
         }
       }
 
-      // ── Real-time notification handler ──────────────────────────
+      // ════════════════════════════════════════
+      //  NOTIFICATION BELL HELPERS
+      // ════════════════════════════════════════
       function handleIncomingNotification(n) {
         if (!n) return;
-
-        // 1. Bell badge ni oshirish
         updateBellBadge(1);
-
-        // 2. Dropdown listiga qo'shish (yuqoridan)
         prependNotifItem(n);
-
-        // 3. Popup ko'rsatish
-        showPopup({
+        showToast({
           icon: 'bi-' + (n.icon || 'bell-fill'),
           color: getNotifColor(n.notification_type),
           title: n.title,
           body: n.message || '',
-          actions: n.link ? [{label: "Ko\'rish", href: n.link, cls: 'btn-ws-primary'}] : [],
+          link: n.link || ''
         });
       }
 
@@ -2528,23 +2526,21 @@
         var badge = document.querySelector('#notifBell .notif-badge');
         if (badge) {
           var cur = parseInt(badge.textContent) || 0;
-          badge.textContent = cur + delta;
-          badge.style.display = 'inline-flex';
-        } else {
-          // Badge yo'q edi — yangisini yaratish
+          var next = Math.max(0, cur + delta);
+          badge.textContent = next;
+          badge.style.display = next > 0 ? 'inline-flex' : 'none';
+        } else if (delta > 0) {
           var btn = document.querySelector('#notifBell .notif-bell-btn');
           if (btn) {
             var nb = document.createElement('span');
-            nb.className = 'notif-badge';
-            nb.textContent = '1';
+            nb.className = 'notif-badge'; nb.textContent = '1';
             btn.appendChild(nb);
           }
         }
-        // Mobil hamburger badge
         var hbadge = document.querySelector('.hamburger-badge');
         if (hbadge) {
           var hcur = parseInt(hbadge.textContent) || 0;
-          hbadge.textContent = hcur + delta;
+          hbadge.textContent = Math.max(0, hcur + delta);
           hbadge.style.display = 'inline-flex';
         }
       }
@@ -2552,60 +2548,39 @@
       function prependNotifItem(n) {
         var list = document.querySelector('#notifDropdown .notif-list');
         if (!list) return;
-
-        // "Bo'sh" xabarni olib tashlash
         var empty = list.querySelector('.notif-empty');
         if (empty) empty.remove();
-
-        var color = getNotifColor(n.notification_type);
         var href = n.link
-          ? 'href="' + n.link + '" onclick="markRead(' + n.id + ',event)"'
-          : 'href="/news/notifications/mark-read/' + n.id + '/"';
-
-        var html = '<a ' + href + ' class="notif-item unread" id="notif-item-' + n.id + '">' +
-          '<div class="notif-item-icon type-' + n.notification_type + '">' +
-            '<i class="bi bi-' + (n.icon||'bell-fill') + '"></i>' +
-          '</div>' +
+          ? 'href="'+n.link+'" onclick="markRead('+n.id+',event)"'
+          : 'href="/news/notifications/mark-read/'+n.id+'/"';
+        list.insertAdjacentHTML('afterbegin',
+          '<a '+href+' class="notif-item unread" id="notif-item-'+n.id+'">' +
+          '<div class="notif-item-icon type-'+n.notification_type+'">' +
+          '<i class="bi bi-'+(n.icon||'bell-fill')+'"></i></div>' +
           '<div class="notif-item-body">' +
-            '<div class="notif-item-title">' + escHtml(n.title) + '</div>' +
-            '<div class="notif-item-time">Hozir</div>' +
-          '</div>' +
-        '</a>';
-
-        list.insertAdjacentHTML('afterbegin', html);
-
-        // 8 dan ortiq bo'lsa oxirgisini o'chirish
+          '<div class="notif-item-title">'+escHtml(n.title)+'</div>' +
+          '<div class="notif-item-time">Hozir</div></div></a>');
         var items = list.querySelectorAll('.notif-item');
         if (items.length > 8) items[items.length - 1].remove();
       }
 
       function getNotifColor(type) {
-        var map = {
-          system:'#2563EB', news:'#8BC540', competition:'#D97706',
-          battle:'#FBBF24', achievement:'#7C3AED', friend:'#8BC540', reminder:'#64748B'
-        };
-        return map[type] || '#64748B';
+        return {system:'#2563EB',news:'#8BC540',competition:'#D97706',
+          battle:'#FBBF24',achievement:'#7C3AED',friend:'#8BC540',reminder:'#64748B'}[type]||'#64748B';
       }
-
       function escHtml(s) {
         return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       }
-
       window.markRead = function(id, e) {
         e && e.preventDefault();
-        var item = document.getElementById('notif-item-' + id);
-        fetch('/news/api/notifications/read/' + id + '/', {
-          headers: {'X-CSRFToken': getCsrf()}
-        }).then(function(r){return r.json();}).then(function(d){
-          if (item) item.classList.remove('unread');
-          updateBellBadge(-1);
-          if (d.link) window.location.href = d.link;
-        }).catch(function(){
-          if (item) item.classList.remove('unread');
-          updateBellBadge(-1);
-        });
+        var item = document.getElementById('notif-item-'+id);
+        fetch('/news/api/notifications/read/'+id+'/', {headers:{'X-CSRFToken':getCsrf()}})
+          .then(function(r){return r.json();}).then(function(d){
+            if(item) item.classList.remove('unread');
+            updateBellBadge(-1);
+            if(d.link) window.location.href = d.link;
+          }).catch(function(){if(item)item.classList.remove('unread');updateBellBadge(-1);});
       };
-
       function getCsrf() {
         var el = document.querySelector('[name=csrfmiddlewaretoken]');
         if (el) return el.value;
@@ -2613,33 +2588,258 @@
         return m ? m[1] : '';
       }
 
-      function showPopup(opts) {
-        var el = document.getElementById('ws-notif-popup');
-        if (el) el.remove();
-        var actions = (opts.actions||[]).map(function(a){
-          return '<a href="'+a.href+'" class="'+(a.cls||'')+'">'+a.label+'</a>';
-        }).join('');
-        el = document.createElement('div');
-        el.id = 'ws-notif-popup';
-        el.innerHTML = '<div class="ws-pi"><div class="ws-icon" style="background:'+opts.color+'20;color:'+opts.color+'"><i class="bi '+opts.icon+'"></i></div><div class="ws-body"><div class="ws-title">'+opts.title+'</div><div class="ws-text">'+opts.body+'</div>'+(actions?'<div class="ws-actions">'+actions+'</div>':'')+'</div><button class="ws-close" onclick="this.closest('#ws-notif-popup').remove()"><i class="bi bi-x-lg"></i></button></div>';
+      // ════════════════════════════════════════
+      //  TOAST  (oddiy bildirishnomalar uchun)
+      // ════════════════════════════════════════
+      function showToast(opts) {
+        var old = document.getElementById('ws-toast');
+        if (old) old.remove();
+        var el = document.createElement('div');
+        el.id = 'ws-toast';
+        var lnk = opts.link ? '<div class="wt-actions"><a href="'+opts.link+'" class="wt-link">Ko\'rish <i class="bi bi-arrow-right-short"></i></a></div>' : '';
+        el.innerHTML = '<div class="wt-inner"><div class="wt-icon" style="background:'+opts.color+'18;color:'+opts.color+'"><i class="bi '+opts.icon+'"></i></div><div class="wt-body"><div class="wt-title">'+opts.title+'</div><div class="wt-text">'+opts.body+'</div>'+lnk+'</div><button class="wt-close" onclick="var t=document.getElementById(\'ws-toast\');if(t)t.remove()"><i class="bi bi-x-lg"></i></button></div>';
         document.body.appendChild(el);
-        requestAnimationFrame(function(){el.classList.add('ws-show');});
-        if (opts.autoClose !== false) setTimeout(function(){el.classList.remove('ws-show');setTimeout(function(){el.remove();},400);},6000);
+        requestAnimationFrame(function(){el.classList.add('wt-show');});
+        setTimeout(function(){el.classList.remove('wt-show');setTimeout(function(){if(el.parentNode)el.remove();},400);},5000);
       }
 
-      function showBattlePopup(data) {
-        var el = document.getElementById('ws-battle-popup');
-        if (el) el.remove();
-        el = document.createElement('div');
-        el.id = 'ws-battle-popup';
-        el.innerHTML = '<div class="ws-pi ws-battle-pi"><div class="ws-icon" style="background:#FBBF2420;color:#FBBF24"><i class="bi bi-lightning-charge-fill"></i></div><div class="ws-body"><div class="ws-title">\u2694\uFE0F Jang taklifi!</div><div class="ws-text"><strong>'+data.from_user.name+'</strong> siz bilan \"'+data.subject+'\" bo\'yicha jangga chaqirmoqda</div><div class="ws-actions"><a href="/competitions/battle/'+data.battle_uuid+'/accept/" class="btn-ws-primary"><i class="bi bi-lightning-charge-fill"></i> Qabul</a><button onclick="document.getElementById(\'ws-battle-popup\').remove()" class="btn-ws-secondary">Rad</button></div></div><button class="ws-close" onclick="this.closest(\'#ws-battle-popup\').remove()"><i class="bi bi-x-lg"></i></button></div>';
+      // ════════════════════════════════════════
+      //  DO'STLIK SO'ROVI MODALI  (bottom-sheet)
+      // ════════════════════════════════════════
+      var _fData = null, _fTimer = null;
+
+      function showFriendModal(data) {
+        _fData = data;
+        var name = (data.from_user && data.from_user.name) || 'Foydalanuvchi';
+        var init = name.trim().split(' ').slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');
+        var old = document.getElementById('wmFriendOverlay');
+        if (old) { clearTimeout(_fTimer); old.remove(); }
+
+        var el = document.createElement('div');
+        el.id = 'wmFriendOverlay';
+        el.className = 'wm-overlay';
+        el.innerHTML =
+          '<div class="wm-friend-sheet">'+
+            '<div class="wm-handle"></div>'+
+            '<div class="wm-friend-av">'+init+'</div>'+
+            '<div class="wm-friend-name">'+escHtml(name)+'</div>'+
+            '<div class="wm-friend-desc">sizga do\'stlik so\'rovi yubordi</div>'+
+            '<div class="wm-friend-tbar"><div class="wm-friend-tfill" id="wmFTFill"></div></div>'+
+            '<div class="wm-modal-btns">'+
+              '<button onclick="wsFriendAccept()" class="wm-btn-yes"><i class="bi bi-person-check-fill"></i> Qabul qilish</button>'+
+              '<button onclick="wsFriendDecline()" class="wm-btn-no"><i class="bi bi-x-lg"></i> Rad etish</button>'+
+            '</div>'+
+          '</div>';
+        el.addEventListener('click', function(e){if(e.target===el)wsFriendDecline();});
         document.body.appendChild(el);
-        requestAnimationFrame(function(){el.classList.add('ws-show');});
-        setTimeout(function(){el.classList.remove('ws-show');setTimeout(function(){el.remove();},400);},(data.expires_in||60)*1000);
+        requestAnimationFrame(function(){el.classList.add('wm-show');});
+        var fill = document.getElementById('wmFTFill');
+        if (fill) { fill.style.width='100%'; setTimeout(function(){fill.style.transition='width 15s linear';fill.style.width='0%';},60); }
+        _fTimer = setTimeout(function(){closeFriendModal();}, 15000);
+      }
+      window.wsFriendAccept = function() {
+        clearTimeout(_fTimer); closeFriendModal();
+        window.location.href = _fData && _fData.friendship_id
+          ? '/accounts/friends/accept/'+_fData.friendship_id+'/'
+          : '/accounts/friends/requests/';
+      };
+      window.wsFriendDecline = function() {
+        clearTimeout(_fTimer); closeFriendModal();
+        if (_fData && _fData.friendship_id)
+          fetch('/accounts/friends/decline/'+_fData.friendship_id+'/',{method:'POST',headers:{'X-CSRFToken':getCsrf()}}).catch(function(){});
+      };
+      function closeFriendModal() {
+        var el = document.getElementById('wmFriendOverlay');
+        if (!el) return;
+        el.classList.remove('wm-show');
+        setTimeout(function(){if(el.parentNode)el.remove();},400);
       }
 
-      var css = '#ws-notif-popup,#ws-battle-popup{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;max-width:360px;width:calc(100% - 3rem);transform:translateY(120%);opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease}.ws-show{transform:translateY(0)!important;opacity:1!important}.ws-pi{background:white;border-radius:16px;padding:1rem;display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #e2e8f0;position:relative}.ws-battle-pi{border-left:3px solid #FBBF24}.ws-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}.ws-body{flex:1;min-width:0}.ws-title{font-weight:700;font-size:.9rem;color:#0F172A;margin-bottom:.2rem}.ws-text{font-size:.82rem;color:#475569;line-height:1.4}.ws-actions{margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap}.btn-ws-primary{background:linear-gradient(135deg,#8BC540,#6BA832);color:white!important;border:none;padding:.35rem .85rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}.btn-ws-secondary{background:#f1f5f9;color:#64748b;border:none;padding:.35rem .85rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer}.ws-close{position:absolute;top:.5rem;right:.5rem;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:.75rem;padding:.2rem;line-height:1}@media(max-width:480px){#ws-notif-popup,#ws-battle-popup{bottom:0;right:0;left:0;max-width:100%;width:100%}.ws-pi{border-radius:16px 16px 0 0}}';
-      var s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
+      // ════════════════════════════════════════
+      //  JANG TAKLIFI MODALI  (full overlay)
+      // ════════════════════════════════════════
+      var _bData = null, _bInterval = null, _bSecs = 0;
+
+      function showBattleModal(data) {
+        _bData = data;
+        var name = (data.from_user && data.from_user.name) || 'Raqib';
+        var init = name.trim().split(' ').slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');
+        var subj = data.subject || '';
+        _bSecs = data.expires_in || 60;
+        var old = document.getElementById('wmBattleOverlay');
+        if (old) { clearInterval(_bInterval); old.remove(); }
+
+        var myInit = '{{ request.user.first_name|default:"?"|slice:":1" }}';
+        var el = document.createElement('div');
+        el.id = 'wmBattleOverlay';
+        el.className = 'wm-overlay wm-overlay-center';
+        el.innerHTML =
+          '<div class="wm-battle-card">'+
+            '<div class="wm-battle-label"><i class="bi bi-lightning-charge-fill"></i> JANG TAKLIFI</div>'+
+            '<div class="wm-battle-vs">'+
+              '<div class="wm-bplayer">'+
+                '<div class="wm-bav wm-bav-red">'+init+'</div>'+
+                '<div class="wm-bname">'+escHtml(name)+'</div>'+
+                '<div class="wm-bsub">Taklif qiluvchi</div>'+
+              '</div>'+
+              '<div class="wm-vs-dot">VS</div>'+
+              '<div class="wm-bplayer">'+
+                '<div class="wm-bav wm-bav-green">'+myInit+'</div>'+
+                '<div class="wm-bname">Siz</div>'+
+                '<div class="wm-bsub">Tayyor?</div>'+
+              '</div>'+
+            '</div>'+
+            (subj ? '<div class="wm-bsubj"><i class="bi bi-book-fill"></i> '+escHtml(subj)+'</div>' : '')+
+            '<div class="wm-btimer-wrap">'+
+              '<div class="wm-btimer-bar"><div class="wm-btimer-fill" id="wmBTFill" style="width:100%"></div></div>'+
+              '<div class="wm-btimer-text" id="wmBSecs">'+_bSecs+'</div>'+
+            '</div>'+
+            '<div class="wm-modal-btns">'+
+              '<button onclick="wsBattleAccept()" class="wm-btn-battle"><i class="bi bi-lightning-charge-fill"></i> Qabul qilish</button>'+
+              '<button onclick="wsBattleDecline()" class="wm-btn-no">Rad etish</button>'+
+            '</div>'+
+          '</div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(function(){el.classList.add('wm-show');});
+
+        var total = _bSecs;
+        _bInterval = setInterval(function(){
+          _bSecs--;
+          var s=document.getElementById('wmBSecs'), f=document.getElementById('wmBTFill');
+          if(s) s.textContent=_bSecs;
+          if(f) f.style.width=Math.max(0,(_bSecs/total)*100)+'%';
+          if(_bSecs<=0){clearInterval(_bInterval);closeBattleModal();}
+        },1000);
+      }
+      window.wsBattleAccept = function() {
+        clearInterval(_bInterval); closeBattleModal();
+        if (_bData && _bData.battle_uuid)
+          window.location.href = '/competitions/battle/'+_bData.battle_uuid+'/play/';
+      };
+      window.wsBattleDecline = function() {
+        clearInterval(_bInterval); closeBattleModal();
+      };
+      function closeBattleModal() {
+        var el = document.getElementById('wmBattleOverlay');
+        if (!el) return;
+        el.classList.remove('wm-show');
+        setTimeout(function(){if(el.parentNode)el.remove();},400);
+      }
+
+      // ════════════════════════════════════════
+      //  RAQIB TOPILDI MODALI  (boshqa sahifada)
+      // ════════════════════════════════════════
+      function showMatchFoundModal(data) {
+        var name = (data.opponent && data.opponent.name) || 'Raqib';
+        var init = name.trim().split(' ').slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');
+        var uuid = data.battle_uuid;
+        var old = document.getElementById('wmMatchOverlay');
+        if (old) old.remove();
+        var myInit = '{{ request.user.first_name|default:"?"|slice:":1" }}';
+        var el = document.createElement('div');
+        el.id = 'wmMatchOverlay';
+        el.className = 'wm-overlay wm-overlay-center';
+        el.innerHTML =
+          '<div class="wm-match-card">'+
+            '<div class="wm-match-label"><i class="bi bi-trophy-fill"></i> RAQIB TOPILDI!</div>'+
+            '<div class="wm-battle-vs">'+
+              '<div class="wm-bplayer">'+
+                '<div class="wm-bav wm-bav-green">'+myInit+'</div>'+
+                '<div class="wm-bname">Siz</div>'+
+              '</div>'+
+              '<div class="wm-vs-dot">VS</div>'+
+              '<div class="wm-bplayer">'+
+                '<div class="wm-bav wm-bav-red wm-bav-pop">'+init+'</div>'+
+                '<div class="wm-bname">'+escHtml(name)+'</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="wm-match-big" id="wmMatchBig">5</div>'+
+            '<div class="wm-match-sub">soniyada boshlanadi</div>'+
+            '<div class="wm-modal-btns">'+
+              '<a href="/competitions/battle/'+uuid+'/play/" class="wm-btn-battle wm-btn-green"><i class="bi bi-lightning-charge-fill"></i> Hozir boshlash</a>'+
+            '</div>'+
+          '</div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(function(){el.classList.add('wm-show');});
+        var secs=5, big=document.getElementById('wmMatchBig');
+        var cd=setInterval(function(){
+          secs--;
+          if(big) big.textContent=secs;
+          if(secs<=0){clearInterval(cd);window.location.href='/competitions/battle/'+uuid+'/play/';}
+        },1000);
+      }
+
+      // ════════════════════════════════════════
+      //  CSS INJECTION
+      // ════════════════════════════════════════
+      var wmCss =
+        /* TOAST */
+        '#ws-toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;max-width:340px;width:calc(100% - 3rem);transform:translateY(130%);opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s ease}'+
+        '.wt-show{transform:translateY(0)!important;opacity:1!important}'+
+        '.wt-inner{background:#fff;border-radius:16px;padding:.9rem;display:flex;align-items:flex-start;gap:.7rem;box-shadow:0 8px 32px rgba(0,0,0,.13);border:1px solid #E2E8F0;position:relative}'+
+        '.wt-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}'+
+        '.wt-body{flex:1;min-width:0}.wt-title{font-weight:700;font-size:.88rem;color:#0F172A;margin-bottom:.12rem}'+
+        '.wt-text{font-size:.8rem;color:#475569;line-height:1.4}.wt-actions{margin-top:.45rem}'+
+        '.wt-link{font-size:.8rem;font-weight:700;color:#8BC540;text-decoration:none}'+
+        '.wt-close{position:absolute;top:.35rem;right:.35rem;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:.7rem;padding:.2rem}'+
+        '@media(max-width:480px){#ws-toast{bottom:0;right:0;left:0;max-width:100%;width:100%}.wt-inner{border-radius:16px 16px 0 0}}'+
+
+        /* OVERLAY BASE */
+        '.wm-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;background:rgba(15,23,42,0);backdrop-filter:blur(0px);transition:background .3s ease,backdrop-filter .3s ease;pointer-events:none}'+
+        '.wm-overlay.wm-show{background:rgba(15,23,42,.58);backdrop-filter:blur(8px);pointer-events:auto}'+
+        '.wm-overlay-center{align-items:center;padding:1rem}'+
+
+        /* FRIEND SHEET */
+        '.wm-friend-sheet{background:#fff;border-radius:24px 24px 0 0;padding:1.5rem 1.5rem 2.5rem;width:100%;max-width:460px;transform:translateY(110%);transition:transform .45s cubic-bezier(.34,1.4,.64,1);text-align:center}'+
+        '.wm-overlay.wm-show .wm-friend-sheet{transform:translateY(0)}'+
+        '.wm-handle{width:40px;height:4px;background:#E2E8F0;border-radius:4px;margin:0 auto .9rem}'+
+        '.wm-friend-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#8BC540,#6BA832);color:#fff;font-size:1.5rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;box-shadow:0 6px 20px rgba(139,197,64,.28)}'+
+        '.wm-friend-name{font-size:1.15rem;font-weight:800;color:#0F172A;margin-bottom:.3rem}'+
+        '.wm-friend-desc{font-size:.88rem;color:#64748B;margin-bottom:1.25rem}'+
+        '.wm-friend-tbar{height:4px;background:#F1F5F9;border-radius:4px;overflow:hidden;margin-bottom:1.5rem}'+
+        '.wm-friend-tfill{height:100%;background:linear-gradient(90deg,#8BC540,#6BA832);border-radius:4px;width:100%}'+
+
+        /* BATTLE / MATCH CARD */
+        '.wm-battle-card,.wm-match-card{background:#fff;border-radius:24px;padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:380px;text-align:center;transform:scale(.82) translateY(20px);opacity:0;transition:transform .45s cubic-bezier(.34,1.56,.64,1),opacity .3s ease}'+
+        '.wm-overlay.wm-show .wm-battle-card,.wm-overlay.wm-show .wm-match-card{transform:scale(1) translateY(0);opacity:1}'+
+        '.wm-battle-card{border-top:4px solid #FBBF24}'+
+        '.wm-match-card{border-top:4px solid #8BC540}'+
+        '.wm-battle-label{font-size:.75rem;font-weight:900;letter-spacing:.07em;color:#B45309;background:#FEF3C7;padding:.35rem 1rem;border-radius:50px;display:inline-flex;align-items:center;gap:.35rem;margin-bottom:1.4rem}'+
+        '.wm-match-label{font-size:.75rem;font-weight:900;letter-spacing:.07em;color:#166534;background:#DCFCE7;padding:.35rem 1rem;border-radius:50px;display:inline-flex;align-items:center;gap:.35rem;margin-bottom:1.4rem}'+
+        '.wm-battle-vs{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.25rem}'+
+        '.wm-bplayer{flex:1;max-width:110px;min-width:0}'+
+        '.wm-bav{width:62px;height:62px;border-radius:50%;font-size:1.3rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem}'+
+        '.wm-bav-red{background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;box-shadow:0 4px 14px rgba(239,68,68,.28)}'+
+        '.wm-bav-green{background:linear-gradient(135deg,#8BC540,#6BA832);color:#fff;box-shadow:0 4px 14px rgba(139,197,64,.28)}'+
+        '.wm-bav-pop{animation:wm-avpop .55s cubic-bezier(.34,1.56,.64,1)}'+
+        '@keyframes wm-avpop{0%{transform:scale(0) rotate(-10deg)}100%{transform:scale(1) rotate(0)}}'+
+        '.wm-bname{font-size:.85rem;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+        '.wm-bsub{font-size:.72rem;color:#94A3B8;margin-top:.1rem}'+
+        '.wm-vs-dot{width:38px;height:38px;border-radius:50%;background:#F8FAFC;border:2px solid #E2E8F0;font-size:.7rem;font-weight:900;color:#64748B;display:flex;align-items:center;justify-content:center;flex-shrink:0}'+
+        '.wm-bsubj{display:inline-flex;align-items:center;gap:.35rem;background:rgba(139,197,64,.1);border:1px solid rgba(139,197,64,.22);color:#5A8E24;padding:.35rem .9rem;border-radius:50px;font-size:.82rem;font-weight:700;margin-bottom:1.1rem}'+
+        '.wm-btimer-wrap{margin-bottom:1.25rem}'+
+        '.wm-btimer-bar{height:6px;background:#F1F5F9;border-radius:6px;overflow:hidden;margin-bottom:.6rem}'+
+        '.wm-btimer-fill{height:100%;background:linear-gradient(90deg,#FBBF24,#D97706);border-radius:6px;transition:width 1s linear}'+
+        '.wm-btimer-text{font-size:1.6rem;font-weight:900;color:#D97706;line-height:1}'+
+        '.wm-match-big{font-size:4.5rem;font-weight:900;color:#8BC540;line-height:1;margin:.25rem 0 .2rem;animation:wm-numtick .4s ease}'+
+        '@keyframes wm-numtick{0%{transform:scale(1.35);opacity:.4}100%{transform:scale(1);opacity:1}}'+
+        '.wm-match-sub{font-size:.88rem;color:#64748B;margin-bottom:1.4rem}'+
+
+        /* BUTTONS */
+        '.wm-modal-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}'+
+        '.wm-btn-yes{padding:.78rem 1.5rem;background:linear-gradient(135deg,#8BC540,#6BA832);color:#fff;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;box-shadow:0 4px 14px rgba(139,197,64,.28);transition:transform .15s,box-shadow .15s}'+
+        '.wm-btn-yes:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(139,197,64,.4)}'+
+        '.wm-btn-no{padding:.78rem 1.5rem;background:#F1F5F9;color:#64748B;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s}'+
+        '.wm-btn-no:hover{background:#FEE2E2;color:#EF4444}'+
+        '.wm-btn-battle{padding:.85rem 1.75rem;background:linear-gradient(135deg,#FBBF24,#D97706);color:#fff!important;border:none;border-radius:14px;font-size:.92rem;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;box-shadow:0 4px 16px rgba(251,191,36,.32);transition:transform .15s,box-shadow .15s;text-decoration:none}'+
+        '.wm-btn-battle:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(251,191,36,.44);color:#fff}'+
+        '.wm-btn-green{background:linear-gradient(135deg,#8BC540,#6BA832)!important;box-shadow:0 4px 16px rgba(139,197,64,.3)!important}'+
+        '.wm-btn-green:hover{box-shadow:0 6px 22px rgba(139,197,64,.44)!important}'+
+        '@media(max-width:480px){.wm-modal-btns{flex-direction:column}.wm-btn-yes,.wm-btn-no,.wm-btn-battle{justify-content:center}}';
+
+      var wmStyle = document.createElement('style');
+      wmStyle.textContent = wmCss;
+      document.head.appendChild(wmStyle);
 
       connect();
     })();
