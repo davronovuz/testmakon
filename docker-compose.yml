@@ -64,6 +64,21 @@ services:
       redis:
         condition: service_started
 
+  celery-beat:
+    build: .
+    container_name: testmakon_celery_beat
+    restart: always
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - DEBUG=False
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
   bot:
     build: .
     container_name: testmakon_bot

@@ -183,9 +183,9 @@
                     <div class="form-group">
                         <label class="form-label">Fanlar bo'yicha o'rtacha natijangiz</label>
                         <div class="stats-wrap">
-                            {% for subject_id, score in user_stats.items %}
+                            {% for stat in user_stats %}
                             <span class="stat-badge">
-                                Fan #{{ subject_id }}: <span class="stat-badge-value">{{ score }}%</span>
+                                {{ stat.icon|default:"📚"|safe }} {{ stat.name }}: <span class="stat-badge-value">{{ stat.score }}%</span>
                             </span>
                             {% endfor %}
                         </div>

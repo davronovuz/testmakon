@@ -3,8 +3,11 @@ AI Core - Celery Tasks
 Barcha og'ir AI operatsiyalar shu yerda background da ishlaydi.
 """
 from celery import shared_task
+from django.utils import timezone
+from datetime import timedelta
 import logging
 import json
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -177,4 +180,312 @@ def send_notification_email(self, user_id, subject, message):
 
     except Exception as exc:
         logger.error(f"send_notification_email xatolik: {exc}")
+        raise self.retry(exc=exc)
+
+
+@shared_task(bind=True, max_retries=2, default_retry_delay=60)
+def generate_ai_study_plan_task(self, plan_id):
+    """
+    AI foydalanuvchi ma'lumotlariga qarab reja vazifalarini tuzadi.
+    study_plan_create view tomonidan chaqiriladi.
+    """
+    try:
+        from .models import StudyPlan, StudyPlanTask
+        from .utils import get_ai_response
+        from tests_app.models import TestAttempt
+        from ai_core.models import WeakTopicAnalysis
+
+        plan = StudyPlan.objects.get(id=plan_id)
+        user = plan.user
+        subjects = list(plan.subjects.all())
+        today = timezone.localdate()
+
+        # 1. Fan bo'yicha natijalar
+        subject_stats = {}
+        for attempt in TestAttempt.objects.filter(
+            user=user, status='completed'
+        ).select_related('test__subject').order_by('-completed_at')[:30]:
+            subj = attempt.test.subject if attempt.test else None
+            if subj:
+                key = subj.name
+                if key not in subject_stats:
+                    subject_stats[key] = {'scores': []}
+                subject_stats[key]['scores'].append(attempt.percentage)
+
+        for key, val in subject_stats.items():
+            scores = val['scores']
+            val['avg'] = round(sum(scores) / len(scores), 1)
+            val['count'] = len(scores)
+            del val['scores']
+
+        # 2. Sust mavzular
+        weak_data = [
+            {'subject': wt.subject.name, 'topic': wt.topic.name, 'accuracy': round(wt.accuracy_rate, 1)}
+            for wt in WeakTopicAnalysis.objects.filter(
+                user=user, subject__in=subjects
+            ).select_related('subject', 'topic').order_by('accuracy_rate')[:12]
+        ]
+
+        # 3. Kunlar soni
+        if plan.target_exam_date and plan.target_exam_date > today:
+            days_count = (plan.target_exam_date - today).days
+        else:
+            days_count = 28
+
+        subject_names = [s.name for s in subjects]
+        system_prompt = (
+            "Sen TestMakon.uz ning AI o'quv reja tuzuvchisan. "
+            "Foydalanuvchi ma'lumotlariga qarab maqsadli kunlik vazifalar rej tuz. "
+            "Javobni FAQAT sof JSON formatida ber, boshqa hech narsa yozma."
+        )
+        user_prompt = f"""Foydalanuvchi:
+- Fanlar: {subject_names}
+- Kun soni: {days_count} kun
+- Kunlik: {plan.daily_hours} soat, haftada {plan.weekly_days} kun
+- Maqsad: {plan.target_score or 'belgilanmagan'} ball
+
+Test natijalari: {json.dumps(subject_stats, ensure_ascii=False)}
+Sust mavzular: {json.dumps(weak_data, ensure_ascii=False)}
+
+Quyidagi JSON formatda javob ber:
+{{
+  "analysis": "Foydalanuvchi haqida 2-3 gaplik tahlil",
+  "tasks": [
+    {{
+      "day_offset": 0,
+      "title": "Vazifa sarlavhasi",
+      "subject": "Fan nomi",
+      "topic": "Mavzu yoki null",
+      "task_type": "study|practice|review|test",
+      "difficulty": "easy|medium|hard",
+      "minutes": 45,
+      "notes": "Nega bu vazifa muhim (1 gap)",
+      "is_weak_topic": true
+    }}
+  ]
+}}"""
+
+        response = get_ai_response([{"role": "user", "content": user_prompt}], system_prompt)
+
+        # JSON ajratish
+        match = re.search(r'\{[\s\S]*\}', response)
+        if not match:
+            raise ValueError("AI JSON javob bermadi")
+
+        data = json.loads(match.group())
+
+        # Subject/topic map
+        subject_map = {s.name.lower(): s for s in subjects}
+        topic_map = {}
+        for s in subjects:
+            for t in s.topics.all():
+                topic_map[t.name.lower()] = t
+
+        tasks_created = 0
+        for item in data.get('tasks', []):
+            day_offset = int(item.get('day_offset', 0))
+            # weekly_days ga qarab skip
+            scheduled = today + timedelta(days=day_offset)
+            if scheduled.weekday() >= plan.weekly_days:
+                continue
+
+            subj_name = (item.get('subject') or '').lower()
+            subj_obj = subject_map.get(subj_name)
+            if not subj_obj:
+                for k, v in subject_map.items():
+                    if k in subj_name or subj_name in k:
+                        subj_obj = v
+                        break
+
+            topic_name = (item.get('topic') or '').lower()
+            topic_obj = topic_map.get(topic_name) if topic_name else None
+
+            StudyPlanTask.objects.create(
+                study_plan=plan,
+                title=item.get('title', "O'quv vazifasi"),
+                task_type=item.get('task_type', 'practice'),
+                subject=subj_obj,
+                topic=topic_obj,
+                scheduled_date=scheduled,
+                estimated_minutes=int(item.get('minutes', 30)),
+                questions_count=10 if item.get('task_type') in ['test', 'practice'] else None,
+                ai_notes=item.get('notes', ''),
+                difficulty=item.get('difficulty', 'medium'),
+                weak_topic_focus=bool(item.get('is_weak_topic', False)),
+                order=tasks_created,
+            )
+            tasks_created += 1
+
+        plan.total_tasks = tasks_created
+        plan.is_ai_generated = True
+        plan.ai_analysis = data.get('analysis', '')
+        plan.save(update_fields=['total_tasks', 'is_ai_generated', 'ai_analysis'])
+
+        logger.info(f"AI reja tuzildi: plan={plan_id}, {tasks_created} vazifa")
+        return {'status': 'done', 'tasks_created': tasks_created}
+
+    except Exception as exc:
+        logger.error(f"generate_ai_study_plan_task xatolik: {exc}")
+        raise self.retry(exc=exc)
+
+
+@shared_task
+def send_daily_study_reminders():
+    """
+    Har kuni 8:00 da ishga tushadi.
+    Bugun vazifalari bor foydalanuvchilarga bildirishnoma yaratadi.
+    """
+    from .models import StudyPlan, StudyPlanTask
+    from news.models import Notification
+
+    today = timezone.localdate()
+
+    # Bugungi tugallanmagan vazifalar
+    tasks_today = StudyPlanTask.objects.filter(
+        scheduled_date=today,
+        is_completed=False,
+        study_plan__status='active'
+    ).select_related('study_plan__user', 'subject').values(
+        'study_plan__user_id',
+        'study_plan__user__first_name',
+        'subject__name',
+    )
+
+    # User bo'yicha guruhlash
+    user_tasks = {}
+    for t in tasks_today:
+        uid = t['study_plan__user_id']
+        if uid not in user_tasks:
+            user_tasks[uid] = {'name': t['study_plan__user__first_name'], 'count': 0, 'subjects': set()}
+        user_tasks[uid]['count'] += 1
+        if t['subject__name']:
+            user_tasks[uid]['subjects'].add(t['subject__name'])
+
+    created = 0
+    for user_id, info in user_tasks.items():
+        # Bugun allaqachon yuborilmagan bo'lsa
+        already = Notification.objects.filter(
+            user_id=user_id,
+            notification_type='system',
+            created_at__date=today,
+            title__startswith='📚 Bugungi'
+        ).exists()
+        if already:
+            continue
+
+        subjects_str = ', '.join(list(info['subjects'])[:3])
+        Notification.objects.create(
+            user_id=user_id,
+            notification_type='system',
+            title=f"📚 Bugungi o'quv vazifalar",
+            message=f"Bugun {info['count']} ta vazifangiz bor: {subjects_str}. Bajarishni unutmang!",
+            link='/ai/study-plan/',
+        )
+        created += 1
+
+    # Kechiktirилган vazifalar (kecha tugallanmagan)
+    yesterday = today - timedelta(days=1)
+    overdue = StudyPlanTask.objects.filter(
+        scheduled_date=yesterday,
+        is_completed=False,
+        study_plan__status='active'
+    ).select_related('study_plan__user').values('study_plan__user_id').distinct()
+
+    for row in overdue:
+        uid = row['study_plan__user_id']
+        already = Notification.objects.filter(
+            user_id=uid,
+            notification_type='warning',
+            created_at__date=today,
+            title__startswith='⚠️'
+        ).exists()
+        if already:
+            continue
+        Notification.objects.create(
+            user_id=uid,
+            notification_type='warning',
+            title="⚠️ Bajarilmagan vazifalar",
+            message="Kecha bir necha vazifangiz bajarilmay qoldi. Bugun ulgurib oling!",
+            link='/ai/study-plan/',
+        )
+
+    logger.info(f"Kunlik eslatmalar: {created} ta yuborildi")
+
+
+@shared_task(bind=True, max_retries=2)
+def create_task_smart_test(self, task_id, user_id):
+    """
+    Vazifaning fanidan foydalanuvchining sust mavzulariga qarab
+    maxsus test yaratadi va attempt ID qaytaradi.
+    """
+    try:
+        from .models import StudyPlanTask
+        from tests_app.models import (
+            Question, Test, TestQuestion, TestAttempt, Subject
+        )
+        from ai_core.models import WeakTopicAnalysis
+
+        task = StudyPlanTask.objects.select_related('subject', 'topic').get(id=task_id)
+        subject = task.subject
+        if not subject:
+            return {'error': 'Fan topilmadi'}
+
+        # Sust mavzularni topish
+        weak_topic_ids = list(
+            WeakTopicAnalysis.objects.filter(
+                user_id=user_id, subject=subject
+            ).order_by('accuracy_rate').values_list('topic_id', flat=True)[:5]
+        )
+
+        # Savollarni tanlash: sust mavzulardan priority
+        if weak_topic_ids:
+            weak_qs = list(
+                Question.objects.filter(
+                    subject=subject, topic_id__in=weak_topic_ids, is_active=True
+                ).order_by('?')[:15]
+            )
+            other_qs = list(
+                Question.objects.filter(
+                    subject=subject, is_active=True
+                ).exclude(topic_id__in=weak_topic_ids).order_by('?')[:5]
+            )
+            questions = (weak_qs + other_qs)[:20]
+        else:
+            questions = list(
+                Question.objects.filter(subject=subject, is_active=True).order_by('?')[:20]
+            )
+
+        if not questions:
+            return {'error': 'Savollar topilmadi'}
+
+        # Test yaratish
+        test = Test.objects.create(
+            title=f"AI Test — {subject.name} ({task.title})",
+            slug=f"ai-task-{task_id}-{user_id}-{int(timezone.now().timestamp())}",
+            test_type='practice',
+            subject=subject,
+            time_limit=len(questions) * 2,
+            question_count=len(questions),
+            shuffle_questions=True,
+            shuffle_answers=True,
+            show_correct_answers=True,
+            created_by_id=user_id,
+        )
+        for i, q in enumerate(questions):
+            TestQuestion.objects.create(test=test, question=q, order=i)
+
+        attempt = TestAttempt.objects.create(
+            user_id=user_id,
+            test=test,
+            total_questions=len(questions),
+            status='in_progress',
+        )
+
+        from django.urls import reverse
+        play_url = reverse('tests_app:test_play', kwargs={'uuid': attempt.uuid})
+        logger.info(f"Smart test yaratildi: task={task_id}, {len(questions)} savol")
+        return {'status': 'done', 'attempt_uuid': str(attempt.uuid), 'play_url': play_url}
+
+    except Exception as exc:
+        logger.error(f"create_task_smart_test xatolik: {exc}")
         raise self.retry(exc=exc)

@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'universities.apps.UniversitiesConfig',
     'news.apps.NewsConfig',
     'leaderboard.apps.LeaderboardConfig',
-    'subscriptions.apps.SubscriptionsConfig',  # <-- shu qatorni qo'shing
-
+    'subscriptions.apps.SubscriptionsConfig',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

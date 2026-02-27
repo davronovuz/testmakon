@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 import json
 from datetime import timedelta, datetime
 
@@ -51,7 +52,7 @@ def generate_plan_tasks(plan):
             continue
         subject = subjects[subject_index % len(subjects)]
         subject_index += 1
-        title = f"{subject.name} — mashq"
+        title = f"{subject.name} -- mashq"
         StudyPlanTask.objects.create(
             study_plan=plan,
             title=title,
@@ -99,7 +100,7 @@ def ai_chat(request):
 
 @login_required
 def conversation_detail(request, uuid):
-    """Suhbat sahifasi — faqat ko‘rsatish; xabar yuborish api_chat orqali (AJAX)."""
+    """Suhbat sahifasi -- faqat ko'rsatish; xabar yuborish api_chat orqali (AJAX)."""
     conversation = get_object_or_404(
         AIConversation,
         uuid=uuid,
@@ -198,7 +199,7 @@ def ai_analyze_test(request, attempt_uuid):
         }
         return render(request, 'ai_core/test_analysis.html', context)
 
-    # Tahlil yo'q — Celery task ishga tushiramiz
+    # Tahlil yo'q -- Celery task ishga tushiramiz
     from .tasks import ai_analyze_test_task
     task = ai_analyze_test_task.delay(attempt.id)
 
@@ -235,7 +236,7 @@ def ai_advisor(request):
     subjects = Subject.objects.filter(is_active=True)
 
     from django.db.models import Avg
-    user_stats = {}
+    user_stats = []
     for subject in subjects:
         avg = TestAttempt.objects.filter(
             user=request.user,
@@ -244,7 +245,7 @@ def ai_advisor(request):
         ).aggregate(Avg('percentage'))['percentage__avg']
 
         if avg:
-            user_stats[subject.id] = round(avg, 1)
+            user_stats.append({'name': subject.name, 'icon': subject.icon, 'score': round(avg, 1)})
 
     context = {
         'subjects': subjects,
@@ -324,8 +325,9 @@ def study_plan_list(request):
 
 @login_required
 def study_plan_create(request):
-    """Yangi o'quv reja — kerakli ma'lumotlarni so'rab, vazifalarni avtomatik yaratadi."""
+    """Yangi o'quv reja -- AI yoki oddiy rejim."""
     if request.method == 'POST':
+        mode = request.POST.get('mode', 'manual')
         title = (request.POST.get('title') or '').strip() or "O'quv reja"
         target_date_str = request.POST.get('target_date', '').strip()
         target_score = request.POST.get('target_score')
@@ -351,10 +353,17 @@ def study_plan_create(request):
 
         if subject_ids:
             plan.subjects.set(subject_ids)
-            generate_plan_tasks(plan)
 
-        messages.success(request, "O'quv reja yaratildi! Haftalik vazifalar tayyor.")
-        return redirect('ai_core:study_plan_detail', uuid=plan.uuid)
+        if mode == 'ai':
+            from .tasks import generate_ai_study_plan_task
+            task = generate_ai_study_plan_task.delay(plan.id)
+            detail_url = reverse('ai_core:study_plan_detail', kwargs={'uuid': plan.uuid})
+            return redirect(f'{detail_url}?generating={task.id}')
+        else:
+            if subject_ids:
+                generate_plan_tasks(plan)
+            messages.success(request, "O'quv reja yaratildi! Haftalik vazifalar tayyor.")
+            return redirect('ai_core:study_plan_detail', uuid=plan.uuid)
 
     subjects = Subject.objects.filter(is_active=True).order_by('order', 'name')
     context = {'subjects': subjects}
@@ -363,7 +372,7 @@ def study_plan_create(request):
 
 @login_required
 def study_plan_detail(request, uuid):
-    """O'quv reja — countdown, haftalik taqvim, vazifalar kartochkalari."""
+    """O'quv reja -- countdown, haftalik taqvim, vazifalar kartochkalari."""
     plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
 
     today = timezone.localdate()
@@ -404,6 +413,7 @@ def study_plan_detail(request, uuid):
         'current_week_start': current_week_start,
         'today': today,
         'days_left': days_left,
+        'generating_task_id': request.GET.get('generating'),
     }
     return render(request, 'ai_core/study_plan_detail.html', context)
 
@@ -421,7 +431,7 @@ def study_plan_update(request, uuid):
 
 @login_required
 def study_plan_edit(request, uuid):
-    """Rejani tahrirlash — imtihon sanasi, fanlar, vaqt."""
+    """Rejani tahrirlash -- imtihon sanasi, fanlar, vaqt."""
     plan = get_object_or_404(StudyPlan, uuid=uuid, user=request.user)
     if request.method == 'POST':
         plan.title = (request.POST.get('title') or '').strip() or plan.title
@@ -473,6 +483,18 @@ def task_complete(request, task_id):
 
 
 @login_required
+@require_POST
+def start_task_test(request, task_id):
+    """Smart test yaratishni background da ishga tushiradi."""
+    task = get_object_or_404(StudyPlanTask, id=task_id, study_plan__user=request.user)
+    if not task.subject:
+        return JsonResponse({'error': 'Fan topilmadi'}, status=400)
+    from .tasks import create_task_smart_test
+    celery_task = create_task_smart_test.delay(task.id, request.user.id)
+    return JsonResponse({'task_id': celery_task.id, 'status': 'pending'})
+
+
+@login_required
 def recommendations_list(request):
     """AI tavsiyalar ro'yxati"""
     recommendations = AIRecommendation.objects.filter(
@@ -495,6 +517,15 @@ def recommendation_dismiss(request, id):
 
 
 @login_required
+@require_POST
+def conversation_delete(request, uuid):
+    """Suhbatni o'chirish (AJAX POST)"""
+    conversation = get_object_or_404(AIConversation, uuid=uuid, user=request.user)
+    conversation.delete()
+    return JsonResponse({'status': 'deleted'})
+
+
+@login_required
 def weak_topics(request):
     """Sust mavzular"""
     weak = WeakTopicAnalysis.objects.filter(
@@ -510,14 +541,14 @@ def weak_topics(request):
 @login_required
 @require_POST
 def api_chat(request):
-    """Chat API — xabar saqlaydi, Celery task ishga tushiradi, task_id qaytaradi."""
+    """Chat API -- xabar saqlaydi, Celery task ishga tushiradi, task_id qaytaradi."""
     try:
         data = json.loads(request.body)
-        message = (data.get(‘message’) or ‘’).strip()
-        conversation_uuid = data.get(‘conversation_uuid’)
+        message = (data.get('message') or '').strip()
+        conversation_uuid = data.get('conversation_uuid')
 
         if not message:
-            return JsonResponse({‘error’: ‘Xabar bo\’sh’}, status=400)
+            return JsonResponse({'error': 'Xabar bo\'sh'}, status=400)
 
         if conversation_uuid:
             conversation = get_object_or_404(
@@ -526,27 +557,27 @@ def api_chat(request):
         else:
             conversation = AIConversation.objects.create(
                 user=request.user,
-                conversation_type=’mentor’,
-                title=message[:50] or ‘Yangi suhbat’
+                conversation_type='mentor',
+                title=message[:50] or 'Yangi suhbat'
             )
 
         # Foydalanuvchi xabarini darhol saqlaymiz
-        AIMessage.objects.create(conversation=conversation, role=’user’, content=message)
+        AIMessage.objects.create(conversation=conversation, role='user', content=message)
 
-        # Celery task ishga tushiramiz — AI javobini background da olamiz
+        # Celery task ishga tushiramiz -- AI javobini background da olamiz
         from .tasks import ai_chat_task
         task = ai_chat_task.delay(conversation.id)
 
         return JsonResponse({
-            ‘task_id’: task.id,
-            ‘status’: ‘pending’,
-            ‘conversation_uuid’: str(conversation.uuid),
+            'task_id': task.id,
+            'status': 'pending',
+            'conversation_uuid': str(conversation.uuid),
         })
 
     except json.JSONDecodeError:
-        return JsonResponse({‘error’: ‘Noto\’g\’ri so\’rov’}, status=400)
+        return JsonResponse({'error': 'Noto\'g\'ri so\'rov'}, status=400)
     except Exception as e:
-        return JsonResponse({‘error’: str(e)}, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required
@@ -556,11 +587,11 @@ def api_task_status(request, task_id):
     result = AsyncResult(task_id)
 
     if result.successful():
-        return JsonResponse({‘status’: ‘done’, **result.get()})
+        return JsonResponse({'status': 'done', **result.get()})
     elif result.failed():
-        return JsonResponse({‘status’: ‘error’, ‘error’: ‘AI javob berishda xatolik yuz berdi’})
+        return JsonResponse({'status': 'error', 'error': 'AI javob berishda xatolik yuz berdi'})
     else:
-        return JsonResponse({‘status’: ‘pending’})
+        return JsonResponse({'status': 'pending'})
 
 
 @login_required

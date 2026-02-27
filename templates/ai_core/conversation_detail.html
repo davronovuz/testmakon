@@ -439,7 +439,7 @@
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 py-2">
                     <li><a class="dropdown-item" href="{% url 'ai_core:ai_chat' %}"><i class="bi bi-plus-lg me-2"></i> Yangi suhbat</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#" id="deleteChatBtn"><i class="bi bi-trash me-2"></i> O'chirish</a></li>
+                    <li><a class="dropdown-item text-danger" href="#" id="deleteChatBtn" data-uuid="{{ conversation.uuid }}"><i class="bi bi-trash me-2"></i> O'chirish</a></li>
                 </ul>
             </div>
         </div>
@@ -693,6 +693,30 @@
         });
     }
     scrollBottom();
+
+    // Delete conversation
+    var deleteBtn = document.getElementById('deleteChatBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!confirm("Suhbatni o'chirishni xohlaysizmi?")) return;
+            var uuid = this.dataset.uuid;
+            var deleteUrl = '{% url "ai_core:conversation_delete" uuid="00000000-0000-0000-0000-000000000000" %}'.replace('00000000-0000-0000-0000-000000000000', uuid);
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': CSRF_TOKEN }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'deleted') {
+                    window.location.href = '{% url "ai_core:conversations_list" %}';
+                }
+            })
+            .catch(function() {
+                alert('O\'chirishda xatolik yuz berdi.');
+            });
+        });
+    }
 })();
 </script>
 {% endblock %}

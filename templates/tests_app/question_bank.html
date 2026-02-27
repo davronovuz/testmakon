@@ -37,17 +37,18 @@
 
     .qb-card {
         background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px;
-        padding: 14px; text-decoration: none; color: inherit;
+        padding: 14px; color: inherit;
         transition: all 0.2s ease; position: relative; overflow: hidden;
     }
     .qb-card:hover {
         border-color: var(--gray-300); box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        transform: translateY(-2px); color: inherit;
     }
 
     .qb-card-head {
         display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        color: inherit; transition: opacity 0.15s;
     }
+    .qb-card-head:hover { opacity: 0.85; }
     .qb-card-icon {
         width: 38px; height: 38px; border-radius: 10px;
         display: flex; align-items: center; justify-content: center;
@@ -62,10 +63,12 @@
     }
     .qb-topic {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 5px 0; font-size: 0.75rem; color: var(--dark-600);
+        padding: 5px 6px; font-size: 0.75rem; color: var(--dark-600);
         border-bottom: 1px solid var(--gray-100);
+        border-radius: 6px; text-decoration: none; transition: background 0.15s;
     }
     .qb-topic:last-child { border-bottom: none; }
+    .qb-topic:hover { background: var(--gray-50); color: var(--primary-dark); }
     .qb-topic-name { font-weight: 600; }
     .qb-topic-cnt { font-size: 0.68rem; color: var(--gray-400); font-weight: 500; }
 
@@ -141,8 +144,8 @@
             {% if subjects_data %}
             <div class="qb-grid">
                 {% for item in subjects_data %}
-                <a href="{% url 'tests_app:question_bank_subject' subject_slug=item.subject.slug %}" class="qb-card">
-                    <div class="qb-card-head">
+                <div class="qb-card">
+                    <a href="{% url 'tests_app:practice_subject' subject_slug=item.subject.slug %}" class="qb-card-head" style="text-decoration:none;">
                         <div class="qb-card-icon" style="background: {{ item.subject.color }}15;">
                             {% subject_icon item.subject 44 %}
                         </div>
@@ -150,15 +153,15 @@
                             <div class="qb-card-name">{{ item.subject.name }}</div>
                             <div class="qb-card-stat">{{ item.questions_count }} ta savol{% if item.topics %} · {{ item.topics.count }} mavzu{% endif %}</div>
                         </div>
-                    </div>
+                    </a>
 
                     {% if item.topics %}
                     <div class="qb-topics">
                         {% for topic in item.topics|slice:":4" %}
-                        <div class="qb-topic">
+                        <a href="{% url 'tests_app:practice_topic' subject_slug=item.subject.slug topic_slug=topic.slug %}" class="qb-topic">
                             <span class="qb-topic-name">{{ topic.name }}</span>
                             <span class="qb-topic-cnt">{{ topic.questions_count }}</span>
-                        </div>
+                        </a>
                         {% endfor %}
                     </div>
                     {% endif %}
@@ -177,9 +180,9 @@
                         {% else %}
                         <span></span>
                         {% endif %}
-                        <span class="qb-card-more">Ochish <i class="bi bi-chevron-right"></i></span>
+                        <a href="{% url 'tests_app:practice_subject' subject_slug=item.subject.slug %}" class="qb-card-more">Barcha mavzular <i class="bi bi-chevron-right"></i></a>
                     </div>
-                </a>
+                </div>
                 {% endfor %}
             </div>
             {% else %}

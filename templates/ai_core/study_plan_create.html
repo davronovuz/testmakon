@@ -7,50 +7,121 @@
 <style>
 {% include 'includes/_sidebar_css.html' %}
 
-.sp-create-card {
+.sp-create-wrap { max-width: 660px; }
+
+/* Mode selector */
+.sp-mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+}
+.sp-mode-card {
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    user-select: none;
+}
+.sp-mode-card:hover { border-color: var(--primary); }
+.sp-mode-card.active {
+    border-color: var(--primary);
+    background: rgba(139,197,64,0.07);
+}
+[data-theme="dark"] .sp-mode-card { background: var(--dark-800); border-color: var(--dark-600); }
+[data-theme="dark"] .sp-mode-card.active { background: rgba(139,197,64,0.12); border-color: var(--primary); }
+
+.sp-mode-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.sp-mode-icon.ai { background: linear-gradient(135deg, rgba(139,197,64,0.2), rgba(107,168,50,0.1)); color: var(--primary-dark); }
+.sp-mode-icon.manual { background: rgba(99,102,241,0.12); color: #6366F1; }
+[data-theme="dark"] .sp-mode-icon.ai { background: rgba(139,197,64,0.2); color: var(--primary-light); }
+[data-theme="dark"] .sp-mode-icon.manual { background: rgba(99,102,241,0.2); }
+
+.sp-mode-info {}
+.sp-mode-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+}
+[data-theme="dark"] .sp-mode-title { color: var(--gray-100); }
+.sp-mode-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    letter-spacing: 0.02em;
+}
+.sp-mode-desc {
+    font-size: 0.78rem;
+    color: var(--gray-500);
+    line-height: 1.4;
+}
+
+/* AI info box */
+.sp-ai-info {
+    background: linear-gradient(135deg, rgba(139,197,64,0.1) 0%, rgba(107,168,50,0.05) 100%);
+    border: 1px solid rgba(139,197,64,0.3);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+.sp-ai-info-icon { font-size: 1.4rem; line-height: 1; margin-top: 0.1rem; }
+.sp-ai-info-text { flex: 1; }
+.sp-ai-info-title { font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 0.25rem; }
+[data-theme="dark"] .sp-ai-info-title { color: var(--primary-light); }
+.sp-ai-info-desc { font-size: 0.8rem; color: var(--gray-500); line-height: 1.5; margin: 0; }
+
+/* Form */
+.sp-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
-    padding: 2rem;
-    max-width: 640px;
+    padding: 1.75rem;
 }
-[data-theme="dark"] .sp-create-card {
-    background: var(--dark-800);
-    border-color: var(--dark-700);
-}
+[data-theme="dark"] .sp-card { background: var(--dark-800); border-color: var(--dark-700); }
 
-.sp-create-title {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--dark);
-    margin: 0 0 0.5rem;
-}
-[data-theme="dark"] .sp-create-title { color: var(--gray-100); }
-
-.sp-create-desc {
-    font-size: 0.9rem;
-    color: var(--gray-500);
-    margin-bottom: 1.75rem;
-}
-
-.sp-section {
-    margin-bottom: 1.75rem;
-}
+.sp-section { margin-bottom: 1.75rem; }
+.sp-section:last-child { margin-bottom: 0; }
 .sp-section-title {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: var(--primary-dark);
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
-.sp-section-title i { opacity: 0.9; }
+[data-theme="dark"] .sp-section-title { color: var(--primary-light); }
 
 .sp-label {
     display: block;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     color: var(--dark);
     margin-bottom: 0.4rem;
 }
@@ -58,48 +129,37 @@
 
 .sp-input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.7rem 1rem;
     border: 2px solid var(--gray-200);
     border-radius: var(--radius);
     background: var(--gray-50);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     color: var(--dark);
     transition: border-color 0.2s;
     box-sizing: border-box;
 }
-.sp-input:focus { outline: none; border-color: var(--primary); }
-[data-theme="dark"] .sp-input {
-    background: var(--dark);
-    border-color: var(--dark-600);
-    color: var(--gray-100);
-}
+.sp-input:focus { outline: none; border-color: var(--primary); background: var(--white); }
+[data-theme="dark"] .sp-input { background: var(--dark); border-color: var(--dark-600); color: var(--gray-100); }
+[data-theme="dark"] .sp-input:focus { border-color: var(--primary); }
 
-.sp-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
+.sp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 @media (max-width: 540px) { .sp-row { grid-template-columns: 1fr; } }
 
 .sp-subjects {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
 }
-.sp-subject-check {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
+.sp-subject-check { position: absolute; opacity: 0; pointer-events: none; }
 .sp-subject-label {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1rem;
+    padding: 0.55rem 0.9rem;
     border: 2px solid var(--gray-200);
     border-radius: var(--radius);
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.87rem;
     font-weight: 600;
     color: var(--dark);
     background: var(--white);
@@ -109,48 +169,44 @@
 .sp-subject-label:hover { border-color: var(--primary); }
 .sp-subject-check:checked + .sp-subject-label {
     border-color: var(--primary);
-    background: rgba(139, 197, 64, 0.1);
+    background: rgba(139,197,64,0.1);
     color: var(--primary-dark);
 }
-[data-theme="dark"] .sp-subject-label {
-    background: var(--dark);
-    border-color: var(--dark-600);
-    color: var(--gray-200);
-}
-[data-theme="dark"] .sp-subject-check:checked + .sp-subject-label {
-    background: rgba(139, 197, 64, 0.15);
-    border-color: var(--primary);
-    color: var(--primary-light);
-}
+[data-theme="dark"] .sp-subject-label { background: var(--dark); border-color: var(--dark-600); color: var(--gray-200); }
+[data-theme="dark"] .sp-subject-check:checked + .sp-subject-label { background: rgba(139,197,64,0.15); border-color: var(--primary); color: var(--primary-light); }
 
-.sp-hint { font-size: 0.78rem; color: var(--gray-400); margin-top: 0.35rem; }
+.sp-hint { font-size: 0.76rem; color: var(--gray-400); margin-top: 0.3rem; }
 
-.sp-range-wrap { margin-bottom: 0.5rem; }
-.sp-range-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.35rem;
-}
-.sp-range-value { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+.sp-range-wrap { margin-bottom: 0.75rem; }
+.sp-range-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+.sp-range-value { font-weight: 700; color: var(--primary); font-size: 0.88rem; }
 .sp-range-input { width: 100%; cursor: pointer; accent-color: var(--primary); }
 
+.sp-divider { height: 1px; background: var(--gray-100); margin: 1.5rem 0; }
+[data-theme="dark"] .sp-divider { background: var(--dark-700); }
+
+.sp-submit-wrap { margin-top: 1.5rem; }
 .sp-submit {
     width: 100%;
     padding: 0.9rem 1.5rem;
-    background: var(--gradient-primary);
-    color: #fff;
     border: none;
     border-radius: var(--radius-lg);
     font-weight: 800;
     font-size: 1rem;
     cursor: pointer;
-    margin-top: 0.5rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
-.sp-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-primary);
+.sp-submit.ai-mode { background: var(--gradient-primary); color: #fff; }
+.sp-submit.manual-mode { background: linear-gradient(135deg, #6366F1, #4F46E5); color: #fff; }
+.sp-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-primary); }
+
+@media (max-width: 576px) {
+    .sp-mode-grid { grid-template-columns: 1fr; }
+    .sp-card { padding: 1.25rem; }
 }
 </style>
 {% endblock %}
@@ -160,71 +216,137 @@
     <div class="tl-layout">
         {% include 'includes/_sidebar.html' with active='plans' %}
         <main>
-            <div class="sp-create-card">
-                <h1 class="sp-create-title">Yangi o'quv reja</h1>
-                <p class="sp-create-desc">Imtihon sanasi va fanlarni kiriting — haftalik vazifalar avtomatik yaratiladi.</p>
+            <div class="sp-create-wrap">
+                <h1 style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:0.25rem;">Yangi o'quv reja</h1>
+                <p style="color:var(--gray-500);font-size:0.9rem;margin-bottom:1.5rem;">Rejim tanlang va imtihonga tayyorlanishni boshlang.</p>
 
-                <form method="post">
+                <!-- Mode selector -->
+                <div class="sp-mode-grid" id="modeGrid">
+                    <div class="sp-mode-card active" data-mode="ai" onclick="selectMode('ai')">
+                        <div class="sp-mode-icon ai"><i class="bi bi-stars"></i></div>
+                        <div class="sp-mode-info">
+                            <div class="sp-mode-title">AI Reja <span class="sp-mode-badge">Tavsiya</span></div>
+                            <div class="sp-mode-desc">AI sizning zaif tomonlaringizni tahlil qilib, shaxsiy vazifalar tuzadi.</div>
+                        </div>
+                    </div>
+                    <div class="sp-mode-card" data-mode="manual" onclick="selectMode('manual')">
+                        <div class="sp-mode-icon manual"><i class="bi bi-calendar3"></i></div>
+                        <div class="sp-mode-info">
+                            <div class="sp-mode-title">Oddiy reja</div>
+                            <div class="sp-mode-desc">Standart haftalik jadval — har kun bir xil tartib.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI info box (AI mode only) -->
+                <div class="sp-ai-info" id="aiInfoBox">
+                    <div class="sp-ai-info-icon">🤖</div>
+                    <div class="sp-ai-info-text">
+                        <div class="sp-ai-info-title">AI nima qiladi?</div>
+                        <p class="sp-ai-info-desc">So'nggi 30 ta test natingizni, sust mavzularingizni va imtihon sanasini hisobga oladi. Har bir vazifa qaysi mavzuni mustahkamlashi kerakligini tushuntiradi.</p>
+                    </div>
+                </div>
+
+                <form method="post" id="createForm">
                     {% csrf_token %}
+                    <input type="hidden" name="mode" id="modeInput" value="ai">
 
-                    <div class="sp-section">
-                        <div class="sp-section-title"><i class="bi bi-1-circle-fill"></i> Imtihon va maqsad</div>
-                        <div class="sp-row">
-                            <div class="sp-group">
-                                <label class="sp-label" for="id_target_date">Imtihon sanasi</label>
-                                <input type="date" name="target_date" id="id_target_date" class="sp-input" required>
-                                <p class="sp-hint">Reja shu sanagacha tuziladi</p>
+                    <div class="sp-card">
+                        <!-- Section 1: Plan name & goal -->
+                        <div class="sp-section">
+                            <div class="sp-section-title"><i class="bi bi-flag-fill"></i> Maqsad</div>
+                            <div class="sp-group" style="margin-bottom:1rem;">
+                                <label class="sp-label" for="id_title">Reja nomi</label>
+                                <input type="text" name="title" id="id_title" class="sp-input" placeholder="Masalan: DTM 2026 tayyorgarlik" value="O'quv reja">
                             </div>
-                            <div class="sp-group">
-                                <label class="sp-label" for="id_target_score">Maqsadli ball (ixtiyoriy)</label>
-                                <input type="number" name="target_score" id="id_target_score" class="sp-input" placeholder="—" min="0" max="300">
+                            <div class="sp-row">
+                                <div class="sp-group">
+                                    <label class="sp-label" for="id_target_date">Imtihon sanasi</label>
+                                    <input type="date" name="target_date" id="id_target_date" class="sp-input">
+                                    <p class="sp-hint">Reja shu sanagacha tuziladi</p>
+                                </div>
+                                <div class="sp-group">
+                                    <label class="sp-label" for="id_target_score">Maqsadli ball (ixtiyoriy)</label>
+                                    <input type="number" name="target_score" id="id_target_score" class="sp-input" placeholder="—" min="0" max="300">
+                                </div>
                             </div>
                         </div>
-                        <div class="sp-group" style="margin-top: 1rem;">
-                            <label class="sp-label" for="id_title">Reja nomi</label>
-                            <input type="text" name="title" id="id_title" class="sp-input" placeholder="Masalan: DTM 2026" value="O'quv reja">
+
+                        <div class="sp-divider"></div>
+
+                        <!-- Section 2: Subjects -->
+                        <div class="sp-section">
+                            <div class="sp-section-title"><i class="bi bi-book-fill"></i> Fanlar</div>
+                            <p class="sp-hint" style="margin-bottom:0.75rem;">Kamida bitta fan tanlang</p>
+                            <div class="sp-subjects">
+                                {% for subject in subjects %}
+                                <div>
+                                    <input type="checkbox" class="sp-subject-check" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}">
+                                    <label class="sp-subject-label" for="sub{{ subject.id }}">{{ subject.icon|default:"📚"|safe }} {{ subject.name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="sp-divider"></div>
+
+                        <!-- Section 3: Schedule -->
+                        <div class="sp-section">
+                            <div class="sp-section-title"><i class="bi bi-clock-fill"></i> Vaqt taqsimoti</div>
+                            <div class="sp-range-wrap">
+                                <div class="sp-range-header">
+                                    <label class="sp-label" style="margin:0">Kunlik shug'ullanish vaqti</label>
+                                    <span class="sp-range-value" id="hoursVal">2 soat</span>
+                                </div>
+                                <input type="range" class="sp-range-input" name="daily_hours" min="0.5" max="6" step="0.5" value="2"
+                                       oninput="document.getElementById('hoursVal').textContent = this.value + ' soat'">
+                            </div>
+                            <div class="sp-range-wrap">
+                                <div class="sp-range-header">
+                                    <label class="sp-label" style="margin:0">Haftada necha kun o'zasiz?</label>
+                                    <span class="sp-range-value" id="daysVal">6 kun</span>
+                                </div>
+                                <input type="range" class="sp-range-input" name="weekly_days" min="1" max="7" step="1" value="6"
+                                       oninput="document.getElementById('daysVal').textContent = this.value + ' kun'">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="sp-section">
-                        <div class="sp-section-title"><i class="bi bi-2-circle-fill"></i> Qaysi fanlarni o'zasiz?</div>
-                        <p class="sp-hint" style="margin-bottom: 0.75rem;">Kamida bitta fanni tanlang. Har bir fan uchun haftalik vazifalar qo'shiladi.</p>
-                        <div class="sp-subjects">
-                            {% for subject in subjects %}
-                            <div>
-                                <input type="checkbox" class="sp-subject-check" name="subjects" id="sub{{ subject.id }}" value="{{ subject.id }}">
-                                <label class="sp-subject-label" for="sub{{ subject.id }}">{{ subject.icon|default:"📚"|safe }} {{ subject.name }}</label>
-                            </div>
-                            {% endfor %}
-                        </div>
+                    <div class="sp-submit-wrap">
+                        <button type="submit" class="sp-submit ai-mode" id="submitBtn">
+                            <i class="bi bi-stars"></i>
+                            <span id="submitLabel">AI bilan reja tuzish</span>
+                        </button>
                     </div>
-
-                    <div class="sp-section">
-                        <div class="sp-section-title"><i class="bi bi-3-circle-fill"></i> Vaqt taqsimoti</div>
-                        <div class="sp-range-wrap">
-                            <div class="sp-range-header">
-                                <label class="sp-label mb-0">Kunlik shug'ullanish vaqti</label>
-                                <span class="sp-range-value" id="hoursVal">2 soat</span>
-                            </div>
-                            <input type="range" class="sp-range-input" name="daily_hours" min="0.5" max="6" step="0.5" value="2"
-                                   oninput="document.getElementById('hoursVal').textContent = this.value + ' soat'">
-                        </div>
-                        <div class="sp-range-wrap" style="margin-top: 1rem;">
-                            <div class="sp-range-header">
-                                <label class="sp-label mb-0">Haftada necha kun o'zasiz?</label>
-                                <span class="sp-range-value" id="daysVal">6 kun</span>
-                            </div>
-                            <input type="range" class="sp-range-input" name="weekly_days" min="1" max="7" step="1" value="6"
-                                   oninput="document.getElementById('daysVal').textContent = this.value + ' kun'">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="sp-submit">
-                        <i class="bi bi-calendar-plus me-2"></i> Rejani yaratish
-                    </button>
                 </form>
             </div>
         </main>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectMode(mode) {
+    document.querySelectorAll('.sp-mode-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('[data-mode="' + mode + '"]').classList.add('active');
+    document.getElementById('modeInput').value = mode;
+
+    const aiInfo = document.getElementById('aiInfoBox');
+    const btn = document.getElementById('submitBtn');
+    const label = document.getElementById('submitLabel');
+
+    if (mode === 'ai') {
+        aiInfo.style.display = 'flex';
+        btn.className = 'sp-submit ai-mode';
+        label.textContent = 'AI bilan reja tuzish';
+        btn.querySelector('i').className = 'bi bi-stars';
+    } else {
+        aiInfo.style.display = 'none';
+        btn.className = 'sp-submit manual-mode';
+        label.textContent = 'Rejani yaratish';
+        btn.querySelector('i').className = 'bi bi-calendar-plus';
+    }
+}
+</script>
 {% endblock %}

@@ -14,6 +14,7 @@ urlpatterns = [
     path('mentor/chat/', views.ai_chat, name='ai_chat'),
     path('mentor/conversation/<uuid:uuid>/', views.conversation_detail, name='conversation_detail'),
     path('mentor/conversations/', views.conversations_list, name='conversations_list'),
+    path('mentor/conversation/<uuid:uuid>/delete/', views.conversation_delete, name='conversation_delete'),
 
     # AI Topic Tutor
     path('tutor/', views.ai_tutor, name='ai_tutor'),
@@ -35,6 +36,7 @@ urlpatterns = [
     path('study-plan/<uuid:uuid>/delete/', views.study_plan_delete, name='study_plan_delete'),
     path('study-plan/<uuid:uuid>/update/', views.study_plan_update, name='study_plan_update'),
     path('study-plan/task/<int:task_id>/complete/', views.task_complete, name='task_complete'),
+    path('study-plan/task/<int:task_id>/start-test/', views.start_task_test, name='start_task_test'),
 
     # AI Recommendations
     path('recommendations/', views.recommendations_list, name='recommendations_list'),

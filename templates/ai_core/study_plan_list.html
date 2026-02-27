@@ -9,159 +9,219 @@
 
 .plan-top-bar {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 }
+.plan-top-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin: 0;
+}
+[data-theme="dark"] .plan-top-title { color: var(--gray-100); }
+.plan-top-actions { display: flex; align-items: center; gap: 0.5rem; }
 
 .btn-new-plan {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1.5rem;
-    background: var(--primary);
+    gap: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    background: var(--gradient-primary);
     color: var(--white);
     border: none;
     border-radius: var(--radius-lg);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     text-decoration: none;
     cursor: pointer;
-    transition: opacity 0.15s ease;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
 .btn-new-plan:hover {
-    opacity: 0.85;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-primary);
     color: var(--white);
 }
 
 .plan-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.1rem;
 }
 
 .plan-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-lg);
-    padding: 1.5rem;
+    padding: 1.35rem;
     display: flex;
     flex-direction: column;
     text-decoration: none;
     color: inherit;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
 }
-
 .plan-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     transform: translateY(-2px);
     color: inherit;
 }
+[data-theme="dark"] .plan-card { background: var(--dark-800); border-color: var(--dark-700); }
 
-.plan-card-header {
-    margin-bottom: 1rem;
+/* AI glow for AI-generated plans */
+.plan-card.ai-plan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-primary);
 }
+
+.plan-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+    gap: 0.5rem;
+}
+.plan-badges { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
 
 .plan-status-badge {
     display: inline-block;
-    padding: 0.2rem 0.65rem;
+    padding: 0.18rem 0.6rem;
     border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
     border: 1px solid var(--gray-200);
-    color: var(--dark);
+    color: var(--gray-500);
     background: var(--gray-50);
 }
-
 .plan-status-badge.active {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.25);
+    background: rgba(34,197,94,0.1);
+    border-color: rgba(34,197,94,0.25);
     color: #16a34a;
 }
+.plan-status-badge.paused { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: #B45309; }
+.plan-status-badge.completed { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); color: #4F46E5; }
+[data-theme="dark"] .plan-status-badge { background: var(--dark-700); border-color: var(--dark-600); }
+
+.plan-ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--primary);
+    color: #fff;
+}
+
+.plan-card-date { font-size: 0.72rem; color: var(--gray-400); flex-shrink: 0; }
 
 .plan-card-title {
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 800;
     color: var(--dark);
-    margin: 0.75rem 0;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
 }
+[data-theme="dark"] .plan-card-title { color: var(--gray-100); }
 
-.plan-progress {
-    margin-bottom: 1.25rem;
+/* Subjects */
+.plan-subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.85rem;
 }
+.plan-subj-chip {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.18rem 0.5rem;
+    background: var(--gray-100);
+    color: var(--dark-600);
+    border-radius: 999px;
+}
+[data-theme="dark"] .plan-subj-chip { background: var(--dark-700); color: var(--gray-300); }
 
+/* Progress */
+.plan-progress { margin-bottom: 0.85rem; }
 .plan-progress-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    margin-bottom: 0.35rem;
+    font-size: 0.77rem;
+    margin-bottom: 0.3rem;
 }
-
-.plan-progress-labels span:first-child {
-    color: var(--gray-400);
-}
-
-.plan-progress-labels span:last-child {
-    font-weight: 700;
-    color: var(--primary);
-}
-
+.plan-progress-labels span:first-child { color: var(--gray-400); }
+.plan-progress-labels span:last-child { font-weight: 700; color: var(--primary); }
 .plan-progress-bar {
     width: 100%;
-    height: 6px;
+    height: 5px;
     background: var(--gray-100);
     border-radius: 999px;
     overflow: hidden;
 }
-
+[data-theme="dark"] .plan-progress-bar { background: var(--dark-700); }
 .plan-progress-fill {
     height: 100%;
-    background: var(--primary);
+    background: var(--gradient-primary);
     border-radius: 999px;
     transition: width 0.3s ease;
 }
 
+/* Meta */
 .plan-card-meta {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    font-size: 0.8rem;
+    gap: 1rem;
+    font-size: 0.77rem;
     color: var(--gray-400);
     border-top: 1px solid var(--gray-100);
-    padding-top: 1rem;
+    padding-top: 0.85rem;
     margin-top: auto;
+    flex-wrap: wrap;
 }
+[data-theme="dark"] .plan-card-meta { border-color: var(--dark-700); }
+.plan-card-meta i { margin-right: 0.2rem; }
 
-.plan-card-meta i {
-    margin-right: 0.25rem;
-}
-
+/* Empty state */
 .plan-empty {
     grid-column: 1 / -1;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 3.5rem 1.5rem;
     text-align: center;
-    padding: 4rem 1rem;
 }
-
-.plan-empty img {
-    width: 150px;
-    opacity: 0.5;
-    margin-bottom: 1rem;
-}
-
-.plan-empty h5 {
+[data-theme="dark"] .plan-empty { background: var(--dark-800); border-color: var(--dark-700); }
+.plan-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+.plan-empty-title { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 0.4rem; }
+[data-theme="dark"] .plan-empty-title { color: var(--gray-100); }
+.plan-empty-desc { color: var(--gray-400); font-size: 0.88rem; margin-bottom: 1.5rem; }
+.plan-empty-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    background: var(--gradient-primary);
+    color: #fff;
+    border-radius: var(--radius-lg);
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.plan-empty p {
-    color: var(--gray-400);
-}
+.plan-empty-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-primary); color: #fff; }
 
 @media (max-width: 576px) {
     .plan-grid { grid-template-columns: 1fr; }
-    .plan-card { padding: 1.25rem; }
     .plan-top-bar { justify-content: flex-start; }
-    .plan-empty { padding: 2rem 1rem; }
 }
 </style>
 {% endblock %}
@@ -172,26 +232,48 @@
         {% include 'includes/_sidebar.html' with active='plans' %}
         <main>
             <div class="plan-top-bar">
-                <a href="{% url 'ai_core:study_plan_create' %}" class="btn-new-plan">
-                    <i class="bi bi-plus-lg"></i> Yangi reja
-                </a>
+                <h1 class="plan-top-title">O'quv rejalar</h1>
+                <div class="plan-top-actions">
+                    <a href="{% url 'ai_core:study_plan_create' %}" class="btn-new-plan">
+                        <i class="bi bi-plus-lg"></i> Yangi reja
+                    </a>
+                </div>
             </div>
 
             <div class="plan-grid">
                 {% for plan in plans %}
-                <a href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}" class="plan-card">
-                    <div class="plan-card-header">
-                        <span class="plan-status-badge {% if plan.status == 'active' %}active{% endif %}">
-                            {{ plan.get_status_display }}
-                        </span>
+                <a href="{% url 'ai_core:study_plan_detail' uuid=plan.uuid %}" class="plan-card {% if plan.is_ai_generated %}ai-plan{% endif %}">
+                    <div class="plan-card-top">
+                        <div class="plan-badges">
+                            <span class="plan-status-badge {% if plan.status == 'active' %}active{% elif plan.status == 'paused' %}paused{% elif plan.status == 'completed' %}completed{% endif %}">
+                                {{ plan.get_status_display }}
+                            </span>
+                            {% if plan.is_ai_generated %}
+                            <span class="plan-ai-badge"><i class="bi bi-stars"></i> AI</span>
+                            {% endif %}
+                        </div>
+                        <span class="plan-card-date">{{ plan.created_at|date:"d.m.Y" }}</span>
                     </div>
 
                     <div class="plan-card-title">{{ plan.title }}</div>
 
+                    {% with subjects=plan.subjects.all %}
+                    {% if subjects %}
+                    <div class="plan-subjects">
+                        {% for s in subjects|slice:":4" %}
+                        <span class="plan-subj-chip">{{ s.icon|default:"📚"|safe }} {{ s.name }}</span>
+                        {% endfor %}
+                        {% if subjects|length > 4 %}
+                        <span class="plan-subj-chip">+{{ subjects|length|add:"-4" }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
                     <div class="plan-progress">
                         <div class="plan-progress-labels">
                             <span>Progress</span>
-                            <span>{{ plan.progress_percentage }}%</span>
+                            <span>{{ plan.progress_percentage|floatformat:0 }}%</span>
                         </div>
                         <div class="plan-progress-bar">
                             <div class="plan-progress-fill" style="width: {{ plan.progress_percentage }}%"></div>
@@ -201,13 +283,19 @@
                     <div class="plan-card-meta">
                         <span><i class="bi bi-list-check"></i> {{ plan.completed_tasks }}/{{ plan.total_tasks }}</span>
                         <span><i class="bi bi-clock"></i> {{ plan.daily_hours }} soat/kun</span>
+                        {% if plan.target_exam_date %}
+                        <span><i class="bi bi-calendar-event"></i> {{ plan.target_exam_date|date:"d.m.Y" }}</span>
+                        {% endif %}
                     </div>
                 </a>
                 {% empty %}
                 <div class="plan-empty">
-                    <img src="{% static 'img/empty-plan.svg' %}" alt="No plans">
-                    <h5>Hozircha rejalar yo'q</h5>
-                    <p>O'z maqsadingizga erishish uchun birinchi rejani tuzing.</p>
+                    <span class="plan-empty-icon">📋</span>
+                    <div class="plan-empty-title">Hali rejalar yo'q</div>
+                    <p class="plan-empty-desc">AI sizning zaif tomonlaringizni tahlil qilib, shaxsiy o'quv reja tuzib beradi.</p>
+                    <a href="{% url 'ai_core:study_plan_create' %}" class="plan-empty-cta">
+                        <i class="bi bi-stars"></i> AI bilan reja tuzish
+                    </a>
                 </div>
                 {% endfor %}
             </div>

@@ -250,6 +250,7 @@ class StudyPlan(models.Model):
 
     # AI generated content
     ai_analysis = models.TextField('AI tahlili', blank=True)
+    is_ai_generated = models.BooleanField('AI tomonidan tuzilgan', default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -320,6 +321,16 @@ class StudyPlanTask(models.Model):
     scheduled_date = models.DateField('Rejalashtirilgan sana')
     estimated_minutes = models.PositiveIntegerField('Taxminiy vaqt (daqiqa)', default=30)
     questions_count = models.PositiveIntegerField('Savollar soni', null=True, blank=True)
+
+    # AI fields
+    ai_notes = models.TextField('AI izohi', blank=True)
+    difficulty = models.CharField(
+        'Qiyinlik',
+        max_length=10,
+        choices=[('easy', 'Oson'), ('medium', "O'rta"), ('hard', 'Qiyin')],
+        default='medium'
+    )
+    weak_topic_focus = models.BooleanField('Sust mavzu', default=False)
 
     # Status
     is_completed = models.BooleanField('Bajarilgan', default=False)

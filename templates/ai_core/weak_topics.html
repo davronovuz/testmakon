@@ -207,7 +207,7 @@
                             <div class="wt-progress-fill" style="width: {{ item.accuracy_rate }}%"></div>
                         </div>
                     </div>
-                    <a href="#" class="wt-btn">Mashq qilish</a>
+                    <a href="{% url 'tests_app:practice_subject' subject_slug=item.subject.slug %}" class="wt-btn">Mashq qilish</a>
                 </div>
                 {% if item.recommendation %}
                 <div class="wt-ai-tip">

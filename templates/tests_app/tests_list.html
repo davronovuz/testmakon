@@ -208,7 +208,7 @@
             <div class="tl-subj-title">Fanlar bo'yicha</div>
             <div class="tl-subj-grid">
                 {% for subject in subjects %}
-                <a href="{% url 'tests_app:practice_select' %}?subject={{ subject.slug }}" class="tl-subj-item">
+                <a href="{% url 'tests_app:practice_subject' subject_slug=subject.slug %}" class="tl-subj-item">
                     <div class="tl-subj-icon" style="background: {{ subject.color }}15;">
                         {% subject_icon subject 32 %}
                     </div>
