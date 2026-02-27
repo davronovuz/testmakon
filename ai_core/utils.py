@@ -24,7 +24,7 @@ Sening vazifang O'zbekistondagi abituriyentlarga universitetga kirish imtihonlar
 Sen o'zbek tilida javob berasan. Javoblaringni qisqa, aniq va foydali qilib ber."""
 
         # system_instruction eski versiyalarda yo'q — history ga prepend qilamiz
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-pro')
 
         chat_history = [
             {"role": "user", "parts": [system_prompt]},
