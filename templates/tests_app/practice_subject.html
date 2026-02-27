@@ -1,569 +1,494 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icon_tags %}
 
-{% block title %}{{ subject.name }} - Mashq | TestMakon{% endblock %}
+{% block title %}{{ subject.name }} — Mashq | TestMakon{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* ========== PAGE HEADER ========== */
-    .ps-header {
-        padding: 2.5rem 0;
-        color: white;
-        position: relative;
+    {% include 'includes/_sidebar_css.html' %}
+
+    body { background: var(--gray-50); }
+
+    /* ===== PAGE HEADER ===== */
+    .ps-hero {
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        padding: 1.25rem 0 0;
+        margin-bottom: 1.5rem;
     }
-
-    /* Subject gradients */
-    .ps-header.matematika { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
-    .ps-header.fizika { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
-    .ps-header.kimyo { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
-    .ps-header.biologiya { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
-    .ps-header.ingliz-tili { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
-    .ps-header.tarix { background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); }
-    .ps-header.geografiya { background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%); }
-    .ps-header.ona-tili { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
-    .ps-header.default { background: linear-gradient(135deg, #64748B 0%, #475569 100%); }
-
     .ps-breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.78rem; color: var(--gray-400); font-weight: 500;
         margin-bottom: 1rem;
-        opacity: 0.9;
+    }
+    .ps-breadcrumb a { color: var(--gray-400); text-decoration: none; transition: color 0.15s; }
+    .ps-breadcrumb a:hover { color: var(--primary-dark); }
+    .ps-breadcrumb i { font-size: 0.65rem; }
+
+    .ps-hero-inner {
+        display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;
+    }
+    .ps-hero-left { display: flex; align-items: center; gap: 14px; padding-bottom: 1.25rem; }
+    .ps-hero-icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; flex-shrink: 0;
+    }
+    .ps-hero-title {
+        font-size: 1.4rem; font-weight: 900; color: var(--dark); margin: 0 0 3px;
+    }
+    .ps-hero-meta {
+        font-size: 0.78rem; color: var(--gray-500); font-weight: 500;
+        display: flex; align-items: center; gap: 10px;
+    }
+    .ps-hero-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .ps-hero-tabs {
+        display: flex; gap: 2px;
+    }
+    .ps-hero-tab {
+        padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px 8px 0 0;
+        cursor: pointer; transition: all 0.15s; color: var(--gray-400);
+        border: none; background: transparent;
+    }
+    .ps-hero-tab.active {
+        color: var(--primary-dark); background: var(--gray-50);
+        box-shadow: inset 0 -2px 0 var(--primary);
     }
 
-    .ps-breadcrumb a {
-        color: white;
-        opacity: 0.8;
-    }
-
-    .ps-breadcrumb a:hover {
-        opacity: 1;
-    }
-
-    .ps-header h1 {
-        font-size: 2rem;
-        color: white;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .ps-header p {
-        font-size: 1rem;
-        color: white;
-        opacity: 0.9;
-        margin: 0;
-    }
-
-    /* ========== CONTENT ========== */
-    .ps-content {
-        padding: 2rem 0 4rem;
-    }
-
+    /* ===== LAYOUT ===== */
     .ps-layout {
         display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 2rem;
+        grid-template-columns: 1fr 320px;
+        gap: 16px;
+        align-items: start;
+    }
+    @media (max-width: 900px) {
+        .ps-layout { grid-template-columns: 1fr; }
+        .ps-sidebar { position: static !important; order: -1; }
+        .ps-hero-tabs { display: none; }
     }
 
-    @media (max-width: 992px) {
-        .ps-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ========== MAIN AREA ========== */
+    /* ===== TOPICS CARD ===== */
     .ps-card {
         background: var(--white);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
         border: 1px solid var(--gray-200);
-        margin-bottom: 1.5rem;
+        border-radius: 14px;
         overflow: hidden;
     }
-
-    .ps-card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    .ps-card-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .ps-card-head-title {
+        font-size: 0.82rem; font-weight: 800; color: var(--dark);
+        display: flex; align-items: center; gap: 6px;
+    }
+    .ps-card-head-title i { color: var(--primary); }
+    .ps-card-head-cnt {
+        font-size: 0.72rem; font-weight: 600; color: var(--gray-400);
+        background: var(--gray-100); padding: 3px 10px; border-radius: 20px;
     }
 
-    .ps-card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+    /* ===== ALL TOPICS OPTION ===== */
+    .ps-all-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 16px;
+        cursor: pointer; transition: background 0.15s;
+        border-bottom: 1px solid var(--gray-100);
+        background: #FAFCFF;
+    }
+    .ps-all-item:hover { background: rgba(139,197,64,0.04); }
+    .ps-all-item.selected { background: rgba(139,197,64,0.07); }
+    .ps-all-radio {
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 2px solid var(--gray-300); flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.15s;
+    }
+    .ps-all-item.selected .ps-all-radio {
+        border-color: var(--primary); background: var(--primary);
+    }
+    .ps-all-item.selected .ps-all-radio::after {
+        content: ''; width: 6px; height: 6px;
+        background: white; border-radius: 50%;
+    }
+    .ps-all-label { font-size: 0.88rem; font-weight: 700; color: var(--dark); flex: 1; }
+    .ps-all-badge {
+        font-size: 0.7rem; font-weight: 700;
+        background: rgba(139,197,64,0.12); color: var(--primary-dark);
+        padding: 3px 10px; border-radius: 20px;
     }
 
-    .ps-card-title i {
-        color: var(--primary);
+    /* ===== TOPIC LIST ===== */
+    .ps-topics-list { padding: 8px; display: flex; flex-direction: column; gap: 3px; }
+
+    .ps-topic {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 10px; border-radius: 10px;
+        cursor: pointer; transition: all 0.15s;
+        border: 1.5px solid transparent;
+        position: relative;
+    }
+    .ps-topic:hover { background: var(--gray-50); border-color: var(--gray-200); }
+    .ps-topic.selected {
+        background: rgba(139,197,64,0.07);
+        border-color: rgba(139,197,64,0.35);
     }
 
-    .ps-card-body {
-        padding: 1.5rem;
+    .ps-topic-num {
+        width: 26px; height: 26px; border-radius: 7px;
+        background: var(--gray-100); color: var(--gray-400);
+        font-size: 0.7rem; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: all 0.15s;
+    }
+    .ps-topic.selected .ps-topic-num {
+        background: var(--primary); color: white;
     }
 
-    /* ========== TOPICS LIST ========== */
-    .ps-topic-item {
-        display: flex;
-        align-items: center;
-        padding: 1rem 1.25rem;
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        margin-bottom: 0.75rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .ps-topic-item:hover {
-        border-color: var(--gray-300);
-        background: var(--gray-50);
-    }
-
-    .ps-topic-item.selected {
-        border-color: var(--primary);
-        background: var(--primary-glow);
-    }
-
-    .ps-topic-radio {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--gray-300);
-        border-radius: 50%;
-        margin-right: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all 0.2s;
-    }
-
-    .ps-topic-item.selected .ps-topic-radio {
-        border-color: var(--primary);
-        background: var(--primary);
-    }
-
-    .ps-topic-item.selected .ps-topic-radio::after {
-        content: '';
-        width: 8px;
-        height: 8px;
-        background: white;
-        border-radius: 50%;
-    }
-
-    .ps-topic-info {
-        flex: 1;
-    }
-
+    .ps-topic-body { flex: 1; min-width: 0; }
     .ps-topic-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0.15rem;
+        font-size: 0.83rem; font-weight: 700; color: var(--dark);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ps-topic.selected .ps-topic-name { color: var(--primary-dark); }
+
+    .ps-topic-cnt {
+        font-size: 0.68rem; font-weight: 700;
+        color: var(--gray-400); background: var(--gray-100);
+        padding: 2px 8px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;
+    }
+    .ps-topic.selected .ps-topic-cnt {
+        background: rgba(139,197,64,0.15); color: var(--primary-dark);
     }
 
-    .ps-topic-meta {
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
+    /* ===== SIDEBAR ===== */
+    .ps-sidebar { position: sticky; top: 88px; }
 
-    .ps-topic-count {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--gray-400);
-        padding: 0.35rem 0.75rem;
-        background: var(--gray-100);
-        border-radius: 20px;
-    }
-
-    .ps-topic-item.selected .ps-topic-count {
-        background: var(--primary);
-        color: white;
-    }
-
-    /* All topics option */
-    .ps-all-topics {
-        background: var(--gray-50);
-        border-style: dashed;
-    }
-
-    .ps-all-topics .ps-topic-radio {
-        border-color: var(--primary-light);
-    }
-
-    /* ========== SIDEBAR ========== */
-    .ps-sidebar {
-        position: sticky;
-        top: 100px;
-        align-self: start;
-    }
-
-    /* Settings Card */
-    .ps-settings-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .ps-settings-label {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 0.75rem;
-        display: block;
-    }
-
-    .ps-settings-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .ps-option {
-        padding: 0.6rem 1rem;
-        background: var(--gray-100);
+    .ps-settings-card {
+        background: var(--white);
         border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--dark-600);
-        cursor: pointer;
-        transition: all 0.2s;
+        border-radius: 14px;
+        overflow: hidden;
     }
-
-    .ps-option:hover {
-        background: var(--gray-200);
+    .ps-settings-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 0.82rem; font-weight: 800; color: var(--dark);
+        display: flex; align-items: center; gap: 6px;
     }
+    .ps-settings-head i { color: var(--gray-400); }
+    .ps-settings-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
 
-    .ps-option.selected {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: white;
+    /* Setting group */
+    .ps-sg-label {
+        font-size: 0.7rem; font-weight: 800; color: var(--gray-400);
+        text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
     }
-
-    /* Difficulty options */
-    .ps-option[data-value="easy"] { border-left: 3px solid #10B981; }
-    .ps-option[data-value="medium"] { border-left: 3px solid #F59E0B; }
-    .ps-option[data-value="hard"] { border-left: 3px solid #EF4444; }
-
-    /* Mode options - compact pills */
-    .ps-mode-pills {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
+    .ps-sg-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ps-sg-pill {
+        padding: 6px 12px; border-radius: 8px;
+        border: 1.5px solid var(--gray-200); background: var(--white);
+        font-size: 0.78rem; font-weight: 700; color: var(--dark-600);
+        cursor: pointer; transition: all 0.15s; user-select: none;
     }
-
-    .ps-mode-pill {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
-        background: var(--gray-50);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius);
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--dark-600);
-    }
-
-    .ps-mode-pill:hover {
-        background: var(--gray-100);
-    }
-
-    .ps-mode-pill.selected {
-        background: var(--primary-glow);
-        border-color: var(--primary);
+    .ps-sg-pill:hover { border-color: var(--gray-300); background: var(--gray-50); }
+    .ps-sg-pill.active {
+        border-color: var(--primary); background: rgba(139,197,64,0.1);
         color: var(--primary-dark);
     }
 
-    .ps-mode-pill i {
-        font-size: 0.95rem;
-    }
+    /* Difficulty specific */
+    .ps-sg-pill[data-val="easy"] { border-left: 3px solid #10B981; }
+    .ps-sg-pill[data-val="medium"] { border-left: 3px solid #F59E0B; }
+    .ps-sg-pill[data-val="hard"] { border-left: 3px solid #EF4444; }
+    .ps-sg-pill[data-val="all"] { border-left: 3px solid var(--gray-300); }
 
-    .ps-mode-pill.selected i {
-        color: var(--primary);
+    /* Mode pills */
+    .ps-mode-list { display: flex; flex-direction: column; gap: 5px; }
+    .ps-mode-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 12px; border-radius: 10px;
+        border: 1.5px solid var(--gray-200);
+        cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .ps-mode-item:hover { border-color: var(--gray-300); background: var(--gray-50); }
+    .ps-mode-item.active {
+        border-color: var(--primary); background: rgba(139,197,64,0.08);
+    }
+    .ps-mode-icon {
+        width: 30px; height: 30px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; flex-shrink: 0;
+        background: var(--gray-100); color: var(--gray-400);
+        transition: all 0.15s;
+    }
+    .ps-mode-item.active .ps-mode-icon { background: rgba(139,197,64,0.15); color: var(--primary-dark); }
+    .ps-mode-body { flex: 1; }
+    .ps-mode-title { font-size: 0.8rem; font-weight: 800; color: var(--dark); margin-bottom: 1px; }
+    .ps-mode-desc { font-size: 0.68rem; color: var(--gray-400); font-weight: 500; }
+    .ps-mode-check {
+        width: 16px; height: 16px; border-radius: 50%;
+        border: 2px solid var(--gray-300); flex-shrink: 0; transition: all 0.15s;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ps-mode-item.active .ps-mode-check { border-color: var(--primary); background: var(--primary); }
+    .ps-mode-item.active .ps-mode-check::after {
+        content: ''; width: 5px; height: 5px; background: white; border-radius: 50%;
     }
 
     /* Summary */
     .ps-summary {
-        background: var(--gray-50);
-        border-radius: var(--radius);
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+        background: var(--gray-50); border-radius: 10px;
+        padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;
     }
-
-    .ps-summary-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        font-size: 0.9rem;
+    .ps-sum-row {
+        display: flex; align-items: center; justify-content: space-between;
+        font-size: 0.78rem;
     }
+    .ps-sum-label { color: var(--gray-400); font-weight: 500; }
+    .ps-sum-val { color: var(--dark); font-weight: 800; }
 
-    .ps-summary-item:not(:last-child) {
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-    .ps-summary-label {
-        color: var(--gray-500);
-    }
-
-    .ps-summary-value {
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    /* Start Button */
+    /* Start button */
     .ps-start-btn {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1rem;
-        background: var(--gradient-primary);
-        border: none;
-        color: white;
-        border-radius: var(--radius-lg);
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
+        width: 100%; padding: 13px;
+        background: var(--gradient-primary); border: none;
+        color: white; border-radius: 12px;
+        font-size: 0.95rem; font-weight: 800;
+        cursor: pointer; transition: all 0.2s;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: 0 4px 14px rgba(139,197,64,0.3);
     }
+    .ps-start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,197,64,0.4); }
+    .ps-start-btn:active { transform: translateY(0); }
 
-    .ps-start-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-primary);
+    /* Empty */
+    .ps-empty {
+        padding: 3rem 2rem; text-align: center;
+        color: var(--gray-400); font-size: 0.85rem;
     }
-
-    .ps-start-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
+    .ps-empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="ps-header {{ subject.slug|default:'default' }}">
+<!-- Hero -->
+<div class="ps-hero">
     <div class="container">
         <div class="ps-breadcrumb">
-            <a href="{% url 'tests_app:practice_select' %}">Mashq</a>
+            <a href="{% url 'tests_app:tests_list' %}">Testlar</a>
+            <i class="bi bi-chevron-right"></i>
+            <a href="{% url 'tests_app:question_bank' %}">Savol banki</a>
             <i class="bi bi-chevron-right"></i>
             <span>{{ subject.name }}</span>
         </div>
-        <h1>
-            <span>{{ subject.icon }}</span>
-            {{ subject.name }}
-        </h1>
-        <p>Mavzu tanlang va mashq boshlang</p>
+        <div class="ps-hero-inner">
+            <div class="ps-hero-left">
+                <div class="ps-hero-icon" style="background: {{ subject.color }}18;">
+                    {% subject_icon subject 52 %}
+                </div>
+                <div>
+                    <h1 class="ps-hero-title">{{ subject.name }}</h1>
+                    <div class="ps-hero-meta">
+                        <span><i class="bi bi-journal-text"></i> {{ total_questions }} ta savol</span>
+                        <span><i class="bi bi-collection"></i> {{ topics.count }} ta mavzu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Content -->
-<div class="ps-content">
-    <div class="container">
-        <form action="{% url 'tests_app:practice_start' %}" method="post" id="practiceForm">
-            {% csrf_token %}
-            <input type="hidden" name="subject_id" value="{{ subject.id }}">
-            <input type="hidden" name="topic_id" id="topicInput" value="">
-            <input type="hidden" name="question_count" id="countInput" value="10">
-            <input type="hidden" name="difficulty" id="difficultyInput" value="all">
-            <input type="hidden" name="mode" id="modeInput" value="practice">
+<div class="container pb-5">
+    <form action="{% url 'tests_app:practice_start' %}" method="post" id="practiceForm">
+        {% csrf_token %}
+        <input type="hidden" name="subject_id" value="{{ subject.id }}">
+        <input type="hidden" name="topic_id" id="topicInput" value="">
+        <input type="hidden" name="question_count" id="countInput" value="10">
+        <input type="hidden" name="difficulty" id="difficultyInput" value="all">
+        <input type="hidden" name="mode" id="modeInput" value="practice">
 
-            <div class="ps-layout">
-                <!-- Main Area - Topics -->
-                <div class="ps-main">
-                    <div class="ps-card">
-                        <div class="ps-card-header">
-                            <h3 class="ps-card-title">
-                                <i class="bi bi-folder"></i>
-                                Mavzu tanlang
-                            </h3>
-                            <span class="text-muted">{{ topics.count }} ta mavzu</span>
+        <div class="ps-layout">
+            <!-- Topics -->
+            <div>
+                <div class="ps-card">
+                    <div class="ps-card-head">
+                        <div class="ps-card-head-title">
+                            <i class="bi bi-collection"></i> Mavzu tanlang
                         </div>
-                        <div class="ps-card-body">
-                            <!-- All topics option -->
-                            <div class="ps-topic-item ps-all-topics selected" data-topic="">
-                                <div class="ps-topic-radio"></div>
-                                <div class="ps-topic-info">
-                                    <div class="ps-topic-name">📚 Barcha mavzular</div>
-                                    <div class="ps-topic-meta">Tasodifiy savollar barcha mavzulardan</div>
-                                </div>
-                                <span class="ps-topic-count">{{ total_questions }} savol</span>
-                            </div>
-
-                            {% for topic in topics %}
-                            <div class="ps-topic-item" data-topic="{{ topic.id }}">
-                                <div class="ps-topic-radio"></div>
-                                <div class="ps-topic-info">
-                                    <div class="ps-topic-name">{{ topic.name }}</div>
-                                    {% if topic.subtopics.count > 0 %}
-                                    <div class="ps-topic-meta">{{ topic.subtopics.count }} ta bo'lim</div>
-                                    {% endif %}
-                                </div>
-                                <span class="ps-topic-count">{{ topic.questions_count }} savol</span>
-                            </div>
-                            {% empty %}
-                            <div class="text-center py-4">
-                                <p class="text-muted mb-0">Mavzular qo'shilmagan</p>
-                            </div>
-                            {% endfor %}
-                        </div>
+                        <span class="ps-card-head-cnt">{{ topics.count }} mavzu</span>
                     </div>
+
+                    <!-- All topics -->
+                    <div class="ps-all-item selected" data-topic="">
+                        <div class="ps-all-radio"></div>
+                        <span class="ps-all-label">📚 Barcha mavzular</span>
+                        <span class="ps-all-badge">{{ total_questions }} savol</span>
+                    </div>
+
+                    <!-- Topic list -->
+                    {% if topics %}
+                    <div class="ps-topics-list">
+                        {% for topic in topics %}
+                        <div class="ps-topic" data-topic="{{ topic.id }}" data-name="{{ topic.name }}">
+                            <div class="ps-topic-num">{{ forloop.counter }}</div>
+                            <div class="ps-topic-body">
+                                <div class="ps-topic-name">{{ topic.name }}</div>
+                            </div>
+                            <span class="ps-topic-cnt">{{ topic.questions_count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="ps-empty">
+                        <i class="bi bi-inbox"></i>
+                        Mavzular qo'shilmagan
+                    </div>
+                    {% endif %}
                 </div>
+            </div>
 
-                <!-- Sidebar - Settings -->
-                <div class="ps-sidebar">
-                    <div class="ps-card">
-                        <div class="ps-card-header">
-                            <h3 class="ps-card-title">
-                                <i class="bi bi-sliders"></i>
-                                Sozlamalar
-                            </h3>
+            <!-- Sidebar -->
+            <div class="ps-sidebar">
+                <div class="ps-settings-card">
+                    <div class="ps-settings-head">
+                        <i class="bi bi-sliders2"></i> Test sozlamalari
+                    </div>
+                    <div class="ps-settings-body">
+
+                        <!-- Count -->
+                        <div>
+                            <div class="ps-sg-label">Savollar soni</div>
+                            <div class="ps-sg-options">
+                                <div class="ps-sg-pill active" data-group="count" data-val="10">10</div>
+                                <div class="ps-sg-pill" data-group="count" data-val="20">20</div>
+                                <div class="ps-sg-pill" data-group="count" data-val="30">30</div>
+                                <div class="ps-sg-pill" data-group="count" data-val="50">50</div>
+                            </div>
                         </div>
-                        <div class="ps-card-body">
-                            <!-- Question Count -->
-                            <div class="ps-settings-group">
-                                <label class="ps-settings-label">Savollar soni</label>
-                                <div class="ps-settings-options">
-                                    <div class="ps-option selected" data-name="count" data-value="10">10</div>
-                                    <div class="ps-option" data-name="count" data-value="20">20</div>
-                                    <div class="ps-option" data-name="count" data-value="30">30</div>
-                                    <div class="ps-option" data-name="count" data-value="50">50</div>
-                                </div>
-                            </div>
 
-                            <!-- Difficulty -->
-                            <div class="ps-settings-group">
-                                <label class="ps-settings-label">Qiyinlik darajasi</label>
-                                <div class="ps-settings-options">
-                                    <div class="ps-option selected" data-name="difficulty" data-value="all">Barchasi</div>
-                                    <div class="ps-option" data-name="difficulty" data-value="easy">Oson</div>
-                                    <div class="ps-option" data-name="difficulty" data-value="medium">O'rta</div>
-                                    <div class="ps-option" data-name="difficulty" data-value="hard">Qiyin</div>
-                                </div>
+                        <!-- Difficulty -->
+                        <div>
+                            <div class="ps-sg-label">Qiyinlik darajasi</div>
+                            <div class="ps-sg-options">
+                                <div class="ps-sg-pill active" data-group="diff" data-val="all">Barchasi</div>
+                                <div class="ps-sg-pill" data-group="diff" data-val="easy">Oson</div>
+                                <div class="ps-sg-pill" data-group="diff" data-val="medium">O'rta</div>
+                                <div class="ps-sg-pill" data-group="diff" data-val="hard">Qiyin</div>
                             </div>
-
-                            <!-- Mode -->
-                            <div class="ps-settings-group">
-                                <label class="ps-settings-label">Mashq turi</label>
-                                <div class="ps-mode-pills">
-                                    <div class="ps-mode-pill selected" data-mode="practice">
-                                        <i class="bi bi-journal-check"></i> Oddiy mashq
-                                    </div>
-                                    <div class="ps-mode-pill" data-mode="timed">
-                                        <i class="bi bi-stopwatch"></i> Vaqt bilan
-                                    </div>
-                                    <div class="ps-mode-pill" data-mode="exam">
-                                        <i class="bi bi-mortarboard"></i> Imtihon rejimi
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Summary -->
-                            <div class="ps-summary">
-                                <div class="ps-summary-item">
-                                    <span class="ps-summary-label">Mavzu</span>
-                                    <span class="ps-summary-value" id="summaryTopic">Barcha mavzular</span>
-                                </div>
-                                <div class="ps-summary-item">
-                                    <span class="ps-summary-label">Savollar</span>
-                                    <span class="ps-summary-value" id="summaryCount">10 ta</span>
-                                </div>
-                                <div class="ps-summary-item">
-                                    <span class="ps-summary-label">Taxminiy vaqt</span>
-                                    <span class="ps-summary-value" id="summaryTime">~20 daqiqa</span>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="ps-start-btn">
-                                <i class="bi bi-play-fill"></i>
-                                Mashqni boshlash
-                            </button>
                         </div>
+
+                        <!-- Mode -->
+                        <div>
+                            <div class="ps-sg-label">Mashq turi</div>
+                            <div class="ps-mode-list">
+                                <div class="ps-mode-item active" data-mode="practice">
+                                    <div class="ps-mode-icon"><i class="bi bi-journal-check"></i></div>
+                                    <div class="ps-mode-body">
+                                        <div class="ps-mode-title">Oddiy mashq</div>
+                                        <div class="ps-mode-desc">Javobni ko'rsatadi</div>
+                                    </div>
+                                    <div class="ps-mode-check"></div>
+                                </div>
+                                <div class="ps-mode-item" data-mode="timed">
+                                    <div class="ps-mode-icon"><i class="bi bi-stopwatch"></i></div>
+                                    <div class="ps-mode-body">
+                                        <div class="ps-mode-title">Vaqt bilan</div>
+                                        <div class="ps-mode-desc">Savol boshiga 2 daqiqa</div>
+                                    </div>
+                                    <div class="ps-mode-check"></div>
+                                </div>
+                                <div class="ps-mode-item" data-mode="exam">
+                                    <div class="ps-mode-icon"><i class="bi bi-mortarboard"></i></div>
+                                    <div class="ps-mode-body">
+                                        <div class="ps-mode-title">Imtihon rejimi</div>
+                                        <div class="ps-mode-desc">Oxirida natija ko'rinadi</div>
+                                    </div>
+                                    <div class="ps-mode-check"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="ps-summary">
+                            <div class="ps-sum-row">
+                                <span class="ps-sum-label">Mavzu</span>
+                                <span class="ps-sum-val" id="sumTopic">Barcha</span>
+                            </div>
+                            <div class="ps-sum-row">
+                                <span class="ps-sum-label">Savollar</span>
+                                <span class="ps-sum-val" id="sumCount">10 ta</span>
+                            </div>
+                            <div class="ps-sum-row">
+                                <span class="ps-sum-label">Taxminiy vaqt</span>
+                                <span class="ps-sum-val" id="sumTime">~20 daq</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="ps-start-btn">
+                            <i class="bi bi-play-fill"></i> Mashqni boshlash
+                        </button>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     // Topic selection
-    document.querySelectorAll('.ps-topic-item').forEach(item => {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('.ps-topic-item').forEach(i => i.classList.remove('selected'));
-            this.classList.add('selected');
+    const allItem = document.querySelector('.ps-all-item');
+    const topics = document.querySelectorAll('.ps-topic');
 
-            const topicId = this.dataset.topic;
-            document.getElementById('topicInput').value = topicId;
+    function selectTopic(el, id, name) {
+        allItem.classList.remove('selected');
+        topics.forEach(t => t.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('topicInput').value = id;
+        document.getElementById('sumTopic').textContent = name;
+    }
 
-            // Update summary
-            const topicName = topicId ? this.querySelector('.ps-topic-name').textContent : 'Barcha mavzular';
-            document.getElementById('summaryTopic').textContent = topicName;
-        });
+    allItem.addEventListener('click', () => selectTopic(allItem, '', 'Barcha'));
+    topics.forEach(t => {
+        t.addEventListener('click', () => selectTopic(t, t.dataset.topic, t.dataset.name));
     });
 
-    // Options selection (count, difficulty)
-    document.querySelectorAll('.ps-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const name = this.dataset.name;
-            const value = this.dataset.value;
+    // Count & Difficulty pills
+    document.querySelectorAll('.ps-sg-pill').forEach(pill => {
+        pill.addEventListener('click', function () {
+            const group = this.dataset.group;
+            document.querySelectorAll(`.ps-sg-pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
 
-            // Update UI
-            document.querySelectorAll(`.ps-option[data-name="${name}"]`).forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
-
-            // Update hidden input
-            if (name === 'count') {
-                document.getElementById('countInput').value = value;
-                document.getElementById('summaryCount').textContent = value + ' ta';
-
-                // Update time estimate
-                const mode = document.getElementById('modeInput').value;
-                updateTimeEstimate(parseInt(value), mode);
-            } else if (name === 'difficulty') {
-                document.getElementById('difficultyInput').value = value;
+            if (group === 'count') {
+                document.getElementById('countInput').value = this.dataset.val;
+                document.getElementById('sumCount').textContent = this.dataset.val + ' ta';
+                updateTime();
+            } else {
+                document.getElementById('difficultyInput').value = this.dataset.val;
             }
         });
     });
 
-    // Mode selection
-    document.querySelectorAll('.ps-mode-pill').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.ps-mode-pill').forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
-
-            const mode = this.dataset.mode;
-            document.getElementById('modeInput').value = mode;
-
-            // Update time estimate
-            const count = parseInt(document.getElementById('countInput').value);
-            updateTimeEstimate(count, mode);
+    // Mode
+    document.querySelectorAll('.ps-mode-item').forEach(item => {
+        item.addEventListener('click', function () {
+            document.querySelectorAll('.ps-mode-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('modeInput').value = this.dataset.mode;
+            updateTime();
         });
     });
 
-    function updateTimeEstimate(count, mode) {
-        let minutes;
-        if (mode === 'practice') {
-            minutes = count * 2; // 2 min per question estimate
-        } else if (mode === 'timed') {
-            minutes = count * 2; // 2 min per question
-        } else {
-            minutes = count * 1; // 1 min per question (exam mode)
-        }
-
-        document.getElementById('summaryTime').textContent = `~${minutes} daqiqa`;
+    function updateTime() {
+        const count = parseInt(document.getElementById('countInput').value);
+        const mode = document.getElementById('modeInput').value;
+        const mins = mode === 'exam' ? count : count * 2;
+        document.getElementById('sumTime').textContent = `~${mins} daq`;
     }
 </script>
 {% endblock %}
