@@ -40,7 +40,7 @@ def ai_chat_task(self, conversation_id):
             conversation=conversation,
             role='assistant',
             content=ai_response,
-            model_used='gemini-pro'
+            model_used='gemini-1.5-flash'
         )
 
         new_title = None
@@ -151,7 +151,7 @@ def ai_explain_topic_task(self, conversation_id):
             conversation=conversation,
             role='assistant',
             content=explanation,
-            model_used='gemini-pro'
+            model_used='gemini-1.5-flash'
         )
 
         conversation.message_count = conversation.messages.count()

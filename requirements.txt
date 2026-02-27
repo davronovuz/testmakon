@@ -27,10 +27,10 @@ django-redis==6.0.0
 et_xmlfile==2.0.0
 flower==2.0.1
 frozenlist==1.8.0
-google-ai-generativelanguage==0.4.0
+google-ai-generativelanguage==0.6.10
 google-api-core==2.30.0
 google-auth==2.48.0
-google-generativeai==0.3.2
+google-generativeai==0.8.3
 googleapis-common-protos==1.72.0
 grpcio==1.78.1
 grpcio-status==1.62.3
