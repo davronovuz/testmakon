@@ -2499,7 +2499,118 @@
             autoClose:false});
         } else if (data.type === 'online_status') {
           document.dispatchEvent(new CustomEvent('ws:online_status',{detail:data}));
+        } else if (data.type === 'notification') {
+          handleIncomingNotification(data.notification);
         }
+      }
+
+      // ── Real-time notification handler ──────────────────────────
+      function handleIncomingNotification(n) {
+        if (!n) return;
+
+        // 1. Bell badge ni oshirish
+        updateBellBadge(1);
+
+        // 2. Dropdown listiga qo'shish (yuqoridan)
+        prependNotifItem(n);
+
+        // 3. Popup ko'rsatish
+        showPopup({
+          icon: 'bi-' + (n.icon || 'bell-fill'),
+          color: getNotifColor(n.notification_type),
+          title: n.title,
+          body: n.message || '',
+          actions: n.link ? [{label: "Ko\'rish", href: n.link, cls: 'btn-ws-primary'}] : [],
+        });
+      }
+
+      function updateBellBadge(delta) {
+        var badge = document.querySelector('#notifBell .notif-badge');
+        if (badge) {
+          var cur = parseInt(badge.textContent) || 0;
+          badge.textContent = cur + delta;
+          badge.style.display = 'inline-flex';
+        } else {
+          // Badge yo'q edi — yangisini yaratish
+          var btn = document.querySelector('#notifBell .notif-bell-btn');
+          if (btn) {
+            var nb = document.createElement('span');
+            nb.className = 'notif-badge';
+            nb.textContent = '1';
+            btn.appendChild(nb);
+          }
+        }
+        // Mobil hamburger badge
+        var hbadge = document.querySelector('.hamburger-badge');
+        if (hbadge) {
+          var hcur = parseInt(hbadge.textContent) || 0;
+          hbadge.textContent = hcur + delta;
+          hbadge.style.display = 'inline-flex';
+        }
+      }
+
+      function prependNotifItem(n) {
+        var list = document.querySelector('#notifDropdown .notif-list');
+        if (!list) return;
+
+        // "Bo'sh" xabarni olib tashlash
+        var empty = list.querySelector('.notif-empty');
+        if (empty) empty.remove();
+
+        var color = getNotifColor(n.notification_type);
+        var href = n.link
+          ? 'href="' + n.link + '" onclick="markRead(' + n.id + ',event)"'
+          : 'href="/news/notifications/mark-read/' + n.id + '/"';
+
+        var html = '<a ' + href + ' class="notif-item unread" id="notif-item-' + n.id + '">' +
+          '<div class="notif-item-icon type-' + n.notification_type + '">' +
+            '<i class="bi bi-' + (n.icon||'bell-fill') + '"></i>' +
+          '</div>' +
+          '<div class="notif-item-body">' +
+            '<div class="notif-item-title">' + escHtml(n.title) + '</div>' +
+            '<div class="notif-item-time">Hozir</div>' +
+          '</div>' +
+        '</a>';
+
+        list.insertAdjacentHTML('afterbegin', html);
+
+        // 8 dan ortiq bo'lsa oxirgisini o'chirish
+        var items = list.querySelectorAll('.notif-item');
+        if (items.length > 8) items[items.length - 1].remove();
+      }
+
+      function getNotifColor(type) {
+        var map = {
+          system:'#2563EB', news:'#8BC540', competition:'#D97706',
+          battle:'#FBBF24', achievement:'#7C3AED', friend:'#8BC540', reminder:'#64748B'
+        };
+        return map[type] || '#64748B';
+      }
+
+      function escHtml(s) {
+        return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+
+      window.markRead = function(id, e) {
+        e && e.preventDefault();
+        var item = document.getElementById('notif-item-' + id);
+        fetch('/news/api/notifications/read/' + id + '/', {
+          headers: {'X-CSRFToken': getCsrf()}
+        }).then(function(r){return r.json();}).then(function(d){
+          if (item) item.classList.remove('unread');
+          updateBellBadge(-1);
+          if (d.link) window.location.href = d.link;
+        }).catch(function(){
+          if (item) item.classList.remove('unread');
+          updateBellBadge(-1);
+        });
+      };
+
+      function getCsrf() {
+        var el = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (el) return el.value;
+        var m = document.cookie.match(/csrftoken=([^;]+)/);
+        return m ? m[1] : '';
       }
 
       function showPopup(opts) {

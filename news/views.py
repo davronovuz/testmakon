@@ -145,5 +145,69 @@ def api_unread_count(request):
     count = 0
     if request.user.is_authenticated:
         count = Notification.objects.filter(user=request.user, is_read=False).count()
-
     return JsonResponse({'count': count})
+
+
+@login_required
+def api_notification_read(request, id):
+    """AJAX — bildirishnomani o'qilgan qilish (sahifa refresh shart emas)"""
+    from django.views.decorators.http import require_POST
+    notification = get_object_or_404(Notification, id=id, user=request.user)
+    if not notification.is_read:
+        notification.is_read = True
+        notification.read_at = timezone.now()
+        notification.save(update_fields=['is_read', 'read_at'])
+    return JsonResponse({'ok': True, 'link': notification.link or ''})
+
+
+@login_required
+def api_notifications_recent(request):
+    """AJAX — oxirgi 8 ta notification (dropdown uchun)"""
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:8]
+
+    icon_map = {
+        'system': 'gear-fill', 'news': 'newspaper',
+        'competition': 'trophy-fill', 'battle': 'lightning-charge-fill',
+        'achievement': 'award-fill', 'friend': 'person-plus-fill',
+        'reminder': 'bell-fill',
+    }
+
+    data = []
+    for n in notifications:
+        data.append({
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'notification_type': n.notification_type,
+            'icon': icon_map.get(n.notification_type, 'bell-fill'),
+            'link': n.link or '',
+            'is_read': n.is_read,
+            'created_at': n.created_at.isoformat(),
+            'time_ago': _time_ago(n.created_at),
+        })
+
+    from accounts.models import Friendship
+    pending_friends = Friendship.objects.filter(
+        to_user=request.user, status='pending'
+    ).count()
+
+    unread_count = Notification.objects.filter(
+        user=request.user, is_read=False
+    ).count()
+
+    return JsonResponse({
+        'notifications': data,
+        'unread_count': unread_count,
+        'pending_friends': pending_friends,
+    })
+
+
+def _time_ago(dt):
+    from django.utils import timezone
+    from django.utils.timesince import timesince
+    try:
+        return timesince(dt, timezone.now()) + ' oldin'
+    except Exception:
+        return ''

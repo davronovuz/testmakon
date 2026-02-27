@@ -102,6 +102,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'is_online': event.get('is_online'),
         }))
 
+    async def push_notification(self, event):
+        """Yangi bildirishnoma keldi (news.signals dan)"""
+        await self.send(text_data=json.dumps({
+            'type': 'notification',
+            'notification': event.get('notification', {}),
+        }))
+
     # ──────────────────────────────────────
     # HELPER METHODLAR
     # ──────────────────────────────────────
