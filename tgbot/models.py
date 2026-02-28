@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 class TelegramUser(models.Model):
-    """Bot orqali ro'yxatdan o'tgan Telegram foydalanuvchilari."""
+    """Bot orqali /start bosgan Telegram foydalanuvchilari (webhook uchun)."""
 
     telegram_id   = models.BigIntegerField('Telegram ID', unique=True, db_index=True)
     username      = models.CharField('Username', max_length=100, blank=True)
@@ -17,10 +17,9 @@ class TelegramUser(models.Model):
 
     is_active = models.BooleanField(
         'Faol', default=True,
-        help_text='False: foydalanuvchi botni bloklagan yoki o\'chirilgan'
+        help_text="False: foydalanuvchi botni bloklagan yoki o'chirilgan"
     )
 
-    # Sayt useri bilan bog'lanish (ixtiyoriy)
     site_user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         null=True, blank=True,
@@ -29,7 +28,7 @@ class TelegramUser(models.Model):
         verbose_name='Sayt useri'
     )
 
-    joined_at     = models.DateTimeField('Qo\'shilgan', auto_now_add=True)
+    joined_at     = models.DateTimeField("Qo'shilgan", auto_now_add=True)
     last_activity = models.DateTimeField('Oxirgi faollik', auto_now=True)
 
     class Meta:
@@ -54,7 +53,7 @@ class TelegramUser(models.Model):
 
 
 class TelegramBroadcast(models.Model):
-    """Admin paneldan Telegram foydalanuvchilariga yuborish uchun xabar."""
+    """Admin paneldan sayt userlariga Telegram xabar yuborish."""
 
     STATUS_DRAFT     = 'draft'
     STATUS_RUNNING   = 'running'
@@ -70,7 +69,7 @@ class TelegramBroadcast(models.Model):
 
     title   = models.CharField(
         'Sarlavha (admin uchun)', max_length=200,
-        help_text='Bu nom faqat admin panelda ko\'rinadi, foydalanuvchiga ketmaydi'
+        help_text="Bu nom faqat admin panelda ko'rinadi, foydalanuvchiga ketmaydi"
     )
     message = models.TextField(
         'Xabar matni',
@@ -82,23 +81,19 @@ class TelegramBroadcast(models.Model):
         help_text='Rasm yuborilsa caption sifatida xabar matni ishlatiladi'
     )
 
-    # Inline tugma
     button_text = models.CharField('Tugma matni', max_length=100, blank=True)
     button_url  = models.URLField('Tugma URL', blank=True)
 
-    # Holat
     status = models.CharField(
         'Holat', max_length=20,
         choices=STATUS_CHOICES,
         default=STATUS_DRAFT
     )
 
-    # Statistika (atomik yangilanadi)
     total_users  = models.PositiveIntegerField('Jami yuboriladi', default=0)
     sent_count   = models.PositiveIntegerField('Yuborildi', default=0)
     failed_count = models.PositiveIntegerField('Xato', default=0)
 
-    # Meta
     created_by  = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, verbose_name='Yaratdi'
@@ -107,10 +102,7 @@ class TelegramBroadcast(models.Model):
     started_at  = models.DateTimeField('Boshlandi', null=True, blank=True)
     finished_at = models.DateTimeField('Tugadi', null=True, blank=True)
 
-    celery_task_id = models.CharField(
-        'Celery Task ID', max_length=150, blank=True,
-        help_text='Jarayonni kuzatish/bekor qilish uchun'
-    )
+    celery_task_id = models.CharField('Celery Task ID', max_length=150, blank=True)
 
     class Meta:
         verbose_name = 'Broadcast'
@@ -162,13 +154,14 @@ class TelegramBroadcastLog(models.Model):
         (STATUS_FAILED,  'Xato'),
     ]
 
-    broadcast     = models.ForeignKey(
+    broadcast = models.ForeignKey(
         TelegramBroadcast, on_delete=models.CASCADE,
         related_name='logs', verbose_name='Broadcast'
     )
-    telegram_user = models.ForeignKey(
-        TelegramUser, on_delete=models.CASCADE,
-        related_name='broadcast_logs', verbose_name='Telegram user'
+    # accounts.User ga FK (telegram_id field orqali yuboriladi)
+    site_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='broadcast_logs', verbose_name='Foydalanuvchi'
     )
     status     = models.CharField('Holat', max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     error_text = models.CharField('Xato matni', max_length=500, blank=True)
@@ -177,8 +170,8 @@ class TelegramBroadcastLog(models.Model):
     class Meta:
         verbose_name = 'Yuborish jurnali'
         verbose_name_plural = 'Yuborish jurnali'
-        unique_together = [('broadcast', 'telegram_user')]
+        unique_together = [('broadcast', 'site_user')]
         ordering = ['-sent_at']
 
     def __str__(self):
-        return f'{self.broadcast.title} → {self.telegram_user} [{self.status}]'
+        return f'{self.broadcast.title} -> {self.site_user} [{self.status}]'

@@ -11,6 +11,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count
 
+from django.contrib.auth import get_user_model
+
 from .models import TelegramUser, TelegramBroadcast, TelegramBroadcastLog
 from .tasks import start_broadcast
 
@@ -80,13 +82,12 @@ class BroadcastLogInline(admin.TabularInline):
     def get_queryset(self, request):
         return super().get_queryset(request).filter(
             status=TelegramBroadcastLog.STATUS_FAILED
-        ).select_related('telegram_user')[:100]
+        ).select_related('site_user')[:100]
 
     def telegram_user_link(self, obj):
-        u = obj.telegram_user
-        if u.username:
-            return format_html('<a href="https://t.me/{}" target="_blank">@{}</a>', u.username, u.username)
-        return str(u)
+        u = obj.site_user
+        name = getattr(u, 'get_full_name', lambda: str(u))()
+        return format_html('<span>{}</span>', name or str(u))
     telegram_user_link.short_description = 'Foydalanuvchi'
 
     def status_col(self, obj):
@@ -240,7 +241,7 @@ class TelegramBroadcastAdmin(admin.ModelAdmin):
     def total_users_col(self, obj):
         if obj.total_users:
             return format_html('<b>{}</b>', obj.total_users)
-        active = TelegramUser.objects.filter(is_active=True).count()
+        active = get_user_model().objects.filter(telegram_id__isnull=False, is_active=True).count()
         return format_html('<span style="color:#9CA3AF">~{}</span>', active)
     total_users_col.short_description = 'Jami'
 
@@ -273,7 +274,7 @@ class TelegramBroadcastAdmin(admin.ModelAdmin):
     def action_col(self, obj):
         if obj.status == TelegramBroadcast.STATUS_DRAFT:
             url = reverse('admin:tgbot_broadcast_send', args=[obj.pk])
-            active = TelegramUser.objects.filter(is_active=True).count()
+            active = get_user_model().objects.filter(telegram_id__isnull=False, is_active=True).count()
             return format_html(
                 '<a href="{}" style="background:#059669;color:white;padding:4px 12px;'
                 'border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap" '
@@ -295,7 +296,7 @@ class TelegramBroadcastAdmin(admin.ModelAdmin):
     def stats_widget(self, obj):
         if not obj.pk:
             return '—'
-        active_users = TelegramUser.objects.filter(is_active=True).count()
+        active_users = get_user_model().objects.filter(telegram_id__isnull=False, is_active=True).count()
         return format_html(
             '<div id="bc-stats-box" data-pk="{}" data-status="{}">'
             '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">'
@@ -332,15 +333,17 @@ class TelegramBroadcastAdmin(admin.ModelAdmin):
 class TelegramBroadcastLogAdmin(admin.ModelAdmin):
     list_display  = ['broadcast', 'user_col', 'status_col', 'error_text', 'sent_at']
     list_filter   = ['status', 'broadcast']
-    search_fields = ['telegram_user__username', 'telegram_user__first_name', 'error_text']
-    readonly_fields = ['broadcast', 'telegram_user', 'status', 'error_text', 'sent_at']
+    search_fields = ['site_user__first_name', 'site_user__last_name', 'error_text']
+    readonly_fields = ['broadcast', 'site_user', 'status', 'error_text', 'sent_at']
     list_per_page  = 100
 
     def user_col(self, obj):
-        u = obj.telegram_user
-        if u.username:
-            return format_html('<a href="https://t.me/{0}" target="_blank">@{0}</a>', u.username)
-        return u.full_name
+        u = obj.site_user
+        name = getattr(u, 'get_full_name', lambda: '')()
+        tg_id = getattr(u, 'telegram_id', None)
+        if tg_id:
+            return format_html('{} <span style="color:#9CA3AF;font-size:11px">(tg:{})</span>', name or str(u), tg_id)
+        return name or str(u)
     user_col.short_description = 'Foydalanuvchi'
 
     def status_col(self, obj):

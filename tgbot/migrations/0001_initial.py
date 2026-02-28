@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('button_text', models.CharField(blank=True, max_length=100, verbose_name='Tugma matni')),
                 ('button_url', models.URLField(blank=True, verbose_name='Tugma URL')),
                 ('status', models.CharField(
-                    choices=[('draft','Qoralama'),('running','Yuborilmoqda'),('done','Tugallandi'),('cancelled','Bekor qilindi')],
+                    choices=[('draft', 'Qoralama'), ('running', 'Yuborilmoqda'), ('done', 'Tugallandi'), ('cancelled', 'Bekor qilindi')],
                     default='draft', max_length=20, verbose_name='Holat',
                 )),
                 ('total_users', models.PositiveIntegerField(default=0, verbose_name='Jami yuboriladi')),
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(
-                    choices=[('pending','Kutmoqda'),('sent','Yuborildi'),('failed','Xato')],
+                    choices=[('pending', 'Kutmoqda'), ('sent', 'Yuborildi'), ('failed', 'Xato')],
                     default='pending', max_length=20, verbose_name='Holat',
                 )),
                 ('error_text', models.CharField(blank=True, max_length=500, verbose_name='Xato matni')),
@@ -87,18 +87,18 @@ class Migration(migrations.Migration):
                     to='tgbot.telegrambroadcast',
                     verbose_name='Broadcast',
                 )),
-                ('telegram_user', models.ForeignKey(
+                ('site_user', models.ForeignKey(
                     on_delete=django.db.models.deletion.CASCADE,
                     related_name='broadcast_logs',
-                    to='tgbot.telegramuser',
-                    verbose_name='Telegram user',
+                    to=settings.AUTH_USER_MODEL,
+                    verbose_name='Foydalanuvchi',
                 )),
             ],
             options={
                 'verbose_name': 'Yuborish jurnali',
                 'verbose_name_plural': 'Yuborish jurnali',
                 'ordering': ['-sent_at'],
-                'unique_together': {('broadcast', 'telegram_user')},
+                'unique_together': {('broadcast', 'site_user')},
             },
         ),
     ]

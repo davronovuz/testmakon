@@ -1,6 +1,6 @@
 """
 TestMakon.uz — Telegram Broadcast Celery Tasks
-Broadcastni 25 xabar/sekund tezligida yuboradi.
+Sayt userlariga (telegram_id mavjud) 25 xabar/sekund tezligida yuboradi.
 """
 import time
 import logging
@@ -10,6 +10,7 @@ from celery import shared_task
 from django.db import models as db_models
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 logger = logging.getLogger('tgbot')
 
@@ -72,13 +73,14 @@ def _send_to_user(chat_id, message, image_url=None, button_text='', button_url='
              soft_time_limit=3600, time_limit=3700)
 def start_broadcast(self, broadcast_id):
     """
-    Barcha faol Telegram foydalanuvchilariga broadcast yuborish.
+    telegram_id mavjud barcha sayt foydalanuvchilariga broadcast yuborish.
 
-    Tezlik: 25 xabar/sekund (Telegram limiti: 30/sek, biz 25 ishlatamiz).
-    Jarayon: DRAFT → RUNNING → DONE/CANCELLED
-    Har 25 xabardan so'ng 1 sekund kutadi.
+    Tezlik: 25 xabar/sekund (Telegram limiti: 30/sek).
+    Jarayon: DRAFT -> RUNNING -> DONE/CANCELLED
     """
-    from tgbot.models import TelegramBroadcast, TelegramUser, TelegramBroadcastLog
+    from tgbot.models import TelegramBroadcast, TelegramBroadcastLog
+
+    User = get_user_model()
 
     try:
         broadcast = TelegramBroadcast.objects.get(id=broadcast_id)
@@ -90,9 +92,9 @@ def start_broadcast(self, broadcast_id):
         logger.warning(f'Broadcast #{broadcast_id} draft emas: {broadcast.status}')
         return
 
-    # ── Holatni RUNNING ga o'tkazish ──
+    # telegram_id mavjud, faol sayt userlari
     users = list(
-        TelegramUser.objects.filter(is_active=True)
+        User.objects.filter(telegram_id__isnull=False, is_active=True)
         .values_list('id', 'telegram_id')
         .order_by('id')
     )
@@ -110,14 +112,14 @@ def start_broadcast(self, broadcast_id):
             status=TelegramBroadcast.STATUS_DONE,
             finished_at=timezone.now(),
         )
-        logger.info(f'Broadcast #{broadcast_id}: faol telegram user yo\'q')
-        return 'Faol Telegram user yo\'q'
+        logger.info(f'Broadcast #{broadcast_id}: telegram_id li user yoq')
+        return 'Telegram ID li user topilmadi'
 
-    # ── Log yozuvlarini bulk yaratish ──
+    # Log yozuvlarini bulk yaratish
     logs = [
         TelegramBroadcastLog(
             broadcast_id=broadcast_id,
-            telegram_user_id=uid,
+            site_user_id=uid,
             status=TelegramBroadcastLog.STATUS_PENDING,
         )
         for uid, _ in users
@@ -125,7 +127,7 @@ def start_broadcast(self, broadcast_id):
     TelegramBroadcastLog.objects.bulk_create(logs, ignore_conflicts=True)
     logger.info(f'Broadcast #{broadcast_id} boshlandi: {total} ta user')
 
-    # ── Image URL ──
+    # Image URL
     image_url = None
     if broadcast.image:
         try:
@@ -142,16 +144,15 @@ def start_broadcast(self, broadcast_id):
     btn_text = broadcast.button_text
     btn_url  = broadcast.button_url
 
-    # ── Yuborish (25 xabar/sekund) ──
+    # Yuborish (25 xabar/sekund)
     BATCH_SIZE = 25
     sent_batch = failed_batch = 0
 
     for i, (user_id, tg_id) in enumerate(users):
-        # Har 25 xabardan oldin bekor qilinganini tekshirish
+        # Har 25 xabardan oldin bekor qilinganini tekshirish + rate limit
         if i % BATCH_SIZE == 0 and i > 0:
             broadcast.refresh_from_db(fields=['status'])
             if broadcast.status == TelegramBroadcast.STATUS_CANCELLED:
-                # Qolganlarni 'failed' qilish
                 TelegramBroadcastLog.objects.filter(
                     broadcast_id=broadcast_id,
                     status=TelegramBroadcastLog.STATUS_PENDING,
@@ -166,10 +167,8 @@ def start_broadcast(self, broadcast_id):
                 logger.info(f'Broadcast #{broadcast_id} bekor qilindi: {i}/{total}')
                 return f'Bekor qilindi: {i} ta yuborildi, {total - i} ta qoldi'
 
-            # Rate limiting: 1 sekund kutish (25/sek)
             time.sleep(1)
 
-            # Batch natijasini saqlash
             if sent_batch or failed_batch:
                 TelegramBroadcast.objects.filter(id=broadcast_id).update(
                     sent_count=db_models.F('sent_count') + sent_batch,
@@ -177,7 +176,6 @@ def start_broadcast(self, broadcast_id):
                 )
                 sent_batch = failed_batch = 0
 
-        # ── Yuborish ──
         ok, error_code, description = _send_to_user(
             tg_id, msg, image_url, btn_text, btn_url
         )
@@ -185,21 +183,22 @@ def start_broadcast(self, broadcast_id):
         if ok:
             TelegramBroadcastLog.objects.filter(
                 broadcast_id=broadcast_id,
-                telegram_user_id=user_id,
+                site_user_id=user_id,
             ).update(
                 status=TelegramBroadcastLog.STATUS_SENT,
                 sent_at=timezone.now(),
             )
             sent_batch += 1
         else:
-            # 403/400: user botni bloklagan yoki o'chirilgan
+            # 403: user botni bloklagan, 400: chat topilmadi
             if error_code in (403, 400):
-                TelegramUser.objects.filter(id=user_id).update(is_active=False)
+                User.objects.filter(id=user_id).update(telegram_id=None)
 
-            err_msg = f'[{error_code}] {description}'[:490] if error_code else description[:490]
+            err_msg = (f'[{error_code}] {description}'[:490]
+                       if error_code else description[:490])
             TelegramBroadcastLog.objects.filter(
                 broadcast_id=broadcast_id,
-                telegram_user_id=user_id,
+                site_user_id=user_id,
             ).update(
                 status=TelegramBroadcastLog.STATUS_FAILED,
                 error_text=err_msg,
@@ -213,12 +212,12 @@ def start_broadcast(self, broadcast_id):
             failed_count=db_models.F('failed_count') + failed_batch,
         )
 
-    # ── Tugaldi ──
     TelegramBroadcast.objects.filter(id=broadcast_id).update(
         status=TelegramBroadcast.STATUS_DONE,
         finished_at=timezone.now(),
     )
     broadcast.refresh_from_db()
-    msg_out = f'Broadcast #{broadcast_id} tugadi: {broadcast.sent_count} yuborildi, {broadcast.failed_count} xato'
+    msg_out = (f'Broadcast #{broadcast_id} tugadi: '
+               f'{broadcast.sent_count} yuborildi, {broadcast.failed_count} xato')
     logger.info(msg_out)
     return msg_out
