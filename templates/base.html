@@ -1987,6 +1987,46 @@
                         <a href="{% url 'news:news_list' %}" class="nav-link-simple {% if 'news' in request.path %}active{% endif %}">
                             Yangiliklar
                         </a>
+                        {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="nav-link-simple {% if '/ai/' in request.path %}active{% endif %} border-0 bg-transparent dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="gap:0.3rem;">
+                                <i class="bi bi-robot"></i> AI
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="min-width:200px;border-radius:12px;padding:0.4rem;">
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="{% url 'ai_core:ai_mentor' %}">
+                                        <i class="bi bi-chat-dots me-2" style="color:#8BC540;"></i>AI Mentor
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="{% url 'ai_core:progress_dashboard' %}">
+                                        <i class="bi bi-bar-chart-line me-2" style="color:#3B82F6;"></i>Progress
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="{% url 'ai_core:university_dashboard' %}">
+                                        <i class="bi bi-mortarboard me-2" style="color:#8BC540;"></i>Universitetlar
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="{% url 'ai_core:behavioral_insights' %}">
+                                        <i class="bi bi-activity me-2" style="color:#F59E0B;"></i>Behavioral Insights
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="{% url 'ai_core:weak_topics' %}">
+                                        <i class="bi bi-exclamation-triangle me-2" style="color:#EF4444;"></i>Sust mavzular
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item rounded-2 py-2" href="{% url 'ai_core:study_plan_list' %}">
+                                        <i class="bi bi-calendar-check me-2" style="color:#8BC540;"></i>O'quv reja
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Right: Theme + Bell + Profile (Desktop) + Hamburger (Mobile) -->
@@ -2191,6 +2231,25 @@
                 </a>
 
                 {% if user.is_authenticated %}
+                <div class="mob-divider"></div>
+                <!-- AI Section -->
+                <div class="mob-section-label">AI Xususiyatlar</div>
+                <a href="{% url 'ai_core:ai_mentor' %}" class="mob-item {% if '/ai/mentor' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-green"><i class="bi bi-robot"></i></div>
+                    AI Mentor
+                </a>
+                <a href="{% url 'ai_core:progress_dashboard' %}" class="mob-item {% if '/ai/progress' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-blue"><i class="bi bi-bar-chart-line"></i></div>
+                    Progress
+                </a>
+                <a href="{% url 'ai_core:university_dashboard' %}" class="mob-item {% if '/ai/university' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-green"><i class="bi bi-mortarboard"></i></div>
+                    Universitetlar
+                </a>
+                <a href="{% url 'ai_core:behavioral_insights' %}" class="mob-item {% if '/ai/insights' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon mi-amber"><i class="bi bi-activity"></i></div>
+                    Behavioral Insights
+                </a>
                 <div class="mob-divider"></div>
 
                 {% if not user.is_premium %}

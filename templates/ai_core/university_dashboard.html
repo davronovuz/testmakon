@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Universitet Dashboard | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ud-hero {
+        background: linear-gradient(135deg, #8BC540, #6BA832);
+        border-radius: var(--radius-lg);
+        padding: 2.5rem 2rem;
+        color: white;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .ud-dtm-score {
+        font-size: 4rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -2px;
+    }
+
+    .ud-dtm-label {
+        font-size: 1rem;
+        opacity: 0.85;
+        margin-top: 0.5rem;
+    }
+
+    .ud-dtm-sub {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+    }
+
+    .ud-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 1rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .ud-badge-safe { color: #059669; }
+    .ud-badge-border { color: #D97706; }
+    .ud-badge-reach { color: #2563EB; }
+    .ud-badge-contract { color: #7C3AED; }
+
+    .ud-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: box-shadow 0.15s;
+    }
+
+    .ud-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+    .ud-card-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .dot-safe { background: #059669; }
+    .dot-border { background: #D97706; }
+    .dot-reach { background: #2563EB; }
+    .dot-contract { background: #7C3AED; }
+
+    .ud-card-info { flex: 1; min-width: 0; }
+
+    .ud-uni-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ud-dir-name {
+        font-size: 0.78rem;
+        color: #6B7280;
+        margin-top: 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ud-score-col {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .ud-grant-score {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--dark);
+    }
+
+    .ud-gap-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 20px;
+        margin-top: 0.15rem;
+        display: inline-block;
+    }
+
+    .gap-plus { background: rgba(5,150,105,0.1); color: #059669; }
+    .gap-minus { background: rgba(239,68,68,0.1); color: #DC2626; }
+
+    .ud-empty {
+        text-align: center;
+        padding: 1.5rem;
+        color: #9CA3AF;
+        font-size: 0.85rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-lg);
+    }
+
+    .ud-rec-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-left: 4px solid #8BC540;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .ud-rec-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .ud-rec-content {
+        font-size: 0.83rem;
+        color: #4B5563;
+        line-height: 1.6;
+    }
+
+    .ud-stats-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .ud-stat-box {
+        flex: 1;
+        min-width: 120px;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .ud-stat-num {
+        font-size: 1.6rem;
+        font-weight: 800;
+    }
+
+    .ud-stat-label {
+        font-size: 0.75rem;
+        color: #6B7280;
+        margin-top: 0.2rem;
+    }
+
+    .num-green { color: #059669; }
+    .num-amber { color: #D97706; }
+    .num-blue { color: #2563EB; }
+
+    @media (max-width: 767px) {
+        .ud-dtm-score { font-size: 3rem; }
+        .ud-stats-row { gap: 0.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; padding-top: 1.5rem; padding-bottom: 3rem;">
+
+    <!-- Hero: DTM Score -->
+    <div class="ud-hero">
+        <div class="ud-dtm-score">{{ predicted_dtm }}</div>
+        <div class="ud-dtm-label">Sizning taxminiy DTM ballingiz ({{ latest_year }} ma'lumotlari asosida)</div>
+        {% if not predicted_dtm %}
+        <div class="ud-dtm-sub">Test ishlang — ball bashorati aniqlanadi</div>
+        {% endif %}
+    </div>
+
+    <!-- Statistika -->
+    <div class="ud-stats-row">
+        <div class="ud-stat-box">
+            <div class="ud-stat-num num-green">{{ safe_unis|length }}</div>
+            <div class="ud-stat-label">Ishonchli</div>
+        </div>
+        <div class="ud-stat-box">
+            <div class="ud-stat-num num-amber">{{ borderline_unis|length }}</div>
+            <div class="ud-stat-label">Chegara</div>
+        </div>
+        <div class="ud-stat-box">
+            <div class="ud-stat-num num-blue">{{ reach_unis|length }}</div>
+            <div class="ud-stat-label">Maqsad</div>
+        </div>
+        <div class="ud-stat-box">
+            <div class="ud-stat-num" style="color:#7C3AED">{{ contract_unis|length }}</div>
+            <div class="ud-stat-label">Kontrakt</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Ishonchli -->
+        <div class="col-md-6">
+            <div class="ud-section-title ud-badge-safe">
+                <i class="bi bi-check-circle-fill"></i> Ishonchli universitetlar
+            </div>
+            {% for item in safe_unis %}
+            <div class="ud-card">
+                <div class="ud-card-dot dot-safe"></div>
+                <div class="ud-card-info">
+                    <div class="ud-uni-name">{{ item.university.name }}</div>
+                    <div class="ud-dir-name">{{ item.direction.name }}</div>
+                </div>
+                <div class="ud-score-col">
+                    <div class="ud-grant-score">{{ item.grant_score }}</div>
+                    <span class="ud-gap-badge gap-plus">+{{ item.gap|floatformat:0 }} ball</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="ud-empty">
+                <i class="bi bi-info-circle"></i> Ballingizni oshiring
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Chegara -->
+        <div class="col-md-6">
+            <div class="ud-section-title ud-badge-border">
+                <i class="bi bi-dash-circle-fill"></i> Chegara (imtihon bersa bo'ladi)
+            </div>
+            {% for item in borderline_unis %}
+            <div class="ud-card">
+                <div class="ud-card-dot dot-border"></div>
+                <div class="ud-card-info">
+                    <div class="ud-uni-name">{{ item.university.name }}</div>
+                    <div class="ud-dir-name">{{ item.direction.name }}</div>
+                </div>
+                <div class="ud-score-col">
+                    <div class="ud-grant-score">{{ item.grant_score }}</div>
+                    {% if item.gap >= 0 %}
+                    <span class="ud-gap-badge gap-plus">+{{ item.gap|floatformat:0 }}</span>
+                    {% else %}
+                    <span class="ud-gap-badge gap-minus">{{ item.gap|floatformat:0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="ud-empty">Chegara universitetlar aniqlanmadi</div>
+            {% endfor %}
+        </div>
+
+        <!-- Maqsad -->
+        <div class="col-md-6">
+            <div class="ud-section-title ud-badge-reach">
+                <i class="bi bi-arrow-up-circle-fill"></i> Maqsad (qo'shimcha tayyorgarlik)
+            </div>
+            {% for item in reach_unis %}
+            <div class="ud-card">
+                <div class="ud-card-dot dot-reach"></div>
+                <div class="ud-card-info">
+                    <div class="ud-uni-name">{{ item.university.name }}</div>
+                    <div class="ud-dir-name">{{ item.direction.name }}</div>
+                </div>
+                <div class="ud-score-col">
+                    <div class="ud-grant-score">{{ item.grant_score }}</div>
+                    <span class="ud-gap-badge gap-minus">{{ item.gap|floatformat:0 }} ball</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="ud-empty">Maqsad universitetlar aniqlanmadi</div>
+            {% endfor %}
+        </div>
+
+        <!-- Kontrakt -->
+        <div class="col-md-6">
+            <div class="ud-section-title ud-badge-contract">
+                <i class="bi bi-file-text-fill"></i> Kontrakt asosida (grant yo'q)
+            </div>
+            {% for item in contract_unis %}
+            <div class="ud-card">
+                <div class="ud-card-dot dot-contract"></div>
+                <div class="ud-card-info">
+                    <div class="ud-uni-name">{{ item.university.name }}</div>
+                    <div class="ud-dir-name">{{ item.direction.name }}</div>
+                </div>
+                <div class="ud-score-col">
+                    <div class="ud-grant-score" style="color:#7C3AED">{{ item.contract_score }}</div>
+                    <span class="ud-gap-badge" style="background:rgba(124,58,237,0.1);color:#7C3AED">Kontrakt</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="ud-empty">Kontrakt imkoniyatlari aniqlanmadi</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- AI Tavsiyalar -->
+    {% if recommendations %}
+    <div style="margin-top: 2.5rem;">
+        <div class="ud-section-title" style="color:#8BC540;">
+            <i class="bi bi-robot"></i> AI Tavsiyalar
+        </div>
+        {% for rec in recommendations %}
+        <div class="ud-rec-card">
+            <div class="ud-rec-title">{{ rec.title }}</div>
+            <div class="ud-rec-content">{{ rec.content|linebreaksbr }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- CTA -->
+    <div style="text-align:center; margin-top:2rem;">
+        <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-primary" style="background:linear-gradient(135deg,#8BC540,#6BA832);border:none;border-radius:10px;padding:0.75rem 2rem;font-weight:700;">
+            <i class="bi bi-robot me-2"></i>Balimni oshirish uchun AI Mentor
+        </a>
+        <a href="{% url 'ai_core:progress_dashboard' %}" class="btn btn-outline-secondary ms-2" style="border-radius:10px;padding:0.75rem 1.5rem;font-weight:600;">
+            <i class="bi bi-bar-chart-line me-1"></i>Progress ko'rish
+        </a>
+    </div>
+</div>
+{% endblock %}

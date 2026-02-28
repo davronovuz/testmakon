@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Progress Dashboard | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pd-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .pd-stat-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1rem;
+        text-align: center;
+    }
+
+    .pd-stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin: 0 auto 0.75rem;
+    }
+
+    .pd-stat-value {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .pd-stat-label {
+        font-size: 0.75rem;
+        color: #6B7280;
+        margin-top: 0.35rem;
+        font-weight: 600;
+    }
+
+    .pd-chart-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .pd-chart-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pd-peer-card {
+        background: linear-gradient(135deg, #8BC540, #6BA832);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .pd-peer-rank {
+        font-size: 2.5rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .pd-peer-label {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin-top: 0.4rem;
+    }
+
+    .pd-subject-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .pd-subject-row:last-child { border-bottom: none; }
+
+    .pd-subject-name {
+        flex: 0 0 140px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .pd-subject-bar-wrap {
+        flex: 1;
+        height: 8px;
+        background: var(--gray-200);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .pd-subject-bar {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #8BC540, #6BA832);
+        transition: width 0.5s ease;
+    }
+
+    .pd-subject-pct {
+        flex: 0 0 48px;
+        text-align: right;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .pd-weak-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pd-weak-table th {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 2px solid var(--gray-200);
+        text-align: left;
+    }
+
+    .pd-weak-table td {
+        font-size: 0.83rem;
+        padding: 0.65rem 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: middle;
+    }
+
+    .pd-weak-table tr:last-child td { border-bottom: none; }
+
+    .pd-priority-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 20px;
+    }
+
+    .pri-high { background: rgba(239,68,68,0.1); color: #DC2626; }
+    .pri-medium { background: rgba(245,158,11,0.1); color: #D97706; }
+    .pri-low { background: rgba(16,185,129,0.1); color: #059669; }
+
+    @media (max-width: 767px) {
+        .pd-stat-grid { grid-template-columns: repeat(2, 1fr); }
+        .pd-subject-name { flex: 0 0 100px; font-size: 0.78rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 960px; padding-top: 1.5rem; padding-bottom: 3rem;">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+        <div>
+            <h4 style="font-weight:900;margin:0;color:var(--dark);">Progress Dashboard</h4>
+            <p style="margin:0.2rem 0 0;color:#6B7280;font-size:0.85rem;">Sizning o'quv taraqqiyotingiz</p>
+        </div>
+        <a href="{% url 'ai_core:university_dashboard' %}" class="btn btn-sm" style="background:linear-gradient(135deg,#8BC540,#6BA832);color:white;border:none;border-radius:8px;font-weight:700;padding:0.5rem 1rem;">
+            <i class="bi bi-mortarboard me-1"></i>Universitetlar
+        </a>
+    </div>
+
+    <!-- 4 Stat Cards -->
+    <div class="pd-stat-grid">
+        <div class="pd-stat-card">
+            <div class="pd-stat-icon" style="background:rgba(139,197,64,0.1);color:#8BC540;">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="pd-stat-value" style="color:#8BC540;">{{ analytics.predicted_dtm_score|default:0 }}</div>
+            <div class="pd-stat-label">DTM Prognoz</div>
+        </div>
+        <div class="pd-stat-card">
+            <div class="pd-stat-icon" style="background:rgba(59,130,246,0.1);color:#3B82F6;">
+                <i class="bi bi-bullseye"></i>
+            </div>
+            <div class="pd-stat-value" style="color:#3B82F6;">{{ analytics.overall_accuracy|default:0|floatformat:0 }}%</div>
+            <div class="pd-stat-label">Umumiy aniqlik</div>
+        </div>
+        <div class="pd-stat-card">
+            <div class="pd-stat-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;">
+                <i class="bi bi-journal-check"></i>
+            </div>
+            <div class="pd-stat-value" style="color:#F59E0B;">{{ analytics.avg_questions_per_day|default:0|floatformat:0 }}</div>
+            <div class="pd-stat-label">Kunlik savollar</div>
+        </div>
+        <div class="pd-stat-card">
+            <div class="pd-stat-icon" style="background:rgba(239,68,68,0.1);color:#EF4444;">
+                <i class="bi bi-fire"></i>
+            </div>
+            <div class="pd-stat-value" style="color:#EF4444;">{{ analytics.current_streak|default:0 }}</div>
+            <div class="pd-stat-label">Streak kunlar</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Trend Chart -->
+        <div class="col-lg-8">
+            <div class="pd-chart-card">
+                <div class="pd-chart-title">
+                    <i class="bi bi-bar-chart-line" style="color:#8BC540;"></i>
+                    Oxirgi 30 kun natijalar trendi
+                </div>
+                <canvas id="trendChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Peer Comparison -->
+        <div class="col-lg-4">
+            <div class="pd-peer-card">
+                <div style="font-size:0.8rem;opacity:0.85;margin-bottom:0.5rem;">
+                    <i class="bi bi-people"></i> Sizning o'rningiz
+                </div>
+                <div class="pd-peer-rank">#{{ peer_rank }}</div>
+                <div class="pd-peer-label">{{ peer_total }} o'quvchi ichida</div>
+                <div style="margin-top:0.75rem;font-size:0.78rem;opacity:0.75;">
+                    ({{ request.user.get_education_level_display }} bo'yicha)
+                </div>
+            </div>
+
+            <!-- Fan progress bars -->
+            <div class="pd-chart-card" style="padding:1.25rem;">
+                <div class="pd-chart-title">
+                    <i class="bi bi-book" style="color:#8BC540;"></i> Fanlar bo'yicha
+                </div>
+                {% for sp in subject_perfs %}
+                <div class="pd-subject-row">
+                    <div class="pd-subject-name">{{ sp.subject.name }}</div>
+                    <div class="pd-subject-bar-wrap">
+                        <div class="pd-subject-bar" style="width:{{ sp.average_score|floatformat:0 }}%;"></div>
+                    </div>
+                    <div class="pd-subject-pct">{{ sp.average_score|floatformat:0 }}%</div>
+                </div>
+                {% empty %}
+                <p style="color:#9CA3AF;font-size:0.83rem;text-align:center;padding:1rem 0;">Test ishlang — fan natijalari ko'rinadi</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" style="margin-top:0;">
+        <!-- Radar Chart -->
+        {% if radar_labels != '[]' %}
+        <div class="col-md-5">
+            <div class="pd-chart-card">
+                <div class="pd-chart-title">
+                    <i class="bi bi-pentagon" style="color:#8BC540;"></i> Fan radar
+                </div>
+                <canvas id="radarChart" height="250"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Weak Topics Table -->
+        <div class="{% if radar_labels != '[]' %}col-md-7{% else %}col-12{% endif %}">
+            <div class="pd-chart-card">
+                <div class="pd-chart-title">
+                    <i class="bi bi-exclamation-triangle" style="color:#EF4444;"></i>
+                    Sust mavzular
+                </div>
+                <table class="pd-weak-table">
+                    <thead>
+                        <tr>
+                            <th>Mavzu</th>
+                            <th>Fan</th>
+                            <th>Aniqlik</th>
+                            <th>Daraja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tp in weak_topic_perfs %}
+                        <tr>
+                            <td style="font-weight:600;">{{ tp.topic.name }}</td>
+                            <td style="color:#6B7280;">{{ tp.subject.name }}</td>
+                            <td>
+                                <span style="font-weight:700;color:{% if tp.current_score < 40 %}#DC2626{% elif tp.current_score < 60 %}#D97706{% else %}#059669{% endif %};">
+                                    {{ tp.current_score|floatformat:0 }}%
+                                </span>
+                            </td>
+                            <td>
+                                {% if tp.current_score < 40 %}
+                                <span class="pd-priority-badge pri-high">Kritik</span>
+                                {% elif tp.current_score < 60 %}
+                                <span class="pd-priority-badge pri-medium">O'rta</span>
+                                {% else %}
+                                <span class="pd-priority-badge pri-low">Yaxshi</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align:center;color:#9CA3AF;padding:1.5rem;">
+                                Sust mavzular aniqlanmagan 🎉
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;align-items:center;">
+        <form method="post" action="{% url 'ai_core:smart_test_generate' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background:linear-gradient(135deg,#8BC540,#6BA832);color:white;border:none;border-radius:10px;padding:0.65rem 1.5rem;font-weight:700;">
+                <i class="bi bi-lightning-charge me-1"></i>AI Smart Test
+            </button>
+        </form>
+        <a href="{% url 'ai_core:behavioral_insights' %}" class="btn btn-outline-secondary" style="border-radius:10px;padding:0.65rem 1.5rem;font-weight:600;">
+            <i class="bi bi-activity me-1"></i>Behavioral Insights
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    const labels = {{ chart_labels|safe }};
+    const scores = {{ chart_scores|safe }};
+    const radarLabels = {{ radar_labels|safe }};
+    const radarScores = {{ radar_scores|safe }};
+
+    // Trend Chart
+    if (labels.length > 0) {
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Natija (%)',
+                    data: scores,
+                    borderColor: '#8BC540',
+                    backgroundColor: 'rgba(139,197,64,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#8BC540',
+                    fill: true,
+                    tension: 0.35,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0, max: 100,
+                        grid: { color: 'rgba(0,0,0,0.04)' },
+                        ticks: { font: { size: 11 }, callback: v => v + '%' },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, maxRotation: 45 },
+                    }
+                }
+            }
+        });
+    }
+
+    // Radar Chart
+    if (radarLabels.length > 0) {
+        const radarEl = document.getElementById('radarChart');
+        if (radarEl) {
+            new Chart(radarEl.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: radarLabels,
+                    datasets: [{
+                        label: 'Aniqlik (%)',
+                        data: radarScores,
+                        backgroundColor: 'rgba(139,197,64,0.15)',
+                        borderColor: '#8BC540',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#8BC540',
+                        pointRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { font: { size: 10 }, stepSize: 25 },
+                            grid: { color: 'rgba(0,0,0,0.06)' },
+                            pointLabels: { font: { size: 11, weight: '700' } },
+                        }
+                    }
+                }
+            });
+        }
+    }
+})();
+</script>
+{% endblock %}

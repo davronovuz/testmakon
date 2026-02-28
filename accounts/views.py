@@ -386,6 +386,13 @@ def profile(request):
         status='accepted'
     ).count()
 
+    # AI Analytics
+    try:
+        from tests_app.models import UserAnalyticsSummary
+        analytics = user.analytics_summary
+    except Exception:
+        analytics = None
+
     context = {
         'profile_user': user,
         'stats': stats,
@@ -394,6 +401,7 @@ def profile(request):
         'friends_count': friends_count,
         'subject_stats': subject_stats,
         'weekly_data': weekly_data,
+        'analytics': analytics,
     }
 
     return render(request, 'accounts/profile.html', context)

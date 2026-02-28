@@ -673,6 +673,298 @@ def api_quick_answer(request):
 
 
 @login_required
+def university_dashboard(request):
+    """Universitet qabul dashboardi — predicted DTM asosida 3 toifaga bo'lingan."""
+    from tests_app.models import UserAnalyticsSummary
+    from django.db.models import Max
+
+    try:
+        analytics = request.user.analytics_summary
+        predicted_dtm = analytics.predicted_dtm_score
+    except Exception:
+        analytics = None
+        predicted_dtm = 0
+
+    current_year = timezone.now().year
+    latest_year = PassingScore.objects.aggregate(y=Max('year'))['y'] or (current_year - 1)
+
+    passing_scores = PassingScore.objects.filter(
+        year=latest_year,
+        grant_score__isnull=False,
+    ).select_related('direction__university').order_by('direction__university__name')
+
+    safe_unis = []
+    borderline_unis = []
+    reach_unis = []
+    contract_unis = []
+
+    for ps in passing_scores:
+        grant = ps.grant_score or 0
+        contract = ps.contract_score or 0
+        gap = predicted_dtm - grant
+
+        entry = {
+            'university': ps.direction.university,
+            'direction': ps.direction,
+            'grant_score': grant,
+            'contract_score': contract,
+            'gap': gap,
+        }
+
+        if predicted_dtm >= grant + 10:
+            safe_unis.append(entry)
+        elif predicted_dtm >= grant - 15:
+            borderline_unis.append(entry)
+        elif predicted_dtm >= grant - 40:
+            reach_unis.append(entry)
+
+        if contract > 0 and predicted_dtm >= contract and predicted_dtm < grant:
+            contract_unis.append(entry)
+
+    # AI tavsiyalar
+    recommendations = AIRecommendation.objects.filter(
+        user=request.user,
+        recommendation_type='university',
+        is_dismissed=False,
+    ).order_by('-created_at')[:3]
+
+    context = {
+        'analytics': analytics,
+        'predicted_dtm': predicted_dtm,
+        'safe_unis': safe_unis[:10],
+        'borderline_unis': borderline_unis[:10],
+        'reach_unis': reach_unis[:10],
+        'contract_unis': contract_unis[:8],
+        'recommendations': recommendations,
+        'latest_year': latest_year,
+    }
+    return render(request, 'ai_core/university_dashboard.html', context)
+
+
+@login_required
+def progress_dashboard(request):
+    """Real-time progress dashboard — chart, peer comparison, weak topics."""
+    from tests_app.models import (
+        UserAnalyticsSummary, UserSubjectPerformance, UserTopicPerformance
+    )
+    import json as json_mod
+
+    try:
+        analytics = request.user.analytics_summary
+    except Exception:
+        analytics = None
+
+    subject_perfs = UserSubjectPerformance.objects.filter(
+        user=request.user
+    ).select_related('subject').order_by('-average_score')
+
+    weak_topic_perfs = UserTopicPerformance.objects.filter(
+        user=request.user, is_weak=True
+    ).select_related('subject', 'topic').order_by('current_score')[:10]
+
+    # Oxirgi 30 kun kunlik ma'lumotlar
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    recent_attempts = TestAttempt.objects.filter(
+        user=request.user,
+        status='completed',
+        created_at__gte=thirty_days_ago,
+    ).order_by('created_at').values('created_at', 'percentage')
+
+    # Haftalik agregatsiya (Chart.js uchun)
+    weekly_data = {}
+    for attempt in recent_attempts:
+        week_key = attempt['created_at'].strftime('%d.%m')
+        if week_key not in weekly_data:
+            weekly_data[week_key] = {'scores': [], 'count': 0}
+        weekly_data[week_key]['scores'].append(attempt['percentage'])
+        weekly_data[week_key]['count'] += 1
+
+    chart_labels = []
+    chart_scores = []
+    for date_key in sorted(weekly_data.keys()):
+        scores = weekly_data[date_key]['scores']
+        chart_labels.append(date_key)
+        chart_scores.append(round(sum(scores) / len(scores), 1) if scores else 0)
+
+    # Radar chart — fan bo'yicha aniqlik
+    radar_labels = [sp.subject.name for sp in subject_perfs]
+    radar_scores = [round(sp.average_score, 1) for sp in subject_perfs]
+
+    # Peer comparison — bir xil education_level dagi rank
+    from accounts.models import User
+    from django.db.models import Subquery, OuterRef
+    from tests_app.models import UserAnalyticsSummary as UAS
+    peer_count = UAS.objects.filter(
+        user__education_level=request.user.education_level,
+        user__is_active=True,
+    ).count()
+
+    user_dtm = analytics.predicted_dtm_score if analytics else 0
+    peer_rank = UAS.objects.filter(
+        user__education_level=request.user.education_level,
+        user__is_active=True,
+        predicted_dtm_score__gt=user_dtm,
+    ).count() + 1
+
+    context = {
+        'analytics': analytics,
+        'subject_perfs': subject_perfs,
+        'weak_topic_perfs': weak_topic_perfs,
+        'chart_labels': json_mod.dumps(chart_labels),
+        'chart_scores': json_mod.dumps(chart_scores),
+        'radar_labels': json_mod.dumps(radar_labels),
+        'radar_scores': json_mod.dumps(radar_scores),
+        'peer_rank': peer_rank,
+        'peer_total': peer_count,
+    }
+    return render(request, 'ai_core/progress_dashboard.html', context)
+
+
+@login_required
+def behavioral_insights(request):
+    """Behavioral insights — o'qish vaqti, charchash, uslub."""
+    from tests_app.models import UserAnalyticsSummary, DailyUserStats
+
+    try:
+        analytics = request.user.analytics_summary
+    except Exception:
+        analytics = None
+
+    # Burnout risk hisoblash
+    burnout_risk = 'low'
+    burnout_score = 0
+    if analytics:
+        if analytics.avg_session_duration > 90:
+            burnout_score += 2
+        if analytics.avg_questions_per_day > 50:
+            burnout_score += 2
+        if analytics.current_streak > 21:
+            burnout_score += 1
+        if burnout_score >= 4:
+            burnout_risk = 'high'
+        elif burnout_score >= 2:
+            burnout_risk = 'medium'
+
+    # Oxirgi 30 kun kunlik faollik (heatmap uchun)
+    thirty_days_ago = timezone.localdate() - timedelta(days=30)
+    daily_stats = DailyUserStats.objects.filter(
+        user=request.user,
+        date__gte=thirty_days_ago,
+    ).order_by('date').values('date', 'accuracy_rate', 'tests_taken', 'activity_hours')
+
+    # Soatlik taqsimlash (24 soat)
+    hourly_activity = [0] * 24
+    for ds in daily_stats:
+        hours = ds['activity_hours'] or {}
+        for hour_str, count in hours.items():
+            try:
+                hourly_activity[int(hour_str)] += count
+            except (ValueError, IndexError):
+                pass
+
+    # 7-kunlik heatmap
+    week_activity = []
+    from tests_app.models import DailyUserStats as DUS
+    for i in range(6, -1, -1):
+        d = timezone.localdate() - timedelta(days=i)
+        ds = DUS.objects.filter(user=request.user, date=d).first()
+        week_activity.append({
+            'date': d.strftime('%d.%m'),
+            'tests': ds.tests_taken if ds else 0,
+            'accuracy': round(ds.accuracy_rate, 0) if ds else 0,
+            'active': bool(ds and ds.tests_taken > 0),
+        })
+
+    # AI strategy tavsiyasi (agar oxirgi 7 kunda yo'q bo'lsa — yangi generate)
+    recent_strategy = AIRecommendation.objects.filter(
+        user=request.user,
+        recommendation_type='strategy',
+        created_at__gte=timezone.now() - timedelta(days=7),
+        is_dismissed=False,
+    ).order_by('-created_at').first()
+
+    context = {
+        'analytics': analytics,
+        'burnout_risk': burnout_risk,
+        'burnout_score': burnout_score,
+        'hourly_activity': hourly_activity,
+        'week_activity': week_activity,
+        'recent_strategy': recent_strategy,
+    }
+    return render(request, 'ai_core/behavioral_insights.html', context)
+
+
+@login_required
+@require_POST
+def smart_test_generate(request):
+    """Sust mavzular asosida AI Smart Test yaratish."""
+    from tests_app.models import (
+        Question, Test, TestQuestion, TestAttempt, Subject
+    )
+
+    subject_id = request.POST.get('subject_id')
+    subject = None
+    if subject_id:
+        subject = Subject.objects.filter(id=subject_id).first()
+
+    # Sust mavzularni top 5 tanlash
+    weak_qs_filter = WeakTopicAnalysis.objects.filter(user=request.user)
+    if subject:
+        weak_qs_filter = weak_qs_filter.filter(subject=subject)
+    weak_topic_ids = list(
+        weak_qs_filter.order_by('accuracy_rate').values_list('topic_id', flat=True)[:5]
+    )
+
+    # Savollarni tanlash
+    if subject:
+        q_filter = Question.objects.filter(subject=subject, is_active=True)
+    else:
+        q_filter = Question.objects.filter(is_active=True)
+
+    if weak_topic_ids:
+        weak_questions = list(q_filter.filter(topic_id__in=weak_topic_ids).order_by('?')[:15])
+        other_questions = list(q_filter.exclude(topic_id__in=weak_topic_ids).order_by('?')[:5])
+        questions = (weak_questions + other_questions)[:20]
+    else:
+        questions = list(q_filter.order_by('?')[:20])
+
+    if not questions:
+        messages.error(request, "Savollar topilmadi. Avval testlar ishlang.")
+        return redirect('ai_core:weak_topics')
+
+    subject_for_test = subject or (questions[0].subject if questions else None)
+    test = Test.objects.create(
+        title=f"AI Smart Test — {subject_for_test.name if subject_for_test else 'Aralash'}",
+        slug=f"ai-smart-{request.user.id}-{int(timezone.now().timestamp())}",
+        test_type='practice',
+        subject=subject_for_test,
+        time_limit=len(questions) * 2,
+        question_count=len(questions),
+        shuffle_questions=True,
+        shuffle_answers=True,
+        show_correct_answers=True,
+        created_by=request.user,
+    )
+    for i, q in enumerate(questions):
+        TestQuestion.objects.create(test=test, question=q, order=i)
+
+    attempt = TestAttempt.objects.create(
+        user=request.user,
+        test=test,
+        total_questions=len(questions),
+        status='in_progress',
+    )
+
+    return redirect('tests_app:test_play', uuid=attempt.uuid)
+
+
+@login_required
+def smart_test_status(request, task_id):
+    """Smart test Celery task holati (api_task_status bilan bir xil)."""
+    return api_task_status(request, task_id)
+
+
+@login_required
 @require_POST
 def api_analyze(request):
     """Tahlil API"""

@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Behavioral Insights | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bi-section-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bi-card {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Burnout indicator */
+    .burnout-bar-wrap {
+        height: 12px;
+        background: var(--gray-200);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .burnout-bar {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 0.5s ease;
+    }
+
+    .burn-low { background: linear-gradient(90deg, #10B981, #059669); }
+    .burn-medium { background: linear-gradient(90deg, #F59E0B, #D97706); }
+    .burn-high { background: linear-gradient(90deg, #EF4444, #DC2626); }
+
+    .burnout-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        color: #9CA3AF;
+        font-weight: 600;
+    }
+
+    /* Hour Grid */
+    .hour-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 3px;
+        margin-bottom: 0.5rem;
+    }
+
+    .hour-cell {
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: 700;
+        cursor: default;
+        transition: opacity 0.15s;
+    }
+
+    .hour-num { color: rgba(255,255,255,0.7); font-size: 0.55rem; }
+    .hour-val { color: white; font-size: 0.65rem; font-weight: 800; }
+
+    /* Weekly heatmap */
+    .week-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+    }
+
+    .week-cell {
+        border-radius: 8px;
+        padding: 0.65rem 0.4rem;
+        text-align: center;
+        font-size: 0.75rem;
+        border: 1px solid var(--gray-200);
+    }
+
+    .week-cell-active {
+        background: rgba(139,197,64,0.12);
+        border-color: #8BC540;
+    }
+
+    .week-date {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 0.72rem;
+    }
+
+    .week-tests {
+        font-size: 1rem;
+        font-weight: 800;
+        margin: 0.2rem 0;
+    }
+
+    .week-acc {
+        font-size: 0.65rem;
+        color: #6B7280;
+    }
+
+    /* Learning style */
+    .style-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .style-card {
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.15s;
+    }
+
+    .style-card.active {
+        border-color: #8BC540;
+        background: rgba(139,197,64,0.06);
+    }
+
+    .style-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .style-name {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .style-desc {
+        font-size: 0.72rem;
+        color: #6B7280;
+        margin-top: 0.2rem;
+    }
+
+    /* AI rec card */
+    .ai-rec-card {
+        background: linear-gradient(135deg, rgba(139,197,64,0.06), rgba(107,168,50,0.04));
+        border: 1px solid rgba(139,197,64,0.3);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+    }
+
+    .ai-rec-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 800;
+        color: #6BA832;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .ai-rec-text {
+        font-size: 0.83rem;
+        color: #374151;
+        line-height: 1.65;
+    }
+
+    @media (max-width: 767px) {
+        .hour-grid { grid-template-columns: repeat(8, 1fr); }
+        .style-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+        .hour-grid { grid-template-columns: repeat(6, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 860px; padding-top: 1.5rem; padding-bottom: 3rem;">
+
+    <div style="margin-bottom:1.5rem;">
+        <h4 style="font-weight:900;margin:0;color:var(--dark);">Behavioral Insights</h4>
+        <p style="margin:0.2rem 0 0;color:#6B7280;font-size:0.85rem;">O'quv odatlaringiz va faolligingiz tahlili</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left column -->
+        <div class="col-md-7">
+
+            <!-- Eng yaxshi o'qish vaqtlari -->
+            <div class="bi-card">
+                <div class="bi-section-title">
+                    <i class="bi bi-clock-history" style="color:#8BC540;"></i>
+                    Eng yaxshi o'qish soatlaringiz
+                </div>
+                <div class="hour-grid">
+                    {% for count in hourly_activity %}
+                    {% with forloop.counter0 as hour %}
+                    {% if hour < 24 %}
+                    <div class="hour-cell"
+                         style="background: {% if count > 20 %}rgba(139,197,64,0.9){% elif count > 10 %}rgba(139,197,64,0.55){% elif count > 3 %}rgba(139,197,64,0.25){% else %}var(--gray-100){% endif %};"
+                         title="{{ hour }}:00 — {{ count }} ta harakat">
+                        <span class="hour-num">{{ hour }}</span>
+                        {% if count > 0 %}<span class="hour-val">{{ count }}</span>{% endif %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+                <div style="font-size:0.72rem;color:#9CA3AF;margin-top:0.4rem;">
+                    <i class="bi bi-info-circle"></i> Koyulik = faolroq soat
+                </div>
+                {% if analytics and analytics.best_study_hours %}
+                <div style="margin-top:0.75rem;padding:0.65rem 0.85rem;background:var(--gray-50);border-radius:8px;font-size:0.82rem;color:#374151;">
+                    <strong>Eng samarali soatlar:</strong>
+                    {% for h in analytics.best_study_hours %}{{ h }}:00{% if not forloop.last %}, {% endif %}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Haftalik faollik -->
+            <div class="bi-card">
+                <div class="bi-section-title">
+                    <i class="bi bi-calendar-week" style="color:#8BC540;"></i>
+                    Oxirgi 7 kun faolligi
+                </div>
+                <div class="week-grid">
+                    {% for day in week_activity %}
+                    <div class="week-cell {% if day.active %}week-cell-active{% endif %}">
+                        <div class="week-date">{{ day.date }}</div>
+                        <div class="week-tests" style="color:{% if day.tests > 0 %}#8BC540{% else %}#D1D5DB{% endif %};">
+                            {{ day.tests }}
+                        </div>
+                        <div class="week-acc">{% if day.accuracy %}{{ day.accuracy }}%{% else %}—{% endif %}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top:0.75rem;font-size:0.75rem;color:#9CA3AF;">
+                    Raqam = ishlangan testlar soni &nbsp;·&nbsp; Pastdagi = aniqlik %
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right column -->
+        <div class="col-md-5">
+
+            <!-- Charchash indikatori -->
+            <div class="bi-card">
+                <div class="bi-section-title">
+                    <i class="bi bi-battery-half" style="color:{% if burnout_risk == 'high' %}#EF4444{% elif burnout_risk == 'medium' %}#F59E0B{% else %}#10B981{% endif %};"></i>
+                    Charchash indikatori
+                </div>
+                <div class="burnout-bar-wrap">
+                    <div class="burnout-bar burn-{{ burnout_risk }}"
+                         style="width: {% if burnout_risk == 'high' %}90{% elif burnout_risk == 'medium' %}50{% else %}20{% endif %}%;">
+                    </div>
+                </div>
+                <div class="burnout-labels">
+                    <span>Past</span><span>O'rta</span><span>Yuqori</span>
+                </div>
+                <div style="margin-top:0.85rem;padding:0.75rem;border-radius:8px;font-size:0.82rem;
+                    background:{% if burnout_risk == 'high' %}rgba(239,68,68,0.06){% elif burnout_risk == 'medium' %}rgba(245,158,11,0.06){% else %}rgba(16,185,129,0.06){% endif %};
+                    color:{% if burnout_risk == 'high' %}#DC2626{% elif burnout_risk == 'medium' %}#D97706{% else %}#059669{% endif %};">
+                    {% if burnout_risk == 'high' %}
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    Charchash xavfi yuqori. Dam olish vaqtini ko'paytiring va sessiyalarni qisqartiring.
+                    {% elif burnout_risk == 'medium' %}
+                    <i class="bi bi-dash-circle me-1"></i>
+                    O'rtacha daraja. Hafta ichida bir kun dam olishni unutmang.
+                    {% else %}
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                    Ajoyib! Sog'lom o'qish rejimida ishlayapsiz.
+                    {% endif %}
+                </div>
+                {% if analytics %}
+                <div style="margin-top:0.75rem;font-size:0.78rem;color:#6B7280;display:flex;flex-direction:column;gap:0.3rem;">
+                    <span><i class="bi bi-clock me-1"></i>O'rtacha sessiya: {{ analytics.avg_session_duration }} daqiqa</span>
+                    <span><i class="bi bi-question-circle me-1"></i>Kunlik savollar: {{ analytics.avg_questions_per_day|floatformat:0 }} ta</span>
+                    <span><i class="bi bi-alarm me-1"></i>Charchash vaqti: ~{{ analytics.avg_fatigue_time }} daqiqa</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- O'qish uslubi -->
+            <div class="bi-card">
+                <div class="bi-section-title">
+                    <i class="bi bi-person-gear" style="color:#8BC540;"></i>
+                    O'qish uslubingiz
+                </div>
+                <div class="style-grid">
+                    <div class="style-card {% if analytics and analytics.learning_style == 'practice' %}active{% endif %}">
+                        <div class="style-icon">⚡</div>
+                        <div class="style-name">Amaliyot</div>
+                        <div class="style-desc">Testlar orqali o'rganish</div>
+                    </div>
+                    <div class="style-card {% if analytics and analytics.learning_style == 'visual' %}active{% endif %}">
+                        <div class="style-icon">👁️</div>
+                        <div class="style-name">Vizual</div>
+                        <div class="style-desc">Grafiklar va sxemalar</div>
+                    </div>
+                    <div class="style-card {% if analytics and analytics.learning_style == 'reading' %}active{% endif %}">
+                        <div class="style-icon">📖</div>
+                        <div class="style-name">O'qish</div>
+                        <div class="style-desc">Matnlar va konspektlar</div>
+                    </div>
+                    <div class="style-card {% if not analytics or analytics.learning_style == 'mixed' %}active{% endif %}">
+                        <div class="style-icon">🔀</div>
+                        <div class="style-name">Aralash</div>
+                        <div class="style-desc">Turli usullar</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- AI Strategy Tavsiyasi -->
+    {% if recent_strategy %}
+    <div class="ai-rec-card">
+        <div class="ai-rec-header">
+            <i class="bi bi-robot"></i> AI Strategiya Tavsiyasi
+        </div>
+        <div class="ai-rec-text">{{ recent_strategy.content|linebreaksbr }}</div>
+        <div style="margin-top:0.75rem;font-size:0.72rem;color:#9CA3AF;">
+            {{ recent_strategy.created_at|date:"d.m.Y" }} da yaratildi
+        </div>
+    </div>
+    {% else %}
+    <div class="ai-rec-card" style="text-align:center;">
+        <div class="ai-rec-header" style="justify-content:center;">
+            <i class="bi bi-robot"></i> AI Tavsiya
+        </div>
+        <p style="color:#6B7280;font-size:0.85rem;margin-bottom:1rem;">
+            Shaxsiy o'quv strategiyangizni olish uchun AI Mentorga boring
+        </p>
+        <a href="{% url 'ai_core:ai_mentor' %}" class="btn btn-sm" style="background:linear-gradient(135deg,#8BC540,#6BA832);color:white;border:none;border-radius:8px;font-weight:700;padding:0.5rem 1.25rem;">
+            <i class="bi bi-robot me-1"></i>AI Mentor
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

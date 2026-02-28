@@ -151,10 +151,28 @@ TELEGRAM_WELCOME_MESSAGE = (
     '🌐 Saytga o\'ting: <a href="https://testmakon.uz">testmakon.uz</a>'
 )
 
+from celery.schedules import crontab
+
 CELERY_BEAT_SCHEDULE = {
     'cache-university-stats': {
         'task': 'universities.cache_university_stats',
         'schedule': 3600.0,  # har soatda
+    },
+    'daily-study-reminders': {
+        'task': 'ai_core.tasks.send_daily_study_reminders',
+        'schedule': crontab(hour=8, minute=0),  # 08:00 Toshkent
+    },
+    'weekly-ai-report': {
+        'task': 'ai_core.tasks.generate_weekly_ai_report',
+        'schedule': crontab(hour=9, minute=0, day_of_week=1),  # Dushanba 09:00
+    },
+    'smart-behavioral-notifications': {
+        'task': 'ai_core.tasks.send_smart_behavioral_notifications',
+        'schedule': crontab(hour=18, minute=0),  # 18:00 har kuni
+    },
+    'inactivity-check': {
+        'task': 'ai_core.tasks.send_inactivity_reminders',
+        'schedule': crontab(hour=10, minute=0),  # 10:00 har kuni
     },
 }
 

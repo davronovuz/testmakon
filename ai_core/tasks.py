@@ -552,3 +552,328 @@ Javobni markdown formatda ber. Qisqa, o'tkir, amaliy bo'lsin."""
     except Exception as exc:
         logger.error(f"generate_university_recommendation xato: user_id={user_id}, {exc}")
         raise self.retry(exc=exc)
+
+
+@shared_task
+def send_smart_behavioral_notifications():
+    """
+    Har kuni 18:00 da ishga tushadi.
+    - Bugun test ishlaganlarni yutuq bilan tabriklaydi
+    - 3+ kun streak foydalanuvchilarga maxsus tashakkur
+    - O'tgan haftaga nisbatan natijasi yaxshilanganlarga motivatsiya
+    """
+    from accounts.models import User
+    from news.models import Notification
+    from tests_app.models import TestAttempt
+    import django.db.models as dj_models
+
+    today = timezone.localdate()
+    this_week_start = today - timedelta(days=7)
+    last_week_start = today - timedelta(days=14)
+    created = 0
+
+    # Bugun test ishlaganlar
+    todays_attempts = TestAttempt.objects.filter(
+        status='completed',
+        created_at__date=today,
+    ).values('user_id', 'percentage')
+
+    user_today_best = {}
+    for row in todays_attempts:
+        uid = row['user_id']
+        if uid not in user_today_best or row['percentage'] > user_today_best[uid]:
+            user_today_best[uid] = row['percentage']
+
+    for user_id, best_pct in user_today_best.items():
+        already = Notification.objects.filter(
+            user_id=user_id,
+            notification_type='achievement',
+            created_at__date=today,
+            title__startswith='🏆 Bugun ajoyib'
+        ).exists()
+        if already:
+            continue
+        try:
+            user = User.objects.get(id=user_id)
+            streak = user.current_streak or 1
+            Notification.objects.create(
+                user_id=user_id,
+                notification_type='achievement',
+                title="🏆 Bugun ajoyib natija!",
+                message=(
+                    f"Bugun {best_pct:.0f}% natija ko'rsatdingiz! "
+                    f"Joriy streak: {streak} kun. "
+                    f"Shunday davom eting — maqsadga yaqinlashyapsiz!"
+                ),
+                link='/ai/progress/',
+            )
+            created += 1
+        except User.DoesNotExist:
+            continue
+
+    # 3+ kun streak foydalanuvchilar (bugun test ishlamaganlar)
+    streak_users = User.objects.filter(
+        current_streak__gte=3,
+        last_activity_date=today,
+    ).exclude(id__in=list(user_today_best.keys()))
+
+    for user in streak_users:
+        already = Notification.objects.filter(
+            user_id=user.id,
+            notification_type='system',
+            created_at__date=today,
+            title__startswith='🔥'
+        ).exists()
+        if already:
+            continue
+        Notification.objects.create(
+            user_id=user.id,
+            notification_type='system',
+            title=f"🔥 {user.current_streak} kunlik streak!",
+            message=(
+                f"Siz {user.current_streak} kun ketma-ket o'qidingiz — bu zo'r! "
+                f"DTM imtihoniga tayyorgarlikni shu tartibda davom ettiring."
+            ),
+            link='/ai/progress/',
+        )
+        created += 1
+
+    # O'tgan haftaga nisbatan yaxshilanganlar
+    for user in User.objects.filter(last_activity_date__gte=this_week_start):
+        try:
+            this_avg = TestAttempt.objects.filter(
+                user=user, status='completed',
+                created_at__date__gte=this_week_start,
+            ).aggregate(avg=dj_models.Avg('percentage'))['avg'] or 0
+
+            last_avg = TestAttempt.objects.filter(
+                user=user, status='completed',
+                created_at__date__gte=last_week_start,
+                created_at__date__lt=this_week_start,
+            ).aggregate(avg=dj_models.Avg('percentage'))['avg'] or 0
+
+            if this_avg > last_avg + 5 and last_avg > 0:
+                already = Notification.objects.filter(
+                    user_id=user.id,
+                    notification_type='system',
+                    created_at__date=today,
+                    title__startswith='📈'
+                ).exists()
+                if not already:
+                    improvement = this_avg - last_avg
+                    Notification.objects.create(
+                        user_id=user.id,
+                        notification_type='system',
+                        title="📈 Natijangiz yaxshilandi!",
+                        message=(
+                            f"Bu hafta o'rtacha natijangiz {this_avg:.0f}% — "
+                            f"o'tgan haftaga nisbatan +{improvement:.0f}% oshdi. "
+                            f"Shu sur'atda davom etsangiz, DTMda yaxshi natija olasiz!"
+                        ),
+                        link='/ai/progress/',
+                    )
+                    created += 1
+        except Exception:
+            continue
+
+    logger.info(f"Behavioral notifications: {created} ta yaratildi")
+
+
+@shared_task
+def send_inactivity_reminders():
+    """
+    Har kuni 10:00 da ishga tushadi.
+    2+ kun faol bo'lmagan foydalanuvchilarga eslatma yuboradi.
+    5+ kun bo'lmaganlarni telegram orqali ham ogohlantirib.
+    """
+    from accounts.models import User
+    from news.models import Notification
+
+    today = timezone.localdate()
+    two_days_ago = today - timedelta(days=2)
+    five_days_ago = today - timedelta(days=5)
+    created = 0
+
+    # 2-4 kun faol bo'lmaganlar
+    inactive_2 = User.objects.filter(
+        last_activity_date__lte=two_days_ago,
+        last_activity_date__gt=five_days_ago,
+        is_active=True,
+    )
+    for user in inactive_2:
+        already = Notification.objects.filter(
+            user_id=user.id,
+            notification_type='reminder',
+            created_at__date=today,
+        ).exists()
+        if already:
+            continue
+        days_inactive = (today - user.last_activity_date).days
+        Notification.objects.create(
+            user_id=user.id,
+            notification_type='reminder',
+            title="📚 Testlar sizi kutmoqda",
+            message=(
+                f"{days_inactive} kun test ishlamadingiz. "
+                f"DTMga tayyorgarlik muntazam mashq talab qiladi. "
+                f"Bugun qaytib keling!"
+            ),
+            link='/tests/',
+        )
+        created += 1
+
+    # 5+ kun faol bo'lmaganlar — kuchli eslatma + telegram
+    inactive_5 = User.objects.filter(
+        last_activity_date__lte=five_days_ago,
+        is_active=True,
+    ).exclude(last_activity_date=None)
+
+    for user in inactive_5:
+        already = Notification.objects.filter(
+            user_id=user.id,
+            notification_type='reminder',
+            created_at__date=today,
+        ).exists()
+        if already:
+            continue
+        days_inactive = (today - user.last_activity_date).days
+        Notification.objects.create(
+            user_id=user.id,
+            notification_type='reminder',
+            title="⚠️ Uzoq vaqt bo'lmadingiz!",
+            message=(
+                f"{days_inactive} kun davomida platformaga kirmadingiz. "
+                f"DTM imtihoni yaqinlashmoqda — bugun eng muhim qadam qiling!"
+            ),
+            link='/tests/',
+        )
+        created += 1
+
+        # Telegram xabar yuborish
+        if user.telegram_id:
+            try:
+                import requests
+                from django.conf import settings as dj_settings
+                bot_token = dj_settings.TELEGRAM_BOT_TOKEN
+                if bot_token:
+                    name = user.first_name or user.username or "O'quvchi"
+                    text = (
+                        f"⚠️ Salom, {name}!\n\n"
+                        f"{days_inactive} kun TestMakon.uzga kirmagansiz.\n"
+                        f"DTMga tayyorgarlik to'xtamaydi — bugun testlar ishlab keling! 💪\n\n"
+                        f"🌐 testmakon.uz"
+                    )
+                    requests.post(
+                        f"https://api.telegram.org/bot{bot_token}/sendMessage",
+                        json={"chat_id": user.telegram_id, "text": text},
+                        timeout=5,
+                    )
+            except Exception as tg_err:
+                logger.warning(f"Telegram xabar xatosi: user={user.id}, {tg_err}")
+
+    logger.info(f"Inactivity reminders: {created} ta yaratildi")
+
+
+@shared_task
+def generate_weekly_ai_report(user_id=None):
+    """
+    Har dushanba 09:00 da ishga tushadi (yoki user_id bilan yakka chaqiriladi).
+    Haftalik o'quv hisobotini Gemini orqali yaratadi va Notification yuboradi.
+    """
+    from accounts.models import User
+    from news.models import Notification
+    from tests_app.models import TestAttempt
+    from .models import AIRecommendation
+    from .utils import get_ai_response
+    import django.db.models as dj_models
+
+    today = timezone.localdate()
+    week_ago = today - timedelta(days=7)
+    two_weeks_ago = today - timedelta(days=14)
+
+    if user_id:
+        users = User.objects.filter(id=user_id, is_active=True)
+    else:
+        users = User.objects.filter(
+            last_activity_date__gte=week_ago,
+            is_active=True,
+        )
+
+    created = 0
+    for user in users:
+        try:
+            this_week = TestAttempt.objects.filter(
+                user=user, status='completed',
+                created_at__date__gte=week_ago,
+            )
+            tests_this_week = this_week.count()
+            avg_this_week = this_week.aggregate(avg=dj_models.Avg('percentage'))['avg'] or 0
+
+            if tests_this_week == 0:
+                continue
+
+            last_week = TestAttempt.objects.filter(
+                user=user, status='completed',
+                created_at__date__gte=two_weeks_ago,
+                created_at__date__lt=week_ago,
+            )
+            avg_last_week = last_week.aggregate(avg=dj_models.Avg('percentage'))['avg'] or 0
+
+            try:
+                predicted_dtm = user.analytics_summary.predicted_dtm_score
+                weak_count = user.analytics_summary.weak_topics_count
+            except Exception:
+                predicted_dtm = 0
+                weak_count = 0
+
+            trend = "yaxshilandi" if avg_this_week > avg_last_week else "pasaydi"
+            diff = abs(avg_this_week - avg_last_week)
+
+            prompt = f"""O'quvchi: {user.get_full_name() or user.username}
+Bu hafta ishlagan testlar: {tests_this_week} ta
+Bu hafta o'rtacha natija: {avg_this_week:.0f}%
+O'tgan haftaga nisbatan: {trend} ({diff:.0f}%)
+Bashorat DTM bali: {predicted_dtm}/189
+Sust mavzular soni: {weak_count}
+
+Ushbu o'quvchi uchun 2-3 gapdan iborat qisqa, ilhomlantiradigan haftalik xulosa yoz.
+Natija yaxshi bo'lsa maqta, yomonlashgan bo'lsa rag'batlantir. O'zbek tilida."""
+
+            ai_text = get_ai_response(
+                [{"role": "user", "content": prompt}],
+                system_prompt="Sen motivatsion AI mentorsan. Qisqa, issiq, ilhomlantiradigan xabarlar yoz. O'zbek tilida."
+            )
+
+            AIRecommendation.objects.create(
+                user=user,
+                recommendation_type='motivation',
+                priority='medium',
+                title=f"Haftalik hisobot — {today.strftime('%d.%m.%Y')}",
+                content=ai_text,
+            )
+
+            already = Notification.objects.filter(
+                user=user,
+                notification_type='system',
+                created_at__date=today,
+                title__startswith='📊 Haftalik'
+            ).exists()
+            if not already:
+                Notification.objects.create(
+                    user=user,
+                    notification_type='system',
+                    title="📊 Haftalik hisobotingiz tayyor",
+                    message=(
+                        f"Bu hafta {tests_this_week} ta test ishlabsiz. "
+                        f"O'rtacha: {avg_this_week:.0f}%. AI tahlilni ko'rish uchun bosing."
+                    ),
+                    link='/ai/mentor/',
+                )
+            created += 1
+
+        except Exception as err:
+            logger.error(f"generate_weekly_ai_report xato: user={user.id}, {err}")
+            continue
+
+    logger.info(f"Haftalik hisobotlar: {created} ta yaratildi")
+    return {'created': created}

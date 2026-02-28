@@ -369,6 +369,41 @@
                 </a>
             </div>
 
+            <!-- Yangi AI sahifalar -->
+            <div class="feature-grid" style="margin-top:0;">
+                <a href="{% url 'ai_core:progress_dashboard' %}" class="feature-card" style="border-left:3px solid #3B82F6;">
+                    <div class="feature-icon" style="background:rgba(59,130,246,0.12);color:#3B82F6;">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <h5 class="feature-title">Progress Dashboard</h5>
+                    <p class="feature-desc">Chart.js grafiklar, peer ranking va sust mavzular jadvaliga qarang.</p>
+                </a>
+
+                <a href="{% url 'ai_core:university_dashboard' %}" class="feature-card" style="border-left:3px solid #8BC540;">
+                    <div class="feature-icon primary">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                    <h5 class="feature-title">Universitet Dashboard</h5>
+                    <p class="feature-desc">DTM bashorat balingiz asosida Ishonchli / Chegara / Maqsad universitetlar.</p>
+                </a>
+
+                <a href="{% url 'ai_core:behavioral_insights' %}" class="feature-card" style="border-left:3px solid #F59E0B;">
+                    <div class="feature-icon warning">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h5 class="feature-title">Behavioral Insights</h5>
+                    <p class="feature-desc">Eng yaxshi o'qish vaqtlari, charchash indikatori va o'qish uslubingiz.</p>
+                </a>
+
+                <a href="{% url 'ai_core:recommendations_list' %}" class="feature-card" style="border-left:3px solid #8B5CF6;">
+                    <div class="feature-icon" style="background:rgba(139,92,246,0.12);color:#8B5CF6;">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h5 class="feature-title">AI Tavsiyalar</h5>
+                    <p class="feature-desc">Barcha shaxsiy AI tavsiyalar — strategiya, mavzu va motivatsiya.</p>
+                </a>
+            </div>
+
             <!-- AI Tavsiyalar -->
             {% if recommendations %}
             <div class="section-header">

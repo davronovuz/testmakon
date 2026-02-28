@@ -46,6 +46,19 @@ urlpatterns = [
     # Weak Topics
     path('weak-topics/', views.weak_topics, name='weak_topics'),
 
+    # University Dashboard
+    path('university-dashboard/', views.university_dashboard, name='university_dashboard'),
+
+    # Progress Dashboard
+    path('progress/', views.progress_dashboard, name='progress_dashboard'),
+
+    # Behavioral Insights
+    path('insights/', views.behavioral_insights, name='behavioral_insights'),
+
+    # Smart Test Generator
+    path('smart-test/', views.smart_test_generate, name='smart_test_generate'),
+    path('smart-test/status/<str:task_id>/', views.smart_test_status, name='smart_test_status'),
+
     # API
     path('api/chat/', views.api_chat, name='api_chat'),
     path('api/task/<str:task_id>/', views.api_task_status, name='api_task_status'),

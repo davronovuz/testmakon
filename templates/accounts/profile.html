@@ -147,6 +147,59 @@
     </div>
 </div>
 
+<!-- AI DTM Progress Card (only own profile) -->
+{% if request.user == profile_user and analytics %}
+<div class="profile-card mb-3">
+    <div class="profile-card-body" style="padding:1rem;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon" style="background:var(--gradient-primary); color:white; width:36px; height:36px; border-radius:10px; font-size:1rem;">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div>
+                    <div class="fw-bold" style="font-size:0.9rem; color:var(--dark);">AI Tahlil</div>
+                    <div style="font-size:0.72rem; color:var(--gray-500);">DTM bashorat va progress</div>
+                </div>
+            </div>
+            <a href="{% url 'ai_core:progress_dashboard' %}" class="btn btn-sm" style="background:rgba(139,197,64,0.1); color:var(--primary-dark); border:1px solid rgba(139,197,64,0.2); border-radius:8px; font-size:0.78rem; font-weight:700;">
+                Batafsil <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="row g-2">
+            <div class="col-4">
+                <div class="text-center p-2 rounded-3" style="background:rgba(139,197,64,0.08); border:1px solid rgba(139,197,64,0.15);">
+                    <div style="font-size:1.4rem; font-weight:900; color:var(--primary-dark); line-height:1;">{{ analytics.predicted_dtm_score|default:0 }}</div>
+                    <div style="font-size:0.68rem; color:var(--gray-500); font-weight:600; margin-top:2px;">DTM bashorat</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="text-center p-2 rounded-3" style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.15);">
+                    <div style="font-size:1.4rem; font-weight:900; color:#2563EB; line-height:1;">{{ analytics.overall_accuracy|floatformat:0|default:0 }}%</div>
+                    <div style="font-size:0.68rem; color:var(--gray-500); font-weight:600; margin-top:2px;">Umumiy aniqlik</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="text-center p-2 rounded-3" style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.15);">
+                    <div style="font-size:1.4rem; font-weight:900; color:#D97706; line-height:1;">{{ analytics.weak_topics_count|default:0 }}</div>
+                    <div style="font-size:0.68rem; color:var(--gray-500); font-weight:600; margin-top:2px;">Sust mavzular</div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+            <a href="{% url 'ai_core:university_dashboard' %}" class="btn btn-sm flex-fill text-center" style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; font-size:0.75rem; color:var(--dark-600); font-weight:600; padding:0.4rem;">
+                <i class="bi bi-mortarboard me-1"></i>Universitetlar
+            </a>
+            <a href="{% url 'ai_core:smart_test_generate' %}" class="btn btn-sm flex-fill text-center" style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; font-size:0.75rem; color:var(--dark-600); font-weight:600; padding:0.4rem;">
+                <i class="bi bi-lightning-charge me-1"></i>Smart Test
+            </a>
+            <a href="{% url 'ai_core:behavioral_insights' %}" class="btn btn-sm flex-fill text-center" style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; font-size:0.75rem; color:var(--dark-600); font-weight:600; padding:0.4rem;">
+                <i class="bi bi-activity me-1"></i>Insights
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Bio / Target -->
 {% if profile_user.bio or profile_user.target_university %}
 <div class="profile-card mb-3">
