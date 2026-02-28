@@ -767,13 +767,13 @@ def progress_dashboard(request):
     recent_attempts = TestAttempt.objects.filter(
         user=request.user,
         status='completed',
-        created_at__gte=thirty_days_ago,
-    ).order_by('created_at').values('created_at', 'percentage')
+        started_at__gte=thirty_days_ago,
+    ).order_by('started_at').values('started_at', 'percentage')
 
     # Haftalik agregatsiya (Chart.js uchun)
     weekly_data = {}
     for attempt in recent_attempts:
-        week_key = attempt['created_at'].strftime('%d.%m')
+        week_key = attempt['started_at'].strftime('%d.%m')
         if week_key not in weekly_data:
             weekly_data[week_key] = {'scores': [], 'count': 0}
         weekly_data[week_key]['scores'].append(attempt['percentage'])
