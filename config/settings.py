@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'news.apps.NewsConfig',
     'leaderboard.apps.LeaderboardConfig',
     'subscriptions.apps.SubscriptionsConfig',
+    'tgbot.apps.TgbotConfig',
     'django_celery_beat',
 ]
 
@@ -138,7 +139,17 @@ CELERY_TASK_SERIALIZER   = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE          = 'Asia/Tashkent'
 CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT    = 30 * 60  # 30 daqiqa max
+CELERY_TASK_TIME_LIMIT    = 60 * 60  # 1 soat max (broadcast uchun)
+
+# Telegram Bot
+TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
+SITE_DOMAIN        = config('SITE_DOMAIN', default='https://testmakon.uz')
+TELEGRAM_WELCOME_MESSAGE = (
+    '👋 Salom! <b>TestMakon.uz</b> botiga xush kelibsiz!\n\n'
+    '📚 O\'zingizni DTMga tayyorlang, testlar ishlang va '
+    'natijalaringizni kuzating.\n\n'
+    '🌐 Saytga o\'ting: <a href="https://testmakon.uz">testmakon.uz</a>'
+)
 
 CELERY_BEAT_SCHEDULE = {
     'cache-university-stats': {

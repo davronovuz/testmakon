@@ -21,6 +21,7 @@ urlpatterns = [
     path('news/', include('news.urls', namespace='news')),
     path('leaderboard/', include('leaderboard.urls', namespace='leaderboard')),
     path('subscriptions/', include('subscriptions.urls', namespace='subscriptions')),
+    path('tgbot/', include('tgbot.urls', namespace='tgbot')),
 
 ]
 

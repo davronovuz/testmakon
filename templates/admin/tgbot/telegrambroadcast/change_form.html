@@ -1,0 +1,79 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+{% if original %}
+  {% if original.status == 'draft' %}
+  <li>
+    <a href="{% url 'admin:tgbot_broadcast_send' original.pk %}"
+       style="background:#059669;color:white;padding:6px 16px;border-radius:6px;
+              font-weight:700;font-size:13px;text-decoration:none;display:inline-block"
+       onclick="return confirm('▶ Broadcastni yuborishni tasdiqlaysizmi?\nBu amal bekor qilib bo\'lmaydi!')">
+      ▶ Yuborish
+    </a>
+  </li>
+  {% elif original.status == 'running' %}
+  <li>
+    <a href="{% url 'admin:tgbot_broadcast_cancel' original.pk %}"
+       style="background:#DC2626;color:white;padding:6px 16px;border-radius:6px;
+              font-weight:700;font-size:13px;text-decoration:none;display:inline-block"
+       onclick="return confirm('■ Broadcastni to\'xtatishni tasdiqlaysizmi?')">
+      ■ To'xtatish
+    </a>
+  </li>
+  {% endif %}
+{% endif %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+
+{% if original and original.status == 'running' %}
+<script>
+(function() {
+  var statsUrl = '/admin/tgbot/telegrambroadcast/{{ original.pk }}/stats-api/';
+  var pollInterval = 2500;
+
+  function updateUI(d) {
+    var el = function(id) { return document.getElementById(id); };
+    if (el('s-sent'))    el('s-sent').textContent    = d.sent_count;
+    if (el('s-failed'))  el('s-failed').textContent  = d.failed_count;
+    if (el('s-pending')) el('s-pending').textContent = d.pending_count;
+    if (el('s-total'))   el('s-total').textContent   = d.total_users;
+    if (el('s-pbar'))    el('s-pbar').style.width    = d.progress_pct + '%';
+    if (el('s-pct'))     el('s-pct').textContent     = d.progress_pct + '%';
+
+    if (d.is_done) {
+      var box = document.getElementById('bc-stats-box');
+      if (box) {
+        var color = d.status === 'done' ? '#059669' : '#DC2626';
+        var bar   = document.getElementById('s-pbar');
+        if (bar) bar.style.background = color;
+        var pct = document.getElementById('s-pct');
+        if (pct) {
+          pct.textContent = d.status_display;
+          pct.style.color = color;
+          pct.style.fontWeight = '800';
+        }
+      }
+      // Sahifani reload qilish (finish holatni ko'rish uchun)
+      setTimeout(function() { window.location.reload(); }, 2000);
+      return;
+    }
+    setTimeout(poll, pollInterval);
+  }
+
+  function poll() {
+    fetch(statsUrl)
+      .then(function(r) { return r.json(); })
+      .then(updateUI)
+      .catch(function() { setTimeout(poll, pollInterval * 2); });
+  }
+
+  // 1 sekunddan so'ng boshlansin
+  setTimeout(poll, 1000);
+})();
+</script>
+{% endif %}
+{% endblock %}
