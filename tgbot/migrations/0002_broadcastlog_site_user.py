@@ -35,10 +35,9 @@ class Migration(migrations.Migration):
                 related_name='broadcast_logs',
                 to=settings.AUTH_USER_MODEL,
                 verbose_name='Foydalanuvchi',
-                # Mavjud (bo'sh) jadval uchun vaqtinchalik default
                 default=1,
-                preserve_default=False,
             ),
+            preserve_default=False,
         ),
         # 5. Yangi unique_together
         migrations.AlterUniqueTogether(
