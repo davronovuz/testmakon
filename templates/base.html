@@ -122,8 +122,9 @@
 
         /* --- Dark: Navbar --- */
         [data-theme="dark"] .navbar {
-            background: rgba(15, 23, 42, 0.97);
-            border-bottom-color: #1E293B;
+            background: rgba(15, 23, 42, 0.85);
+            border-color: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         [data-theme="dark"] .navbar-brand { color: #F1F5F9 !important; }
@@ -951,14 +952,20 @@
 
         /* ========== NAVBAR ========== */
         .navbar {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 0.75rem 0;
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 1200px;
             z-index: 1050;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: 100px;
+            padding: 0.55rem 1.25rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,0.9);
         }
 
         /* Premium navbar button */
@@ -1581,6 +1588,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-top: 82px;
         }
 
         .page-content { flex: 1; }
@@ -1595,6 +1603,14 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .navbar {
+                top: 8px;
+                width: calc(100% - 16px);
+                padding: 0.5rem 1rem;
+                border-radius: 60px;
+            }
+            .page-wrapper { padding-top: 74px; }
+
             h1 { font-size: 2.5rem; }
             h2 { font-size: 2rem; }
             .section { padding: 4rem 0; }
