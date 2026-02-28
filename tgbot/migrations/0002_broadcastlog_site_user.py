@@ -11,37 +11,54 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Eski log yozuvlarini tozalash
+        # Raw SQL: eski jadvalni o'chirib, yangi tuzilma bilan qayta yaratish.
+        # AlterUniqueTogether ishlatilmaydi — constraint nomi farq qilishi mumkin.
         migrations.RunSQL(
-            "DELETE FROM tgbot_telegrambroadcastlog;",
-            reverse_sql=migrations.RunSQL.noop,
+            sql="""
+                DROP TABLE IF EXISTS tgbot_telegrambroadcastlog;
+                CREATE TABLE tgbot_telegrambroadcastlog (
+                    id          BIGSERIAL PRIMARY KEY,
+                    broadcast_id BIGINT NOT NULL
+                        REFERENCES tgbot_telegrambroadcast(id) ON DELETE CASCADE,
+                    site_user_id BIGINT NOT NULL
+                        REFERENCES accounts_user(id) ON DELETE CASCADE,
+                    status      VARCHAR(20)  NOT NULL DEFAULT 'pending',
+                    error_text  VARCHAR(500) NOT NULL DEFAULT '',
+                    sent_at     TIMESTAMPTZ,
+                    UNIQUE(broadcast_id, site_user_id)
+                );
+            """,
+            reverse_sql="DROP TABLE IF EXISTS tgbot_telegrambroadcastlog;",
         ),
-        # 2. Eski unique_together ni olib tashlash (broadcast + telegram_user)
-        migrations.AlterUniqueTogether(
-            name='telegrambroadcastlog',
-            unique_together=set(),
-        ),
-        # 3. Eski telegram_user FK ni olib tashlash
-        migrations.RemoveField(
-            model_name='telegrambroadcastlog',
-            name='telegram_user',
-        ),
-        # 4. Yangi site_user FK qo'shish (accounts.User ga)
-        migrations.AddField(
-            model_name='telegrambroadcastlog',
-            name='site_user',
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name='broadcast_logs',
-                to=settings.AUTH_USER_MODEL,
-                verbose_name='Foydalanuvchi',
-                default=1,
-            ),
-            preserve_default=False,
-        ),
-        # 5. Yangi unique_together
-        migrations.AlterUniqueTogether(
-            name='telegrambroadcastlog',
-            unique_together={('broadcast', 'site_user')},
+
+        # Django migration state ni DB bilan moslashtirish (hech qanday DB o'zgarish yo'q)
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.AlterUniqueTogether(
+                    name='telegrambroadcastlog',
+                    unique_together=set(),
+                ),
+                migrations.RemoveField(
+                    model_name='telegrambroadcastlog',
+                    name='telegram_user',
+                ),
+                migrations.AddField(
+                    model_name='telegrambroadcastlog',
+                    name='site_user',
+                    field=models.ForeignKey(
+                        default=1,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='broadcast_logs',
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name='Foydalanuvchi',
+                    ),
+                    preserve_default=False,
+                ),
+                migrations.AlterUniqueTogether(
+                    name='telegrambroadcastlog',
+                    unique_together={('broadcast', 'site_user')},
+                ),
+            ],
         ),
     ]
