@@ -1282,6 +1282,179 @@
         box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.4);
     }
 
+    /* ========== AI HELP PANEL ========== */
+    .ai-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        z-index: 1900;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    .ai-backdrop.show { opacity: 1; visibility: visible; }
+
+    .ai-panel {
+        position: fixed;
+        top: 82px;
+        right: 0;
+        bottom: 0;
+        width: 400px;
+        max-width: 100vw;
+        background: var(--white);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid var(--gray-200);
+        box-shadow: -20px 0 60px rgba(0,0,0,0.12);
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ai-panel.show { transform: translateX(0); }
+
+    .ai-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        flex-shrink: 0;
+    }
+    .ai-panel-title { display: flex; align-items: center; gap: 0.75rem; }
+    .ai-panel-avatar {
+        width: 38px; height: 38px;
+        border-radius: 11px;
+        background: rgba(255,255,255,0.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; color: white;
+    }
+    .ai-panel-name { font-size: 0.95rem; font-weight: 700; color: white; }
+    .ai-panel-sub { font-size: 0.72rem; color: rgba(255,255,255,0.72); margin-top: 0.1rem; }
+    .ai-status-dot {
+        display: inline-block; width: 6px; height: 6px;
+        border-radius: 50%; background: #4ADE80;
+        margin-right: 4px; animation: aiPulse 2s infinite;
+    }
+    @keyframes aiPulse {
+        0%,100% { opacity:1; } 50% { opacity:0.4; }
+    }
+    .ai-panel-close {
+        width: 32px; height: 32px; border-radius: 9px; border: none;
+        background: rgba(255,255,255,0.15); color: white;
+        cursor: pointer; display: flex; align-items: center;
+        justify-content: center; font-size: 0.85rem; transition: all 0.2s;
+    }
+    .ai-panel-close:hover { background: rgba(255,255,255,0.28); }
+
+    .ai-question-preview {
+        padding: 0.85rem 1.25rem;
+        background: rgba(139, 92, 246, 0.05);
+        border-bottom: 1px solid var(--gray-200);
+        flex-shrink: 0;
+    }
+    .ai-q-label {
+        font-size: 0.68rem; font-weight: 700; color: #7C3AED;
+        text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.35rem;
+    }
+    .ai-q-text {
+        font-size: 0.85rem; color: var(--dark); line-height: 1.5;
+        display: -webkit-box; -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .ai-panel-body {
+        flex: 1; overflow-y: auto; padding: 1.25rem;
+        display: flex; flex-direction: column; gap: 1rem;
+        scroll-behavior: smooth;
+    }
+    .ai-panel-body::-webkit-scrollbar { width: 4px; }
+    .ai-panel-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+
+    .ai-loading {
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        padding: 2rem; gap: 0.75rem;
+    }
+    .ai-loading-dots { display: flex; gap: 6px; }
+    .ai-loading-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #8B5CF6; animation: aiBounce 1.2s infinite;
+    }
+    .ai-loading-dot:nth-child(2) { animation-delay: 0.15s; }
+    .ai-loading-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes aiBounce {
+        0%,60%,100% { transform:translateY(0); opacity:0.4; }
+        30% { transform:translateY(-8px); opacity:1; }
+    }
+    .ai-loading-text { font-size: 0.82rem; color: var(--gray-500); font-weight: 600; }
+
+    .ai-msg {
+        display: flex; gap: 0.65rem; align-items: flex-start;
+        animation: aiFadeIn 0.3s ease;
+    }
+    @keyframes aiFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .ai-msg-avatar {
+        width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; color: white;
+    }
+    .ai-msg-bubble {
+        flex: 1;
+        background: rgba(139, 92, 246, 0.07);
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        border-radius: 4px 14px 14px 14px;
+        padding: 0.8rem 1rem;
+        font-size: 0.875rem; color: var(--dark); line-height: 1.7;
+    }
+    .ai-user-msg { display: flex; justify-content: flex-end; animation: aiFadeIn 0.3s ease; }
+    .ai-user-bubble {
+        background: var(--gray-100); border: 1px solid var(--gray-200);
+        border-radius: 14px 4px 14px 14px;
+        padding: 0.7rem 1rem; font-size: 0.875rem;
+        color: var(--dark); max-width: 85%; line-height: 1.6;
+    }
+
+    .ai-panel-footer {
+        padding: 0.875rem 1.25rem;
+        border-top: 1px solid var(--gray-200);
+        background: var(--gray-50); flex-shrink: 0;
+    }
+    .ai-input-row { display: flex; gap: 0.5rem; align-items: center; }
+    .ai-input {
+        flex: 1; padding: 0.6rem 1rem;
+        border: 1px solid var(--gray-200); border-radius: 50px;
+        font-size: 0.875rem; font-family: inherit;
+        background: var(--white); color: var(--dark); outline: none;
+        transition: all 0.2s;
+    }
+    .ai-input:focus { border-color: #8B5CF6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+    .ai-send-btn {
+        width: 36px; height: 36px; border-radius: 50%; border: none;
+        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        color: white; cursor: pointer; display: flex;
+        align-items: center; justify-content: center;
+        font-size: 0.85rem; flex-shrink: 0; transition: all 0.2s;
+    }
+    .ai-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(109,40,217,0.4); }
+    .ai-send-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .ai-disclaimer { font-size: 0.68rem; color: var(--gray-400); text-align: center; margin-top: 0.45rem; }
+
+    @media (max-width: 640px) {
+        .ai-panel { width: 100%; top: 74px; }
+    }
+
+    [data-theme="dark"] .ai-panel { background: #1A2332; border-left-color: #1E293B; }
+    [data-theme="dark"] .ai-question-preview { background: rgba(139,92,246,0.06); border-bottom-color: #1E293B; }
+    [data-theme="dark"] .ai-q-text { color: #E2E8F0; }
+    [data-theme="dark"] .ai-msg-bubble { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.2); color: #E2E8F0; }
+    [data-theme="dark"] .ai-user-bubble { background: #1E293B; border-color: #334155; color: #E2E8F0; }
+    [data-theme="dark"] .ai-panel-footer { background: #162032; border-top-color: #1E293B; }
+    [data-theme="dark"] .ai-input { background: #1A2332; border-color: #334155; color: #E2E8F0; }
+    [data-theme="dark"] .ai-input:focus { border-color: #8B5CF6; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+
     /* ========== MOBILE SIDEBAR TOGGLE ========== */
     .sidebar-mobile-toggle {
         display: none;
@@ -2181,6 +2354,40 @@
 <!-- Mobile overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
 
+<!-- ========== AI HELP PANEL ========== -->
+<div class="ai-backdrop" id="aiBackdrop" onclick="closeAIPanel()"></div>
+<div class="ai-panel" id="aiPanel">
+    <div class="ai-panel-header">
+        <div class="ai-panel-title">
+            <div class="ai-panel-avatar"><i class="bi bi-stars"></i></div>
+            <div>
+                <div class="ai-panel-name">AI Yordamchi</div>
+                <div class="ai-panel-sub"><span class="ai-status-dot"></span>Savol bo'yicha yordam</div>
+            </div>
+        </div>
+        <button class="ai-panel-close" onclick="closeAIPanel()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="ai-question-preview">
+        <div class="ai-q-label"><i class="bi bi-question-circle"></i> Joriy savol</div>
+        <div class="ai-q-text" id="aiQPreview"></div>
+    </div>
+
+    <div class="ai-panel-body" id="aiPanelBody"></div>
+
+    <div class="ai-panel-footer">
+        <div class="ai-input-row">
+            <input type="text" class="ai-input" id="aiInput"
+                   placeholder="Qo'shimcha savol yozing..."
+                   onkeydown="if(event.key==='Enter'){sendAIMsg();event.preventDefault();}">
+            <button class="ai-send-btn" id="aiSendBtn" onclick="sendAIMsg()">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+        <div class="ai-disclaimer">⚠️ AI xato qilishi mumkin. Javobni o'zingiz tekshiring.</div>
+    </div>
+</div>
+
 <!-- ========== FINISH MODAL ========== -->
 <div class="test-modal-overlay" id="finishModal">
     <div class="test-modal">
@@ -2725,10 +2932,124 @@
     };
 
     // ==========================================
-    // AI HELP
+    // AI HELP PANEL
     // ==========================================
+    var _aiLoading = false;
+    var _aiLastQText = '';
+    var _aiQuickUrl = '{% url "ai_core:api_quick_answer" %}';
+    var _aiSubject = '{{ test.subject.name|default:"" }}';
+
+    function _getActiveQuestion() {
+        var slide = document.querySelector('.test-question-slide:not(.d-none)');
+        if (!slide) return {text: '', answers: []};
+        var textEl = slide.querySelector('.test-question-text');
+        var qText = textEl ? textEl.innerText.trim() : '';
+        var answers = [];
+        var letters = ['A', 'B', 'C', 'D'];
+        slide.querySelectorAll('.test-answer-text').forEach(function(el, i) {
+            if (letters[i]) answers.push(letters[i] + ') ' + el.innerText.trim());
+        });
+        return {text: qText, answers: answers};
+    }
+
+    function _getCsrf() {
+        var v = '; ' + document.cookie;
+        var p = v.split('; csrftoken=');
+        return p.length === 2 ? p.pop().split(';').shift() : '';
+    }
+
+    function _addAIMsg(text) {
+        var body = document.getElementById('aiPanelBody');
+        var el = document.createElement('div');
+        el.className = 'ai-msg';
+        el.innerHTML = '<div class="ai-msg-avatar"><i class="bi bi-stars"></i></div>' +
+            '<div class="ai-msg-bubble">' + text.replace(/\n/g, '<br>') + '</div>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function _addUserMsg(text) {
+        var body = document.getElementById('aiPanelBody');
+        var el = document.createElement('div');
+        el.className = 'ai-user-msg';
+        el.innerHTML = '<div class="ai-user-bubble">' + text.replace(/[<>]/g, function(c){return c==='<'?'&lt;':'&gt;';}) + '</div>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function _showLoading() {
+        var body = document.getElementById('aiPanelBody');
+        var el = document.createElement('div');
+        el.className = 'ai-loading'; el.id = 'aiLoadingEl';
+        el.innerHTML = '<div class="ai-loading-dots">' +
+            '<div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div>' +
+            '</div><div class="ai-loading-text">AI o\'ylamoqda...</div>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function _removeLoading() {
+        var el = document.getElementById('aiLoadingEl');
+        if (el) el.remove();
+    }
+
+    function _fetchAI(prompt) {
+        if (_aiLoading) return;
+        _aiLoading = true;
+        document.getElementById('aiSendBtn').disabled = true;
+        _showLoading();
+
+        fetch(_aiQuickUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf()},
+            body: JSON.stringify({question: prompt, subject: _aiSubject})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            _removeLoading();
+            _addAIMsg(data.answer || 'Kechirasiz, javob olishda xatolik yuz berdi.');
+        })
+        .catch(function() {
+            _removeLoading();
+            _addAIMsg('Tarmoq xatosi yuz berdi. Qayta urinib ko\'ring.');
+        })
+        .finally(function() {
+            _aiLoading = false;
+            document.getElementById('aiSendBtn').disabled = false;
+        });
+    }
+
     window.askAI = function() {
-        window.open('{% url "ai_core:ai_mentor" %}', '_blank');
+        var q = _getActiveQuestion();
+        if (!q.text) return;
+
+        document.getElementById('aiBackdrop').classList.add('show');
+        document.getElementById('aiPanel').classList.add('show');
+        document.getElementById('aiQPreview').textContent = q.text;
+
+        // Agar yangi savol bo'lsa — reset qilib auto-so'ra
+        if (q.text !== _aiLastQText) {
+            _aiLastQText = q.text;
+            document.getElementById('aiPanelBody').innerHTML = '';
+            var prompt = q.text;
+            if (q.answers.length) prompt += '\n\nJavob variantlari:\n' + q.answers.join('\n');
+            prompt += '\n\nBu savolni qisqacha tushuntir va yechish yo\'lini ko\'rsat. To\'g\'ri javobni to\'g\'ridan-to\'g\'ri aytma — o\'quvchi o\'zi tushunsin.';
+            _fetchAI(prompt);
+        }
+    };
+
+    window.closeAIPanel = function() {
+        document.getElementById('aiBackdrop').classList.remove('show');
+        document.getElementById('aiPanel').classList.remove('show');
+    };
+
+    window.sendAIMsg = function() {
+        var input = document.getElementById('aiInput');
+        var text = input.value.trim();
+        if (!text || _aiLoading) return;
+        input.value = '';
+        _addUserMsg(text);
+        _fetchAI(text);
     };
 
     // ==========================================
@@ -2747,6 +3068,10 @@
     document.addEventListener('keydown', function(e) {
         // Don't handle if modal is open
         if (document.getElementById('finishModal').classList.contains('show')) {
+            return;
+        }
+        // Don't handle if AI input is focused
+        if (document.activeElement === document.getElementById('aiInput')) {
             return;
         }
 
