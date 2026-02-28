@@ -82,7 +82,7 @@ class BroadcastLogInline(admin.TabularInline):
     def get_queryset(self, request):
         return super().get_queryset(request).filter(
             status=TelegramBroadcastLog.STATUS_FAILED
-        ).select_related('site_user')[:100]
+        ).select_related('site_user')
 
     def telegram_user_link(self, obj):
         u = obj.site_user
