@@ -74,10 +74,11 @@ def webhook(request, token):
 
     # /start buyrug'i
     if text.startswith('/start'):
+        display_name = fname or "Do'st"
         welcome = getattr(settings, 'TELEGRAM_WELCOME_MESSAGE',
-            f'👋 Salom, <b>{fname or "Do\'st"}</b>!\n\n'
-            f'TestMakon.uz botiga xush kelibsiz. '
-            f'Saytimizga o\'ting: <a href="https://testmakon.uz">testmakon.uz</a>'
+            f'👋 Salom, <b>{display_name}</b>!\n\n'
+            "TestMakon.uz botiga xush kelibsiz. "
+            'Saytimizga o\'ting: <a href="https://testmakon.uz">testmakon.uz</a>'
         )
         _tg_send(chat_id, welcome)
         if created:

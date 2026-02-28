@@ -56,4 +56,5 @@ def analytics_settings(request):
     """Analytics kalitlarini barcha templatega uzatish"""
     return {
         'GOOGLE_ANALYTICS_ID': getattr(settings, 'GOOGLE_ANALYTICS_ID', ''),
+        'TELEGRAM_BOT_USERNAME': getattr(settings, 'TELEGRAM_BOT_USERNAME', 'testmakonaibot'),
     }
