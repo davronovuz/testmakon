@@ -620,23 +620,32 @@ def api_chat(request):
 @login_required
 def api_task_status(request, task_id):
     """Celery task holatini tekshirish — PROGRESS, done, error qaytaradi."""
-    from celery.result import AsyncResult
-    result = AsyncResult(task_id)
+    try:
+        from celery.result import AsyncResult
+        result = AsyncResult(task_id)
 
-    if result.state == 'PROGRESS':
-        meta = result.info or {}
-        return JsonResponse({
-            'status': 'pending',
-            'current': meta.get('current', 0),
-            'total': meta.get('total', 100),
-            'step': meta.get('step', ''),
-        })
-    elif result.successful():
-        return JsonResponse({'status': 'done', **result.get()})
-    elif result.failed():
-        return JsonResponse({'status': 'error'})
-    else:
-        return JsonResponse({'status': 'pending', 'current': 0, 'total': 100, 'step': 'Navbat kutilmoqda...'})
+        if result.state == 'PROGRESS':
+            meta = result.info or {}
+            return JsonResponse({
+                'status': 'pending',
+                'current': meta.get('current', 0),
+                'total': meta.get('total', 100),
+                'step': meta.get('step', ''),
+            })
+        elif result.successful():
+            data = result.get() or {}
+            return JsonResponse({'status': 'done', **data})
+        elif result.failed():
+            return JsonResponse({'status': 'error'})
+        else:
+            return JsonResponse({
+                'status': 'pending',
+                'current': 0,
+                'total': 100,
+                'step': 'Navbat kutilmoqda...',
+            })
+    except Exception:
+        return JsonResponse({'status': 'pending', 'current': 0, 'total': 100, 'step': ''})
 
 
 @login_required

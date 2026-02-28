@@ -583,6 +583,7 @@
     const stepText = document.getElementById('genStepText');
     const pctText = document.getElementById('genPctText');
     let pollCount = 0;
+    const MAX_POLLS = 90; // ~3 daqiqa (90 × 2s)
 
     function setProgress(pct, step) {
         if (progressFill) progressFill.style.width = pct + '%';
@@ -590,7 +591,18 @@
         if (pctText) pctText.textContent = pct + '%';
     }
 
+    function showTimeout() {
+        const overlay = document.getElementById('genOverlay');
+        if (overlay) {
+            overlay.innerHTML = '<div class="ai-gen-card"><span style="font-size:3rem;">⏱️</span><h2 class="ai-gen-title" style="margin-top:1rem;">Vaqt tugadi</h2><p class="ai-gen-desc">Sahifani yangilang yoki keyinroq urinib ko\'ring.</p><a href="' + window.location.pathname + '" class="btn btn-primary mt-3">Sahifani yangilash</a></div>';
+        }
+    }
+
     function poll() {
+        if (pollCount >= MAX_POLLS) {
+            showTimeout();
+            return;
+        }
         pollCount++;
         fetch(statusUrl)
             .then(r => r.json())
@@ -609,7 +621,11 @@
                 }
             })
             .catch(function() {
-                if (pollCount < 90) setTimeout(poll, 3000);
+                if (pollCount < MAX_POLLS) {
+                    setTimeout(poll, 3000);
+                } else {
+                    showTimeout();
+                }
             });
     }
     setTimeout(poll, 2000);

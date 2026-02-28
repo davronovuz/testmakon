@@ -203,12 +203,35 @@ JSON format (boshqa hech narsa yozma):
             response = get_ai_response(
                 [{"role": "user", "content": user_prompt}], system_prompt
             )
-            match = re.search(r'\{[\s\S]*\}', response)
-            if not match:
+            # Non-greedy: find the last top-level JSON object in response
+            matches = list(re.finditer(r'\{', response))
+            data = None
+            for m in reversed(matches):
+                candidate = response[m.start():]
+                # Find balanced closing brace
+                depth = 0
+                end = None
+                for i, ch in enumerate(candidate):
+                    if ch == '{':
+                        depth += 1
+                    elif ch == '}':
+                        depth -= 1
+                        if depth == 0:
+                            end = i + 1
+                            break
+                if end is None:
+                    continue
+                try:
+                    data = json.loads(candidate[:end])
+                    if 'week_template' in data:
+                        break
+                    data = None
+                except json.JSONDecodeError:
+                    continue
+
+            if not data:
                 logger.error(f"Plan {self.plan_id}: AI JSON qaytarmadi")
                 return None, ''
-
-            data = json.loads(match.group())
             template = data.get('week_template', [])
             analysis = data.get('analysis', '')
 
