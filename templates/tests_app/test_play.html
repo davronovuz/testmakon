@@ -1319,7 +1319,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 1rem 1.25rem;
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        background: var(--gradient-primary);
         flex-shrink: 0;
     }
     .ai-panel-title { display: flex; align-items: center; gap: 0.75rem; }
@@ -1355,7 +1355,7 @@
         flex-shrink: 0;
     }
     .ai-q-label {
-        font-size: 0.68rem; font-weight: 700; color: #7C3AED;
+        font-size: 0.68rem; font-weight: 700; color: var(--primary-dark);
         text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.35rem;
     }
     .ai-q-text {
@@ -1380,7 +1380,7 @@
     .ai-loading-dots { display: flex; gap: 6px; }
     .ai-loading-dot {
         width: 8px; height: 8px; border-radius: 50%;
-        background: #8B5CF6; animation: aiBounce 1.2s infinite;
+        background: var(--primary); animation: aiBounce 1.2s infinite;
     }
     .ai-loading-dot:nth-child(2) { animation-delay: 0.15s; }
     .ai-loading-dot:nth-child(3) { animation-delay: 0.3s; }
@@ -1397,14 +1397,14 @@
     @keyframes aiFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
     .ai-msg-avatar {
         width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
-        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        background: var(--gradient-primary);
         display: flex; align-items: center; justify-content: center;
         font-size: 0.82rem; color: white;
     }
     .ai-msg-bubble {
         flex: 1;
-        background: rgba(139, 92, 246, 0.07);
-        border: 1px solid rgba(139, 92, 246, 0.15);
+        background: rgba(139, 197, 64, 0.07);
+        border: 1px solid rgba(139, 197, 64, 0.18);
         border-radius: 4px 14px 14px 14px;
         padding: 0.8rem 1rem;
         font-size: 0.875rem; color: var(--dark); line-height: 1.7;
@@ -1430,15 +1430,15 @@
         background: var(--white); color: var(--dark); outline: none;
         transition: all 0.2s;
     }
-    .ai-input:focus { border-color: #8B5CF6; box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
+    .ai-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
     .ai-send-btn {
         width: 36px; height: 36px; border-radius: 50%; border: none;
-        background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        background: var(--gradient-primary);
         color: white; cursor: pointer; display: flex;
         align-items: center; justify-content: center;
         font-size: 0.85rem; flex-shrink: 0; transition: all 0.2s;
     }
-    .ai-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(109,40,217,0.4); }
+    .ai-send-btn:hover { transform: scale(1.08); box-shadow: var(--shadow-primary); }
     .ai-send-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
     .ai-disclaimer { font-size: 0.68rem; color: var(--gray-400); text-align: center; margin-top: 0.45rem; }
 
@@ -1449,11 +1449,11 @@
     [data-theme="dark"] .ai-panel { background: #1A2332; border-left-color: #1E293B; }
     [data-theme="dark"] .ai-question-preview { background: rgba(139,92,246,0.06); border-bottom-color: #1E293B; }
     [data-theme="dark"] .ai-q-text { color: #E2E8F0; }
-    [data-theme="dark"] .ai-msg-bubble { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.2); color: #E2E8F0; }
+    [data-theme="dark"] .ai-msg-bubble { background: rgba(139,197,64,0.08); border-color: rgba(139,197,64,0.18); color: #E2E8F0; }
     [data-theme="dark"] .ai-user-bubble { background: #1E293B; border-color: #334155; color: #E2E8F0; }
     [data-theme="dark"] .ai-panel-footer { background: #162032; border-top-color: #1E293B; }
     [data-theme="dark"] .ai-input { background: #1A2332; border-color: #334155; color: #E2E8F0; }
-    [data-theme="dark"] .ai-input:focus { border-color: #8B5CF6; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+    [data-theme="dark"] .ai-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
     /* ========== MOBILE SIDEBAR TOGGLE ========== */
     .sidebar-mobile-toggle {
@@ -2584,6 +2584,9 @@
         // Scroll question content to top
         var contentArea = document.querySelector('.test-question-content');
         if (contentArea) contentArea.scrollTop = 0;
+
+        // AI javobini background da tayyorla
+        setTimeout(function() { _aiPrefetch(index); }, 300);
     }
 
     window.nextQuestion = function() {
@@ -2938,9 +2941,11 @@
     var _aiLastQText = '';
     var _aiQuickUrl = '{% url "ai_core:api_quick_answer" %}';
     var _aiSubject = '{{ test.subject.name|default:"" }}';
+    var _aiCache = {};      // {index: "AI javobi"}
+    var _aiInFlight = {};   // {index: true} — so'rov ketayotgan
 
-    function _getActiveQuestion() {
-        var slide = document.querySelector('.test-question-slide:not(.d-none)');
+    function _getQuestionByIndex(idx) {
+        var slide = document.querySelector('.test-question-slide[data-index="' + idx + '"]');
         if (!slide) return {text: '', answers: []};
         var textEl = slide.querySelector('.test-question-text');
         var qText = textEl ? textEl.innerText.trim() : '';
@@ -2950,6 +2955,34 @@
             if (letters[i]) answers.push(letters[i] + ') ' + el.innerText.trim());
         });
         return {text: qText, answers: answers};
+    }
+
+    function _getActiveQuestion() {
+        return _getQuestionByIndex(currentIndex);
+    }
+
+    // Background da AI javobini tayyorlab qo'yish
+    function _aiPrefetch(idx) {
+        if (_aiCache[idx] || _aiInFlight[idx]) return; // allaqachon bor yoki ketayotgan
+        var q = _getQuestionByIndex(idx);
+        if (!q.text) return;
+
+        _aiInFlight[idx] = true;
+        var prompt = q.text;
+        if (q.answers.length) prompt += '\n\nJavob variantlari:\n' + q.answers.join('\n');
+        prompt += '\n\nBu savolni qisqacha tushuntir va yechish yo\'lini ko\'rsat. To\'g\'ri javobni to\'g\'ridan-to\'g\'ri aytma — o\'quvchi o\'zi tushunsin.';
+
+        fetch(_aiQuickUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf()},
+            body: JSON.stringify({question: prompt, subject: _aiSubject})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.answer) _aiCache[idx] = data.answer;
+        })
+        .catch(function() {})
+        .finally(function() { delete _aiInFlight[idx]; });
     }
 
     function _getCsrf() {
@@ -2993,6 +3026,7 @@
         if (el) el.remove();
     }
 
+    // Savolni AI ga yubor va chat da ko'rsat (follow-up uchun)
     function _fetchAI(prompt) {
         if (_aiLoading) return;
         _aiLoading = true;
@@ -3019,6 +3053,40 @@
         });
     }
 
+    // Birinchi savol uchun — cache ga ham saqlaydi
+    function _fetchAIDirect(q) {
+        var snapIdx = currentIndex;
+        if (_aiLoading) return;
+        _aiLoading = true;
+        document.getElementById('aiSendBtn').disabled = true;
+        _showLoading();
+
+        var prompt = q.text;
+        if (q.answers.length) prompt += '\n\nJavob variantlari:\n' + q.answers.join('\n');
+        prompt += '\n\nBu savolni qisqacha tushuntir va yechish yo\'lini ko\'rsat. To\'g\'ri javobni to\'g\'ridan-to\'g\'ri aytma — o\'quvchi o\'zi tushunsin.';
+
+        fetch(_aiQuickUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf()},
+            body: JSON.stringify({question: prompt, subject: _aiSubject})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            _removeLoading();
+            var answer = data.answer || 'Kechirasiz, javob olishda xatolik yuz berdi.';
+            _aiCache[snapIdx] = answer;
+            _addAIMsg(answer);
+        })
+        .catch(function() {
+            _removeLoading();
+            _addAIMsg('Tarmoq xatosi yuz berdi. Qayta urinib ko\'ring.');
+        })
+        .finally(function() {
+            _aiLoading = false;
+            document.getElementById('aiSendBtn').disabled = false;
+        });
+    }
+
     window.askAI = function() {
         var q = _getActiveQuestion();
         if (!q.text) return;
@@ -3027,14 +3095,34 @@
         document.getElementById('aiPanel').classList.add('show');
         document.getElementById('aiQPreview').textContent = q.text;
 
-        // Agar yangi savol bo'lsa — reset qilib auto-so'ra
+        // Yangi savol bo'lsa — reset
         if (q.text !== _aiLastQText) {
             _aiLastQText = q.text;
             document.getElementById('aiPanelBody').innerHTML = '';
-            var prompt = q.text;
-            if (q.answers.length) prompt += '\n\nJavob variantlari:\n' + q.answers.join('\n');
-            prompt += '\n\nBu savolni qisqacha tushuntir va yechish yo\'lini ko\'rsat. To\'g\'ri javobni to\'g\'ridan-to\'g\'ri aytma — o\'quvchi o\'zi tushunsin.';
-            _fetchAI(prompt);
+
+            // Cache da tayyor javob bormi?
+            if (_aiCache[currentIndex]) {
+                _addAIMsg(_aiCache[currentIndex]);
+            } else if (_aiInFlight[currentIndex]) {
+                // So'rov ketayotgan — loading ko'rsat, natija kelganda chiqar
+                _showLoading();
+                var waitIdx = currentIndex;
+                (function wait() {
+                    if (_aiCache[waitIdx]) {
+                        _removeLoading();
+                        _addAIMsg(_aiCache[waitIdx]);
+                    } else if (_aiInFlight[waitIdx]) {
+                        setTimeout(wait, 400);
+                    } else {
+                        // So'rov xato bilan tugagan — qayta so'ra
+                        _removeLoading();
+                        _fetchAIDirect(q);
+                    }
+                })();
+            } else {
+                // Cache yo'q — to'g'ridan-to'g'ri so'ra
+                _fetchAIDirect(q);
+            }
         }
     };
 
