@@ -87,18 +87,18 @@ class Migration(migrations.Migration):
                     to='tgbot.telegrambroadcast',
                     verbose_name='Broadcast',
                 )),
-                ('site_user', models.ForeignKey(
+                ('telegram_user', models.ForeignKey(
                     on_delete=django.db.models.deletion.CASCADE,
                     related_name='broadcast_logs',
-                    to=settings.AUTH_USER_MODEL,
-                    verbose_name='Foydalanuvchi',
+                    to='tgbot.telegramuser',
+                    verbose_name='Telegram user',
                 )),
             ],
             options={
                 'verbose_name': 'Yuborish jurnali',
                 'verbose_name_plural': 'Yuborish jurnali',
                 'ordering': ['-sent_at'],
-                'unique_together': {('broadcast', 'site_user')},
+                'unique_together': {('broadcast', 'telegram_user')},
             },
         ),
     ]

@@ -11,12 +11,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Eski log yozuvlarini tozalash (telegram_user FK bilan, eski data)
+        # 1. Eski log yozuvlarini tozalash
         migrations.RunSQL(
             "DELETE FROM tgbot_telegrambroadcastlog;",
             reverse_sql=migrations.RunSQL.noop,
         ),
-        # 2. Eski unique_together ni olib tashlash
+        # 2. Eski unique_together ni olib tashlash (broadcast + telegram_user)
         migrations.AlterUniqueTogether(
             name='telegrambroadcastlog',
             unique_together=set(),
