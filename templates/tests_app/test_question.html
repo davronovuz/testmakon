@@ -61,8 +61,147 @@
     }
     .tool-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-    .btn-ai { color: #8B5CF6; border: 1px solid rgba(139, 92, 246, 0.2); }
-    .btn-ai:hover { background: #8B5CF6; color: white; }
+    .btn-ai { color: var(--primary-dark); border: 1px solid rgba(139,197,64,0.3); }
+    .btn-ai:hover { background: var(--gradient-primary); color: white; border-color: transparent; }
+
+    /* ========== AI MODAL ========== */
+    .ai-mheader {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: var(--gradient-primary);
+    }
+    .ai-mavatar {
+        width: 40px; height: 40px; border-radius: 12px;
+        background: rgba(255,255,255,0.22);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.15rem; color: white;
+    }
+    .ai-mname { font-size: 1rem; font-weight: 700; color: white; }
+    .ai-msub  { font-size: 0.72rem; color: rgba(255,255,255,0.75); margin-top: 0.1rem; }
+    .ai-status-dot {
+        display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+        background: #4ADE80; margin-right: 4px; animation: sPulse 2s infinite;
+    }
+    @keyframes sPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .ai-mclose {
+        width: 32px; height: 32px; border-radius: 9px; border: none;
+        background: rgba(255,255,255,0.18); color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; cursor: pointer; transition: background 0.2s;
+    }
+    .ai-mclose:hover { background: rgba(255,255,255,0.32); }
+
+    /* Warning step */
+    .ai-warning {
+        padding: 2rem 1.5rem; text-align: center;
+    }
+    .ai-warning-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .ai-warning h5 { font-size: 1.05rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem; }
+    .ai-warning p  { font-size: 0.88rem; color: var(--gray-500); margin-bottom: 1.5rem; line-height: 1.6; }
+    .ai-warning-penalty {
+        display: inline-block; background: rgba(239,68,68,0.1);
+        color: #DC2626; font-weight: 700; padding: 0.2rem 0.6rem;
+        border-radius: 6px; font-size: 0.9rem;
+    }
+    .ai-warning-btns { display: flex; flex-direction: column; gap: 0.65rem; }
+    .ai-warn-confirm {
+        padding: 0.75rem; border: none; border-radius: 10px;
+        background: var(--gradient-primary); color: white;
+        font-weight: 700; font-size: 0.92rem; cursor: pointer;
+        transition: all 0.2s; box-shadow: var(--shadow-primary);
+    }
+    .ai-warn-confirm:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(139,197,64,0.4); }
+    .ai-warn-cancel {
+        padding: 0.7rem; border: 1px solid var(--gray-200); border-radius: 10px;
+        background: var(--gray-50); color: var(--dark-600);
+        font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+    }
+    .ai-warn-cancel:hover { background: var(--gray-100); }
+
+    /* Chat area */
+    .ai-qpreview {
+        padding: 0.85rem 1.5rem;
+        background: rgba(139,197,64,0.06);
+        border-bottom: 1px solid var(--gray-200);
+    }
+    .ai-qlabel {
+        font-size: 0.68rem; font-weight: 700; color: var(--primary-dark);
+        text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem;
+    }
+    .ai-qtext {
+        font-size: 0.85rem; color: var(--dark); line-height: 1.5;
+        display: -webkit-box; -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ai-chat-body {
+        height: 320px; overflow-y: auto; padding: 1.25rem;
+        display: flex; flex-direction: column; gap: 1rem;
+        scroll-behavior: smooth;
+    }
+    .ai-chat-body::-webkit-scrollbar { width: 4px; }
+    .ai-chat-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+    .ai-loading {
+        display: flex; align-items: center; gap: 0.75rem;
+    }
+    .ai-loading-avatar {
+        width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+        background: var(--gradient-primary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; color: white;
+    }
+    .ai-dots { display: flex; gap: 5px; align-items: center; }
+    .ai-dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--primary); animation: aBounce 1.2s infinite;
+    }
+    .ai-dot:nth-child(2) { animation-delay: 0.15s; }
+    .ai-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes aBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-7px);opacity:1} }
+
+    .ai-bot-msg { display: flex; gap: 0.65rem; align-items: flex-start; animation: aFade 0.3s ease; }
+    @keyframes aFade { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+    .ai-bot-avatar {
+        width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+        background: var(--gradient-primary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; color: white;
+    }
+    .ai-bot-bubble {
+        flex: 1; background: rgba(139,197,64,0.07);
+        border: 1px solid rgba(139,197,64,0.18);
+        border-radius: 4px 14px 14px 14px;
+        padding: 0.8rem 1rem; font-size: 0.875rem;
+        color: var(--dark); line-height: 1.7;
+    }
+    .ai-user-msg  { display: flex; justify-content: flex-end; animation: aFade 0.3s ease; }
+    .ai-user-bubble {
+        background: var(--gray-100); border: 1px solid var(--gray-200);
+        border-radius: 14px 4px 14px 14px;
+        padding: 0.7rem 1rem; font-size: 0.875rem;
+        color: var(--dark); max-width: 85%; line-height: 1.6;
+    }
+    .ai-chat-footer {
+        padding: 0.875rem 1.5rem;
+        border-top: 1px solid var(--gray-200);
+        background: var(--gray-50);
+    }
+    .ai-input-row { display: flex; gap: 0.5rem; align-items: center; }
+    .ai-cinput {
+        flex: 1; padding: 0.6rem 1rem;
+        border: 1px solid var(--gray-200); border-radius: 50px;
+        font-size: 0.875rem; font-family: inherit;
+        background: white; color: var(--dark); outline: none; transition: all 0.2s;
+    }
+    .ai-cinput:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .ai-csend {
+        width: 36px; height: 36px; border-radius: 50%; border: none;
+        background: var(--gradient-primary); color: white; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; flex-shrink: 0; transition: all 0.2s;
+    }
+    .ai-csend:hover { transform: scale(1.08); box-shadow: var(--shadow-primary); }
+    .ai-csend:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .ai-disclaimer { font-size: 0.68rem; color: var(--gray-400); text-align: center; margin-top: 0.45rem; }
 
     .btn-save { color: #F59E0B; }
     .btn-report { color: #EF4444; }
@@ -300,44 +439,64 @@
 </div>
 
 <div class="modal fade" id="aiModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header bg-primary bg-gradient text-white border-0">
-                <h5 class="modal-title"><i class="bi bi-robot me-2"></i>AI Mentor</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+            <!-- Header -->
+            <div class="ai-mheader">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="ai-mavatar"><i class="bi bi-stars"></i></div>
+                    <div>
+                        <div class="ai-mname">AI Yordamchi</div>
+                        <div class="ai-msub"><span class="ai-status-dot"></span>Gemini AI · Shaxsiy mentor</div>
+                    </div>
+                </div>
+                <button type="button" class="ai-mclose" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="modal-body p-4">
-                <div id="aiWarning">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-exclamation-diamond-fill text-warning display-4"></i>
-                        <h5 class="fw-bold mt-3">Diqqat!</h5>
-                        <p class="text-muted">
-                            Agar AI yordamidan foydalansangiz, bu savol uchun beriladigan ball
-                            <span class="text-danger fw-bold">50% ga kamayadi</span>.
-                        </p>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary fw-bold" onclick="showAiHint()">
-                            Roziman, yordam bering
-                        </button>
-                        <button class="btn btn-light" data-bs-dismiss="modal">Bekor qilish</button>
-                    </div>
+
+            <!-- Step 1: Warning -->
+            <div id="aiWarning" class="ai-warning">
+                <div class="ai-warning-icon">🤔</div>
+                <h5>AI yordamdan foydalanasizmi?</h5>
+                <p>
+                    Agar AI yordamidan foydalansangiz, bu savol uchun beriladigan ball
+                    <span class="ai-warning-penalty">50% ga kamayadi</span>.
+                    <br>Mustaqil yechishga harakat qildingizmi?
+                </p>
+                <div class="ai-warning-btns">
+                    <button class="ai-warn-confirm" onclick="confirmAI()">
+                        <i class="bi bi-stars me-2"></i>Roziman, AI yordam bersin
+                    </button>
+                    <button class="ai-warn-cancel" data-bs-dismiss="modal">
+                        O'zim yechaman
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: AI Chat -->
+            <div id="aiChat" class="d-none">
+                <div class="ai-qpreview">
+                    <div class="ai-qlabel"><i class="bi bi-question-circle me-1"></i>Joriy savol</div>
+                    <div class="ai-qtext">{{ question.text|truncatechars:250 }}</div>
                 </div>
 
-                <div id="aiContent" class="d-none">
-                    <div class="d-flex gap-3">
-                        <div class="icon-box bg-primary text-white rounded-circle flex-shrink-0" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-robot"></i>
-                        </div>
-                        <div class="bg-light p-3 rounded-3 w-100">
-                            <h6 class="fw-bold text-primary mb-1">AI Maslahati:</h6>
-                            <p class="mb-0 text-dark small">
-                                {{ question.hint|default:"Ushbu savol uchun hozircha maslahat yo'q." }}
-                            </p>
-                        </div>
+                <div class="ai-chat-body" id="aiChatBody"></div>
+
+                <div class="ai-chat-footer">
+                    <div class="ai-input-row">
+                        <input type="text" class="ai-cinput" id="aiChatInput"
+                               placeholder="Qo'shimcha savol yozing..."
+                               onkeydown="if(event.key==='Enter'){sendAIFollow();event.preventDefault();}">
+                        <button class="ai-csend" id="aiCSendBtn" onclick="sendAIFollow()">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
                     </div>
+                    <div class="ai-disclaimer">⚠️ AI xato qilishi mumkin. Javobni o'zingiz tekshiring.</div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -431,12 +590,150 @@
         card.querySelector('input').checked = true;
     }
 
-    // 3. AI Logic
-    function showAiHint() {
+    // ==========================================
+    // AI LOGIC — Gemini + Pre-fetch
+    // ==========================================
+    var _aiUrl     = '{% url "ai_core:api_quick_answer" %}';
+    var _aiSubject = '{{ attempt.test.subject.name|escapejs }}';
+    var _aiQText   = '{{ question.text|escapejs }}';
+    var _aiAnswers = [{% for a in answers %}'{% if forloop.counter == 1 %}A{% elif forloop.counter == 2 %}B{% elif forloop.counter == 3 %}C{% elif forloop.counter == 4 %}D{% else %}E{% endif %}) {{ a.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+    var _aiCache   = null;   // prefetch natijasi
+    var _aiFlight  = false;  // so'rov ketayotganmi
+    var _aiLoading = false;  // chat uchun
+
+    function _getCsrf() {
+        var v = '; ' + document.cookie;
+        var p = v.split('; csrftoken=');
+        return p.length === 2 ? p.pop().split(';').shift() : '';
+    }
+
+    function _buildPrompt() {
+        var p = _aiQText;
+        if (_aiAnswers.length) p += '\n\nJavob variantlari:\n' + _aiAnswers.join('\n');
+        p += '\n\nBu savolni qisqacha tushuntir va yechish yo\'lini ko\'rsat. To\'g\'ri javobni to\'g\'ridan-to\'g\'ri aytma — o\'quvchi o\'zi tushunsin.';
+        return p;
+    }
+
+    // Sahifa yuklanishi bilan background da tayyorlab qo'yish
+    (function prefetch() {
+        if (_aiFlight || _aiCache) return;
+        _aiFlight = true;
+        fetch(_aiUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf()},
+            body: JSON.stringify({question: _buildPrompt(), subject: _aiSubject})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { if (d.answer) _aiCache = d.answer; })
+        .catch(function() {})
+        .finally(function() { _aiFlight = false; });
+    })();
+
+    function _addBotMsg(text) {
+        var body = document.getElementById('aiChatBody');
+        var el = document.createElement('div');
+        el.className = 'ai-bot-msg';
+        el.innerHTML = '<div class="ai-bot-avatar"><i class="bi bi-stars"></i></div>' +
+            '<div class="ai-bot-bubble">' + text.replace(/\n/g, '<br>') + '</div>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function _addUserMsg(text) {
+        var body = document.getElementById('aiChatBody');
+        var el = document.createElement('div');
+        el.className = 'ai-user-msg';
+        el.innerHTML = '<div class="ai-user-bubble">' +
+            text.replace(/[<>]/g, function(c){ return c==='<'?'&lt;':'&gt;'; }) + '</div>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function _showDots() {
+        var body = document.getElementById('aiChatBody');
+        var el = document.createElement('div');
+        el.className = 'ai-loading'; el.id = 'aiDotsEl';
+        el.innerHTML = '<div class="ai-loading-avatar"><i class="bi bi-stars"></i></div>' +
+            '<div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function _removeDots() {
+        var el = document.getElementById('aiDotsEl');
+        if (el) el.remove();
+    }
+
+    function _fetchChat(prompt) {
+        if (_aiLoading) return;
+        _aiLoading = true;
+        document.getElementById('aiCSendBtn').disabled = true;
+        _showDots();
+        fetch(_aiUrl, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf()},
+            body: JSON.stringify({question: prompt, subject: _aiSubject})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            _removeDots();
+            _addBotMsg(d.answer || 'Kechirasiz, xatolik yuz berdi.');
+        })
+        .catch(function() {
+            _removeDots();
+            _addBotMsg('Tarmoq xatosi. Qayta urinib ko\'ring.');
+        })
+        .finally(function() {
+            _aiLoading = false;
+            document.getElementById('aiCSendBtn').disabled = false;
+        });
+    }
+
+    // Foydalanuvchi "Roziman" ni bosdi
+    function confirmAI() {
         document.getElementById('aiWarning').classList.add('d-none');
-        document.getElementById('aiContent').classList.remove('d-none');
-        document.getElementById('used_ai').value = "true";
-        // Optional: Send AJAX to backend to deduct points immediately
+        document.getElementById('aiChat').classList.remove('d-none');
+        document.getElementById('used_ai').value = 'true';
+
+        if (_aiCache) {
+            // Tayyor — darhol ko'rsat
+            _addBotMsg(_aiCache);
+        } else if (_aiFlight) {
+            // So'rov ketayotgan — polling
+            _showDots();
+            (function wait() {
+                if (_aiCache) {
+                    _removeDots();
+                    _addBotMsg(_aiCache);
+                } else if (_aiFlight) {
+                    setTimeout(wait, 400);
+                } else {
+                    _removeDots();
+                    _fetchChat(_buildPrompt());
+                }
+            })();
+        } else {
+            // Prefetch xato berdi — to'g'ridan-to'g'ri so'ra
+            _fetchChat(_buildPrompt());
+        }
+    }
+
+    // Modal yopilganda warning ni qaytarish (keyingi ochilish uchun)
+    document.getElementById('aiModal').addEventListener('hidden.bs.modal', function() {
+        if (!document.getElementById('used_ai').value === 'true') {
+            document.getElementById('aiWarning').classList.remove('d-none');
+            document.getElementById('aiChat').classList.add('d-none');
+        }
+    });
+
+    // Follow-up savollar
+    function sendAIFollow() {
+        var inp = document.getElementById('aiChatInput');
+        var text = inp.value.trim();
+        if (!text || _aiLoading) return;
+        inp.value = '';
+        _addUserMsg(text);
+        _fetchChat(text);
     }
 </script>
 {% endblock %}
