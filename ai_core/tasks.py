@@ -774,6 +774,123 @@ def send_inactivity_reminders():
     logger.info(f"Inactivity reminders: {created} ta yaratildi")
 
 
+@shared_task(bind=True, max_retries=2, default_retry_delay=60)
+def generate_dtm_advice(self, attempt_id):
+    """
+    DTM Simulyatsiya natijasi uchun AI tavsiya — background da ishlaydi.
+    Oxirgi 5 ta DTM mock natijasini tahlil qilib, trend-based maslahat beradi.
+    Cache'ga saqlaydi: dtm_result_ai:{attempt_id}
+    """
+    try:
+        from tests_app.models import TestAttempt
+        from .models import AIRecommendation
+        from .utils import get_ai_response
+        from django.core.cache import cache
+
+        attempt = TestAttempt.objects.select_related('test', 'user').get(id=attempt_id)
+        user = attempt.user
+
+        total_q = attempt.total_questions or 90
+        dtm_ball = round(attempt.correct_answers * 189 / total_q)
+
+        # Oxirgi 5 ta DTM simulyatsiya natijasi (bu attemptdan tashqari)
+        past_attempts = list(
+            TestAttempt.objects.filter(
+                user=user,
+                test__title__icontains='DTM Simulyatsiya',
+                status='completed',
+            ).exclude(id=attempt.id).order_by('-created_at')[:5]
+            .values('correct_answers', 'total_questions', 'created_at')
+        )
+
+        past_balls = []
+        for pa in past_attempts:
+            tq = pa['total_questions'] or 90
+            past_balls.append(round(pa['correct_answers'] * 189 / tq))
+
+        # Trend hisoblash
+        if len(past_balls) >= 2:
+            avg_past = sum(past_balls[:3]) / min(3, len(past_balls))
+            diff = dtm_ball - avg_past
+            if diff >= 5:
+                trend_text = f"natijangiz yaxshilanmoqda (+{diff:.0f} ball)"
+            elif diff <= -5:
+                trend_text = f"natijangiz biroz pasaydi ({diff:.0f} ball)"
+            else:
+                trend_text = "natijangiz barqaror"
+        elif len(past_balls) == 1:
+            diff = dtm_ball - past_balls[0]
+            sign = '+' if diff >= 0 else ''
+            trend_text = f"avvalgi DTM mock'ga nisbatan {sign}{diff:.0f} ball"
+        else:
+            trend_text = "bu sizning birinchi DTM mock natijangiz"
+
+        history_str = ""
+        if past_balls:
+            history_str = (
+                f"Oldingi DTM mock ballari (eng yangi birinchi): "
+                f"{', '.join(str(b) for b in past_balls)}. "
+            )
+
+        # Universitet kategoriyalarini hisoblash
+        s_count = b_count = r_count = 0
+        try:
+            from universities.models import PassingScore
+            from django.db.models import Max
+            latest_year = PassingScore.objects.aggregate(y=Max('year'))['y']
+            if latest_year:
+                for ps in PassingScore.objects.filter(year=latest_year).select_related('direction__university'):
+                    if not ps.direction.university.is_active:
+                        continue
+                    grant = ps.grant_score or 0
+                    if grant > 0:
+                        if dtm_ball >= grant + 10:
+                            s_count += 1
+                        elif dtm_ball >= grant - 15:
+                            b_count += 1
+                        elif dtm_ball >= grant - 50:
+                            r_count += 1
+        except Exception:
+            pass
+
+        prompt = (
+            f"O'quvchi DTM simulyatsiyasida {dtm_ball}/189 ball oldi. "
+            f"{history_str}"
+            f"Trend: {trend_text}. "
+            f"Universitetlar: {s_count} ta ishonchli, {b_count} ta chegara, {r_count} ta maqsad. "
+            f"Do'st sifatida 3-4 gapda samimiy va foydali xabar yoz. "
+            f"Trend va tarixga asoslanib aniq maslahat ber. "
+            f"Ball past bo'lsa nima qilish kerak, yuqori bo'lsa davom etishni ayt. "
+            f"Emoji qo'sh. O'zbek tilida."
+        )
+
+        ai_msg = get_ai_response(
+            [{"role": "user", "content": prompt}],
+            system_prompt=(
+                "Sen aqlli va mehribon AI mentor sifatida ishlaysan. "
+                "DTM tarixini ko'rib, o'quvchiga shaxsiy, aniq maslahat bera olasan. "
+                "Qisqa, issiq, samimiy O'zbek tilida gapirasan."
+            )
+        )
+
+        cache.set(f'dtm_result_ai:{attempt.id}', ai_msg, timeout=86400 * 7)
+
+        AIRecommendation.objects.create(
+            user=user,
+            recommendation_type='motivation',
+            priority='high',
+            title=f"DTM Mock #{len(past_balls) + 1} — {dtm_ball}/189 ball",
+            content=ai_msg,
+        )
+
+        logger.info(f"generate_dtm_advice OK: attempt={attempt_id}, ball={dtm_ball}")
+        return {'status': 'done', 'dtm_ball': dtm_ball, 'trend': trend_text}
+
+    except Exception as exc:
+        logger.error(f"generate_dtm_advice xato: attempt={attempt_id}, {exc}")
+        raise self.retry(exc=exc)
+
+
 @shared_task
 def generate_weekly_ai_report(user_id=None):
     """

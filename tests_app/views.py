@@ -577,6 +577,11 @@ def test_play_finish(request, uuid):
     # User stats, XP, activity log — background'da (user kutmaydi)
     process_user_stats_after_test.delay(attempt.id)
 
+    # DTM Simulyatsiya bo'lsa — history-based AI tavsiya background'da
+    if 'DTM Simulyatsiya' in (attempt.test.title or ''):
+        from ai_core.tasks import generate_dtm_advice
+        generate_dtm_advice.delay(attempt.id)
+
     # Session tozalash
     session_key = f'attempt_{uuid}_current'
     if session_key in request.session:
@@ -585,13 +590,11 @@ def test_play_finish(request, uuid):
     return redirect('tests_app:test_play_result', uuid=uuid)
 
 
-@login_required
 def _get_dtm_uni_data(user, attempt):
     """DTM simulyatsiya natijasi uchun universitet bashorat ma'lumotlari."""
     from universities.models import PassingScore
     from django.db.models import Max
     from django.core.cache import cache
-    from ai_core.utils import get_ai_response
 
     total_q = attempt.total_questions or 90
     dtm_ball = round(attempt.correct_answers * 189 / total_q)
@@ -599,7 +602,7 @@ def _get_dtm_uni_data(user, attempt):
     latest_year = PassingScore.objects.aggregate(y=Max('year'))['y'] or (timezone.now().year - 1)
     passing_scores = PassingScore.objects.filter(
         year=latest_year
-    ).select_related('direction__university').prefetch_related('direction__required_subjects')
+    ).select_related('direction__university')
 
     safe, borderline, reach, contract = [], [], [], []
 
@@ -618,7 +621,6 @@ def _get_dtm_uni_data(user, attempt):
             'grant_score': grant,
             'contract_score': contract_score,
             'gap': gap,
-            'subject_scores': [],
             'grant_quota': direction.grant_quota,
             'competition_ratio': ps.competition_ratio,
         }
@@ -637,37 +639,38 @@ def _get_dtm_uni_data(user, attempt):
     borderline.sort(key=lambda e: -e['gap'])
     reach.sort(key=lambda e: -e['gap'])
 
-    # AI xabari — attempt bo'yicha bir marta cache
-    cache_key = f'dtm_result_ai:{attempt.id}'
-    ai_msg = cache.get(cache_key)
+    # AI xabari — generate_dtm_advice Celery task tomonidan yoziladi (async)
+    ai_msg = cache.get(f'dtm_result_ai:{attempt.id}')
+    # None bo'lsa template "tayyorlanmoqda..." ko'rsatadi
 
-    if not ai_msg:
-        s, b, r = len(safe), len(borderline), len(reach)
-        try:
-            prompt = (
-                f"O'quvchi DTM simulyatsiyasida {dtm_ball}/189 ball oldi. "
-                f"Natija: {s} ta ishonchli, {b} ta chegara, {r} ta maqsad universitetlar. "
-                f"Do'stim sifatida 2-3 gapda samimiy va qiziqarli xabar yoz. "
-                f"Ball past bo'lsa — tushkunlikka tushmay nima qilish kerakligini, "
-                f"yuqori bo'lsa — maqtab davom etishini ayt. Emoji qo'sh. O'zbek tilida."
-            )
-            ai_msg = get_ai_response(
-                [{"role": "user", "content": prompt}],
-                system_prompt=(
-                    "Sen aqlli va mehribon o'qituvchisan. "
-                    "Qisqa, issiq, samimiy O'zbek tilida gapirasan. Rasmiy uslub yo'q."
-                )
-            )
-            cache.set(cache_key, ai_msg, timeout=86400 * 7)
-        except Exception:
-            if dtm_ball >= 150:
-                ai_msg = f"🎉 Zo'r! {dtm_ball} ball — bu juda yaxshi natija. Ko'plab universitetlarga grant asosida kira olasiz!"
-            elif dtm_ball >= 120:
-                ai_msg = f"👍 {dtm_ball} ball — yaxshi boshlanish! Yana biroz mashq qilsangiz chegara universitetlarga ham kirish imkoni oshadi."
-            elif dtm_ball >= 90:
-                ai_msg = f"💪 {dtm_ball} ball olding. Hali vaqt bor! Zaif mavzularingizni AI Mentor bilan birga ishlang."
-            else:
-                ai_msg = f"🔥 {dtm_ball} ball — bu faqat boshlanich! Tushkunlikka tushmang, har kuni mashq qiling. Keling, birga o'sib ketamiz!"
+    # Oxirgi 6 ta DTM mock tarixi
+    history = []
+    past = TestAttempt.objects.filter(
+        user=user,
+        test__title__icontains='DTM Simulyatsiya',
+        status='completed',
+    ).order_by('-created_at')[:6]
+    for pa in past:
+        tq = pa.total_questions or 90
+        ball = round(pa.correct_answers * 189 / tq)
+        history.append({
+            'ball': ball,
+            'date': pa.created_at,
+            'is_current': pa.id == attempt.id,
+        })
+
+    # Trend hisoblash
+    trend = None
+    if len(history) >= 2:
+        current_ball = history[0]['ball']
+        prev_ball = history[1]['ball']
+        diff = current_ball - prev_ball
+        if diff >= 5:
+            trend = {'dir': 'up', 'diff': diff}
+        elif diff <= -5:
+            trend = {'dir': 'down', 'diff': abs(diff)}
+        else:
+            trend = {'dir': 'flat', 'diff': abs(diff)}
 
     return {
         'dtm_ball': dtm_ball,
@@ -681,6 +684,8 @@ def _get_dtm_uni_data(user, attempt):
         'reach_count': len(reach),
         'latest_year': latest_year,
         'ai_msg': ai_msg,
+        'history': history,
+        'trend': trend,
     }
 
 

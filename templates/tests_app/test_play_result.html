@@ -849,6 +849,48 @@
 .dtm-ai-text { font-size: 0.92rem; color: var(--dark); line-height: 1.6; }
 [data-theme="dark"] .dtm-ai-text { color: #CBD5E1; }
 
+/* AI loading state */
+.dtm-ai-loading { display: flex; align-items: center; gap: 0.5rem; color: var(--gray-500); font-size: 0.9rem; }
+.dtm-ai-loading .spinner-border { width: 16px; height: 16px; border-width: 2px; color: var(--primary); }
+
+/* History timeline */
+.dtm-history {
+    display: flex; gap: 0.5rem; justify-content: center; align-items: flex-end;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.dtm-hist-item {
+    display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    min-width: 52px;
+}
+.dtm-hist-bar-wrap {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    height: 52px;
+}
+.dtm-hist-bar {
+    width: 28px; border-radius: 4px 4px 0 0;
+    background: var(--gray-200); transition: background 0.2s;
+}
+.dtm-hist-bar.current { background: var(--primary); }
+.dtm-hist-ball { font-size: 0.72rem; font-weight: 900; color: var(--dark); }
+.dtm-hist-ball.current { color: var(--primary); }
+.dtm-hist-label { font-size: 0.65rem; color: var(--gray-400); white-space: nowrap; }
+[data-theme="dark"] .dtm-hist-bar { background: #334155; }
+[data-theme="dark"] .dtm-hist-bar.current { background: var(--primary); }
+[data-theme="dark"] .dtm-hist-ball { color: #CBD5E1; }
+
+/* Trend badge */
+.dtm-trend {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.75rem; border-radius: 50px;
+    font-size: 0.8rem; font-weight: 800; margin-top: 0.5rem;
+}
+.dtm-trend.up   { background: rgba(5,150,105,0.12);  color: #065F46; }
+.dtm-trend.down { background: rgba(239,68,68,0.1);   color: #B91C1C; }
+.dtm-trend.flat { background: rgba(107,114,128,0.1); color: #374151; }
+[data-theme="dark"] .dtm-trend.up   { background: rgba(5,150,105,0.15);  color: #6EE7B7; }
+[data-theme="dark"] .dtm-trend.down { background: rgba(239,68,68,0.15);  color: #FCA5A5; }
+[data-theme="dark"] .dtm-trend.flat { background: rgba(107,114,128,0.15); color: #9CA3AF; }
+
 .dtm-stat-pills { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
 .dtm-stat-pill {
     display: inline-flex; align-items: center; gap: 0.5rem;
@@ -939,23 +981,58 @@
 <section class="dtm-uni-section">
 <div class="container">
 
-    <!-- Hero: DTM ball -->
+    <!-- Hero: DTM ball + trend -->
     <div class="dtm-uni-hero">
         <div class="dtm-ball-ring">
             <span class="dtm-ball-num">{{ dtm_data.dtm_ball }}</span>
             <span class="dtm-ball-max">/ 189 ball</span>
         </div>
         <h2>Universitetlarga kirish bashorati</h2>
-        <p>{{ dtm_data.latest_year }} yil o'tish ballari asosida · Siz olgan ball: <strong>{{ dtm_data.dtm_ball }}</strong></p>
+        <p>{{ dtm_data.latest_year }} yil o'tish ballari asosida · Ballingiz: <strong>{{ dtm_data.dtm_ball }}</strong></p>
+
+        {% if dtm_data.trend %}
+        <div class="dtm-trend {{ dtm_data.trend.dir }}">
+            {% if dtm_data.trend.dir == 'up' %}
+                <i class="bi bi-arrow-up-circle-fill"></i> +{{ dtm_data.trend.diff }} ball oshdi
+            {% elif dtm_data.trend.dir == 'down' %}
+                <i class="bi bi-arrow-down-circle-fill"></i> {{ dtm_data.trend.diff }} ball pasaydi
+            {% else %}
+                <i class="bi bi-dash-circle-fill"></i> Barqaror natija
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
-    <!-- AI xabari -->
-    {% if dtm_data.ai_msg %}
-    <div class="dtm-ai-card">
-        <div class="dtm-ai-avatar"><i class="bi bi-robot"></i></div>
-        <div class="dtm-ai-text">{{ dtm_data.ai_msg }}</div>
+    <!-- DTM Mock tarixi (mini sparkline) -->
+    {% if dtm_data.history|length > 1 %}
+    <div class="dtm-history">
+        {% for h in dtm_data.history reversed %}
+        <div class="dtm-hist-item">
+            <div class="dtm-hist-bar-wrap">
+                <div class="dtm-hist-bar {% if h.is_current %}current{% endif %}"
+                     style="height: {% widthratio h.ball 189 48 %}px; min-height: 6px;"
+                     title="{{ h.ball }} ball — {{ h.date|date:'d.m.Y' }}">
+                </div>
+            </div>
+            <div class="dtm-hist-ball {% if h.is_current %}current{% endif %}">{{ h.ball }}</div>
+            <div class="dtm-hist-label">{% if h.is_current %}Hozir{% else %}{{ h.date|date:'d.m' }}{% endif %}</div>
+        </div>
+        {% endfor %}
     </div>
     {% endif %}
+
+    <!-- AI xabari -->
+    <div class="dtm-ai-card" id="dtmAiCard">
+        <div class="dtm-ai-avatar"><i class="bi bi-robot"></i></div>
+        {% if dtm_data.ai_msg %}
+        <div class="dtm-ai-text">{{ dtm_data.ai_msg }}</div>
+        {% else %}
+        <div class="dtm-ai-text dtm-ai-loading" id="dtmAiLoading">
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            AI tahlil tayyorlanmoqda... (10-15 soniya)
+        </div>
+        {% endif %}
+    </div>
 
     <!-- Stat pills -->
     <div class="dtm-stat-pills">
@@ -1116,6 +1193,25 @@
 
 {% block extra_js %}
 <script>
+{% if dtm_data and not dtm_data.ai_msg %}
+// AI tahlil hali tayyor emas — 12 soniyadan keyin auto-refresh
+(function() {
+    var loading = document.getElementById('dtmAiLoading');
+    if (!loading) return;
+    var countdown = 12;
+    var timer = setInterval(function() {
+        countdown--;
+        if (countdown <= 0) {
+            clearInterval(timer);
+            // Faqat DTM sekciyasini qaytadan yuklamaslik uchun sahifani scroll qilib refresh
+            window.location.reload();
+        } else {
+            loading.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> AI tahlil tayyorlanmoqda... (' + countdown + ' son)';
+        }
+    }, 1000);
+})();
+{% endif %}
+
     // Filter answers
     document.querySelectorAll('.answers-filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
