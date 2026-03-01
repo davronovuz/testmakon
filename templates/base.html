@@ -1968,6 +1968,134 @@
         }
 
         [data-theme="dark"] .mob-menu-foot { border-top-color: #1E293B; }
+
+        /* ========== MOBILE BOTTOM NAV ========== */
+        .mob-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1049;
+            background: rgba(255,255,255,0.96);
+            border-top: 1px solid var(--gray-200);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .mob-bottom-nav-inner {
+            display: flex;
+            width: 100%;
+        }
+
+        .mob-bnav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 10px 4px;
+            text-decoration: none;
+            color: var(--gray-400);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            transition: color 0.2s ease;
+            min-height: 60px;
+            position: relative;
+            border: none;
+            background: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mob-bnav-item i {
+            font-size: 1.3rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .mob-bnav-item.active {
+            color: var(--primary-dark);
+        }
+
+        .mob-bnav-item.active i {
+            transform: translateY(-1px);
+        }
+
+        .mob-bnav-item.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 2.5px;
+            background: var(--gradient-primary);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .mob-bnav-badge {
+            position: absolute;
+            top: 6px;
+            left: calc(50% + 6px);
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            background: #EF4444;
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 800;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid white;
+        }
+
+        @media (max-width: 767.98px) {
+            .mob-bottom-nav { display: flex; }
+            .page-wrapper { padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
+        }
+
+        [data-theme="dark"] .mob-bottom-nav {
+            background: rgba(15,23,42,0.97);
+            border-top-color: #1E293B;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+        }
+        [data-theme="dark"] .mob-bnav-item { color: #475569; }
+        [data-theme="dark"] .mob-bnav-item.active { color: #8BC540; }
+        [data-theme="dark"] .mob-bnav-badge { border-color: #0F172A; }
+
+        /* --- Dark: Extended inline style overrides --- */
+        [data-theme="dark"] [style*="color: #1E293B"],
+        [data-theme="dark"] [style*="color:#1E293B"],
+        [data-theme="dark"] [style*="color: #374151"],
+        [data-theme="dark"] [style*="color:#374151"],
+        [data-theme="dark"] [style*="color: #4B5563"],
+        [data-theme="dark"] [style*="color:#4B5563"] {
+            color: #CBD5E1 !important;
+        }
+        [data-theme="dark"] [style*="background: #E2E8F0"],
+        [data-theme="dark"] [style*="background:#E2E8F0"] {
+            background: #1E293B !important;
+        }
+        [data-theme="dark"] [style*="color: #64748B"],
+        [data-theme="dark"] [style*="color:#64748B"] {
+            color: #94A3B8 !important;
+        }
+        [data-theme="dark"] [style*="background: rgba(255,255,255,0.5)"],
+        [data-theme="dark"] [style*="background: rgba(255,255,255,0.8)"],
+        [data-theme="dark"] [style*="background: rgba(255,255,255,0.9)"] {
+            background: rgba(26,35,50,0.9) !important;
+        }
+        [data-theme="dark"] [style*="border-top: 1px solid #E2E8F0"],
+        [data-theme="dark"] [style*="border-top: 1px solid #F1F5F9"],
+        [data-theme="dark"] [style*="border-bottom: 1px solid #F1F5F9"] {
+            border-color: #1E293B !important;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -2303,6 +2431,45 @@
             </div>
         </div>
         <!-- ===== /MOBILE MENU ===== -->
+
+        {% block bottom_nav %}
+        <!-- ===== MOBILE BOTTOM NAV ===== -->
+        <nav class="mob-bottom-nav" id="mobBottomNav">
+            <div class="mob-bottom-nav-inner">
+                <a href="{% url 'core:home' %}" class="mob-bnav-item {% if request.path == '/' %}active{% endif %}">
+                    <i class="bi bi-house{% if request.path == '/' %}-fill{% endif %}"></i>
+                    <span>Bosh</span>
+                </a>
+                <a href="{% url 'tests_app:tests_list' %}" class="mob-bnav-item {% if 'tests' in request.path %}active{% endif %}">
+                    <i class="bi bi-journal-check"></i>
+                    <span>Testlar</span>
+                </a>
+                <a href="{% url 'competitions:competitions_list' %}" class="mob-bnav-item {% if 'competitions' in request.path %}active{% endif %}">
+                    <i class="bi bi-trophy{% if 'competitions' in request.path %}-fill{% endif %}"></i>
+                    <span>Musobaqa</span>
+                </a>
+                <a href="{% url 'leaderboard:global_leaderboard' %}" class="mob-bnav-item {% if 'leaderboard' in request.path %}active{% endif %}">
+                    <i class="bi bi-bar-chart{% if 'leaderboard' in request.path %}-fill{% endif %}"></i>
+                    <span>Reyting</span>
+                </a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' %}" class="mob-bnav-item {% if 'accounts' in request.path or 'profile' in request.path %}active{% endif %}">
+                    {% if unread_notifications_count > 0 or pending_friend_requests_count > 0 %}
+                    <span class="mob-bnav-badge">{{ unread_notifications_count|add:pending_friend_requests_count }}</span>
+                    {% endif %}
+                    <i class="bi bi-person{% if 'accounts' in request.path %}-fill{% endif %}"></i>
+                    <span>Profil</span>
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="mob-bnav-item">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Kirish</span>
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+        <!-- ===== /MOBILE BOTTOM NAV ===== -->
+        {% endblock bottom_nav %}
 
         <!-- System Banner -->
         {% if system_banners %}
