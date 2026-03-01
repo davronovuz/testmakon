@@ -512,3 +512,164 @@ def error_404(request, exception):
 def error_500(request):
     """500 sahifasi"""
     return render(request, 'errors/500.html', status=500)
+
+# ─────────────────────────────────────────────────
+# BROADCAST NOTIFICATION
+# ─────────────────────────────────────────────────
+
+@staff_member_required
+def admin_broadcast(request):
+    """Staff: barcha yoki tanlangan userlarga bildirishnoma yuborish."""
+    from news.models import Notification
+
+    if request.method == 'GET':
+        try:
+            from subscriptions.models import Subscription
+            premium_count = Subscription.objects.filter(is_active=True).count()
+        except Exception:
+            premium_count = 0
+        free_count = User.objects.filter(is_active=True).count() - premium_count
+        return render(request, 'core/admin_broadcast.html', {
+            'total_users': User.objects.filter(is_active=True).count(),
+            'premium_count': premium_count,
+            'free_count': free_count,
+        })
+
+    # POST
+    title = request.POST.get('title', '').strip()
+    message = request.POST.get('message', '').strip()
+    notif_type = request.POST.get('notif_type', 'system')
+    target = request.POST.get('target', 'all')
+    link = request.POST.get('link', '').strip()
+
+    if not title or not message:
+        messages.error(request, "Sarlavha va xabar maydoni to'ldirilishi shart.")
+        return redirect('core:admin_broadcast')
+
+    # Target users
+    qs = User.objects.filter(is_active=True)
+    if target == 'premium':
+        try:
+            from subscriptions.models import Subscription
+            premium_ids = Subscription.objects.filter(is_active=True).values_list('user_id', flat=True)
+            qs = qs.filter(id__in=premium_ids)
+        except Exception:
+            pass
+    elif target == 'free':
+        try:
+            from subscriptions.models import Subscription
+            premium_ids = Subscription.objects.filter(is_active=True).values_list('user_id', flat=True)
+            qs = qs.exclude(id__in=premium_ids)
+        except Exception:
+            pass
+
+    # Bulk create notifications
+    valid_types = ('system', 'news', 'competition', 'battle', 'achievement', 'friend', 'reminder')
+    if notif_type not in valid_types:
+        notif_type = 'system'
+
+    batch = []
+    for user in qs.only('id'):
+        batch.append(Notification(
+            user=user,
+            notification_type=notif_type,
+            title=title,
+            message=message,
+            link=link,
+        ))
+        if len(batch) >= 500:
+            Notification.objects.bulk_create(batch, ignore_conflicts=True)
+            batch = []
+    if batch:
+        Notification.objects.bulk_create(batch, ignore_conflicts=True)
+
+    count = qs.count()
+    messages.success(request, f"Xabar {count} ta foydalanuvchiga yuborildi.")
+    return redirect('core:admin_broadcast')
+
+
+# ─────────────────────────────────────────────────
+# SYSTEM HEALTH + SAVOL STATISTIKASI
+# ─────────────────────────────────────────────────
+
+@staff_member_required
+def admin_system_health(request):
+    """Staff: tizim holati va savol bank statistikasi."""
+    from tests_app.models import Subject, Topic, Question
+    from django.db.models import Q
+    import json as json_mod
+
+    # ── Redis holati ──
+    redis_ok = False
+    redis_info = ''
+    try:
+        from django.core.cache import cache
+        cache.set('_health_check', 1, timeout=5)
+        redis_ok = cache.get('_health_check') == 1
+        redis_info = 'OK'
+    except Exception as e:
+        redis_info = str(e)[:80]
+
+    # ── Celery holati ──
+    celery_ok = False
+    celery_info = ''
+    try:
+        from config.celery import app as celery_app
+        resp = celery_app.control.ping(timeout=2)
+        celery_ok = bool(resp)
+        celery_info = f"{len(resp)} worker" if resp else "Worker topilmadi"
+    except Exception as e:
+        celery_info = str(e)[:80]
+
+    # ── Savol bank statistikasi ──
+    subject_stats = []
+    for subj in Subject.objects.filter(is_active=True).order_by('name'):
+        q_total = Question.objects.filter(subject=subj, is_active=True).count()
+        q_with_topic = Question.objects.filter(subject=subj, is_active=True, topic__isnull=False).count()
+        topics_total = Topic.objects.filter(subject=subj).count()
+        # Mavzular bo'yicha savollar
+        topic_details = (
+            Topic.objects.filter(subject=subj)
+            .annotate(qcount=Count('questions', filter=Q(questions__is_active=True)))
+            .order_by('name')
+        )
+        empty_topics = [t.name for t in topic_details if t.qcount == 0]
+        subject_stats.append({
+            'subject': subj,
+            'q_total': q_total,
+            'q_with_topic': q_with_topic,
+            'topics_total': topics_total,
+            'empty_topics': empty_topics,
+            'empty_count': len(empty_topics),
+        })
+
+    # ── Umumiy statistika ──
+    total_questions = Question.objects.filter(is_active=True).count()
+    total_answers = Answer.objects.count() if hasattr(Question, 'answers') else 0
+    try:
+        from tests_app.models import Answer as Ans
+        total_answers = Ans.objects.count()
+    except Exception:
+        total_answers = 0
+
+    # ── So'nggi 7 kun test urinishlari ──
+    from tests_app.models import TestAttempt as TA
+    today = timezone.now().date()
+    week_data = []
+    for i in range(6, -1, -1):
+        d = today - timedelta(days=i)
+        cnt = TA.objects.filter(started_at__date=d, status='completed').count()
+        week_data.append({'date': d.strftime('%d.%m'), 'count': cnt})
+
+    context = {
+        'redis_ok': redis_ok,
+        'redis_info': redis_info,
+        'celery_ok': celery_ok,
+        'celery_info': celery_info,
+        'subject_stats': subject_stats,
+        'total_questions': total_questions,
+        'total_answers': total_answers,
+        'week_labels': json_mod.dumps([d['date'] for d in week_data]),
+        'week_counts': json_mod.dumps([d['count'] for d in week_data]),
+    }
+    return render(request, 'core/admin_system_health.html', context)

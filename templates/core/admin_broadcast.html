@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Broadcast Notification | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.bc-page { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
+.bc-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; }
+.bc-back { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.9rem; background:var(--gray-100); border-radius:8px; font-size:0.82rem; font-weight:700; color:var(--dark-600); text-decoration:none; border:1px solid var(--gray-200); }
+.bc-back:hover { background:var(--gray-200); color:var(--dark); }
+.bc-title { font-size:1.4rem; font-weight:900; color:var(--dark); margin:0; }
+
+.bc-card { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:1.75rem; margin-bottom:1.25rem; }
+.bc-card-title { font-size:0.92rem; font-weight:800; color:var(--dark); margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; }
+
+/* Stat badges */
+.bc-stats { display:flex; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
+.bc-stat { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:12px; padding:0.75rem 1.25rem; text-align:center; min-width:120px; }
+.bc-stat-val { font-size:1.6rem; font-weight:900; color:var(--dark); line-height:1; }
+.bc-stat-label { font-size:0.72rem; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.4px; margin-top:0.25rem; }
+.bc-stat.green .bc-stat-val { color:var(--primary-dark); }
+.bc-stat.purple .bc-stat-val { color:#7C3AED; }
+.bc-stat.blue .bc-stat-val { color:#2563EB; }
+
+/* Target selector */
+.bc-targets { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.bc-target { display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; border:1.5px solid var(--gray-200); border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:600; color:var(--dark-600); transition:all .2s; user-select:none; }
+.bc-target:hover { border-color:var(--primary); color:var(--primary-dark); }
+.bc-target input[type=radio] { display:none; }
+.bc-target.active { border-color:var(--primary); background:rgba(139,197,64,0.08); color:var(--primary-dark); }
+.bc-target-icon { font-size:1.1rem; }
+
+.bc-form-group { margin-bottom:1.25rem; }
+.bc-label { display:block; font-size:0.82rem; font-weight:700; color:var(--dark-600); margin-bottom:0.35rem; }
+.bc-input { width:100%; padding:0.6rem 0.9rem; border:1.5px solid var(--gray-200); border-radius:10px; font-size:0.88rem; color:var(--dark); background:var(--white); outline:none; transition:border-color .2s; }
+.bc-input:focus { border-color:var(--primary); }
+.bc-textarea { resize:vertical; min-height:100px; }
+
+.bc-type-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.6rem; }
+.bc-type-item { display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; border:1.5px solid var(--gray-200); border-radius:8px; cursor:pointer; font-size:0.82rem; font-weight:600; color:var(--dark-600); transition:all .15s; }
+.bc-type-item input[type=radio] { display:none; }
+.bc-type-item.selected { border-color:var(--primary); background:rgba(139,197,64,0.08); color:var(--primary-dark); }
+
+.bc-preview { background:var(--gray-50); border:1px solid var(--gray-100); border-radius:12px; padding:1rem; margin-top:0.5rem; }
+.bc-preview-title { font-size:0.85rem; font-weight:700; color:var(--dark); margin-bottom:0.25rem; }
+.bc-preview-body { font-size:0.82rem; color:var(--gray-600); }
+
+.bc-submit { width:100%; padding:0.75rem; background:var(--gradient-primary); color:#fff; border:none; border-radius:10px; font-size:0.9rem; font-weight:800; cursor:pointer; }
+.bc-submit:disabled { opacity:0.6; cursor:not-allowed; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-vh-100" style="background:var(--gray-50);">
+<div class="bc-page">
+
+  <!-- Header -->
+  <div class="bc-header">
+    <a href="{% url 'core:admin_analytics' %}" class="bc-back">
+      <i class="bi bi-arrow-left"></i> Panel
+    </a>
+    <div>
+      <h1 class="bc-title"><i class="bi bi-broadcast me-2" style="color:var(--primary);"></i>Broadcast Notification</h1>
+      <div style="font-size:0.8rem;color:var(--gray-500);margin-top:0.2rem;">Foydalanuvchilarga ommaviy bildirishnoma yuborish</div>
+    </div>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}success{% endif %} rounded-3 mb-3" style="font-size:0.88rem;">
+    <i class="bi bi-{% if msg.tags == 'error' %}x-circle{% else %}check-circle{% endif %}-fill me-2"></i>{{ msg }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="bc-card">
+    <div class="bc-card-title"><i class="bi bi-people-fill" style="color:#2563EB;"></i> Auditoriya</div>
+
+    <!-- Stats -->
+    <div class="bc-stats">
+      <div class="bc-stat green">
+        <div class="bc-stat-val">{{ total_users }}</div>
+        <div class="bc-stat-label">Jami aktiv</div>
+      </div>
+      <div class="bc-stat purple">
+        <div class="bc-stat-val">{{ premium_count }}</div>
+        <div class="bc-stat-label">Premium</div>
+      </div>
+      <div class="bc-stat blue">
+        <div class="bc-stat-val">{{ free_count }}</div>
+        <div class="bc-stat-label">Bepul</div>
+      </div>
+    </div>
+
+    <form method="post" id="broadcastForm">
+      {% csrf_token %}
+
+      <!-- Target -->
+      <div class="bc-form-group">
+        <label class="bc-label">Kimga yuborish?</label>
+        <div class="bc-targets">
+          <label class="bc-target active" id="t_all">
+            <input type="radio" name="target" value="all" checked onchange="updateTarget(this)">
+            <span class="bc-target-icon">👥</span> Barcha ({{ total_users }})
+          </label>
+          <label class="bc-target" id="t_premium">
+            <input type="radio" name="target" value="premium" onchange="updateTarget(this)">
+            <span class="bc-target-icon">⭐</span> Premium ({{ premium_count }})
+          </label>
+          <label class="bc-target" id="t_free">
+            <input type="radio" name="target" value="free" onchange="updateTarget(this)">
+            <span class="bc-target-icon">🆓</span> Bepul ({{ free_count }})
+          </label>
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="bc-form-group">
+        <label class="bc-label">Bildirishnoma turi</label>
+        <div class="bc-type-grid">
+          {% for val, label in type_choices %}
+          <label class="bc-type-item {% if val == 'system' %}selected{% endif %}">
+            <input type="radio" name="notif_type" value="{{ val }}" {% if val == 'system' %}checked{% endif %} onchange="selectType(this)">
+            {{ label }}
+          </label>
+          {% empty %}
+          <label class="bc-type-item selected"><input type="radio" name="notif_type" value="system" checked onchange="selectType(this)">Tizim</label>
+          <label class="bc-type-item"><input type="radio" name="notif_type" value="news" onchange="selectType(this)">Yangilik</label>
+          <label class="bc-type-item"><input type="radio" name="notif_type" value="achievement" onchange="selectType(this)">Yutuq</label>
+          <label class="bc-type-item"><input type="radio" name="notif_type" value="reminder" onchange="selectType(this)">Eslatma</label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Title + Message -->
+      <div class="bc-form-group">
+        <label class="bc-label">Sarlavha *</label>
+        <input type="text" name="title" class="bc-input" placeholder="Xabar sarlavhasi..." maxlength="200" required id="titleInput" oninput="updatePreview()">
+      </div>
+      <div class="bc-form-group">
+        <label class="bc-label">Xabar *</label>
+        <textarea name="message" class="bc-input bc-textarea" placeholder="Xabar matni..." required id="msgInput" oninput="updatePreview()"></textarea>
+      </div>
+      <div class="bc-form-group">
+        <label class="bc-label">Havola (ixtiyoriy)</label>
+        <input type="text" name="link" class="bc-input" placeholder="/tests/ yoki https://..." maxlength="500">
+      </div>
+
+      <!-- Preview -->
+      <div class="bc-preview mb-3">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.5rem;">Ko'rinishi</div>
+        <div class="bc-preview-title" id="previewTitle">Sarlavha ko'rinadi...</div>
+        <div class="bc-preview-body" id="previewMsg">Xabar matni ko'rinadi...</div>
+      </div>
+
+      <button type="submit" class="bc-submit" id="submitBtn" onclick="return confirmSend()">
+        <i class="bi bi-send-fill me-1"></i> Yuborish
+      </button>
+    </form>
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateTarget(el) {
+  document.querySelectorAll('.bc-target').forEach(t => t.classList.remove('active'));
+  el.closest('.bc-target').classList.add('active');
+}
+function selectType(el) {
+  document.querySelectorAll('.bc-type-item').forEach(t => t.classList.remove('selected'));
+  el.closest('.bc-type-item').classList.add('selected');
+}
+function updatePreview() {
+  const t = document.getElementById('titleInput').value || 'Sarlavha ko\'rinadi...';
+  const m = document.getElementById('msgInput').value || 'Xabar matni ko\'rinadi...';
+  document.getElementById('previewTitle').textContent = t;
+  document.getElementById('previewMsg').textContent = m;
+}
+function confirmSend() {
+  const target = document.querySelector('input[name=target]:checked');
+  const targetLabel = target ? target.closest('.bc-target').textContent.trim() : 'Barcha';
+  if (!confirm(`"${targetLabel}" guruhiga xabar yuborilsinmi?`)) return false;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Yuborilmoqda...';
+  return true;
+}
+</script>
+{% endblock %}

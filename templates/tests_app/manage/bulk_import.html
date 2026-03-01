@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bulk Savol Import | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.bi-page { max-width: 820px; margin: 0 auto; padding: 2rem 1rem; }
+.bi-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; }
+.bi-back { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.9rem; background:var(--gray-100); border-radius:8px; font-size:0.82rem; font-weight:700; color:var(--dark-600); text-decoration:none; border:1px solid var(--gray-200); }
+.bi-back:hover { background:var(--gray-200); color:var(--dark); }
+.bi-title { font-size:1.4rem; font-weight:900; color:var(--dark); margin:0; }
+
+.bi-card { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:1.75rem; margin-bottom:1.25rem; }
+.bi-card-title { font-size:0.92rem; font-weight:800; color:var(--dark); margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem; }
+
+.bi-form-group { margin-bottom:1.25rem; }
+.bi-label { display:block; font-size:0.82rem; font-weight:700; color:var(--dark-600); margin-bottom:0.35rem; }
+.bi-select, .bi-input { width:100%; padding:0.6rem 0.9rem; border:1.5px solid var(--gray-200); border-radius:10px; font-size:0.88rem; color:var(--dark); background:var(--white); outline:none; transition:border-color .2s; }
+.bi-select:focus, .bi-input:focus { border-color:var(--primary); }
+
+.bi-drop { border:2px dashed var(--gray-200); border-radius:12px; padding:2.5rem; text-align:center; cursor:pointer; transition:all .2s; }
+.bi-drop:hover, .bi-drop.drag-over { border-color:var(--primary); background:rgba(139,197,64,0.05); }
+.bi-drop-icon { font-size:2.5rem; color:var(--gray-300); margin-bottom:0.75rem; }
+.bi-drop-text { font-size:0.88rem; color:var(--gray-500); }
+.bi-drop-sub { font-size:0.78rem; color:var(--gray-400); margin-top:0.3rem; }
+#fileInput { display:none; }
+.bi-file-selected { display:none; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:rgba(139,197,64,0.08); border:1px solid rgba(139,197,64,0.25); border-radius:10px; margin-top:0.75rem; }
+.bi-file-selected.show { display:flex; }
+.bi-file-name { font-size:0.85rem; font-weight:700; color:var(--primary-dark); }
+
+.bi-cols { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media(max-width:576px) { .bi-cols { grid-template-columns:1fr; } }
+
+.bi-submit { width:100%; padding:0.7rem; background:var(--gradient-primary); color:#fff; border:none; border-radius:10px; font-size:0.9rem; font-weight:800; cursor:pointer; margin-top:0.5rem; }
+
+/* Format table */
+.bi-fmt-table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+.bi-fmt-table th { background:var(--gray-50); padding:0.5rem 0.75rem; font-weight:700; color:var(--gray-500); text-align:left; border-bottom:1px solid var(--gray-100); }
+.bi-fmt-table td { padding:0.45rem 0.75rem; border-bottom:1px solid var(--gray-100); color:var(--dark-600); }
+.bi-fmt-table tr:last-child td { border-bottom:none; }
+.req { color:#DC2626; font-weight:700; }
+.opt { color:#64748B; font-size:0.75rem; }
+
+.bi-sample { display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.8rem; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; font-size:0.78rem; font-weight:700; color:var(--dark-600); text-decoration:none; }
+.bi-sample:hover { background:var(--gray-100); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-vh-100" style="background:var(--gray-50);">
+<div class="bi-page">
+
+  <!-- Header -->
+  <div class="bi-header">
+    <a href="{% url 'tests_app:manage_tests_list' %}" class="bi-back">
+      <i class="bi bi-arrow-left"></i> Panel
+    </a>
+    <div>
+      <h1 class="bi-title"><i class="bi bi-cloud-upload-fill me-2" style="color:var(--primary);"></i>Bulk Savol Import</h1>
+      <div style="font-size:0.8rem;color:var(--gray-500);margin-top:0.2rem;">CSV yoki Excel orqali ko'plab savollarni yuklang</div>
+    </div>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{% if msg.tags == 'error' %}danger{% elif msg.tags == 'warning' %}warning{% else %}success{% endif %} rounded-3 mb-3" style="font-size:0.88rem;">
+    <i class="bi bi-{% if msg.tags == 'error' %}x-circle{% elif msg.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %}-fill me-2"></i>{{ msg }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:1.25rem;align-items:start;">
+    <!-- Import form -->
+    <div>
+      <div class="bi-card">
+        <div class="bi-card-title"><i class="bi bi-upload" style="color:var(--primary);"></i> Fayl yuklash</div>
+
+        <form method="post" enctype="multipart/form-data" id="importForm">
+          {% csrf_token %}
+
+          <div class="bi-cols">
+            <div class="bi-form-group">
+              <label class="bi-label">Fan <span class="req">*</span></label>
+              <select name="subject_id" class="bi-select" required>
+                <option value="">— Fan tanlang —</option>
+                {% for s in subjects %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="bi-form-group">
+              <label class="bi-label">Standart qiyinlik</label>
+              <select name="difficulty" class="bi-select">
+                <option value="easy">Oson</option>
+                <option value="medium" selected>O'rta</option>
+                <option value="hard">Qiyin</option>
+                <option value="expert">Ekspert</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bi-form-group">
+            <label class="bi-label">Fayl <span class="req">*</span> <span class="opt">(CSV, XLSX)</span></label>
+            <div class="bi-drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+              <div class="bi-drop-icon"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+              <div class="bi-drop-text">Faylni bu yerga tashlang yoki bosing</div>
+              <div class="bi-drop-sub">.csv, .xlsx, .xls — max 5MB</div>
+            </div>
+            <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" required>
+            <div class="bi-file-selected" id="fileSelected">
+              <i class="bi bi-file-check-fill" style="color:var(--primary);font-size:1.2rem;"></i>
+              <span class="bi-file-name" id="fileName"></span>
+            </div>
+          </div>
+
+          <button type="submit" class="bi-submit" id="submitBtn">
+            <i class="bi bi-cloud-upload me-1"></i> Yuklash va import qilish
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div>
+      <div class="bi-card">
+        <div class="bi-card-title"><i class="bi bi-info-circle" style="color:#2563EB;"></i> Ustunlar formati</div>
+        <a href="{% url 'tests_app:manage_download_sample_csv' %}" class="bi-sample mb-3" style="display:inline-flex;">
+          <i class="bi bi-download"></i> Namuna CSV yuklash
+        </a>
+        <div style="overflow-x:auto; margin-top:0.75rem;">
+          <table class="bi-fmt-table">
+            <thead>
+              <tr><th>Ustun</th><th>Tavsif</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>question_text</code> <span class="req">*</span></td><td>Savol matni</td></tr>
+              <tr><td><code>option_a</code> <span class="req">*</span></td><td>A variant</td></tr>
+              <tr><td><code>option_b</code> <span class="req">*</span></td><td>B variant</td></tr>
+              <tr><td><code>option_c</code></td><td>C variant</td></tr>
+              <tr><td><code>option_d</code></td><td>D variant</td></tr>
+              <tr><td><code>correct_answer</code> <span class="req">*</span></td><td>A, B, C yoki D</td></tr>
+              <tr><td><code>difficulty</code></td><td>easy/medium/hard/expert</td></tr>
+              <tr><td><code>topic_name</code></td><td>Mavzu nomi (ixtiyoriy)</td></tr>
+              <tr><td><code>explanation</code></td><td>Tushuntirish (ixtiyoriy)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:1rem; padding:0.75rem; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:8px; font-size:0.78rem; color:#92400E;">
+          <strong>Eslatma:</strong> CSV faylni UTF-8 formatida saqlang. Excel'dan saqlashda "CSV UTF-8 (vergul bilan)" formatini tanlang.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileSelected = document.getElementById('fileSelected');
+const fileNameEl = document.getElementById('fileName');
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) showFile(fileInput.files[0]);
+});
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) { fileInput.files = e.dataTransfer.files; showFile(f); }
+});
+
+function showFile(f) {
+  fileNameEl.textContent = f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)';
+  fileSelected.classList.add('show');
+}
+
+document.getElementById('importForm').addEventListener('submit', () => {
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Import qilinmoqda...';
+});
+</script>
+{% endblock %}

@@ -108,6 +108,12 @@ urlpatterns = [
     re_path(r'^manage/(?P<slug>[\w.-]+)/questions/(?P<question_id>\d+)/unlink/$', views.manage_unlink_question, name='manage_unlink_question'),
 
     # ==========================================
+    # BULK IMPORT
+    # ==========================================
+    path('manage/import/', views.manage_bulk_import, name='manage_bulk_import'),
+    path('manage/import/sample/', views.manage_download_sample_csv, name='manage_download_sample_csv'),
+
+    # ==========================================
     # ESKI URL LAR (backward compatibility)
     # ==========================================
     path('test/<uuid:uuid>/question/', views.test_question, name='test_question'),

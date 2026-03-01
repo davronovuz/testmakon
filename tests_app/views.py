@@ -1844,3 +1844,156 @@ def manage_test_delete(request, slug):
     test.delete()
     messages.success(request, f"'{title}' testi o'chirildi.")
     return redirect('tests_app:manage_tests_list')
+
+# ============================================================
+# BULK SAVOL IMPORT (CSV / Excel)
+# ============================================================
+
+@staff_member_required
+def manage_bulk_import(request):
+    """Staff: CSV yoki Excel orqali ko'plab savollarni yuklash."""
+    subjects = Subject.objects.filter(is_active=True).order_by('name')
+
+    if request.method == 'GET':
+        return render(request, 'tests_app/manage/bulk_import.html', {
+            'subjects': subjects,
+        })
+
+    # POST — fayl yuklash
+    uploaded = request.FILES.get('file')
+    subject_id = request.POST.get('subject_id')
+    default_difficulty = request.POST.get('difficulty', 'medium')
+
+    if not uploaded or not subject_id:
+        messages.error(request, "Fayl va fan tanlanishi shart.")
+        return render(request, 'tests_app/manage/bulk_import.html', {'subjects': subjects})
+
+    subject = get_object_or_404(Subject, id=subject_id)
+    fname = uploaded.name.lower()
+
+    rows = []
+    error_msg = None
+
+    if fname.endswith('.csv'):
+        import csv, io
+        try:
+            decoded = uploaded.read().decode('utf-8-sig')
+            reader = csv.DictReader(io.StringIO(decoded))
+            rows = list(reader)
+        except Exception as e:
+            error_msg = f"CSV o'qishda xato: {e}"
+
+    elif fname.endswith(('.xlsx', '.xls')):
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(uploaded, read_only=True, data_only=True)
+            ws = wb.active
+            headers = [str(c.value).strip().lower() if c.value else '' for c in next(ws.iter_rows(min_row=1, max_row=1))]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                rows.append({headers[i]: (str(v).strip() if v is not None else '') for i, v in enumerate(row)})
+        except ImportError:
+            error_msg = "Excel uchun openpyxl kutubxonasi o'rnatilmagan. CSV formatidan foydalaning."
+        except Exception as e:
+            error_msg = f"Excel o'qishda xato: {e}"
+    else:
+        error_msg = "Faqat .csv, .xlsx yoki .xls formatlar qo'llab-quvvatlanadi."
+
+    if error_msg:
+        messages.error(request, error_msg)
+        return render(request, 'tests_app/manage/bulk_import.html', {'subjects': subjects})
+
+    # Savollarni yaratish
+    created, skipped, errors = 0, 0, []
+    CORRECT_MAP = {'a': 0, 'b': 1, 'c': 2, 'd': 3}
+
+    for i, row in enumerate(rows, start=2):
+        def g(key):
+            # case-insensitive key lookup
+            for k, v in row.items():
+                if k and k.lower().strip() == key:
+                    return str(v).strip() if v else ''
+            return ''
+
+        question_text = g('question_text') or g('savol') or g('text')
+        opt_a = g('option_a') or g('a')
+        opt_b = g('option_b') or g('b')
+        opt_c = g('option_c') or g('c')
+        opt_d = g('option_d') or g('d')
+        correct_raw = (g('correct_answer') or g('correct') or g('javob')).strip().lower()
+        difficulty = g('difficulty') or g('qiyinlik') or default_difficulty
+        topic_name = g('topic_name') or g('topic') or g('mavzu') or ''
+        explanation = g('explanation') or g('tushuntirish') or ''
+
+        if not question_text or not opt_a or not opt_b:
+            errors.append(f"Qator {i}: savol matni yoki javoblar to'liq emas")
+            skipped += 1
+            continue
+
+        correct_idx = CORRECT_MAP.get(correct_raw)
+        if correct_idx is None:
+            errors.append(f"Qator {i}: to'g'ri javob noto'g'ri ({correct_raw!r}). A/B/C/D bo'lishi kerak")
+            skipped += 1
+            continue
+
+        if difficulty not in ('easy', 'medium', 'hard', 'expert'):
+            difficulty = default_difficulty
+
+        topic = None
+        if topic_name:
+            topic, _ = Topic.objects.get_or_create(
+                subject=subject,
+                name__iexact=topic_name,
+                defaults={'name': topic_name, 'slug': topic_name.lower().replace(' ', '-')}
+            )
+
+        q = Question.objects.create(
+            subject=subject,
+            topic=topic,
+            text=question_text,
+            difficulty=difficulty,
+            explanation=explanation,
+            created_by=request.user,
+        )
+        options = [opt_a, opt_b, opt_c, opt_d]
+        for idx, opt_text in enumerate(options):
+            if not opt_text:
+                continue
+            Answer.objects.create(
+                question=q,
+                text=opt_text,
+                is_correct=(idx == correct_idx),
+            )
+        created += 1
+
+    # Result message
+    msg = f"{created} ta savol muvaffaqiyatli qo'shildi."
+    if skipped:
+        msg += f" {skipped} ta qator o'tkazib yuborildi."
+    if errors:
+        messages.warning(request, msg + " Xatolar: " + "; ".join(errors[:5]))
+    else:
+        messages.success(request, msg)
+
+    return redirect('tests_app:manage_tests_list')
+
+
+@staff_member_required
+def manage_download_sample_csv(request):
+    """Namuna CSV faylini yuklab berish."""
+    import csv
+    from django.http import HttpResponse
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="savol_namuna.csv"'
+    response.write('\ufeff')  # BOM for Excel UTF-8
+    writer = csv.writer(response)
+    writer.writerow(['question_text', 'option_a', 'option_b', 'option_c', 'option_d',
+                     'correct_answer', 'difficulty', 'topic_name', 'explanation'])
+    writer.writerow([
+        '2 + 2 = ?', '3', '4', '5', '6', 'B', 'easy', 'Algebra',
+        'Oddiy qo\'shish: 2+2=4'
+    ])
+    writer.writerow([
+        'O\'zbekiston poytaxti qaysi shahar?', 'Samarqand', 'Toshkent', 'Buxoro', 'Andijon',
+        'B', 'easy', 'Geografiya', ''
+    ])
+    return response

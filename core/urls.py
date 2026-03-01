@@ -38,4 +38,8 @@ urlpatterns = [
 
     # Admin analytics panel
     path('panel/analytics/', views.admin_analytics, name='admin_analytics'),
+
+    # Admin tools
+    path('panel/broadcast/', views.admin_broadcast, name='admin_broadcast'),
+    path('panel/system/', views.admin_system_health, name='admin_system_health'),
 ]

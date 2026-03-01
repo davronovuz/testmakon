@@ -46,8 +46,9 @@
       <h1 class="mg-title"><i class="bi bi-journal-richtext me-2" style="color:var(--primary);"></i>Testlar boshqaruvi</h1>
       <div style="font-size:0.8rem; color:var(--gray-500); margin-top:0.2rem;">Jami {{ page.paginator.count }} ta test</div>
     </div>
-    <div style="display:flex; gap:0.5rem;">
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
       <a href="{% url 'core:admin_analytics' %}" class="mg-btn outline"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a href="{% url 'tests_app:manage_bulk_import' %}" class="mg-btn blue"><i class="bi bi-cloud-upload"></i> Import</a>
       <a href="{% url 'tests_app:manage_test_create' %}" class="mg-btn primary"><i class="bi bi-plus-lg"></i> Yangi test</a>
     </div>
   </div>
