@@ -1559,3 +1559,207 @@ def api_online_friends(request):
         })
 
     return JsonResponse({'friends': data})
+
+# ══════════════════════════════════════════════════════════════
+# OLIMPIADA / MOCK IMTIHON — Real-time WebSocket boshqaruv
+# ══════════════════════════════════════════════════════════════
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+@login_required
+def exam_waiting_room(request, slug):
+    """Qatnashchi uchun — imtihon boshlanishini kutish zali"""
+    comp = get_object_or_404(Competition, slug=slug, is_active=True)
+
+    # Faqat olimpiada/special/monthly turlar uchun
+    if comp.status == 'finished':
+        return redirect('competitions:competition_result', slug=slug)
+    if comp.status == 'active':
+        return redirect('competitions:exam_live', slug=slug)
+
+    # Qatnashchi ro'yxatdan o'tganmi?
+    participant = CompetitionParticipant.objects.filter(
+        competition=comp, user=request.user
+    ).first()
+
+    if not participant and comp.status not in ('upcoming', 'registration'):
+        messages.error(request, "Ro'yxatdan o'tish muddati tugadi.")
+        return redirect('competitions:competition_detail', slug=slug)
+
+    # Agar hali ro'yxatdan o'tmagan bo'lsa — avtomatik qo'shish (bepul)
+    if not participant and comp.entry_type == 'free':
+        participant, _ = CompetitionParticipant.objects.get_or_create(
+            competition=comp, user=request.user,
+            defaults={'status': 'registered'}
+        )
+        comp.participants_count = CompetitionParticipant.objects.filter(competition=comp).count()
+        comp.save(update_fields=['participants_count'])
+
+    context = {
+        'comp': comp,
+        'participant': participant,
+        'ws_url': f'/ws/exam/{comp.slug}/',
+        'participants_count': comp.participants_count,
+    }
+    return render(request, 'competitions/exam_waiting.html', context)
+
+
+@login_required
+def exam_live(request, slug):
+    """Qatnashchi uchun — imtihon davomida (agar to'g'ridan test o'ynasa)"""
+    comp = get_object_or_404(Competition, slug=slug, is_active=True)
+
+    if comp.status not in ('active', 'paused'):
+        return redirect('competitions:exam_waiting_room', slug=slug)
+
+    participant = get_object_or_404(CompetitionParticipant, competition=comp, user=request.user)
+
+    # Agar test bog'langan bo'lsa — o'sha test play ga yuborish
+    if comp.test and participant.status in ('registered', 'in_progress'):
+        attempt = TestAttempt.objects.filter(
+            user=request.user,
+            test=comp.test,
+            status__in=('started', 'in_progress')
+        ).first()
+        if not attempt:
+            attempt = TestAttempt.objects.create(
+                user=request.user,
+                test=comp.test,
+                total_questions=comp.test.question_count,
+                status='in_progress'
+            )
+            participant.status = 'in_progress'
+            participant.save(update_fields=['status'])
+        return redirect('tests_app:test_play', uuid=attempt.uuid)
+
+    context = {
+        'comp': comp,
+        'participant': participant,
+        'ws_url': f'/ws/exam/{comp.slug}/',
+    }
+    return render(request, 'competitions/exam_live.html', context)
+
+
+@staff_member_required
+def exam_control_panel(request, slug):
+    """Admin uchun — imtihon real-time boshqaruv paneli"""
+    comp = get_object_or_404(Competition, slug=slug)
+
+    participants = CompetitionParticipant.objects.filter(
+        competition=comp
+    ).select_related('user').order_by('-score', 'time_taken')
+
+    from django.utils import timezone
+    now = timezone.now()
+    seconds_remaining = 0
+    if comp.status == 'active' and comp.end_time:
+        seconds_remaining = max(0, int((comp.end_time - now).total_seconds()))
+
+    context = {
+        'comp': comp,
+        'participants': participants,
+        'ws_url': f'/ws/exam/{comp.slug}/',
+        'seconds_remaining': seconds_remaining,
+        'status_choices': Competition.STATUS_CHOICES,
+    }
+    return render(request, 'competitions/exam_control.html', context)
+
+
+@staff_member_required
+def exam_create(request):
+    """Staff: yangi olimpiada / mock imtihon yaratish"""
+    from tests_app.models import Subject, Test
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+    tests = Test.objects.filter(is_active=True).order_by('-created_at')[:50]
+
+    if request.method == 'POST':
+        from django.utils.text import slugify
+        from django.utils.dateparse import parse_datetime
+
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        comp_type = request.POST.get('competition_type', 'olympiad')
+        entry_type = request.POST.get('entry_type', 'free')
+        start_time_raw = request.POST.get('start_time', '')
+        duration = int(request.POST.get('duration_minutes', 90))
+        subject_id = request.POST.get('subject') or None
+        test_id = request.POST.get('test') or None
+        total_questions = int(request.POST.get('total_questions', 30))
+        max_participants = request.POST.get('max_participants') or None
+        show_live_lb = request.POST.get('show_live_leaderboard') == 'on'
+        anti_cheat = request.POST.get('anti_cheat_enabled') == 'on'
+        certificate = request.POST.get('certificate_enabled') == 'on'
+        prize_pool = int(request.POST.get('prize_pool', 0))
+
+        if not title or not start_time_raw:
+            messages.error(request, "Sarlavha va boshlanish vaqti kiritilishi shart!")
+            return render(request, 'competitions/exam_create.html', {
+                'subjects': subjects, 'tests': tests,
+                'types': Competition.COMPETITION_TYPES, 'entry_types': Competition.ENTRY_TYPES,
+            })
+
+        start_time = parse_datetime(start_time_raw)
+        if not start_time:
+            messages.error(request, "Noto'g'ri sana formati. Qaytadan kiriting.")
+            return render(request, 'competitions/exam_create.html', {
+                'subjects': subjects, 'tests': tests,
+                'types': Competition.COMPETITION_TYPES, 'entry_types': Competition.ENTRY_TYPES,
+            })
+
+        import datetime
+        end_time = start_time + datetime.timedelta(minutes=duration)
+
+        base_slug = slugify(title)
+        slug_val = base_slug
+        counter = 1
+        while Competition.objects.filter(slug=slug_val).exists():
+            slug_val = f"{base_slug}-{counter}"
+            counter += 1
+
+        comp = Competition.objects.create(
+            title=title,
+            slug=slug_val,
+            description=description,
+            competition_type=comp_type,
+            entry_type=entry_type,
+            start_time=start_time,
+            end_time=end_time,
+            duration_minutes=duration,
+            subject_id=subject_id,
+            test_id=test_id,
+            total_questions=total_questions,
+            max_participants=max_participants,
+            show_live_leaderboard=show_live_lb,
+            anti_cheat_enabled=anti_cheat,
+            certificate_enabled=certificate,
+            prize_pool=prize_pool,
+            status='upcoming',
+            is_active=True,
+            created_by=request.user,
+        )
+        messages.success(request, f"'{comp.title}' olimpiadasi yaratildi!")
+        return redirect('competitions:exam_control_panel', slug=comp.slug)
+
+    context = {
+        'subjects': subjects,
+        'tests': tests,
+        'types': Competition.COMPETITION_TYPES,
+        'entry_types': Competition.ENTRY_TYPES,
+    }
+    return render(request, 'competitions/exam_create.html', context)
+
+
+@staff_member_required
+def exam_list_admin(request):
+    """Staff: barcha olimpiada/mock imtihonlar ro'yxati"""
+    comps = Competition.objects.filter(
+        competition_type__in=['olympiad', 'special', 'monthly', 'tournament']
+    ).order_by('-start_time')
+
+    context = {'comps': comps}
+    return render(request, 'competitions/exam_list_admin.html', context)
+
+
+# Import needed for exam_live
+from tests_app.models import TestAttempt

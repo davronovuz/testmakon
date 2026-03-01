@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Olimpiadalar boshqaruvi | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.el-page { max-width:1100px; margin:0 auto; padding:2rem 1rem; }
+.el-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+.el-title { font-size:1.4rem; font-weight:900; color:var(--dark); margin:0; }
+.el-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; overflow:hidden; margin-bottom:1rem; }
+.el-item { display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem; border-bottom:1px solid var(--gray-100); flex-wrap:wrap; }
+.el-item:last-child { border-bottom:none; }
+.el-icon { width:44px; height:44px; border-radius:12px; background:var(--gradient-primary); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+.el-info { flex:1; min-width:180px; }
+.el-name { font-size:0.92rem; font-weight:800; color:var(--dark); }
+.el-meta { font-size:0.75rem; color:var(--gray-500); margin-top:0.15rem; }
+.el-badge { display:inline-block; padding:0.2rem 0.55rem; border-radius:6px; font-size:0.72rem; font-weight:700; }
+.el-badge.active { background:rgba(34,197,94,0.1); color:#16A34A; }
+.el-badge.upcoming { background:rgba(59,130,246,0.1); color:#2563EB; }
+.el-badge.finished { background:rgba(239,68,68,0.08); color:#DC2626; }
+.el-badge.draft { background:rgba(100,116,139,0.1); color:#475569; }
+.el-badge.paused { background:rgba(245,158,11,0.1); color:#D97706; }
+.el-badge.registration { background:rgba(139,197,64,0.1); color:var(--primary-dark); }
+.el-actions { display:flex; gap:0.4rem; }
+.el-btn { display:inline-flex; align-items:center; gap:0.3rem; padding:0.35rem 0.75rem; border-radius:8px; font-size:0.78rem; font-weight:700; text-decoration:none; border:none; cursor:pointer; }
+.el-btn.control { background:var(--gradient-primary); color:#fff; }
+.el-btn.view { background:rgba(59,130,246,0.1); color:#2563EB; }
+.el-btn.outline { background:#fff; border:1px solid var(--gray-200); color:var(--dark-600); }
+.el-empty { text-align:center; padding:3rem; color:var(--gray-400); }
+.el-btn.new { background:var(--gradient-primary); color:#fff; padding:0.55rem 1.1rem; border-radius:10px; font-size:0.88rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background:var(--gray-50); min-height:100vh;">
+<div class="el-page">
+
+  <div class="el-header">
+    <div>
+      <h1 class="el-title"><i class="bi bi-trophy-fill me-2" style="color:var(--primary);"></i>Olimpiadalar va Mock Imtihonlar</h1>
+      <div style="font-size:0.82rem; color:var(--gray-500); margin-top:0.2rem;">Jami {{ comps.count }} ta</div>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <a href="{% url 'core:admin_analytics' %}" class="el-btn outline"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a href="{% url 'competitions:exam_create' %}" class="el-btn new"><i class="bi bi-plus-lg"></i> Yangi olimpiada</a>
+    </div>
+  </div>
+
+  <div class="el-card">
+    {% for comp in comps %}
+    <div class="el-item">
+      <div class="el-icon">{{ comp.icon }}</div>
+      <div class="el-info">
+        <div class="el-name">{{ comp.title }}</div>
+        <div class="el-meta">
+          {{ comp.get_competition_type_display }} ·
+          {{ comp.start_time|date:"d.m.Y H:i" }} ·
+          {{ comp.duration_minutes }} daqiqa ·
+          {{ comp.participants_count }} qatnashchi
+          <span class="el-badge {{ comp.status }}">{{ comp.get_status_display }}</span>
+        </div>
+      </div>
+      <div class="el-actions">
+        {% if comp.status in 'draft,upcoming,registration,active,paused' %}
+        <a href="{% url 'competitions:exam_control_panel' slug=comp.slug %}" class="el-btn control"><i class="bi bi-sliders"></i> Boshqarish</a>
+        {% endif %}
+        <a href="{% url 'competitions:exam_waiting_room' slug=comp.slug %}" class="el-btn view" target="_blank"><i class="bi bi-eye"></i> Ko'rish</a>
+        {% if comp.status == 'finished' %}
+        <a href="{% url 'competitions:competition_leaderboard' slug=comp.slug %}" class="el-btn outline"><i class="bi bi-trophy"></i> Natijalar</a>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="el-empty">
+      <i class="bi bi-trophy" style="font-size:2rem; display:block; margin-bottom:0.75rem;"></i>
+      Hali olimpiada yaratilmagan.<br>
+      <a href="{% url 'competitions:exam_create' %}" class="el-btn new" style="margin-top:1rem;">Birinchi olimpiada yarating</a>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+</div>
+{% endblock %}

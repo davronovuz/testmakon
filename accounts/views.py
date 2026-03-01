@@ -127,8 +127,12 @@ def login_view(request):
 
             messages.success(request, f"Xush kelibsiz, {user.first_name}!")
 
-            # Redirect to next or dashboard
-            next_url = request.GET.get('next', 'tests_app:tests_list')
+            # Staff/superuser → admin analytics panel
+            next_url = request.GET.get('next', '')
+            if not next_url:
+                if user.is_staff or user.is_superuser:
+                    return redirect('core:admin_analytics')
+                next_url = 'tests_app:tests_list'
             return redirect(next_url)
         else:
             messages.error(request, "Telefon raqam yoki parol noto'g'ri")

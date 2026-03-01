@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Yangi olimpiada yaratish | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.ec-page { max-width:760px; margin:0 auto; padding:2rem 1rem; }
+.ec-hdr { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
+.ec-back { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; background:#fff; border:1px solid var(--gray-200); color:var(--dark-600); font-size:0.82rem; font-weight:700; text-decoration:none; }
+.ec-title { font-size:1.3rem; font-weight:900; color:var(--dark); margin:0; }
+.ec-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; padding:1.75rem; margin-bottom:1rem; }
+.ec-section { font-size:0.72rem; font-weight:800; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.5px; margin:1.25rem 0 0.75rem; border-bottom:1px solid var(--gray-100); padding-bottom:0.4rem; }
+.ec-section:first-child { margin-top:0; }
+.ec-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.ec-group { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:0.75rem; }
+.ec-label { font-size:0.8rem; font-weight:700; color:var(--dark); }
+.ec-input { padding:0.6rem 0.9rem; border:1px solid var(--gray-200); border-radius:9px; font-size:0.88rem; color:var(--dark); outline:none; background:#fff; width:100%; box-sizing:border-box; }
+.ec-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(139,197,64,0.12); }
+.ec-textarea { resize:vertical; min-height:80px; font-family:inherit; }
+.ec-check-row { display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0; }
+.ec-check-row input[type=checkbox] { width:18px; height:18px; accent-color:var(--primary); }
+.ec-check-row label { font-size:0.85rem; font-weight:600; color:var(--dark-600); cursor:pointer; }
+.ec-footer { display:flex; gap:0.75rem; margin-top:1.25rem; }
+.ec-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.65rem 1.4rem; border-radius:10px; font-size:0.9rem; font-weight:800; border:none; cursor:pointer; text-decoration:none; }
+.ec-btn.primary { background:var(--gradient-primary); color:#fff; box-shadow:0 4px 15px rgba(139,197,64,0.3); }
+.ec-btn.outline { background:#fff; border:1px solid var(--gray-200); color:var(--dark-600); }
+@media(max-width:576px){.ec-grid2{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background:var(--gray-50); min-height:100vh;">
+<div class="ec-page">
+
+  <div class="ec-hdr">
+    <a href="{% url 'competitions:exam_list_admin' %}" class="ec-back"><i class="bi bi-arrow-left"></i> Olimpiadalar</a>
+    <h1 class="ec-title">Yangi olimpiada / Mock imtihon</h1>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="ec-card">
+      <div class="ec-section">Asosiy ma'lumotlar</div>
+
+      <div class="ec-group">
+        <label class="ec-label">Sarlavha <span style="color:#DC2626;">*</span></label>
+        <input type="text" name="title" class="ec-input" placeholder="Masalan: DTM Mock Imtihon #1 — Mart 2026" required>
+      </div>
+
+      <div class="ec-group">
+        <label class="ec-label">Tavsif</label>
+        <textarea name="description" class="ec-input ec-textarea" placeholder="Imtihon haqida qisqacha ma'lumot..."></textarea>
+      </div>
+
+      <div class="ec-grid2">
+        <div class="ec-group">
+          <label class="ec-label">Tur</label>
+          <select name="competition_type" class="ec-input">
+            {% for val, label in types %}
+            <option value="{{ val }}" {% if val == 'olympiad' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="ec-group">
+          <label class="ec-label">Kirish turi</label>
+          <select name="entry_type" class="ec-input">
+            {% for val, label in entry_types %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="ec-card">
+      <div class="ec-section">Vaqt sozlamalari</div>
+
+      <div class="ec-grid2">
+        <div class="ec-group">
+          <label class="ec-label">Boshlanish vaqti <span style="color:#DC2626;">*</span></label>
+          <input type="datetime-local" name="start_time" class="ec-input" required>
+        </div>
+        <div class="ec-group">
+          <label class="ec-label">Davomiyligi (daqiqa)</label>
+          <input type="number" name="duration_minutes" class="ec-input" value="90" min="5" max="480">
+        </div>
+      </div>
+    </div>
+
+    <div class="ec-card">
+      <div class="ec-section">Test sozlamalari</div>
+
+      <div class="ec-grid2">
+        <div class="ec-group">
+          <label class="ec-label">Fan (ixtiyoriy)</label>
+          <select name="subject" class="ec-input">
+            <option value="">— Barcha fanlar —</option>
+            {% for s in subjects %}
+            <option value="{{ s.id }}">{{ s.icon }} {{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="ec-group">
+          <label class="ec-label">Tayyor test (ixtiyoriy)</label>
+          <select name="test" class="ec-input">
+            <option value="">— Test tanlang —</option>
+            {% for t in tests %}
+            <option value="{{ t.id }}">{{ t.title|truncatechars:40 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="ec-group">
+          <label class="ec-label">Savollar soni</label>
+          <input type="number" name="total_questions" class="ec-input" value="30" min="5" max="100">
+        </div>
+        <div class="ec-group">
+          <label class="ec-label">Max qatnashchi</label>
+          <input type="number" name="max_participants" class="ec-input" placeholder="Cheksiz (bo'sh qoldiring)">
+        </div>
+      </div>
+    </div>
+
+    <div class="ec-card">
+      <div class="ec-section">Sovrin va xususiyatlar</div>
+
+      <div class="ec-group" style="max-width:220px;">
+        <label class="ec-label">Sovrin fondi (so'm)</label>
+        <input type="number" name="prize_pool" class="ec-input" value="0" min="0">
+      </div>
+
+      <div class="ec-check-row">
+        <input type="checkbox" name="show_live_leaderboard" id="show_lb" checked>
+        <label for="show_lb"><i class="bi bi-trophy" style="color:#FBBF24;"></i> Live reyting ko'rsatish</label>
+      </div>
+      <div class="ec-check-row">
+        <input type="checkbox" name="anti_cheat_enabled" id="anti_cheat" checked>
+        <label for="anti_cheat"><i class="bi bi-shield-check" style="color:var(--primary);"></i> Anti-cheat yoqish</label>
+      </div>
+      <div class="ec-check-row">
+        <input type="checkbox" name="certificate_enabled" id="certificate">
+        <label for="certificate"><i class="bi bi-award" style="color:#2563EB;"></i> Sertifikat berish</label>
+      </div>
+    </div>
+
+    <div class="ec-footer">
+      <button type="submit" class="ec-btn primary"><i class="bi bi-plus-circle-fill"></i> Yaratish</button>
+      <a href="{% url 'competitions:exam_list_admin' %}" class="ec-btn outline">Bekor qilish</a>
+    </div>
+  </form>
+
+</div>
+</div>
+{% endblock %}

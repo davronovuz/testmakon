@@ -11,6 +11,14 @@ urlpatterns = [
     # 1. ASOSIY RO'YXAT
     path('', views.competitions_list, name='competitions_list'),
 
+    # ── OLIMPIADA / MOCK IMTIHON ─────────────────────────────
+    path('exam/', views.exam_list_admin, name='exam_list_admin'),
+    path('exam/create/', views.exam_create, name='exam_create'),
+    path('exam/<slug:slug>/control/', views.exam_control_panel, name='exam_control_panel'),
+    path('exam/<slug:slug>/waiting/', views.exam_waiting_room, name='exam_waiting_room'),
+    path('exam/<slug:slug>/live/', views.exam_live, name='exam_live'),
+    # ─────────────────────────────────────────────────────────
+
     # 2. BATTLES (Static qismlar)
     path('battles/', views.battles_list, name='battles_list'),
     path('battles/create/', views.battle_create, name='battle_create'),

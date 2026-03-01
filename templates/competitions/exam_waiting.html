@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ comp.title }} — Kutish zali | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+body { background: #0F172A !important; }
+.ew-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; }
+.ew-card { background: #1E293B; border: 1px solid #334155; border-radius: 24px; padding: 2.5rem; max-width: 560px; width: 100%; text-align: center; }
+.ew-icon { font-size: 3rem; margin-bottom: 1rem; }
+.ew-title { font-size: 1.5rem; font-weight: 900; color: #F1F5F9; margin-bottom: 0.4rem; }
+.ew-sub { font-size: 0.88rem; color: #94A3B8; margin-bottom: 2rem; }
+
+.ew-status { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.82rem; font-weight: 700; margin-bottom: 1.5rem; }
+.ew-status.waiting { background: rgba(245,158,11,0.15); color: #FBBF24; border: 1px solid rgba(245,158,11,0.25); }
+.ew-status.active { background: rgba(34,197,94,0.15); color: #4ADE80; border: 1px solid rgba(34,197,94,0.25); }
+
+.ew-countdown { font-size: 3.5rem; font-weight: 900; color: #8BC540; letter-spacing: -2px; line-height: 1; margin-bottom: 0.4rem; font-variant-numeric: tabular-nums; }
+.ew-countdown-label { font-size: 0.78rem; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2rem; }
+
+.ew-dots { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }
+.ew-dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; animation: pulse 1.5s infinite; }
+.ew-dot:nth-child(2) { animation-delay: 0.3s; }
+.ew-dot:nth-child(3) { animation-delay: 0.6s; }
+@keyframes pulse { 0%,100%{background:#334155} 50%{background:#8BC540} }
+
+.ew-stats { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 2rem; }
+.ew-stat { text-align: center; }
+.ew-stat-val { font-size: 1.4rem; font-weight: 900; color: #F1F5F9; }
+.ew-stat-label { font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase; }
+
+.ew-divider { height: 1px; background: #334155; margin: 1.5rem 0; }
+
+.ew-participants { max-height: 200px; overflow-y: auto; text-align: left; }
+.ew-p-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0; border-bottom: 1px solid #1E293B; font-size: 0.82rem; color: #94A3B8; }
+.ew-av { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#8BC540,#6BA832); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.75rem; font-weight: 800; flex-shrink: 0; }
+.ew-new-badge { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; background: rgba(139,197,64,0.15); color: #8BC540; font-size: 0.65rem; font-weight: 700; }
+
+#wsStatus { position: fixed; top: 1rem; right: 1rem; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.ws-connected { background: rgba(34,197,94,0.15); color: #4ADE80; border: 1px solid rgba(34,197,94,0.3); }
+.ws-disconnected { background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ew-wrap">
+
+  <div id="wsStatus" class="ws-disconnected">● Ulanmoqda...</div>
+
+  <div class="ew-card">
+    <div class="ew-icon">{{ comp.icon }}</div>
+    <h1 class="ew-title">{{ comp.title }}</h1>
+    <p class="ew-sub">{{ comp.get_competition_type_display }} · {{ comp.duration_minutes }} daqiqa · {{ comp.total_questions }} savol</p>
+
+    <div id="examStatus" class="ew-status waiting">
+      <span class="ew-dot" style="width:8px;height:8px;display:inline-block;"></span>
+      <span id="statusText">Imtihon boshlanishini kutmoqda...</span>
+    </div>
+
+    <div id="countdownBlock">
+      <div class="ew-countdown" id="countdown">--:--:--</div>
+      <div class="ew-countdown-label" id="countdownLabel">Boshlanishga qoldi</div>
+    </div>
+
+    <div class="ew-dots" id="waitingDots">
+      <div class="ew-dot"></div><div class="ew-dot"></div><div class="ew-dot"></div>
+    </div>
+
+    <div class="ew-stats">
+      <div class="ew-stat">
+        <div class="ew-stat-val" id="participantCount">{{ participants_count }}</div>
+        <div class="ew-stat-label">Qatnashchi</div>
+      </div>
+      <div class="ew-stat">
+        <div class="ew-stat-val">{{ comp.duration_minutes }}</div>
+        <div class="ew-stat-label">Daqiqa</div>
+      </div>
+      <div class="ew-stat">
+        <div class="ew-stat-val">{{ comp.total_questions }}</div>
+        <div class="ew-stat-label">Savol</div>
+      </div>
+    </div>
+
+    <div class="ew-divider"></div>
+    <div style="font-size:0.75rem; color:#64748B; margin-bottom:0.75rem; text-align:left; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">So'nggi qo'shilganlar</div>
+    <div class="ew-participants" id="participantList"></div>
+
+    <div class="ew-divider"></div>
+    <div style="font-size:0.8rem; color:#475569; line-height:1.6;">
+      Imtihon boshlanishi bilan sahifa avtomatik yangilanadi. Iltimos kutib turing.
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const WS_URL = 'ws' + (location.protocol === 'https:' ? 's' : '') + '://' + location.host + '{{ ws_url }}';
+const EXAM_SLUG = '{{ comp.slug }}';
+let ws = null;
+let localTimer = null;
+let secondsRemaining = 0;
+let startTime = new Date('{{ comp.start_time|date:"c" }}');
+
+// Local countdown to start time
+function updateCountdownToStart() {
+  const now = new Date();
+  const diff = Math.max(0, Math.floor((startTime - now) / 1000));
+  if (diff <= 0) {
+    document.getElementById('countdown').textContent = '00:00:00';
+    document.getElementById('countdownLabel').textContent = 'Boshlanish kutilmoqda...';
+    return;
+  }
+  const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+  const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+  const s = String(diff % 60).padStart(2, '0');
+  document.getElementById('countdown').textContent = `${h}:${m}:${s}`;
+}
+updateCountdownToStart();
+localTimer = setInterval(updateCountdownToStart, 1000);
+
+function connectWS() {
+  ws = new WebSocket(WS_URL);
+
+  ws.onopen = () => {
+    document.getElementById('wsStatus').textContent = '● Ulandi';
+    document.getElementById('wsStatus').className = 'ws-connected';
+  };
+
+  ws.onclose = () => {
+    document.getElementById('wsStatus').textContent = '● Uzildi';
+    document.getElementById('wsStatus').className = 'ws-disconnected';
+    setTimeout(connectWS, 3000);
+  };
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    handleMessage(msg);
+  };
+}
+
+function handleMessage(msg) {
+  if (msg.type === 'init') {
+    document.getElementById('participantCount').textContent = msg.participant_count;
+    if (msg.status === 'active') {
+      startExamMode(msg.seconds_remaining);
+    }
+  }
+
+  if (msg.type === 'exam_status' && msg.status === 'active') {
+    startExamMode(null);
+    // Redirect to exam or test play
+    setTimeout(() => location.href = '/competitions/exam/' + EXAM_SLUG + '/live/', 1500);
+  }
+
+  if (msg.type === 'exam_ended') {
+    location.href = '/competitions/' + EXAM_SLUG + '/result/';
+  }
+
+  if (msg.type === 'participant_update') {
+    document.getElementById('participantCount').textContent = msg.count;
+    if (msg.user) addParticipantToList(msg.user);
+  }
+
+  if (msg.type === 'announcement') {
+    showAnnouncement(msg.message);
+  }
+}
+
+function startExamMode(sec) {
+  clearInterval(localTimer);
+  document.getElementById('examStatus').className = 'ew-status active';
+  document.getElementById('statusText').textContent = 'Imtihon boshlandi!';
+  document.getElementById('countdownLabel').textContent = "O'tib ketilmoqda...";
+  document.getElementById('waitingDots').innerHTML = '<div style="font-size:1.5rem;">🚀</div>';
+}
+
+function addParticipantToList(user) {
+  const list = document.getElementById('participantList');
+  const el = document.createElement('div');
+  el.className = 'ew-p-item';
+  el.innerHTML = `<div class="ew-av">${(user.name || '?')[0].toUpperCase()}</div><span>${user.name}</span><span class="ew-new-badge">yangi</span>`;
+  list.prepend(el);
+  if (list.children.length > 10) list.lastChild.remove();
+}
+
+function showAnnouncement(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1E293B;border:1px solid #8BC540;color:#F1F5F9;padding:0.75rem 1.25rem;border-radius:12px;font-size:0.88rem;font-weight:700;z-index:9999;max-width:400px;text-align:center;';
+  el.textContent = '📢 ' + msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+connectWS();
+</script>
+{% endblock %}

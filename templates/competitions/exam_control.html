@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ comp.title }} — Boshqaruv paneli | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.ec-page { max-width:1200px; margin:0 auto; padding:2rem 1rem; }
+.ec-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+.ec-title { font-size:1.3rem; font-weight:900; color:var(--dark); margin:0; }
+.ec-sub { font-size:0.82rem; color:var(--gray-500); margin-top:0.25rem; }
+
+/* Status badge */
+.ec-status { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.9rem; border-radius:999px; font-size:0.82rem; font-weight:700; }
+.ec-status.draft    { background:rgba(100,116,139,0.12); color:#475569; }
+.ec-status.upcoming { background:rgba(59,130,246,0.12); color:#2563EB; }
+.ec-status.registration { background:rgba(139,197,64,0.12); color:var(--primary-dark); }
+.ec-status.active   { background:rgba(34,197,94,0.12); color:#16A34A; }
+.ec-status.paused   { background:rgba(245,158,11,0.12); color:#D97706; }
+.ec-status.finished { background:rgba(239,68,68,0.1); color:#DC2626; }
+.pulse-dot { width:8px; height:8px; border-radius:50%; animation:blink 1.2s infinite; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.pulse-dot.active{background:#16A34A;}
+.pulse-dot.paused{background:#D97706; animation:none;}
+.pulse-dot.other{background:#94A3B8; animation:none;}
+
+/* Grid */
+.ec-grid { display:grid; grid-template-columns:1fr 380px; gap:1.25rem; }
+@media(max-width:900px){.ec-grid{grid-template-columns:1fr;}}
+
+/* Cards */
+.ec-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; overflow:hidden; margin-bottom:1.25rem; }
+.ec-card-head { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+.ec-card-title { font-size:0.9rem; font-weight:800; color:var(--dark); margin:0; display:flex; align-items:center; gap:0.5rem; }
+.ec-card-body { padding:1.25rem; }
+
+/* Timer */
+.ec-timer-big { font-size:3.5rem; font-weight:900; color:var(--dark); text-align:center; letter-spacing:-2px; font-variant-numeric:tabular-nums; line-height:1; margin:0.5rem 0; }
+.ec-timer-label { text-align:center; font-size:0.75rem; color:var(--gray-500); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+
+/* Control buttons */
+.ec-controls { display:flex; flex-wrap:wrap; gap:0.6rem; padding:1rem 1.25rem; }
+.ec-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.6rem 1.1rem; border-radius:10px; font-size:0.85rem; font-weight:800; border:none; cursor:pointer; transition:all 0.15s; }
+.ec-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.ec-btn.start  { background:linear-gradient(135deg,#8BC540,#6BA832); color:#fff; box-shadow:0 4px 12px rgba(139,197,64,0.3); }
+.ec-btn.pause  { background:rgba(245,158,11,0.12); color:#D97706; border:1px solid rgba(245,158,11,0.25); }
+.ec-btn.resume { background:rgba(139,197,64,0.1); color:var(--primary-dark); border:1px solid rgba(139,197,64,0.25); }
+.ec-btn.stop   { background:rgba(239,68,68,0.1); color:#DC2626; border:1px solid rgba(239,68,68,0.2); }
+.ec-btn.extend { background:rgba(59,130,246,0.1); color:#2563EB; border:1px solid rgba(59,130,246,0.2); }
+.ec-btn.announce { background:rgba(139,197,64,0.1); color:var(--primary-dark); border:1px solid rgba(139,197,64,0.2); }
+.ec-btn.lb { background:var(--gray-100); color:var(--dark-600); border:1px solid var(--gray-200); }
+
+/* Extend input */
+.ec-extend-wrap { display:flex; gap:0.5rem; align-items:center; padding:0.75rem 1.25rem; border-top:1px solid var(--gray-100); }
+.ec-extend-input { width:80px; padding:0.45rem 0.6rem; border:1px solid var(--gray-200); border-radius:8px; font-size:0.85rem; text-align:center; }
+
+/* Announce */
+.ec-announce-wrap { display:flex; gap:0.5rem; padding:0.75rem 1.25rem; border-top:1px solid var(--gray-100); }
+.ec-announce-input { flex:1; padding:0.45rem 0.8rem; border:1px solid var(--gray-200); border-radius:8px; font-size:0.85rem; }
+
+/* Stats row */
+.ec-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; }
+.ec-stat { background:var(--gray-50); border-radius:12px; padding:0.85rem; text-align:center; border:1px solid var(--gray-100); }
+.ec-stat-val { font-size:1.4rem; font-weight:900; color:var(--dark); line-height:1; }
+.ec-stat-label { font-size:0.7rem; color:var(--gray-500); font-weight:700; text-transform:uppercase; margin-top:0.25rem; }
+
+/* Live leaderboard table */
+.ec-table { width:100%; border-collapse:collapse; }
+.ec-table th { padding:0.55rem 0.85rem; font-size:0.7rem; font-weight:700; color:var(--gray-500); text-transform:uppercase; background:var(--gray-50); border-bottom:1px solid var(--gray-100); text-align:left; }
+.ec-table td { padding:0.65rem 0.85rem; border-bottom:1px solid var(--gray-100); font-size:0.83rem; color:var(--dark-600); vertical-align:middle; }
+.ec-table tr:last-child td { border-bottom:none; }
+.ec-score { font-weight:800; color:var(--primary-dark); }
+.ec-rank1 { color:#FBBF24; }
+.ec-rank2 { color:#94A3B8; }
+.ec-rank3 { color:#CD7F32; }
+
+/* WS status */
+#wsStatus { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:700; }
+.ws-ok { background:rgba(34,197,94,0.1); color:#16A34A; border:1px solid rgba(34,197,94,0.2); }
+.ws-err { background:rgba(239,68,68,0.1); color:#DC2626; border:1px solid rgba(239,68,68,0.2); }
+
+/* Log */
+.ec-log { max-height:180px; overflow-y:auto; padding:0.75rem 1.25rem; font-size:0.78rem; color:var(--gray-600); }
+.ec-log-item { padding:0.25rem 0; border-bottom:1px solid var(--gray-100); }
+.ec-log-time { color:var(--gray-400); margin-right:0.4rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background:var(--gray-50); min-height:100vh;">
+<div class="ec-page">
+
+  <div class="ec-header">
+    <div>
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
+        <a href="{% url 'competitions:exam_list_admin' %}" style="font-size:0.82rem; color:var(--gray-500); text-decoration:none;"><i class="bi bi-arrow-left"></i> Olimpiadalar</a>
+        <span style="color:var(--gray-300);">/</span>
+        <span id="wsStatus" class="ws-err">● Ulanmoqda</span>
+      </div>
+      <h1 class="ec-title">{{ comp.icon }} {{ comp.title }}</h1>
+      <div class="ec-sub">{{ comp.get_competition_type_display }} · {{ comp.duration_minutes }} daqiqa · {{ comp.total_questions }} savol</div>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+      <div class="ec-status {{ comp.status }}">
+        <div class="pulse-dot {% if comp.status == 'active' %}active{% elif comp.status == 'paused' %}paused{% else %}other{% endif %}"></div>
+        <span id="statusBadge">{{ comp.get_status_display }}</span>
+      </div>
+      <a href="{% url 'competitions:exam_waiting_room' slug=comp.slug %}" class="ec-btn lb" target="_blank"><i class="bi bi-eye"></i> Preview</a>
+    </div>
+  </div>
+
+  <div class="ec-grid">
+
+    <!-- Left: Controls + Log -->
+    <div>
+
+      <!-- Timer card -->
+      <div class="ec-card">
+        <div class="ec-card-head">
+          <h2 class="ec-card-title"><i class="bi bi-stopwatch" style="color:var(--primary);"></i> Vaqt boshqaruvi</h2>
+        </div>
+        <div class="ec-card-body" style="padding-bottom:0.5rem;">
+          <div class="ec-timer-big" id="timerDisplay">{% if seconds_remaining %}{{ seconds_remaining|floatformat:0 }}{% else %}--:--:--{% endif %}</div>
+          <div class="ec-timer-label" id="timerLabel">{% if comp.status == 'active' %}Qolgan vaqt{% elif comp.status == 'paused' %}To'xtatilgan{% else %}Vaqt{% endif %}</div>
+        </div>
+
+        <!-- Main controls -->
+        <div class="ec-controls">
+          {% if comp.status in 'draft,upcoming,registration' %}
+          <button class="ec-btn start" onclick="sendControl('start')"><i class="bi bi-play-fill"></i> Boshlash</button>
+          {% endif %}
+          {% if comp.status == 'active' %}
+          <button class="ec-btn pause" onclick="sendControl('pause')"><i class="bi bi-pause-fill"></i> To'xtatish</button>
+          <button class="ec-btn stop" onclick="confirmStop()"><i class="bi bi-stop-fill"></i> Yakunlash</button>
+          {% endif %}
+          {% if comp.status == 'paused' %}
+          <button class="ec-btn resume" onclick="sendControl('resume')"><i class="bi bi-play-fill"></i> Davom ettirish</button>
+          <button class="ec-btn stop" onclick="confirmStop()"><i class="bi bi-stop-fill"></i> Yakunlash</button>
+          {% endif %}
+          <button class="ec-btn lb" onclick="sendControl('leaderboard')"><i class="bi bi-trophy"></i> Live reyting yuborish</button>
+        </div>
+
+        <!-- Extend time -->
+        <div class="ec-extend-wrap">
+          <span style="font-size:0.82rem; font-weight:700; color:var(--dark);">Vaqt qo'shish:</span>
+          <input type="number" id="extendMinutes" class="ec-extend-input" value="5" min="1" max="60">
+          <span style="font-size:0.82rem; color:var(--gray-500);">daqiqa</span>
+          <button class="ec-btn extend" onclick="sendExtend()"><i class="bi bi-clock-history"></i> Qo'shish</button>
+        </div>
+
+        <!-- Announce -->
+        <div class="ec-announce-wrap">
+          <input type="text" id="announceMsg" class="ec-announce-input" placeholder="Barcha qatnashchilarga xabar...">
+          <button class="ec-btn announce" onclick="sendAnnounce()"><i class="bi bi-megaphone"></i> Yuborish</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="ec-card">
+        <div class="ec-card-head"><h2 class="ec-card-title"><i class="bi bi-graph-up" style="color:#2563EB;"></i> Statistika</h2></div>
+        <div class="ec-card-body">
+          <div class="ec-stats">
+            <div class="ec-stat">
+              <div class="ec-stat-val" id="statCount">{{ comp.participants_count }}</div>
+              <div class="ec-stat-label">Qatnashchi</div>
+            </div>
+            <div class="ec-stat">
+              <div class="ec-stat-val" id="statCompleted">{{ comp.completed_count }}</div>
+              <div class="ec-stat-label">Tugatdi</div>
+            </div>
+            <div class="ec-stat">
+              <div class="ec-stat-val" id="statAvg">{{ comp.average_score|floatformat:0 }}%</div>
+              <div class="ec-stat-label">O'rtacha ball</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event log -->
+      <div class="ec-card">
+        <div class="ec-card-head"><h2 class="ec-card-title"><i class="bi bi-clock-history" style="color:var(--gray-400);"></i> Voqealar jurnali</h2></div>
+        <div class="ec-log" id="eventLog">
+          <div class="ec-log-item"><span class="ec-log-time">—</span>Panel ochildi</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Live leaderboard + participants -->
+    <div>
+
+      <div class="ec-card">
+        <div class="ec-card-head">
+          <h2 class="ec-card-title"><i class="bi bi-trophy-fill" style="color:#FBBF24;"></i> Live reyting</h2>
+          <button class="ec-btn lb" onclick="refreshLeaderboard()" style="padding:0.3rem 0.6rem; font-size:0.75rem;"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="ec-table" id="lbTable">
+            <thead><tr><th>#</th><th>Foydalanuvchi</th><th>Ball</th><th>To'g'ri</th></tr></thead>
+            <tbody id="lbBody">
+              {% for p in participants %}
+              <tr>
+                <td class="{% if forloop.counter == 1 %}ec-rank1{% elif forloop.counter == 2 %}ec-rank2{% elif forloop.counter == 3 %}ec-rank3{% endif %}" style="font-weight:900;">{{ forloop.counter }}</td>
+                <td style="font-weight:700;">{{ p.user.full_name|default:p.user.phone_number|truncatechars:18 }}</td>
+                <td class="ec-score">{{ p.score }}</td>
+                <td style="color:var(--gray-500);">{{ p.correct_answers }}/{{ comp.total_questions }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" style="text-align:center; color:var(--gray-400); padding:1.5rem;">Hali natijalar yo'q</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const WS_URL = 'ws' + (location.protocol === 'https:' ? 's' : '') + '://' + location.host + '{{ ws_url }}';
+let ws = null;
+let timerInterval = null;
+let secondsLeft = {{ seconds_remaining }};
+
+// ── Timer display ──────────────────────────
+function formatTime(s) {
+  if (s <= 0) return '00:00:00';
+  const h = String(Math.floor(s / 3600)).padStart(2,'0');
+  const m = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
+  const sec = String(s % 60).padStart(2,'0');
+  return `${h}:${m}:${sec}`;
+}
+function startTimer(sec) {
+  clearInterval(timerInterval);
+  secondsLeft = sec;
+  document.getElementById('timerDisplay').textContent = formatTime(secondsLeft);
+  document.getElementById('timerLabel').textContent = 'Qolgan vaqt';
+  timerInterval = setInterval(() => {
+    secondsLeft = Math.max(0, secondsLeft - 1);
+    document.getElementById('timerDisplay').textContent = formatTime(secondsLeft);
+    if (secondsLeft <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+if (secondsLeft > 0) startTimer(secondsLeft);
+
+// ── WebSocket ──────────────────────────────
+function connectWS() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    document.getElementById('wsStatus').textContent = '● Ulandi';
+    document.getElementById('wsStatus').className = 'ws-ok';
+    logEvent('WebSocket ulandi');
+  };
+  ws.onclose = () => {
+    document.getElementById('wsStatus').textContent = '● Uzildi';
+    document.getElementById('wsStatus').className = 'ws-err';
+    logEvent('WebSocket uzildi — qayta ulanmoqda...');
+    setTimeout(connectWS, 3000);
+  };
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    handleMsg(msg);
+  };
+}
+
+function handleMsg(msg) {
+  if (msg.type === 'init') {
+    if (msg.status === 'active' && msg.seconds_remaining > 0) startTimer(msg.seconds_remaining);
+    document.getElementById('statCount').textContent = msg.participant_count;
+    logEvent(`Holat: ${msg.status} · Qatnashchilar: ${msg.participant_count}`);
+  }
+  if (msg.type === 'exam_status') {
+    document.getElementById('statusBadge').textContent = msg.status === 'active' ? 'Faol' : msg.status;
+    if (msg.status === 'active') logEvent('Imtihon boshlandi');
+  }
+  if (msg.type === 'exam_paused') {
+    clearInterval(timerInterval);
+    document.getElementById('timerLabel').textContent = "To'xtatilgan";
+    logEvent('Imtihon to\'xtatildi');
+  }
+  if (msg.type === 'exam_resumed') {
+    startTimer(msg.seconds_remaining);
+    logEvent('Imtihon davom ettirildi');
+  }
+  if (msg.type === 'exam_ended') {
+    clearInterval(timerInterval);
+    document.getElementById('timerDisplay').textContent = '00:00:00';
+    document.getElementById('timerLabel').textContent = 'Yakunlandi';
+    logEvent('Imtihon yakunlandi');
+  }
+  if (msg.type === 'exam_extended') {
+    startTimer(msg.seconds_remaining);
+    logEvent(`+${msg.minutes_added} daqiqa qo'shildi`);
+  }
+  if (msg.type === 'timer_sync') {
+    secondsLeft = msg.seconds_remaining;
+  }
+  if (msg.type === 'leaderboard_update') {
+    updateLeaderboard(msg.rankings);
+    logEvent('Live reyting yangilandi');
+  }
+  if (msg.type === 'participant_update') {
+    document.getElementById('statCount').textContent = msg.count;
+    logEvent(`Yangi qatnashchi: ${msg.user?.name || '—'}`);
+  }
+}
+
+// ── Controls ───────────────────────────────
+function sendControl(action) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) { alert('WebSocket ulanmagan!'); return; }
+  ws.send(JSON.stringify({type: 'exam_control', action}));
+  logEvent(`Buyruq yuborildi: ${action}`);
+}
+function sendExtend() {
+  const mins = parseInt(document.getElementById('extendMinutes').value) || 5;
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({type: 'exam_control', action: 'extend', minutes: mins}));
+  logEvent(`+${mins} daqiqa qo'shildi`);
+}
+function sendAnnounce() {
+  const msg = document.getElementById('announceMsg').value.trim();
+  if (!msg) return;
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({type: 'exam_control', action: 'announce', message: msg}));
+  document.getElementById('announceMsg').value = '';
+  logEvent(`Xabar yuborildi: ${msg}`);
+}
+function confirmStop() {
+  if (confirm('Imtihonni yakunlashni xohlaysizmi? Bu qaytarib bo\'lmaydi!')) sendControl('stop');
+}
+function refreshLeaderboard() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({type: 'request_leaderboard'}));
+}
+function updateLeaderboard(rankings) {
+  const tbody = document.getElementById('lbBody');
+  if (!rankings || !rankings.length) return;
+  const rankColors = ['ec-rank1','ec-rank2','ec-rank3'];
+  tbody.innerHTML = rankings.map((r,i) => `
+    <tr>
+      <td class="${rankColors[i]||''}" style="font-weight:900;">${r.rank}</td>
+      <td style="font-weight:700;">${r.name}</td>
+      <td class="ec-score">${r.score}</td>
+      <td style="color:var(--gray-500);">${r.correct}</td>
+    </tr>
+  `).join('');
+}
+
+// ── Event log ──────────────────────────────
+function logEvent(text) {
+  const log = document.getElementById('eventLog');
+  const now = new Date().toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const el = document.createElement('div');
+  el.className = 'ec-log-item';
+  el.innerHTML = `<span class="ec-log-time">${now}</span>${text}`;
+  log.prepend(el);
+  if (log.children.length > 50) log.lastChild.remove();
+}
+
+connectWS();
+</script>
+{% endblock %}
