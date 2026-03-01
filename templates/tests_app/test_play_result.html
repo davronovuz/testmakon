@@ -816,6 +816,302 @@
         </div>
     </div>
 </div>
+
+{% if dtm_data %}
+<style>
+.dtm-uni-section { background: var(--gray-50); border-top: 2px solid var(--gray-200); padding: 3rem 0 4rem; }
+[data-theme="dark"] .dtm-uni-section { background: #0B1120; border-top-color: #1E293B; }
+
+.dtm-uni-hero { text-align: center; margin-bottom: 2rem; }
+.dtm-ball-ring {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: {% if dtm_data.percentage >= 75 %}linear-gradient(135deg,#10B981,#059669){% elif dtm_data.percentage >= 55 %}linear-gradient(135deg,#8BC540,#6BA832){% elif dtm_data.percentage >= 40 %}linear-gradient(135deg,#FBBF24,#F59E0B){% else %}linear-gradient(135deg,#EF4444,#DC2626){% endif %};
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18); margin: 0 auto 1rem;
+}
+.dtm-ball-num { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; }
+.dtm-ball-max { font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.8); }
+.dtm-uni-hero h2 { font-size: 1.5rem; font-weight: 900; color: var(--dark); margin: 0.5rem 0 0.25rem; }
+.dtm-uni-hero p { color: var(--gray-500); font-size: 0.9rem; margin: 0; }
+
+.dtm-ai-card {
+    background: linear-gradient(135deg,rgba(139,197,64,0.1),rgba(107,168,50,0.06));
+    border: 1.5px solid rgba(139,197,64,0.25); border-radius: 16px;
+    padding: 1.25rem 1.5rem; margin-bottom: 2rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+}
+[data-theme="dark"] .dtm-ai-card { background: rgba(139,197,64,0.07); border-color: rgba(139,197,64,0.2); }
+.dtm-ai-avatar {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: var(--gradient-primary); display: flex; align-items: center;
+    justify-content: center; font-size: 1.3rem; color: #fff;
+}
+.dtm-ai-text { font-size: 0.92rem; color: var(--dark); line-height: 1.6; }
+[data-theme="dark"] .dtm-ai-text { color: #CBD5E1; }
+
+.dtm-stat-pills { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+.dtm-stat-pill {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.82rem; font-weight: 800;
+}
+.dtm-stat-pill.safe   { background: rgba(5,150,105,0.1);  color: #065F46; }
+.dtm-stat-pill.border { background: rgba(217,119,6,0.1);  color: #92400E; }
+.dtm-stat-pill.reach  { background: rgba(37,99,235,0.1);  color: #1E3A8A; }
+[data-theme="dark"] .dtm-stat-pill.safe   { background: rgba(5,150,105,0.15); color: #6EE7B7; }
+[data-theme="dark"] .dtm-stat-pill.border { background: rgba(217,119,6,0.15); color: #FCD34D; }
+[data-theme="dark"] .dtm-stat-pill.reach  { background: rgba(37,99,235,0.15); color: #93C5FD; }
+
+.dtm-uni-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+@media (max-width: 900px) { .dtm-uni-cols { grid-template-columns: 1fr; } }
+
+.dtm-col-head {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 0.75rem; padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+}
+.dtm-col-head.safe   { background: rgba(5,150,105,0.08); color: #065F46; }
+.dtm-col-head.border { background: rgba(217,119,6,0.08); color: #92400E; }
+.dtm-col-head.reach  { background: rgba(37,99,235,0.07); color: #1E3A8A; }
+[data-theme="dark"] .dtm-col-head.safe   { background: rgba(5,150,105,0.12); color: #6EE7B7; }
+[data-theme="dark"] .dtm-col-head.border { background: rgba(217,119,6,0.12); color: #FCD34D; }
+[data-theme="dark"] .dtm-col-head.reach  { background: rgba(37,99,235,0.12); color: #93C5FD; }
+
+.dtm-empty-col {
+    text-align: center; padding: 2rem 1rem; color: var(--gray-400);
+    border: 1.5px dashed var(--gray-200); border-radius: 12px; font-size: 0.85rem;
+}
+
+/* Compact uni card for result page */
+.dtm-ucard {
+    background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px;
+    padding: 0.85rem 1rem; margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    border-left: 3px solid;
+}
+.dtm-ucard.safe   { border-left-color: #10B981; }
+.dtm-ucard.border { border-left-color: #D97706; }
+.dtm-ucard.reach  { border-left-color: #2563EB; }
+[data-theme="dark"] .dtm-ucard { background: #1A2332; border-color: #1E293B; }
+.dtm-ucard-logo {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    background: var(--gray-100); display: flex; align-items: center;
+    justify-content: center; font-size: 0.7rem; font-weight: 800;
+    color: var(--dark-600); overflow: hidden;
+}
+.dtm-ucard-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+.dtm-ucard-info { flex: 1; min-width: 0; }
+.dtm-ucard-uni { font-size: 0.82rem; font-weight: 800; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dtm-ucard-dir { font-size: 0.72rem; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme="dark"] .dtm-ucard-uni { color: #F1F5F9; }
+.dtm-ucard-gap {
+    font-size: 0.78rem; font-weight: 900; white-space: nowrap; padding: 0.2rem 0.5rem;
+    border-radius: 6px; flex-shrink: 0;
+}
+.dtm-ucard.safe   .dtm-ucard-gap { color: #065F46; background: rgba(5,150,105,0.1); }
+.dtm-ucard.border .dtm-ucard-gap { color: #92400E; background: rgba(217,119,6,0.1); }
+.dtm-ucard.reach  .dtm-ucard-gap { color: #1E3A8A; background: rgba(37,99,235,0.08); }
+
+.dtm-contract-section { margin-top: 1.5rem; }
+.dtm-contract-head { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500); margin-bottom: 0.75rem; }
+.dtm-contract-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.6rem; }
+.dtm-contract-card {
+    background: var(--white); border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 10px; padding: 0.7rem 0.85rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    border-left: 3px solid rgba(139,92,246,0.5);
+}
+[data-theme="dark"] .dtm-contract-card { background: #1A2332; border-color: rgba(139,92,246,0.25); }
+.dtm-contract-card .dtm-ucard-uni { font-size: 0.8rem; }
+.dtm-contract-badge { font-size: 0.68rem; font-weight: 800; color: #7C3AED; background: rgba(139,92,246,0.1); padding: 0.15rem 0.4rem; border-radius: 5px; white-space: nowrap; }
+
+.dtm-cta { text-align: center; margin-top: 2rem; }
+.dtm-cta a {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.8rem 2rem; background: var(--gradient-primary);
+    color: #fff; border-radius: 12px; font-weight: 800; font-size: 0.95rem;
+    text-decoration: none; box-shadow: 0 8px 24px -6px rgba(139,197,64,0.4);
+    transition: all 0.2s;
+}
+.dtm-cta a:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -6px rgba(139,197,64,0.5); color: #fff; }
+</style>
+
+<section class="dtm-uni-section">
+<div class="container">
+
+    <!-- Hero: DTM ball -->
+    <div class="dtm-uni-hero">
+        <div class="dtm-ball-ring">
+            <span class="dtm-ball-num">{{ dtm_data.dtm_ball }}</span>
+            <span class="dtm-ball-max">/ 189 ball</span>
+        </div>
+        <h2>Universitetlarga kirish bashorati</h2>
+        <p>{{ dtm_data.latest_year }} yil o'tish ballari asosida · Siz olgan ball: <strong>{{ dtm_data.dtm_ball }}</strong></p>
+    </div>
+
+    <!-- AI xabari -->
+    {% if dtm_data.ai_msg %}
+    <div class="dtm-ai-card">
+        <div class="dtm-ai-avatar"><i class="bi bi-robot"></i></div>
+        <div class="dtm-ai-text">{{ dtm_data.ai_msg }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Stat pills -->
+    <div class="dtm-stat-pills">
+        <span class="dtm-stat-pill safe">
+            <i class="bi bi-check-circle-fill"></i>
+            {{ dtm_data.safe_count }} ta ishonchli
+        </span>
+        <span class="dtm-stat-pill border">
+            <i class="bi bi-dash-circle-fill"></i>
+            {{ dtm_data.border_count }} ta chegara
+        </span>
+        <span class="dtm-stat-pill reach">
+            <i class="bi bi-arrow-up-circle-fill"></i>
+            {{ dtm_data.reach_count }} ta maqsad
+        </span>
+    </div>
+
+    <!-- 3 ustunli universitetlar -->
+    <div class="dtm-uni-cols">
+
+        <!-- ISHONCHLI -->
+        <div>
+            <div class="dtm-col-head safe">
+                <i class="bi bi-check-circle-fill"></i> Ishonchli kirish
+            </div>
+            {% if dtm_data.safe %}
+                {% for entry in dtm_data.safe %}
+                <div class="dtm-ucard safe">
+                    <div class="dtm-ucard-logo">
+                        {% if entry.university.logo %}
+                            <img src="{{ entry.university.get_logo_url }}" alt="">
+                        {% else %}
+                            {{ entry.university.short_name|default:entry.university.name|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="dtm-ucard-info">
+                        <div class="dtm-ucard-uni" title="{{ entry.university.name }}">
+                            {{ entry.university.short_name|default:entry.university.name }}
+                        </div>
+                        <div class="dtm-ucard-dir" title="{{ entry.direction.name }}">
+                            {{ entry.direction.name|truncatechars:28 }}
+                        </div>
+                    </div>
+                    <div class="dtm-ucard-gap">+{{ entry.gap|floatformat:0 }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="dtm-empty-col">
+                    <i class="bi bi-emoji-neutral" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
+                    Hozircha yo'q.<br>
+                    <small>Ballingiz oshsa bu bo'lim to'ladi.</small>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- CHEGARA -->
+        <div>
+            <div class="dtm-col-head border">
+                <i class="bi bi-dash-circle-fill"></i> Chegara holati
+            </div>
+            {% if dtm_data.borderline %}
+                {% for entry in dtm_data.borderline %}
+                <div class="dtm-ucard border">
+                    <div class="dtm-ucard-logo">
+                        {% if entry.university.logo %}
+                            <img src="{{ entry.university.get_logo_url }}" alt="">
+                        {% else %}
+                            {{ entry.university.short_name|default:entry.university.name|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="dtm-ucard-info">
+                        <div class="dtm-ucard-uni">{{ entry.university.short_name|default:entry.university.name }}</div>
+                        <div class="dtm-ucard-dir">{{ entry.direction.name|truncatechars:28 }}</div>
+                    </div>
+                    <div class="dtm-ucard-gap">{{ entry.gap|floatformat:0 }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="dtm-empty-col">
+                    <i class="bi bi-info-circle" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
+                    Chegara universitetlar yo'q.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- MAQSAD -->
+        <div>
+            <div class="dtm-col-head reach">
+                <i class="bi bi-arrow-up-circle-fill"></i> Maqsad yo'nalishlar
+            </div>
+            {% if dtm_data.reach %}
+                {% for entry in dtm_data.reach %}
+                <div class="dtm-ucard reach">
+                    <div class="dtm-ucard-logo">
+                        {% if entry.university.logo %}
+                            <img src="{{ entry.university.get_logo_url }}" alt="">
+                        {% else %}
+                            {{ entry.university.short_name|default:entry.university.name|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="dtm-ucard-info">
+                        <div class="dtm-ucard-uni">{{ entry.university.short_name|default:entry.university.name }}</div>
+                        <div class="dtm-ucard-dir">{{ entry.direction.name|truncatechars:28 }}</div>
+                    </div>
+                    <div class="dtm-ucard-gap">{{ entry.gap|floatformat:0 }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="dtm-empty-col">
+                    <i class="bi bi-arrow-up-circle" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
+                    Maqsad universitetlar yo'q.
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Kontrakt -->
+    {% if dtm_data.contract %}
+    <div class="dtm-contract-section">
+        <div class="dtm-contract-head">
+            <i class="bi bi-file-earmark-check me-1"></i>
+            Kontrakt asosida kirish mumkin ({{ dtm_data.contract|length }} ta)
+        </div>
+        <div class="dtm-contract-grid">
+            {% for entry in dtm_data.contract %}
+            <div class="dtm-contract-card">
+                <div class="dtm-ucard-logo" style="width:32px;height:32px;">
+                    {% if entry.university.logo %}
+                        <img src="{{ entry.university.get_logo_url }}" alt="">
+                    {% else %}
+                        {{ entry.university.short_name|default:entry.university.name|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                <div class="dtm-ucard-info">
+                    <div class="dtm-ucard-uni">{{ entry.university.short_name|default:entry.university.name }}</div>
+                    <div class="dtm-ucard-dir">{{ entry.direction.name|truncatechars:24 }}</div>
+                </div>
+                <div class="dtm-contract-badge">{{ entry.contract_score|floatformat:0 }} ball</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CTA -->
+    <div class="dtm-cta">
+        <a href="{% url 'ai_core:university_dashboard' %}">
+            <i class="bi bi-mortarboard-fill"></i>
+            To'liq universitet tahlilini ko'rish
+        </a>
+    </div>
+
+</div>
+</section>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

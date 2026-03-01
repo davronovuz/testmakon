@@ -586,6 +586,104 @@ def test_play_finish(request, uuid):
 
 
 @login_required
+def _get_dtm_uni_data(user, attempt):
+    """DTM simulyatsiya natijasi uchun universitet bashorat ma'lumotlari."""
+    from universities.models import PassingScore
+    from django.db.models import Max
+    from django.core.cache import cache
+    from ai_core.utils import get_ai_response
+
+    total_q = attempt.total_questions or 90
+    dtm_ball = round(attempt.correct_answers * 189 / total_q)
+
+    latest_year = PassingScore.objects.aggregate(y=Max('year'))['y'] or (timezone.now().year - 1)
+    passing_scores = PassingScore.objects.filter(
+        year=latest_year
+    ).select_related('direction__university').prefetch_related('direction__required_subjects')
+
+    safe, borderline, reach, contract = [], [], [], []
+
+    for ps in passing_scores:
+        direction = ps.direction
+        university = direction.university
+        if not university.is_active:
+            continue
+        grant = ps.grant_score or 0
+        contract_score = ps.contract_score or 0
+        gap = round(dtm_ball - grant, 1)
+
+        entry = {
+            'university': university,
+            'direction': direction,
+            'grant_score': grant,
+            'contract_score': contract_score,
+            'gap': gap,
+            'subject_scores': [],
+            'grant_quota': direction.grant_quota,
+            'competition_ratio': ps.competition_ratio,
+        }
+
+        if grant > 0 and dtm_ball >= grant + 10:
+            safe.append(entry)
+        elif grant > 0 and dtm_ball >= grant - 15:
+            borderline.append(entry)
+        elif grant > 0 and dtm_ball >= grant - 50:
+            reach.append(entry)
+
+        if contract_score > 0 and dtm_ball >= contract_score and (grant == 0 or dtm_ball < grant):
+            contract.append(entry)
+
+    safe.sort(key=lambda e: -e['gap'])
+    borderline.sort(key=lambda e: -e['gap'])
+    reach.sort(key=lambda e: -e['gap'])
+
+    # AI xabari — attempt bo'yicha bir marta cache
+    cache_key = f'dtm_result_ai:{attempt.id}'
+    ai_msg = cache.get(cache_key)
+
+    if not ai_msg:
+        s, b, r = len(safe), len(borderline), len(reach)
+        try:
+            prompt = (
+                f"O'quvchi DTM simulyatsiyasida {dtm_ball}/189 ball oldi. "
+                f"Natija: {s} ta ishonchli, {b} ta chegara, {r} ta maqsad universitetlar. "
+                f"Do'stim sifatida 2-3 gapda samimiy va qiziqarli xabar yoz. "
+                f"Ball past bo'lsa — tushkunlikka tushmay nima qilish kerakligini, "
+                f"yuqori bo'lsa — maqtab davom etishini ayt. Emoji qo'sh. O'zbek tilida."
+            )
+            ai_msg = get_ai_response(
+                [{"role": "user", "content": prompt}],
+                system_prompt=(
+                    "Sen aqlli va mehribon o'qituvchisan. "
+                    "Qisqa, issiq, samimiy O'zbek tilida gapirasan. Rasmiy uslub yo'q."
+                )
+            )
+            cache.set(cache_key, ai_msg, timeout=86400 * 7)
+        except Exception:
+            if dtm_ball >= 150:
+                ai_msg = f"🎉 Zo'r! {dtm_ball} ball — bu juda yaxshi natija. Ko'plab universitetlarga grant asosida kira olasiz!"
+            elif dtm_ball >= 120:
+                ai_msg = f"👍 {dtm_ball} ball — yaxshi boshlanish! Yana biroz mashq qilsangiz chegara universitetlarga ham kirish imkoni oshadi."
+            elif dtm_ball >= 90:
+                ai_msg = f"💪 {dtm_ball} ball olding. Hali vaqt bor! Zaif mavzularingizni AI Mentor bilan birga ishlang."
+            else:
+                ai_msg = f"🔥 {dtm_ball} ball — bu faqat boshlanich! Tushkunlikka tushmang, har kuni mashq qiling. Keling, birga o'sib ketamiz!"
+
+    return {
+        'dtm_ball': dtm_ball,
+        'percentage': round(dtm_ball / 189 * 100),
+        'safe': safe[:6],
+        'borderline': borderline[:6],
+        'reach': reach[:6],
+        'contract': contract[:4],
+        'safe_count': len(safe),
+        'border_count': len(borderline),
+        'reach_count': len(reach),
+        'latest_year': latest_year,
+        'ai_msg': ai_msg,
+    }
+
+
 def test_play_result(request, uuid):
     """
     Test natijasi sahifasi
@@ -624,16 +722,21 @@ def test_play_result(request, uuid):
             if ans.is_correct:
                 topic_stats[topic_name]['correct'] += 1
 
-    # Foizlarni hisoblash
     for topic in topic_stats:
         stats = topic_stats[topic]
         stats['percentage'] = round((stats['correct'] / stats['total']) * 100) if stats['total'] > 0 else 0
         stats['is_weak'] = stats['percentage'] < 50
 
+    # DTM Simulyatsiya bo'lsa — universitet bashorati
+    dtm_data = None
+    if 'DTM Simulyatsiya' in (attempt.test.title or '') and attempt.total_questions > 0:
+        dtm_data = _get_dtm_uni_data(request.user, attempt)
+
     context = {
         'attempt': attempt,
         'answers_data': answers_data,
         'topic_stats': topic_stats,
+        'dtm_data': dtm_data,
     }
 
     return render(request, 'tests_app/test_play_result.html', context)
