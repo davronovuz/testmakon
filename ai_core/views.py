@@ -691,69 +691,188 @@ def api_quick_answer(request):
 
 @login_required
 def university_dashboard(request):
-    """Universitet qabul dashboardi — predicted DTM asosida 3 toifaga bo'lingan."""
-    from tests_app.models import UserAnalyticsSummary
-    from django.db.models import Max
+    """
+    Shaxsiy universitet tavsiya dashboardi.
+    - Foydalanuvchi fanlaridan kelib chiqib yo'nalishlarni moslashtiradi
+    - DTM ballini passing_score bilan solishtiradi
+    - AI do'stona maslahat beradi (cached)
+    """
+    from tests_app.models import UserAnalyticsSummary, UserSubjectPerformance
+    from django.db.models import Max, Prefetch
+    from django.core.cache import cache
 
+    user = request.user
+
+    # ── Foydalanuvchi analitikasi ──
     try:
-        analytics = request.user.analytics_summary
-        predicted_dtm = analytics.predicted_dtm_score
+        analytics = user.analytics_summary
+        predicted_dtm = analytics.predicted_dtm_score or 0
     except Exception:
         analytics = None
         predicted_dtm = 0
 
+    # ── Foydalanuvchi fanlar bo'yicha natijasi ──
+    subject_perfs = UserSubjectPerformance.objects.filter(
+        user=user
+    ).select_related('subject').order_by('-average_score')
+
+    # Fanning ID → natija map
+    subj_score_map = {sp.subject_id: round(sp.average_score or 0) for sp in subject_perfs}
+    studied_subject_ids = set(subj_score_map.keys())
+
+    # ── PassingScore (eng so'nggi yil) ──
     current_year = timezone.now().year
     latest_year = PassingScore.objects.aggregate(y=Max('year'))['y'] or (current_year - 1)
 
     passing_scores = PassingScore.objects.filter(
         year=latest_year,
-        grant_score__isnull=False,
-    ).select_related('direction__university').order_by('direction__university__name')
+    ).select_related(
+        'direction__university',
+    ).prefetch_related(
+        'direction__required_subjects'
+    )
 
-    safe_unis = []
-    borderline_unis = []
-    reach_unis = []
-    contract_unis = []
+    # ── Yo'nalishlarni tasniflaymiz ──
+    safe_unis, borderline_unis, reach_unis, contract_unis = [], [], [], []
 
     for ps in passing_scores:
+        direction = ps.direction
+        university = direction.university
+        if not university.is_active:
+            continue
+
         grant = ps.grant_score or 0
         contract = ps.contract_score or 0
-        gap = predicted_dtm - grant
+        gap = round(predicted_dtm - grant, 1)
+
+        # Required fanlar va user natijalari
+        req_subjects = list(direction.required_subjects.all())
+        req_ids = [s.id for s in req_subjects]
+        matched = [sid for sid in req_ids if sid in studied_subject_ids]
+        match_pct = round(len(matched) / len(req_ids) * 100) if req_ids else 0
+
+        # Subject scores uchun
+        subject_scores = []
+        for s in req_subjects:
+            subject_scores.append({
+                'name': s.name,
+                'score': subj_score_map.get(s.id, 0),
+                'studied': s.id in studied_subject_ids,
+            })
 
         entry = {
-            'university': ps.direction.university,
-            'direction': ps.direction,
+            'university': university,
+            'direction': direction,
             'grant_score': grant,
             'contract_score': contract,
             'gap': gap,
+            'match_pct': match_pct,
+            'subject_scores': subject_scores,
+            'req_subjects': req_subjects,
+            'competition_ratio': ps.competition_ratio,
+            'grant_quota': direction.grant_quota,
         }
 
-        if predicted_dtm >= grant + 10:
+        # Safe: 10+ ball yuqori
+        if grant > 0 and predicted_dtm >= grant + 10:
             safe_unis.append(entry)
-        elif predicted_dtm >= grant - 15:
+        # Borderline: ±15 ball
+        elif grant > 0 and predicted_dtm >= grant - 15:
             borderline_unis.append(entry)
-        elif predicted_dtm >= grant - 40:
+        # Reach: 15-50 ball past
+        elif grant > 0 and predicted_dtm >= grant - 50:
             reach_unis.append(entry)
 
-        if contract > 0 and predicted_dtm >= contract and predicted_dtm < grant:
+        # Contract: kontrakt bali etarli, grant emas
+        if contract > 0 and predicted_dtm >= contract and (grant == 0 or predicted_dtm < grant):
             contract_unis.append(entry)
 
-    # AI tavsiyalar
+    # ── Relevantlilik bo'yicha sort (subject match + gap) ──
+    def relevance_sort(e):
+        return (-e['match_pct'], e['gap'] if e['gap'] > 0 else e['gap'] * 2)
+
+    safe_unis.sort(key=relevance_sort)
+    borderline_unis.sort(key=relevance_sort)
+    reach_unis.sort(key=relevance_sort)
+
+    # ── Maqsad yo'nalish ──
+    target_direction = getattr(user, 'target_direction', None)
+    target_entry = None
+    if target_direction:
+        for lst in [safe_unis, borderline_unis, reach_unis, contract_unis]:
+            for e in lst:
+                if e['direction'].id == target_direction.id:
+                    target_entry = e
+                    break
+            if target_entry:
+                break
+
+    # ── AI do'stona maslahat (24 soat cache) ──
+    ai_advice = None
+    cache_key = f'uni_dashboard_advice:{user.id}:{predicted_dtm}'
+    ai_advice = cache.get(cache_key)
+
+    if not ai_advice and predicted_dtm > 0:
+        try:
+            # Foydalanuvchi ma'lumotlarini to'playmiz
+            subj_txt = ', '.join(
+                f"{sp.subject.name} ({round(sp.average_score or 0)}%)"
+                for sp in subject_perfs[:4]
+            ) or "ma'lumot yo'q"
+            target_txt = (
+                f"{target_direction.university.short_name} — {target_direction.name}"
+                if target_direction else "aniqlanmagan"
+            )
+            safe_cnt = len(safe_unis)
+            border_cnt = len(borderline_unis)
+            reach_cnt = len(reach_unis)
+
+            prompt = (
+                f"Men O'zbekiston abituriyentman. Mening taxminiy DTM ball: {predicted_dtm}. "
+                f"Fanlarim natijalari: {subj_txt}. "
+                f"Maqsad: {target_txt}. "
+                f"Ishonchli kirish imkoniyatim bor universitetlar: {safe_cnt} ta, "
+                f"chegara holatidagilar: {border_cnt} ta, qiyin bo'lganlari: {reach_cnt} ta. "
+                f"Do'stim sifatida qisqacha (3-4 gap) va samimiy maslahat ber. "
+                f"Qaysi yo'nalishga e'tibor qaratishim kerak, nima qilsam bo'ladi? "
+                f"Raqamlarni takrorlamasdan, motivatsion va amaliy javob ber."
+            )
+
+            ai_advice = get_ai_response(
+                [{"role": "user", "content": prompt}],
+                system_prompt=(
+                    "Sen aqlli va samimiy do'stsan. O'zbek tilida, "
+                    "rasmiy bo'lmagan, issiq uslubda gapirasan. "
+                    "Qisqa (3-4 gap), aniq, amaliy maslahat berasan. Emoji ishlatish mumkin."
+                )
+            )
+            cache.set(cache_key, ai_advice, timeout=86400)  # 24 soat
+        except Exception:
+            ai_advice = None
+
+    # ── Oldingi AI tavsiyalar ──
     recommendations = AIRecommendation.objects.filter(
-        user=request.user,
+        user=user,
         recommendation_type='university',
         is_dismissed=False,
-    ).order_by('-created_at')[:3]
+    ).order_by('-created_at')[:2]
 
     context = {
         'analytics': analytics,
         'predicted_dtm': predicted_dtm,
-        'safe_unis': safe_unis[:10],
-        'borderline_unis': borderline_unis[:10],
-        'reach_unis': reach_unis[:10],
-        'contract_unis': contract_unis[:8],
+        'safe_unis': safe_unis[:8],
+        'borderline_unis': borderline_unis[:8],
+        'reach_unis': reach_unis[:8],
+        'contract_unis': contract_unis[:6],
+        'subject_perfs': subject_perfs[:6],
+        'target_entry': target_entry,
+        'target_direction': target_direction,
         'recommendations': recommendations,
         'latest_year': latest_year,
+        'ai_advice': ai_advice,
+        'safe_count': len(safe_unis),
+        'border_count': len(borderline_unis),
+        'reach_count': len(reach_unis),
     }
     return render(request, 'ai_core/university_dashboard.html', context)
 

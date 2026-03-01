@@ -1,0 +1,57 @@
+{% comment %}
+Params: entry (dict), color (safe|borderline|reach|contract)
+{% endcomment %}
+{% with u=entry.university d=entry.direction %}
+<div class="ud-card" style="border-color:{% if color == 'safe' %}rgba(5,150,105,0.25){% elif color == 'borderline' %}rgba(217,119,6,0.25){% elif color == 'reach' %}rgba(37,99,235,0.2){% else %}rgba(124,58,237,0.2){% endif %};">
+
+  <div class="ud-card-top">
+    <!-- Logo -->
+    <div class="ud-logo">
+      {% if u.logo %}
+      <img src="{{ u.get_logo_url }}" alt="{{ u.short_name }}" loading="lazy">
+      {% else %}
+      {{ u.short_name|default:u.name|slice:":2"|upper }}
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div class="ud-info">
+      <div class="ud-uni-name" title="{{ u.name }}">{{ u.short_name|default:u.name }}</div>
+      <div class="ud-dir-name" title="{{ d.name }}">{{ d.name }}</div>
+    </div>
+
+    <!-- Scores -->
+    <div class="ud-scores">
+      <div class="ud-grant" style="color:{% if color == 'safe' %}var(--safe){% elif color == 'borderline' %}var(--border-c){% elif color == 'reach' %}var(--reach){% else %}var(--contract){% endif %};">
+        {{ entry.grant_score|floatformat:0 }}
+      </div>
+      <div class="ud-grant-lbl">grant bali</div>
+      <span class="ud-gap {% if entry.gap >= 0 %}pos{% else %}neg{% endif %}">
+        {% if entry.gap >= 0 %}+{{ entry.gap|floatformat:0 }}{% else %}{{ entry.gap|floatformat:0 }}{% endif %}
+      </span>
+    </div>
+  </div>
+
+  <!-- Footer: subject pills + quota -->
+  {% if entry.subject_scores or entry.grant_quota %}
+  <div class="ud-card-foot">
+    {% if entry.subject_scores %}
+    <div class="ud-subj-row" style="flex:1;">
+      {% for s in entry.subject_scores %}
+      <span class="ud-subj {% if s.score >= 70 %}good{% elif s.score >= 45 %}mid{% elif s.studied %}low{% else %}none{% endif %}" title="{{ s.name }}{% if s.studied %}: {{ s.score }}%{% else %}: o'rganilmagan{% endif %}">
+        {{ s.name|truncatechars:12 }}{% if s.studied %} {{ s.score }}%{% endif %}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if entry.grant_quota %}
+    <span class="ud-quota"><i class="bi bi-people me-1"></i>{{ entry.grant_quota }} kvota</span>
+    {% endif %}
+    {% if entry.competition_ratio %}
+    <span class="ud-quota"><i class="bi bi-graph-up me-1"></i>{{ entry.competition_ratio|floatformat:1 }}x raqobat</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endwith %}
