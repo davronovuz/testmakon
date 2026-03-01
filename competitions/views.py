@@ -1648,7 +1648,7 @@ def exam_control_panel(request, slug):
 
     participants = CompetitionParticipant.objects.filter(
         competition=comp
-    ).select_related('user').order_by('-score', 'time_taken')
+    ).select_related('user').order_by('-score', 'time_spent')
 
     from django.utils import timezone
     now = timezone.now()

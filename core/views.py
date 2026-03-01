@@ -645,7 +645,6 @@ def admin_system_health(request):
 
     # ── Umumiy statistika ──
     total_questions = Question.objects.filter(is_active=True).count()
-    total_answers = Answer.objects.count() if hasattr(Question, 'answers') else 0
     try:
         from tests_app.models import Answer as Ans
         total_answers = Ans.objects.count()
