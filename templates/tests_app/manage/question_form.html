@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if edit %}Savolni tahrirlash{% else %}Yangi savol{% endif %} | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.qf-page { max-width:760px; margin:0 auto; padding:2rem 1rem; }
+.qf-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.qf-back { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius:8px; background:#fff; border:1px solid var(--gray-200); color:var(--dark-600); font-size:0.82rem; font-weight:700; text-decoration:none; }
+.qf-title { font-size:1.3rem; font-weight:900; color:var(--dark); margin:0; }
+.qf-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; padding:1.75rem; margin-bottom:1rem; }
+.qf-section { font-size:0.72rem; font-weight:800; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.5px; margin:1.25rem 0 0.75rem; border-bottom:1px solid var(--gray-100); padding-bottom:0.4rem; }
+.qf-section:first-child { margin-top:0; }
+.qf-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.qf-group { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:1rem; }
+.qf-group:last-child { margin-bottom:0; }
+.qf-label { font-size:0.8rem; font-weight:700; color:var(--dark); }
+.qf-input { padding:0.6rem 0.9rem; border:1px solid var(--gray-200); border-radius:9px; font-size:0.88rem; color:var(--dark); outline:none; background:#fff; width:100%; box-sizing:border-box; }
+.qf-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(139,197,64,0.12); }
+.qf-textarea { resize:vertical; min-height:90px; font-family:inherit; }
+
+/* Answer options */
+.qf-answers { display:flex; flex-direction:column; gap:0.6rem; }
+.qf-ans-row { display:flex; align-items:center; gap:0.75rem; }
+.qf-letter { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.82rem; font-weight:900; flex-shrink:0; border:2px solid var(--gray-200); color:var(--gray-500); cursor:pointer; transition:all 0.15s; }
+.qf-radio:checked + .qf-ans-row .qf-letter,
+.qf-letter.selected { background:var(--gradient-primary); border-color:var(--primary); color:#fff; }
+.qf-ans-input { flex:1; padding:0.55rem 0.85rem; border:1px solid var(--gray-200); border-radius:9px; font-size:0.88rem; color:var(--dark); outline:none; }
+.qf-ans-input:focus { border-color:var(--primary); }
+.qf-correct-label { font-size:0.75rem; color:var(--gray-400); white-space:nowrap; }
+
+/* Radio hidden */
+.qf-radio { display:none; }
+
+.qf-footer { display:flex; gap:0.75rem; margin-top:1.25rem; flex-wrap:wrap; }
+.qf-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.65rem 1.4rem; border-radius:10px; font-size:0.9rem; font-weight:800; border:none; cursor:pointer; text-decoration:none; }
+.qf-btn.primary { background:var(--gradient-primary); color:#fff; box-shadow:0 4px 15px rgba(139,197,64,0.3); }
+.qf-btn.secondary { background:rgba(139,197,64,0.1); color:var(--primary-dark); border:1px solid rgba(139,197,64,0.2); }
+.qf-btn.outline { background:#fff; border:1px solid var(--gray-200); color:var(--dark-600); }
+@media(max-width:576px) { .qf-grid { grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background:var(--gray-50); min-height:100vh;">
+<div class="qf-page">
+
+  <div class="qf-header">
+    <a href="{% url 'tests_app:manage_test_questions' slug=test.slug %}" class="qf-back"><i class="bi bi-arrow-left"></i> Savollar</a>
+    <h1 class="qf-title">{% if edit %}Savolni tahrirlash{% else %}Yangi savol qo'shish{% endif %}</h1>
+  </div>
+
+  {% if not edit %}
+  <div style="background:rgba(139,197,64,0.08); border:1px solid rgba(139,197,64,0.2); border-radius:12px; padding:0.85rem 1.1rem; margin-bottom:1.25rem; font-size:0.85rem; color:var(--primary-dark);">
+    <i class="bi bi-info-circle me-2"></i>Bu savol <strong>{{ test.title }}</strong> testiga avtomatik qo'shiladi.
+  </div>
+  {% endif %}
+
+  <form method="post" id="qForm">
+    {% csrf_token %}
+    <div class="qf-card">
+
+      <div class="qf-section">Savol matni</div>
+      <div class="qf-group">
+        <textarea name="text" class="qf-input qf-textarea" placeholder="Savol matnini kiriting..." required>{{ question.text|default:'' }}</textarea>
+      </div>
+
+      <div class="qf-section">Ma'lumotlar</div>
+      <div class="qf-grid">
+        <div class="qf-group">
+          <label class="qf-label">Fan</label>
+          <select name="subject" class="qf-input" id="subjectSel" onchange="loadTopics(this.value)">
+            <option value="">— Tanlang —</option>
+            {% for s in subjects %}
+            <option value="{{ s.id }}" {% if question.subject_id == s.id or test.subject_id == s.id and not question %}selected{% endif %}>{{ s.icon }} {{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="qf-group">
+          <label class="qf-label">Mavzu</label>
+          <select name="topic" class="qf-input" id="topicSel">
+            <option value="">— Mavzu —</option>
+            {% for t in topics %}
+            <option value="{{ t.id }}" {% if question.topic_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="qf-group">
+          <label class="qf-label">Qiyinlik</label>
+          <select name="difficulty" class="qf-input">
+            {% for val, label in difficulties %}
+            <option value="{{ val }}" {% if question.difficulty == val or not question and val == 'medium' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="qf-group">
+          <label class="qf-label">Savol turi</label>
+          <select name="question_type" class="qf-input">
+            {% for val, label in qtypes %}
+            <option value="{{ val }}" {% if question.question_type == val or not question and val == 'single' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="qf-group">
+          <label class="qf-label">Ball</label>
+          <input type="number" name="points" class="qf-input" value="{{ question.points|default:1 }}" min="1" max="10">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Answer choices -->
+    <div class="qf-card">
+      <div class="qf-section" style="margin-top:0;">Javob variantlari</div>
+      <p style="font-size:0.82rem; color:var(--gray-500); margin-bottom:1rem;">To'g'ri javobni tanlash uchun harf doirasini bosing.</p>
+
+      <input type="hidden" name="correct_answer" id="correctAnswerInput" value="{{ correct_letter|default:'A' }}">
+
+      <div class="qf-answers">
+        {% for letter in "ABCD" %}
+        <div class="qf-ans-row">
+          <div class="qf-letter {% if correct_letter == letter or not correct_letter and letter == 'A' %}selected{% endif %}"
+               id="letter_{{ letter }}"
+               onclick="selectCorrect('{{ letter }}')">{{ letter }}</div>
+          <input type="text" name="answer_{{ letter }}" class="qf-ans-input"
+                 placeholder="{% if letter == 'A' %}To'g'ri yoki noto'g'ri javob...{% else %}Javob varianti {{ letter }}...{% endif %}"
+                 value="{{ letter_map|default_if_none:'' }}{% if letter == 'A' %}{{ letter_map.A|default:'' }}{% elif letter == 'B' %}{{ letter_map.B|default:'' }}{% elif letter == 'C' %}{{ letter_map.C|default:'' }}{% else %}{{ letter_map.D|default:'' }}{% endif %}">
+          <span class="qf-correct-label" id="clabel_{{ letter }}" style="{% if correct_letter == letter or not correct_letter and letter == 'A' %}color:var(--primary-dark); font-weight:700;{% endif %}">
+            {% if correct_letter == letter or not correct_letter and letter == 'A' %}✓ To'g'ri{% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Explanation -->
+    <div class="qf-card">
+      <div class="qf-section" style="margin-top:0;">Tushuntirish (ixtiyoriy)</div>
+      <textarea name="explanation" class="qf-input qf-textarea" placeholder="Test yakunida foydalanuvchiga ko'rsatiladigan tushuntirish...">{{ question.explanation|default:'' }}</textarea>
+    </div>
+
+    <div class="qf-footer">
+      <button type="submit" name="add_another" value="0" class="qf-btn primary">
+        <i class="bi bi-check-lg"></i> {% if edit %}Saqlash{% else %}Qo'shish{% endif %}
+      </button>
+      {% if not edit %}
+      <button type="submit" name="add_another" value="1" class="qf-btn secondary">
+        <i class="bi bi-plus-circle"></i> Qo'shish + yana bittasi
+      </button>
+      {% endif %}
+      <a href="{% url 'tests_app:manage_test_questions' slug=test.slug %}" class="qf-btn outline">Bekor qilish</a>
+    </div>
+  </form>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectCorrect(letter) {
+  document.getElementById('correctAnswerInput').value = letter;
+  ['A','B','C','D'].forEach(l => {
+    const el = document.getElementById('letter_' + l);
+    const lbl = document.getElementById('clabel_' + l);
+    if (l === letter) {
+      el.classList.add('selected');
+      el.style.background = 'linear-gradient(135deg,#8BC540,#6BA832)';
+      el.style.borderColor = '#8BC540';
+      el.style.color = '#fff';
+      lbl.textContent = '✓ To\'g\'ri';
+      lbl.style.color = 'var(--primary-dark)';
+      lbl.style.fontWeight = '700';
+    } else {
+      el.classList.remove('selected');
+      el.style.background = '';
+      el.style.borderColor = '';
+      el.style.color = '';
+      lbl.textContent = '';
+    }
+  });
+}
+
+// Init correct letter highlight
+(function() {
+  const cur = document.getElementById('correctAnswerInput').value || 'A';
+  selectCorrect(cur);
+})();
+
+async function loadTopics(subjectId) {
+  const sel = document.getElementById('topicSel');
+  sel.innerHTML = '<option value="">Yuklanmoqda...</option>';
+  if (!subjectId) { sel.innerHTML = '<option value="">— Mavzu —</option>'; return; }
+  try {
+    const resp = await fetch(`/tests/api/topics/${subjectId}/`);
+    const data = await resp.json();
+    sel.innerHTML = '<option value="">— Mavzu —</option>';
+    (data.topics || []).forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id; opt.textContent = t.name;
+      sel.appendChild(opt);
+    });
+  } catch { sel.innerHTML = '<option value="">— Mavzu —</option>'; }
+}
+</script>
+{% endblock %}

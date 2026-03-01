@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ test.title }} — Savollar | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.tq-page { max-width:1100px; margin:0 auto; padding:2rem 1rem; }
+.tq-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+.tq-title { font-size:1.3rem; font-weight:900; color:var(--dark); margin:0; }
+.tq-sub { font-size:0.82rem; color:var(--gray-500); margin-top:0.2rem; }
+.tq-grid { display:grid; grid-template-columns:1fr 380px; gap:1.25rem; }
+@media(max-width:900px) { .tq-grid { grid-template-columns:1fr; } }
+.tq-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; overflow:hidden; }
+.tq-card-head { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+.tq-card-title { font-size:0.9rem; font-weight:800; color:var(--dark); margin:0; display:flex; align-items:center; gap:0.5rem; }
+.tq-count { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; background:var(--gradient-primary); color:#fff; border-radius:50%; font-size:0.72rem; font-weight:900; }
+.tq-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+.tq-item:last-child { border-bottom:none; }
+.tq-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--gray-100); display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:800; color:var(--gray-500); }
+.tq-qtext { flex:1; font-size:0.85rem; color:var(--dark); line-height:1.45; }
+.tq-qmeta { font-size:0.72rem; color:var(--gray-400); margin-top:0.2rem; }
+.tq-diff { display:inline-block; padding:0.1rem 0.4rem; border-radius:5px; font-size:0.7rem; font-weight:700; }
+.tq-diff.easy { background:rgba(34,197,94,0.1); color:#16A34A; }
+.tq-diff.medium { background:rgba(245,158,11,0.1); color:#D97706; }
+.tq-diff.hard { background:rgba(239,68,68,0.1); color:#DC2626; }
+.tq-diff.expert { background:rgba(124,58,237,0.1); color:#7C3AED; }
+.tq-actions { display:flex; gap:0.3rem; flex-shrink:0; }
+.tq-btn { display:inline-flex; align-items:center; gap:0.25rem; padding:0.3rem 0.6rem; border-radius:7px; font-size:0.75rem; font-weight:700; border:none; cursor:pointer; text-decoration:none; transition:opacity 0.15s; }
+.tq-btn:hover { opacity:0.8; }
+.tq-btn.outline { background:#fff; border:1px solid var(--gray-200); color:var(--dark-600); }
+.tq-btn.danger { background:rgba(239,68,68,0.1); color:#DC2626; }
+.tq-btn.primary { background:var(--gradient-primary); color:#fff; }
+.tq-empty { text-align:center; padding:2.5rem; color:var(--gray-400); }
+.tq-search-wrap { padding:1rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+.tq-search { display:flex; gap:0.5rem; }
+.tq-input { flex:1; padding:0.5rem 0.9rem; border:1px solid var(--gray-200); border-radius:8px; font-size:0.85rem; outline:none; }
+.tq-input:focus { border-color:var(--primary); }
+.tq-result-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.75rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+.tq-result-item:last-child { border-bottom:none; }
+.tq-add-btn { flex-shrink:0; padding:0.35rem 0.7rem; background:var(--gradient-primary); color:#fff; border:none; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer; }
+.tq-add-btn:hover { opacity:0.85; }
+.tq-add-btn:disabled { opacity:0.4; cursor:not-allowed; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background:var(--gray-50); min-height:100vh;">
+<div class="tq-page">
+
+  <div class="tq-header">
+    <div>
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+        <a href="{% url 'tests_app:manage_tests_list' %}" style="color:var(--gray-400); text-decoration:none; font-size:0.82rem;"><i class="bi bi-arrow-left"></i> Testlar</a>
+        <span style="color:var(--gray-300);">/</span>
+        <span style="font-size:0.82rem; color:var(--gray-500);">{{ test.title|truncatechars:30 }}</span>
+      </div>
+      <h1 class="tq-title"><i class="bi bi-list-ul me-2" style="color:var(--primary);"></i>Savollarni boshqarish</h1>
+      <div class="tq-sub">{{ test.get_test_type_display }} · {{ test.time_limit }} daqiqa · {{ linked_count }} ta savol</div>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:center;">
+      <a href="{% url 'tests_app:manage_test_edit' slug=test.slug %}" class="tq-btn outline"><i class="bi bi-pencil"></i> Tahrirlash</a>
+      <a href="{% url 'tests_app:manage_question_create' slug=test.slug %}" class="tq-btn primary"><i class="bi bi-plus-lg"></i> Yangi savol</a>
+    </div>
+  </div>
+
+  <div class="tq-grid">
+
+    <!-- Left: Linked questions -->
+    <div class="tq-card">
+      <div class="tq-card-head">
+        <h2 class="tq-card-title">
+          <i class="bi bi-check2-square" style="color:var(--primary);"></i> Testdagi savollar
+          <span class="tq-count" id="linkedCount">{{ linked_count }}</span>
+        </h2>
+      </div>
+      <div id="linkedList">
+        {% for tq in linked %}
+        <div class="tq-item" id="qi-{{ tq.question.id }}">
+          <div class="tq-num">{{ forloop.counter }}</div>
+          <div style="flex:1;">
+            <div class="tq-qtext">{{ tq.question.text|truncatechars:100 }}</div>
+            <div class="tq-qmeta">
+              {{ tq.question.subject.name }}
+              {% if tq.question.topic %} · {{ tq.question.topic.name }}{% endif %}
+              &nbsp;<span class="tq-diff {{ tq.question.difficulty }}">{{ tq.question.get_difficulty_display }}</span>
+            </div>
+          </div>
+          <div class="tq-actions">
+            <a href="{% url 'tests_app:manage_question_edit' slug=test.slug question_id=tq.question.id %}" class="tq-btn outline" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
+            <button class="tq-btn danger" onclick="unlinkQ({{ tq.question.id }}, this)" title="O'chirish"><i class="bi bi-x-lg"></i></button>
+          </div>
+        </div>
+        {% empty %}
+        <div class="tq-empty"><i class="bi bi-inbox" style="font-size:2rem; display:block; margin-bottom:0.5rem;"></i>Hali savollar yo'q.<br><small>O'ng paneldan qidiring yoki yangi savol qo'shing.</small></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Right: Search & add existing -->
+    <div>
+      <div class="tq-card" style="margin-bottom:1rem;">
+        <div class="tq-card-head">
+          <h2 class="tq-card-title"><i class="bi bi-search" style="color:#2563EB;"></i> Mavjud savoldan qo'shish</h2>
+        </div>
+        <div class="tq-search-wrap">
+          <form method="get" class="tq-search">
+            <input type="text" name="q" value="{{ q }}" placeholder="Savol matni yoki fan..." class="tq-input">
+            <button type="submit" class="tq-btn primary"><i class="bi bi-search"></i></button>
+          </form>
+        </div>
+        <div>
+          {% if search_results %}
+            {% for sq in search_results %}
+            <div class="tq-result-item">
+              <div style="flex:1;">
+                <div style="font-size:0.83rem; color:var(--dark); line-height:1.4;">{{ sq.text|truncatechars:80 }}</div>
+                <div style="font-size:0.7rem; color:var(--gray-400); margin-top:0.15rem;">{{ sq.subject.name }} · <span class="tq-diff {{ sq.difficulty }}">{{ sq.get_difficulty_display }}</span></div>
+              </div>
+              <button class="tq-add-btn" onclick="linkQ({{ sq.id }}, this)"><i class="bi bi-plus"></i></button>
+            </div>
+            {% endfor %}
+          {% elif q %}
+            <div class="tq-empty" style="padding:1.5rem;">Topilmadi. Yangi savol yarating.</div>
+          {% else %}
+            <div class="tq-empty" style="padding:1.5rem; font-size:0.82rem;">Qidirish uchun savol matni yozing</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <a href="{% url 'tests_app:manage_question_create' slug=test.slug %}" class="tq-btn primary" style="width:100%; justify-content:center; padding:0.75rem;">
+        <i class="bi bi-plus-circle"></i> Yangi savol yaratish
+      </a>
+    </div>
+
+  </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SLUG = "{{ test.slug }}";
+const CSRF = "{{ csrf_token }}";
+
+function updateCount(n) {
+  document.getElementById('linkedCount').textContent = n;
+}
+
+async function linkQ(qid, btn) {
+  btn.disabled = true;
+  const resp = await fetch(`/tests/manage/${SLUG}/questions/${qid}/link/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': CSRF, 'X-Requested-With': 'XMLHttpRequest'}
+  });
+  const data = await resp.json();
+  if (data.ok) {
+    btn.textContent = '✓';
+    btn.style.background = '#16A34A';
+    updateCount(data.count);
+  } else {
+    btn.disabled = false;
+  }
+}
+
+async function unlinkQ(qid, btn) {
+  if (!confirm("Bu savolni testdan olib tashlaysizmi?")) return;
+  btn.disabled = true;
+  const resp = await fetch(`/tests/manage/${SLUG}/questions/${qid}/unlink/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': CSRF, 'X-Requested-With': 'XMLHttpRequest'}
+  });
+  const data = await resp.json();
+  if (data.ok) {
+    const row = document.getElementById(`qi-${qid}`);
+    if (row) { row.style.opacity = '0'; row.style.transition = '0.3s'; setTimeout(() => row.remove(), 300); }
+    updateCount(data.count);
+  } else {
+    btn.disabled = false;
+  }
+}
+</script>
+{% endblock %}

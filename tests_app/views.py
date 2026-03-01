@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
-from django.db.models import Avg, Count, Q, Sum, F
+from django.db.models import Avg, Count, Q, Sum, F, Max
 from django.views.decorators.http import require_POST, require_GET
 from django.core.paginator import Paginator
 from datetime import timedelta
@@ -1509,3 +1509,335 @@ def test_result(request, uuid):
 def api_test_progress(request, uuid):
     """Eski API - yangi ga redirect"""
     return api_test_status(request, uuid)
+
+
+# ============================================================
+# STAFF: TEST VA SAVOL YARATISH UI
+# ============================================================
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.text import slugify
+
+
+@staff_member_required
+def manage_tests_list(request):
+    """Staff: barcha testlar ro'yxati"""
+    qs = Test.objects.select_related('subject', 'created_by').order_by('-created_at')
+
+    q = request.GET.get('q', '').strip()
+    if q:
+        qs = qs.filter(Q(title__icontains=q) | Q(subject__name__icontains=q))
+
+    subject_id = request.GET.get('subject')
+    if subject_id:
+        qs = qs.filter(subject_id=subject_id)
+
+    test_type = request.GET.get('type')
+    if test_type:
+        qs = qs.filter(test_type=test_type)
+
+    paginator = Paginator(qs, 20)
+    page = paginator.get_page(request.GET.get('page'))
+
+    context = {
+        'page': page,
+        'subjects': Subject.objects.filter(is_active=True).order_by('order'),
+        'test_types': Test.TEST_TYPES,
+        'q': q,
+        'selected_subject': subject_id,
+        'selected_type': test_type,
+    }
+    return render(request, 'tests_app/manage/tests_list.html', context)
+
+
+@staff_member_required
+def manage_test_create(request):
+    """Staff: yangi test yaratish"""
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        test_type = request.POST.get('test_type', 'practice')
+        subject_id = request.POST.get('subject') or None
+        time_limit = int(request.POST.get('time_limit', 60))
+        question_count = int(request.POST.get('question_count', 30))
+        passing_score = int(request.POST.get('passing_score', 60))
+        shuffle_questions = request.POST.get('shuffle_questions') == 'on'
+        shuffle_answers = request.POST.get('shuffle_answers') == 'on'
+        show_correct_answers = request.POST.get('show_correct_answers') == 'on'
+        is_active = request.POST.get('is_active') == 'on'
+        is_premium = request.POST.get('is_premium') == 'on'
+
+        if not title:
+            messages.error(request, "Sarlavha kiritish shart!")
+            return render(request, 'tests_app/manage/test_form.html', {'subjects': subjects, 'test_types': Test.TEST_TYPES})
+
+        # Unique slug
+        base_slug = slugify(title)
+        slug = base_slug
+        counter = 1
+        while Test.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        test = Test.objects.create(
+            title=title,
+            slug=slug,
+            description=description,
+            test_type=test_type,
+            subject_id=subject_id,
+            time_limit=time_limit,
+            question_count=question_count,
+            passing_score=passing_score,
+            shuffle_questions=shuffle_questions,
+            shuffle_answers=shuffle_answers,
+            show_correct_answers=show_correct_answers,
+            is_active=is_active,
+            is_premium=is_premium,
+            created_by=request.user,
+        )
+        messages.success(request, f"'{test.title}' testi yaratildi! Endi savollar qo'shing.")
+        return redirect('tests_app:manage_test_questions', slug=test.slug)
+
+    context = {
+        'subjects': subjects,
+        'test_types': Test.TEST_TYPES,
+        'edit': False,
+    }
+    return render(request, 'tests_app/manage/test_form.html', context)
+
+
+@staff_member_required
+def manage_test_edit(request, slug):
+    """Staff: testni tahrirlash"""
+    test = get_object_or_404(Test, slug=slug)
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+
+    if request.method == 'POST':
+        test.title = request.POST.get('title', '').strip() or test.title
+        test.description = request.POST.get('description', '').strip()
+        test.test_type = request.POST.get('test_type', test.test_type)
+        test.subject_id = request.POST.get('subject') or None
+        test.time_limit = int(request.POST.get('time_limit', test.time_limit))
+        test.question_count = int(request.POST.get('question_count', test.question_count))
+        test.passing_score = int(request.POST.get('passing_score', test.passing_score))
+        test.shuffle_questions = request.POST.get('shuffle_questions') == 'on'
+        test.shuffle_answers = request.POST.get('shuffle_answers') == 'on'
+        test.show_correct_answers = request.POST.get('show_correct_answers') == 'on'
+        test.is_active = request.POST.get('is_active') == 'on'
+        test.is_premium = request.POST.get('is_premium') == 'on'
+        test.save()
+        messages.success(request, "Test yangilandi!")
+        return redirect('tests_app:manage_test_questions', slug=test.slug)
+
+    context = {
+        'test': test,
+        'subjects': subjects,
+        'test_types': Test.TEST_TYPES,
+        'edit': True,
+    }
+    return render(request, 'tests_app/manage/test_form.html', context)
+
+
+@staff_member_required
+def manage_test_questions(request, slug):
+    """Staff: testga savollar qo'shish/o'chirish sahifasi"""
+    test = get_object_or_404(Test, slug=slug)
+    linked_ids = set(TestQuestion.objects.filter(test=test).values_list('question_id', flat=True))
+    linked_qs = (
+        TestQuestion.objects.filter(test=test)
+        .select_related('question', 'question__subject', 'question__topic')
+        .order_by('order')
+    )
+
+    # Search existing questions to add
+    search_results = []
+    q = request.GET.get('q', '').strip()
+    if q:
+        search_results = (
+            Question.objects.filter(is_active=True)
+            .filter(Q(text__icontains=q) | Q(subject__name__icontains=q))
+            .exclude(id__in=linked_ids)
+            .select_related('subject', 'topic')[:20]
+        )
+
+    context = {
+        'test': test,
+        'linked': linked_qs,
+        'search_results': search_results,
+        'q': q,
+        'linked_count': len(linked_ids),
+    }
+    return render(request, 'tests_app/manage/test_questions.html', context)
+
+
+@staff_member_required
+def manage_link_question(request, slug, question_id):
+    """Staff: mavjud savolni testga bog'lash"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    test = get_object_or_404(Test, slug=slug)
+    question = get_object_or_404(Question, id=question_id)
+    max_order = TestQuestion.objects.filter(test=test).aggregate(m=Max('order'))['m'] or 0
+    _, created = TestQuestion.objects.get_or_create(test=test, question=question, defaults={'order': max_order + 1})
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        return JsonResponse({'ok': True, 'created': created, 'count': TestQuestion.objects.filter(test=test).count()})
+    messages.success(request, "Savol qo'shildi!")
+    return redirect('tests_app:manage_test_questions', slug=slug)
+
+
+@staff_member_required
+def manage_unlink_question(request, slug, question_id):
+    """Staff: savolni testdan olib tashlash"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+    test = get_object_or_404(Test, slug=slug)
+    TestQuestion.objects.filter(test=test, question_id=question_id).delete()
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        return JsonResponse({'ok': True, 'count': TestQuestion.objects.filter(test=test).count()})
+    messages.success(request, "Savol o'chirildi!")
+    return redirect('tests_app:manage_test_questions', slug=slug)
+
+
+@staff_member_required
+def manage_question_create(request, slug):
+    """Staff: yangi savol yaratish va testga qo'shish"""
+    test = get_object_or_404(Test, slug=slug)
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+    topics = Topic.objects.filter(is_active=True).order_by('name')
+
+    if test.subject_id:
+        topics = topics.filter(subject_id=test.subject_id)
+
+    if request.method == 'POST':
+        text = request.POST.get('text', '').strip()
+        subject_id = request.POST.get('subject') or (test.subject_id)
+        topic_id = request.POST.get('topic') or None
+        difficulty = request.POST.get('difficulty', 'medium')
+        question_type = request.POST.get('question_type', 'single')
+        explanation = request.POST.get('explanation', '').strip()
+        points = int(request.POST.get('points', 1))
+
+        if not text:
+            messages.error(request, "Savol matni kiritish shart!")
+            return render(request, 'tests_app/manage/question_form.html', {
+                'test': test, 'subjects': subjects, 'topics': topics,
+                'difficulties': Question.DIFFICULTY_CHOICES, 'qtypes': Question.QUESTION_TYPES,
+            })
+
+        question = Question.objects.create(
+            text=text,
+            subject_id=subject_id,
+            topic_id=topic_id,
+            difficulty=difficulty,
+            question_type=question_type,
+            explanation=explanation,
+            points=points,
+            is_active=True,
+            created_by=request.user,
+        )
+
+        # Answers: A, B, C, D
+        correct_answer = request.POST.get('correct_answer', 'A')
+        for idx, letter in enumerate(['A', 'B', 'C', 'D']):
+            ans_text = request.POST.get(f'answer_{letter}', '').strip()
+            if ans_text:
+                Answer.objects.create(
+                    question=question,
+                    text=ans_text,
+                    is_correct=(letter == correct_answer),
+                    order=idx,
+                )
+
+        # Testga bog'lash
+        max_order = TestQuestion.objects.filter(test=test).aggregate(m=Max('order'))['m'] or 0
+        TestQuestion.objects.create(test=test, question=question, order=max_order + 1)
+
+        messages.success(request, "Savol yaratildi va testga qo'shildi!")
+
+        if request.POST.get('add_another') == '1':
+            return redirect('tests_app:manage_question_create', slug=slug)
+        return redirect('tests_app:manage_test_questions', slug=slug)
+
+    context = {
+        'test': test,
+        'subjects': subjects,
+        'topics': topics,
+        'difficulties': Question.DIFFICULTY_CHOICES,
+        'qtypes': Question.QUESTION_TYPES,
+    }
+    return render(request, 'tests_app/manage/question_form.html', context)
+
+
+@staff_member_required
+def manage_question_edit(request, slug, question_id):
+    """Staff: savolni tahrirlash"""
+    test = get_object_or_404(Test, slug=slug)
+    question = get_object_or_404(Question, id=question_id)
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+    topics = Topic.objects.filter(is_active=True).order_by('name')
+    answers = list(question.answers.order_by('order'))
+
+    if request.method == 'POST':
+        question.text = request.POST.get('text', '').strip() or question.text
+        question.subject_id = request.POST.get('subject') or question.subject_id
+        question.topic_id = request.POST.get('topic') or None
+        question.difficulty = request.POST.get('difficulty', question.difficulty)
+        question.question_type = request.POST.get('question_type', question.question_type)
+        question.explanation = request.POST.get('explanation', '').strip()
+        question.points = int(request.POST.get('points', question.points))
+        question.save()
+
+        # Update answers
+        correct_answer = request.POST.get('correct_answer', 'A')
+        question.answers.all().delete()
+        for idx, letter in enumerate(['A', 'B', 'C', 'D']):
+            ans_text = request.POST.get(f'answer_{letter}', '').strip()
+            if ans_text:
+                Answer.objects.create(
+                    question=question,
+                    text=ans_text,
+                    is_correct=(letter == correct_answer),
+                    order=idx,
+                )
+
+        messages.success(request, "Savol yangilandi!")
+        return redirect('tests_app:manage_test_questions', slug=slug)
+
+    # Pre-fill answer letters
+    letter_map = {}
+    letters = ['A', 'B', 'C', 'D']
+    correct_letter = 'A'
+    for i, ans in enumerate(answers[:4]):
+        if i < len(letters):
+            letter_map[letters[i]] = ans.text
+            if ans.is_correct:
+                correct_letter = letters[i]
+
+    context = {
+        'test': test,
+        'question': question,
+        'subjects': subjects,
+        'topics': topics,
+        'difficulties': Question.DIFFICULTY_CHOICES,
+        'qtypes': Question.QUESTION_TYPES,
+        'letter_map': letter_map,
+        'correct_letter': correct_letter,
+        'edit': True,
+    }
+    return render(request, 'tests_app/manage/question_form.html', context)
+
+
+@staff_member_required
+def manage_test_delete(request, slug):
+    """Staff: testni o'chirish"""
+    if request.method != 'POST':
+        return redirect('tests_app:manage_tests_list')
+    test = get_object_or_404(Test, slug=slug)
+    title = test.title
+    test.delete()
+    messages.success(request, f"'{title}' testi o'chirildi.")
+    return redirect('tests_app:manage_tests_list')
