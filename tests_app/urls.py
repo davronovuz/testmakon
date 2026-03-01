@@ -3,7 +3,7 @@ TestMakon.uz - Tests App URLs
 Professional Question Bank + Test System
 """
 
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 app_name = 'tests_app'
@@ -99,13 +99,13 @@ urlpatterns = [
     # ==========================================
     path('manage/', views.manage_tests_list, name='manage_tests_list'),
     path('manage/create/', views.manage_test_create, name='manage_test_create'),
-    path('manage/<slug:slug>/edit/', views.manage_test_edit, name='manage_test_edit'),
-    path('manage/<slug:slug>/delete/', views.manage_test_delete, name='manage_test_delete'),
-    path('manage/<slug:slug>/questions/', views.manage_test_questions, name='manage_test_questions'),
-    path('manage/<slug:slug>/questions/add/', views.manage_question_create, name='manage_question_create'),
-    path('manage/<slug:slug>/questions/<int:question_id>/edit/', views.manage_question_edit, name='manage_question_edit'),
-    path('manage/<slug:slug>/questions/<int:question_id>/link/', views.manage_link_question, name='manage_link_question'),
-    path('manage/<slug:slug>/questions/<int:question_id>/unlink/', views.manage_unlink_question, name='manage_unlink_question'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/edit/$', views.manage_test_edit, name='manage_test_edit'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/delete/$', views.manage_test_delete, name='manage_test_delete'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/questions/$', views.manage_test_questions, name='manage_test_questions'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/questions/add/$', views.manage_question_create, name='manage_question_create'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/questions/(?P<question_id>\d+)/edit/$', views.manage_question_edit, name='manage_question_edit'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/questions/(?P<question_id>\d+)/link/$', views.manage_link_question, name='manage_link_question'),
+    re_path(r'^manage/(?P<slug>[\w.-]+)/questions/(?P<question_id>\d+)/unlink/$', views.manage_unlink_question, name='manage_unlink_question'),
 
     # ==========================================
     # ESKI URL LAR (backward compatibility)

@@ -1522,7 +1522,10 @@ from django.utils.text import slugify
 @staff_member_required
 def manage_tests_list(request):
     """Staff: barcha testlar ro'yxati"""
-    qs = Test.objects.select_related('subject', 'created_by').order_by('-created_at')
+    # Avtomatik yaratilgan vaqtinchalik testlarni chiqarib tashlash (slug da nuqta bor)
+    qs = Test.objects.select_related('subject', 'created_by').exclude(
+        slug__regex=r'\d+\.\d+'
+    ).order_by('-created_at')
 
     q = request.GET.get('q', '').strip()
     if q:
