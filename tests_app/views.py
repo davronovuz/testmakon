@@ -74,8 +74,22 @@ def question_bank(request):
             'user_progress': user_progress,
         })
 
+    # AI sust mavzular (login bo'lsa)
+    weak_topics = []
+    if request.user.is_authenticated:
+        try:
+            from ai_core.models import WeakTopicAnalysis
+            weak_topics = list(
+                WeakTopicAnalysis.objects.filter(user=request.user)
+                .select_related('subject', 'topic')
+                .order_by('accuracy_rate')[:6]
+            )
+        except Exception:
+            pass
+
     context = {
         'subjects_data': subjects_data,
+        'weak_topics': weak_topics,
     }
 
     return render(request, 'tests_app/question_bank.html', context)

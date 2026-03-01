@@ -204,6 +204,17 @@ def api_notifications_recent(request):
     })
 
 
+@login_required
+def notification_dismiss(request, id):
+    """Bildirishnomani o'chirish (is_dismissed=True)"""
+    notification = get_object_or_404(Notification, id=id, user=request.user)
+    notification.is_dismissed = True
+    notification.save(update_fields=['is_dismissed'])
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True})
+    return redirect('news:notifications_list')
+
+
 def _time_ago(dt):
     from django.utils import timezone
     from django.utils.timesince import timesince

@@ -107,6 +107,22 @@
     .qb-empty h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 0.25rem; }
     .qb-empty p { font-size: 0.78rem; color: var(--gray-500); }
 
+    /* Search */
+    .qb-search-wrap { position:relative; margin-bottom:1rem; }
+    .qb-search-wrap i { position:absolute; left:0.9rem; top:50%; transform:translateY(-50%); color:var(--gray-400); font-size:0.9rem; pointer-events:none; }
+    .qb-search { width:100%; padding:0.55rem 0.9rem 0.55rem 2.4rem; border:1px solid var(--gray-200); border-radius:10px; background:var(--white); font-size:0.85rem; color:var(--dark); outline:none; transition:border 0.15s; }
+    .qb-search:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(139,197,64,0.12); }
+    .qb-no-results { display:none; text-align:center; padding:2rem; font-size:0.85rem; color:var(--gray-500); grid-column:1/-1; }
+
+    /* Weak AI strip */
+    .qb-ai-strip { background:linear-gradient(135deg,rgba(139,197,64,0.09),rgba(107,168,50,0.05)); border:1px solid rgba(139,197,64,0.2); border-radius:12px; padding:0.85rem 1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
+    .qb-ai-strip-icon { width:34px; height:34px; background:var(--gradient-primary); border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.9rem; flex-shrink:0; }
+    .qb-ai-strip-text { flex:1; font-size:0.82rem; color:var(--dark-600); line-height:1.4; }
+    .qb-ai-strip-text strong { color:var(--dark); }
+    .qb-ai-chips { display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.4rem; }
+    .qb-ai-chip { display:inline-flex; align-items:center; gap:0.25rem; padding:0.25rem 0.6rem; font-size:0.72rem; font-weight:700; background:rgba(239,68,68,0.09); color:#DC2626; border-radius:999px; border:1px solid rgba(239,68,68,0.2); text-decoration:none; transition:background 0.15s; }
+    .qb-ai-chip:hover { background:rgba(239,68,68,0.15); color:#DC2626; }
+
     @media (max-width: 768px) {
         .qb-grid { grid-template-columns: 1fr; }
         .qb-actions { flex-direction: column; }
@@ -127,6 +143,32 @@
                 {% endif %}
             </div>
 
+            <!-- Search -->
+            {% if subjects_data %}
+            <div class="qb-search-wrap">
+                <i class="bi bi-search"></i>
+                <input type="search" class="qb-search" id="qbSearch" placeholder="Fan yoki mavzu qidiring..." autocomplete="off">
+            </div>
+            {% endif %}
+
+            <!-- AI sust mavzular strip -->
+            {% if user.is_authenticated and weak_topics %}
+            <div class="qb-ai-strip">
+                <div class="qb-ai-strip-icon"><i class="bi bi-robot"></i></div>
+                <div class="qb-ai-strip-text">
+                    <strong>AI tavsiya:</strong> Quyidagi sust mavzulardan boshlang
+                    <div class="qb-ai-chips">
+                        {% for wt in weak_topics|slice:":6" %}
+                        <a href="{% if wt.topic %}{% url 'tests_app:practice_topic' subject_slug=wt.subject.slug topic_slug=wt.topic.slug %}{% else %}{% url 'tests_app:practice_subject' subject_slug=wt.subject.slug %}{% endif %}"
+                           class="qb-ai-chip">
+                            <i class="bi bi-arrow-right"></i> {{ wt.topic.name|default:wt.subject.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             {% if user.is_authenticated %}
             <div class="qb-actions">
                 <a href="{% url 'tests_app:wrong_answers' %}" class="qb-action">
@@ -144,7 +186,7 @@
             {% if subjects_data %}
             <div class="qb-grid">
                 {% for item in subjects_data %}
-                <div class="qb-card">
+                <div class="qb-card" data-name="{{ item.subject.name|lower }}">
                     <a href="{% url 'tests_app:practice_subject' subject_slug=item.subject.slug %}" class="qb-card-head" style="text-decoration:none;">
                         <div class="qb-card-icon" style="background: {{ item.subject.color }}15;">
                             {% subject_icon item.subject 44 %}
@@ -185,6 +227,7 @@
                 </div>
                 {% endfor %}
             </div>
+            <div class="qb-no-results" id="qbNoResults"><i class="bi bi-search me-1"></i> Hech narsa topilmadi</div>
             {% else %}
             <div class="qb-empty">
                 <i class="bi bi-journal-x"></i>
@@ -195,4 +238,28 @@
         </main>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const inp = document.getElementById('qbSearch');
+    const noRes = document.getElementById('qbNoResults');
+    if (!inp) return;
+    inp.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.qb-grid .qb-card');
+        let visible = 0;
+        cards.forEach(function(card) {
+            const name = card.dataset.name || '';
+            const topics = card.querySelectorAll('.qb-topic-name');
+            let match = name.includes(q);
+            if (!match) topics.forEach(t => { if (t.textContent.toLowerCase().includes(q)) match = true; });
+            card.style.display = (!q || match) ? '' : 'none';
+            if (!q || match) visible++;
+        });
+        if (noRes) noRes.style.display = (q && visible === 0) ? 'block' : 'none';
+    });
+})();
+</script>
 {% endblock %}

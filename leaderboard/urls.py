@@ -28,6 +28,9 @@ urlpatterns = [
     path('season/', views.current_season, name='current_season'),
     path('season/<slug:slug>/', views.season_detail, name='season_detail'),
 
+    # Friends
+    path('friends/', views.friends_leaderboard, name='friends_leaderboard'),
+
     # API
     path('api/my-rank/', views.api_my_rank, name='api_my_rank'),
     path('api/top-users/', views.api_top_users, name='api_top_users'),

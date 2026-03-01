@@ -538,9 +538,15 @@
                                                 {% if task.difficulty == 'easy' %}Oson{% elif task.difficulty == 'medium' %}O'rta{% else %}Qiyin{% endif %}
                                             </span>
                                             {% endif %}
-                                            {% if task.is_completed %}
-                                            <span class="sp-task-btn sp-task-btn-done"><i class="bi bi-check-lg"></i> Bajarildi</span>
-                                            {% elif task.subject and task.task_type in 'test,practice' %}
+                                            <button class="sp-task-btn task-done-btn {% if task.is_completed %}sp-task-btn-done{% else %}sp-task-btn-start{% endif %}"
+                                                    data-task-id="{{ task.id }}"
+                                                    data-complete-url="{% url 'ai_core:task_complete' task_id=task.id %}"
+                                                    data-completed="{{ task.is_completed|yesno:'true,false' }}">
+                                                <i class="bi {% if task.is_completed %}bi-check-lg{% else %}bi-check{% endif %}"></i>
+                                                {% if task.is_completed %}Bajarildi{% else %}Bajardim{% endif %}
+                                            </button>
+                                            {% if not task.is_completed %}
+                                            {% if task.subject and task.task_type in 'test,practice' %}
                                             <button class="sp-task-btn sp-task-btn-smart smart-test-btn"
                                                     data-task-id="{{ task.id }}"
                                                     data-start-url="{% url 'ai_core:start_task_test' task_id=task.id %}"
@@ -551,8 +557,7 @@
                                             <a href="{% url 'tests_app:test_play' uuid=task.test.uuid %}" class="sp-task-btn sp-task-btn-start">Boshlash</a>
                                             {% elif task.subject %}
                                             <a href="{% url 'tests_app:practice_subject' subject_slug=task.subject.slug %}" class="sp-task-btn sp-task-btn-start">Boshlash</a>
-                                            {% else %}
-                                            <a href="{% url 'ai_core:task_complete' task_id=task.id %}" class="sp-task-btn sp-task-btn-start"><i class="bi bi-check"></i> Bajardim</a>
+                                            {% endif %}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -683,5 +688,41 @@ function pollSmartTest(taskId, statusTemplate, btn) {
         });
     }, 2000);
 }
+
+// Task done toggle (AJAX)
+document.querySelectorAll('.task-done-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const url = this.dataset.completeUrl;
+        const csrf = document.getElementById('csrf-token').value;
+        const self = this;
+        const card = self.closest('.sp-task-card');
+        self.disabled = true;
+
+        fetch(url, {
+            method: 'GET',
+            headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrf},
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.ok) return;
+            const done = data.is_completed;
+            // Update card style
+            card.classList.toggle('done', done);
+            // Update button
+            self.className = 'sp-task-btn task-done-btn ' + (done ? 'sp-task-btn-done' : 'sp-task-btn-start');
+            self.innerHTML = '<i class="bi ' + (done ? 'bi-check-lg' : 'bi-check') + '"></i> ' + (done ? 'Bajarildi' : 'Bajardim');
+            self.dataset.completed = done ? 'true' : 'false';
+            // Update progress bar in sidebar
+            const fill = document.querySelector('.sp-progress-fill');
+            const pct = document.querySelector('.sp-progress-pct');
+            const info = document.querySelector('.sp-progress-info');
+            if (fill) fill.style.width = data.progress_pct + '%';
+            if (pct) pct.textContent = data.progress_pct + '%';
+            if (info) info.textContent = data.completed_tasks + ' / ' + data.total_tasks + ' vazifa bajarildi';
+            self.disabled = false;
+        })
+        .catch(function() { self.disabled = false; });
+    });
+});
 </script>
 {% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Do'stlar reytingi - TestMakon{% endblock %}
+
+{% block extra_css %}
+{% include 'leaderboard/_sidebar_css.html' %}
+<style>
+    .lb-table-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; overflow:hidden; }
+    .lb-table-head { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; border-bottom:1px solid var(--gray-100); }
+    .lb-table-title { font-size:1rem; font-weight:700; color:var(--dark); }
+    .lb-table table { width:100%; border-collapse:collapse; }
+    .lb-table th { padding:0.75rem 1.5rem; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--gray-500); border-bottom:1px solid var(--gray-100); background:var(--gray-50); }
+    .lb-table td { padding:0.875rem 1.5rem; border-bottom:1px solid var(--gray-100); vertical-align:middle; }
+    .lb-table tr:last-child td { border-bottom:none; }
+    .lb-table tr:hover td { background:var(--gray-50); }
+    .lb-table tr.is-me td { background:rgba(139,197,64,0.06); }
+    .lb-user-cell { display:flex; align-items:center; gap:0.75rem; }
+    .lb-row-avatar { width:38px; height:38px; background:var(--gray-100); border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
+    .lb-row-avatar img { width:100%; height:100%; object-fit:cover; }
+    .lb-row-name { font-size:0.9rem; font-weight:600; color:var(--dark); }
+    .lb-row-sub { font-size:0.75rem; color:var(--gray-400); }
+    .lb-xp { font-weight:700; color:var(--primary); font-size:0.95rem; }
+    .lb-xp small { font-weight:400; font-size:0.75rem; color:var(--gray-400); margin-left:2px; }
+    .me-badge { font-size:0.68rem; font-weight:700; background:rgba(139,197,64,0.15); color:var(--primary-dark); border-radius:999px; padding:0.1rem 0.45rem; margin-left:0.4rem; }
+
+    /* My rank card */
+    .friends-hero { background:linear-gradient(135deg,rgba(139,197,64,0.1),rgba(107,168,50,0.05)); border:1px solid rgba(139,197,64,0.2); border-radius:14px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; }
+    .friends-hero-rank { font-size:2.5rem; font-weight:900; color:var(--primary-dark); line-height:1; }
+    .friends-hero-label { font-size:0.78rem; color:var(--gray-500); font-weight:600; }
+    .friends-hero-text { font-size:0.88rem; color:var(--dark-600); margin:0; }
+
+    /* Empty */
+    .friends-empty { text-align:center; padding:4rem 2rem; background:#fff; border:1px solid var(--gray-200); border-radius:16px; }
+    .friends-empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.4; }
+
+    @media (max-width: 576px) {
+        .lb-table th:nth-child(3), .lb-table td:nth-child(3),
+        .lb-table th:nth-child(4), .lb-table td:nth-child(4) { display:none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section-sm">
+    <div class="container">
+        <div class="lb-layout">
+            {% include 'leaderboard/_sidebar.html' with active='friends' %}
+
+            <div class="lb-main">
+
+                {% if my_rank %}
+                <!-- My position hero -->
+                <div class="friends-hero">
+                    <div>
+                        <div class="friends-hero-rank">#{{ my_rank }}</div>
+                        <div class="friends-hero-label">Sizning o'rningiz</div>
+                    </div>
+                    <div style="flex:1;">
+                        <p class="friends-hero-text">
+                            <strong>{{ friends_count }}</strong> ta do'stingiz orasida {{ my_rank }}-o'rindasiz.
+                            {% if my_rank == 1 %}Tabriklaymiz — birinchisiz! 🏆
+                            {% elif my_rank <= 3 %}Ajoyib! Top 3 da turibsiz. 🔥
+                            {% else %}Do'stlaringizni quvib yeting! 💪{% endif %}
+                        </p>
+                    </div>
+                    <a href="{% url 'accounts:friends_list' %}" class="btn btn-sm" style="background:rgba(139,197,64,0.15);color:var(--primary-dark);border:1px solid rgba(139,197,64,0.25);border-radius:8px;font-size:0.8rem;font-weight:700;white-space:nowrap;">
+                        <i class="bi bi-person-plus me-1"></i> Do'st qo'shish
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if ranked %}
+                <div class="lb-table-card">
+                    <div class="lb-table-head">
+                        <div class="lb-table-title">
+                            <i class="bi bi-people-fill me-2" style="color:var(--primary);"></i>Do'stlar reytingi
+                        </div>
+                        <span style="font-size:0.78rem;color:var(--gray-500);">{{ ranked|length }} kishi</span>
+                    </div>
+                    <div class="lb-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:52px;">O'rin</th>
+                                    <th>Foydalanuvchi</th>
+                                    <th class="text-center" style="width:80px;">Streak</th>
+                                    <th class="text-center" style="width:80px;">Testlar</th>
+                                    <th class="text-end" style="width:100px;">XP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ranked %}
+                                <tr {% if item.is_me %}class="is-me"{% endif %}>
+                                    <td>
+                                        {% if item.rank == 1 %}<span style="font-size:1.3rem;">🥇</span>
+                                        {% elif item.rank == 2 %}<span style="font-size:1.3rem;">🥈</span>
+                                        {% elif item.rank == 3 %}<span style="font-size:1.3rem;">🥉</span>
+                                        {% else %}<span style="font-weight:700;color:var(--gray-400);">{{ item.rank }}</span>{% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="lb-user-cell">
+                                            <div class="lb-row-avatar">
+                                                {% if item.user.avatar %}<img src="{{ item.user.avatar.url }}" alt="">
+                                                {% else %}<i class="bi bi-person-fill" style="color:var(--gray-400);"></i>{% endif %}
+                                            </div>
+                                            <div>
+                                                <div class="lb-row-name">
+                                                    {{ item.user.full_name|default:item.user.phone_number }}
+                                                    {% if item.is_me %}<span class="me-badge">Sen</span>{% endif %}
+                                                </div>
+                                                <div class="lb-row-sub">{{ item.user.get_level_display }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if item.user.current_streak > 0 %}
+                                        <span style="font-size:0.85rem;">🔥 {{ item.user.current_streak }}</span>
+                                        {% else %}
+                                        <span style="color:var(--gray-300);">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center" style="color:var(--gray-500);">{{ item.user.total_tests_taken }}</td>
+                                    <td class="text-end"><span class="lb-xp">{{ item.user.xp_points }}<small>XP</small></span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% else %}
+                <div class="friends-empty">
+                    <div class="friends-empty-icon"><i class="bi bi-people"></i></div>
+                    <h4 style="font-weight:800;margin-bottom:0.5rem;">Do'stlar yo'q</h4>
+                    <p style="color:var(--gray-500);font-size:0.88rem;margin-bottom:1.25rem;">
+                        Do'stlar qo'shsangiz, ular bilan reyting solishtirasiz!
+                    </p>
+                    <a href="{% url 'accounts:friends_list' %}" class="btn btn-primary" style="border-radius:10px;font-weight:700;">
+                        <i class="bi bi-person-plus-fill me-2"></i>Do'st qo'shish
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

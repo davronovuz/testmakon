@@ -37,6 +37,14 @@
         </a>
         {% endfor %}
 
+        {% if user.is_authenticated %}
+        <a href="{% url 'leaderboard:friends_leaderboard' %}"
+           class="lbs-link {% if active == 'friends' %}active{% endif %}">
+            <span class="lbs-icon">👥</span>
+            <span>Do'stlar</span>
+        </a>
+        {% endif %}
+
         <div class="lbs-nav-title mt-3">Boshqa</div>
         <a href="{% url 'leaderboard:achievements_list' %}"
            class="lbs-link {% if active == 'achievements' %}active{% endif %}">

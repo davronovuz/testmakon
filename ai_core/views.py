@@ -504,18 +504,35 @@ def study_plan_delete(request, uuid):
 
 @login_required
 def task_complete(request, task_id):
-    """Vazifani bajarish"""
+    """Vazifani bajarish/bekor qilish (AJAX JSON yoki redirect)"""
     task = get_object_or_404(StudyPlanTask, id=task_id, study_plan__user=request.user)
-
-    task.is_completed = True
-    task.completed_at = timezone.now()
-    task.save()
-
     plan = task.study_plan
-    plan.completed_tasks += 1
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    # Toggle
+    if task.is_completed:
+        task.is_completed = False
+        task.completed_at = None
+        task.save(update_fields=['is_completed', 'completed_at'])
+        plan.completed_tasks = max(0, plan.completed_tasks - 1)
+    else:
+        task.is_completed = True
+        task.completed_at = timezone.now()
+        task.save(update_fields=['is_completed', 'completed_at'])
+        plan.completed_tasks += 1
+
     plan.update_progress()
 
-    messages.success(request, "Vazifa bajarildi! ✅")
+    if is_ajax:
+        return JsonResponse({
+            'ok': True,
+            'is_completed': task.is_completed,
+            'progress_pct': round(plan.progress_percentage, 1),
+            'completed_tasks': plan.completed_tasks,
+            'total_tasks': plan.total_tasks,
+        })
+
+    messages.success(request, "Vazifa bajarildi! ✅" if task.is_completed else "Vazifa bekor qilindi.")
     return redirect('ai_core:study_plan_detail', uuid=plan.uuid)
 
 
@@ -748,6 +765,12 @@ def progress_dashboard(request):
         UserAnalyticsSummary, UserSubjectPerformance, UserTopicPerformance
     )
     import json as json_mod
+    from django.core.cache import cache
+
+    cache_key = f'progress_dashboard:{request.user.id}'
+    cached = cache.get(cache_key)
+    if cached:
+        return render(request, 'ai_core/progress_dashboard.html', cached)
 
     try:
         analytics = request.user.analytics_summary
@@ -808,8 +831,8 @@ def progress_dashboard(request):
 
     context = {
         'analytics': analytics,
-        'subject_perfs': subject_perfs,
-        'weak_topic_perfs': weak_topic_perfs,
+        'subject_perfs': list(subject_perfs),
+        'weak_topic_perfs': list(weak_topic_perfs),
         'chart_labels': json_mod.dumps(chart_labels),
         'chart_scores': json_mod.dumps(chart_scores),
         'radar_labels': json_mod.dumps(radar_labels),
@@ -817,6 +840,7 @@ def progress_dashboard(request):
         'peer_rank': peer_rank,
         'peer_total': peer_count,
     }
+    cache.set(cache_key, context, 300)  # 5 daqiqa
     return render(request, 'ai_core/progress_dashboard.html', context)
 
 
@@ -824,6 +848,12 @@ def progress_dashboard(request):
 def behavioral_insights(request):
     """Behavioral insights — o'qish vaqti, charchash, uslub."""
     from tests_app.models import UserAnalyticsSummary, DailyUserStats
+    from django.core.cache import cache
+
+    cache_key = f'behavioral_insights:{request.user.id}'
+    cached = cache.get(cache_key)
+    if cached:
+        return render(request, 'ai_core/behavioral_insights.html', cached)
 
     try:
         analytics = request.user.analytics_summary
@@ -891,6 +921,7 @@ def behavioral_insights(request):
         'week_activity': week_activity,
         'recent_strategy': recent_strategy,
     }
+    cache.set(cache_key, context, 300)  # 5 daqiqa
     return render(request, 'ai_core/behavioral_insights.html', context)
 
 

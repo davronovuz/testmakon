@@ -19,4 +19,5 @@ urlpatterns = [
     path('api/unread-count/', views.api_unread_count, name='api_unread_count'),
     path('api/notifications/recent/', views.api_notifications_recent, name='api_notifications_recent'),
     path('api/notifications/read/<int:id>/', views.api_notification_read, name='api_notification_read'),
+    path('notifications/dismiss/<int:id>/', views.notification_dismiss, name='notification_dismiss'),
 ]

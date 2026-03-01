@@ -374,6 +374,42 @@ def api_my_rank(request):
     return JsonResponse(data)
 
 
+@login_required
+def friends_leaderboard(request):
+    """Do'stlar reytingi"""
+    from accounts.models import Friendship
+    from django.db.models import Q
+
+    friend_ids = list(
+        Friendship.objects.filter(
+            Q(from_user=request.user) | Q(to_user=request.user),
+            status='accepted'
+        ).values_list('from_user_id', 'to_user_id')
+    )
+    ids = set()
+    for a, b in friend_ids:
+        ids.add(a)
+        ids.add(b)
+    ids.discard(request.user.id)
+    ids.add(request.user.id)  # o'zini ham ko'rsin
+
+    friends = list(
+        User.objects.filter(id__in=ids, is_active=True)
+        .only('id', 'first_name', 'last_name', 'phone_number', 'xp_points', 'level', 'avatar', 'current_streak', 'total_tests_taken')
+        .order_by('-xp_points')
+    )
+    # Rank berish
+    ranked = [{'rank': i, 'user': u, 'is_me': u.id == request.user.id} for i, u in enumerate(friends, 1)]
+    my_rank = next((r['rank'] for r in ranked if r['is_me']), None)
+
+    context = {
+        'ranked': ranked,
+        'my_rank': my_rank,
+        'friends_count': len(ids) - 1,
+    }
+    return render(request, 'leaderboard/friends_leaderboard.html', context)
+
+
 def api_top_users(request):
     """Top foydalanuvchilar API"""
     period = request.GET.get('period', 'all_time')
