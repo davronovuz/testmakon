@@ -45,6 +45,11 @@ urlpatterns = [
     path('api/friends/online/', views.api_online_friends, name='api_online_friends'),
     path('api/log-violation/', views.api_log_violation, name='api_log_violation'),
 
+    # ADMIN: BATTLE BOSHQARUVI
+    path('admin/battles/', views.admin_battles_list, name='admin_battles_list'),
+    path('admin/battle/<uuid:uuid>/cancel/', views.admin_battle_cancel, name='admin_battle_cancel'),
+    path('admin/battle/<uuid:uuid>/delete/', views.admin_battle_delete, name='admin_battle_delete'),
+
     # 7. BATTLE ACTIONS (UUID asosida)
     path('battle/<uuid:uuid>/', views.battle_detail, name='battle_detail'),
     path('battle/<uuid:uuid>/accept/', views.battle_accept, name='battle_accept'),

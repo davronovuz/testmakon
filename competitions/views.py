@@ -1761,3 +1761,71 @@ def exam_list_admin(request):
     return render(request, 'competitions/exam_list_admin.html', context)
 
 
+
+
+# ═══════════════════════════════════════════════════
+# ADMIN: BATTLE BOSHQARUVI
+# ═══════════════════════════════════════════════════
+
+@staff_member_required
+def admin_battles_list(request):
+    """Staff: barcha janglari ro'yxati — filter, cancel, delete."""
+    from django.core.paginator import Paginator
+
+    qs = Battle.objects.select_related('challenger', 'opponent', 'subject').order_by('-created_at')
+
+    # Filters
+    status_f = request.GET.get('status', '')
+    q = request.GET.get('q', '').strip()
+
+    if status_f:
+        qs = qs.filter(status=status_f)
+    if q:
+        qs = qs.filter(
+            Q(challenger__first_name__icontains=q) |
+            Q(challenger__last_name__icontains=q) |
+            Q(challenger__phone_number__icontains=q) |
+            Q(opponent__first_name__icontains=q) |
+            Q(opponent__last_name__icontains=q)
+        )
+
+    paginator = Paginator(qs, 30)
+    page = paginator.get_page(request.GET.get('page'))
+
+    context = {
+        'page': page,
+        'status_f': status_f,
+        'q': q,
+        'status_choices': Battle.STATUS_CHOICES,
+    }
+    return render(request, 'competitions/admin_battles.html', context)
+
+
+@staff_member_required
+@require_POST
+def admin_battle_cancel(request, uuid):
+    """Staff: jangni bekor qilish (cancelled)."""
+    battle = get_object_or_404(Battle, uuid=uuid)
+    if battle.status not in ('completed', 'cancelled', 'expired'):
+        battle.status = 'cancelled'
+        battle.save(update_fields=['status'])
+        messages.success(request, f"Jang bekor qilindi.")
+    else:
+        messages.warning(request, f"Bu jang allaqachon '{battle.get_status_display()}' holatida.")
+    next_url = request.POST.get('next', '')
+    if next_url:
+        return redirect(next_url)
+    return redirect('competitions:admin_battles_list')
+
+
+@staff_member_required
+@require_POST
+def admin_battle_delete(request, uuid):
+    """Staff: jangni o'chirish."""
+    battle = get_object_or_404(Battle, uuid=uuid)
+    battle.delete()
+    messages.success(request, "Jang o'chirildi.")
+    next_url = request.POST.get('next', '')
+    if next_url:
+        return redirect(next_url)
+    return redirect('competitions:admin_battles_list')

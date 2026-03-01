@@ -41,8 +41,9 @@
       <h1 class="el-title"><i class="bi bi-trophy-fill me-2" style="color:var(--primary);"></i>Olimpiadalar va Mock Imtihonlar</h1>
       <div style="font-size:0.82rem; color:var(--gray-500); margin-top:0.2rem;">Jami {{ comps.count }} ta</div>
     </div>
-    <div style="display:flex; gap:0.5rem;">
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
       <a href="{% url 'core:admin_analytics' %}" class="el-btn outline"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a href="{% url 'competitions:admin_battles_list' %}" class="el-btn" style="background:rgba(220,38,38,0.1);color:#DC2626;border:none;"><i class="bi bi-lightning-fill"></i> Janglar</a>
       <a href="{% url 'competitions:exam_create' %}" class="el-btn new"><i class="bi bi-plus-lg"></i> Yangi olimpiada</a>
     </div>
   </div>

@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Janglar boshqaruvi | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+.ab-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+.ab-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.75rem; flex-wrap:wrap; gap:1rem; }
+.ab-back { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.9rem; background:var(--gray-100); border-radius:8px; font-size:0.82rem; font-weight:700; color:var(--dark-600); text-decoration:none; border:1px solid var(--gray-200); }
+.ab-back:hover { background:var(--gray-200); }
+.ab-title { font-size:1.4rem; font-weight:900; color:var(--dark); margin:0; }
+
+.ab-filters { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.ab-input { padding:0.5rem 0.9rem; border:1px solid var(--gray-200); border-radius:8px; font-size:0.85rem; outline:none; color:var(--dark); background:#fff; }
+.ab-input:focus { border-color:var(--primary); }
+
+.ab-card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; overflow:hidden; }
+
+.ab-table { width:100%; border-collapse:collapse; }
+.ab-table th { padding:0.6rem 1rem; font-size:0.72rem; font-weight:700; color:var(--gray-500); text-transform:uppercase; background:var(--gray-50); border-bottom:1px solid var(--gray-100); text-align:left; white-space:nowrap; }
+.ab-table td { padding:0.7rem 1rem; border-bottom:1px solid var(--gray-100); font-size:0.84rem; color:var(--dark-600); vertical-align:middle; }
+.ab-table tr:last-child td { border-bottom:none; }
+.ab-table tr:hover td { background:var(--gray-50); }
+
+.ab-badge { display:inline-block; padding:0.2rem 0.55rem; border-radius:6px; font-size:0.72rem; font-weight:700; white-space:nowrap; }
+.ab-badge.pending   { background:rgba(245,158,11,0.12); color:#D97706; }
+.ab-badge.searching { background:rgba(99,102,241,0.1); color:#4F46E5; }
+.ab-badge.accepted  { background:rgba(34,197,94,0.1); color:#16A34A; }
+.ab-badge.in_progress { background:rgba(59,130,246,0.1); color:#2563EB; }
+.ab-badge.completed { background:rgba(139,197,64,0.12); color:#5A8726; }
+.ab-badge.cancelled, .ab-badge.rejected, .ab-badge.expired { background:var(--gray-100); color:var(--gray-500); }
+
+.ab-actions { display:flex; gap:0.4rem; align-items:center; }
+.ab-btn { display:inline-flex; align-items:center; gap:0.25rem; padding:0.28rem 0.6rem; border-radius:6px; font-size:0.76rem; font-weight:700; cursor:pointer; text-decoration:none; border:none; }
+.ab-btn.view  { background:rgba(99,102,241,0.1); color:#4F46E5; }
+.ab-btn.cancel { background:rgba(245,158,11,0.12); color:#D97706; }
+.ab-btn.del   { background:rgba(239,68,68,0.1); color:#DC2626; }
+.ab-btn:hover { opacity:.8; }
+
+.ab-empty { text-align:center; padding:3rem 1rem; color:var(--gray-400); }
+.ab-pagination { display:flex; gap:0.4rem; justify-content:center; padding:1rem; flex-wrap:wrap; }
+.ab-pagination a, .ab-pagination span { padding:0.35rem 0.7rem; border-radius:7px; font-size:0.82rem; font-weight:700; text-decoration:none; border:1px solid var(--gray-200); color:var(--dark-600); }
+.ab-pagination .current { background:var(--gradient-primary); color:#fff; border-color:transparent; }
+
+.ab-user { display:flex; flex-direction:column; }
+.ab-uname { font-weight:700; color:var(--dark); font-size:0.84rem; }
+.ab-uphone { font-size:0.72rem; color:var(--gray-400); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background:var(--gray-50);min-height:100vh;">
+<div class="ab-page">
+
+  <!-- Header -->
+  <div class="ab-header">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'core:admin_analytics' %}" class="ab-back"><i class="bi bi-arrow-left"></i> Panel</a>
+      <div>
+        <h1 class="ab-title"><i class="bi bi-lightning-fill me-2" style="color:#DC2626;"></i>Janglar boshqaruvi</h1>
+        <div style="font-size:0.8rem;color:var(--gray-500);margin-top:0.2rem;">Jami {{ page.paginator.count }} ta jang</div>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-{% if msg.tags == 'error' %}danger{% elif msg.tags == 'warning' %}warning{% else %}success{% endif %} rounded-3 mb-3" style="font-size:0.88rem;">
+    {{ msg }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- Filters -->
+  <form method="get" class="ab-filters">
+    <input type="text" name="q" value="{{ q }}" placeholder="Foydalanuvchi nomi..." class="ab-input" style="min-width:200px;">
+    <select name="status" class="ab-input">
+      <option value="">Barcha holatlar</option>
+      {% for val, label in status_choices %}
+      <option value="{{ val }}" {% if status_f == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="ab-btn view" style="padding:0.5rem 1rem;">Qidirish</button>
+    {% if q or status_f %}
+    <a href="{% url 'competitions:admin_battles_list' %}" class="ab-btn" style="background:var(--gray-100);color:var(--dark-600);padding:0.5rem 0.9rem;">Tozalash</a>
+    {% endif %}
+  </form>
+
+  <div class="ab-card">
+    {% if page.object_list %}
+    <div style="overflow-x:auto;">
+      <table class="ab-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Chaqiruvchi</th>
+            <th>Raqib</th>
+            <th>Fan</th>
+            <th>Holat</th>
+            <th>Tur</th>
+            <th>Yaratilgan</th>
+            <th>Amallar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for battle in page %}
+          <tr>
+            <td style="color:var(--gray-400);font-size:0.75rem;">{{ forloop.counter|add:page.start_index|add:"-1" }}</td>
+            <td>
+              <div class="ab-user">
+                <span class="ab-uname">{{ battle.challenger.full_name|default:battle.challenger.phone_number|truncatechars:18 }}</span>
+                <span class="ab-uphone">{{ battle.challenger.phone_number }}</span>
+              </div>
+            </td>
+            <td>
+              {% if battle.opponent %}
+              <div class="ab-user">
+                <span class="ab-uname">{{ battle.opponent.full_name|default:battle.opponent.phone_number|truncatechars:18 }}</span>
+                <span class="ab-uphone">{{ battle.opponent.phone_number }}</span>
+              </div>
+              {% elif battle.opponent_type == 'bot' %}
+              <span style="color:var(--gray-400);font-size:0.82rem;"><i class="bi bi-robot me-1"></i>Bot</span>
+              {% else %}
+              <span style="color:var(--gray-300);font-size:0.8rem;">—</span>
+              {% endif %}
+            </td>
+            <td style="color:var(--gray-600);">{{ battle.subject.name|default:"—"|truncatechars:14 }}</td>
+            <td><span class="ab-badge {{ battle.status }}">{{ battle.get_status_display }}</span></td>
+            <td style="color:var(--gray-500);font-size:0.8rem;">{{ battle.get_opponent_type_display }}</td>
+            <td style="color:var(--gray-400);font-size:0.78rem;white-space:nowrap;">{{ battle.created_at|date:"d.m.y H:i" }}</td>
+            <td>
+              <div class="ab-actions">
+                <a href="{% url 'competitions:battle_detail' uuid=battle.uuid %}" class="ab-btn view" title="Ko'rish">
+                  <i class="bi bi-eye"></i>
+                </a>
+                {% if battle.status not in 'completed,cancelled,expired,rejected' %}
+                <form method="post" action="{% url 'competitions:admin_battle_cancel' uuid=battle.uuid %}" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{% url 'competitions:admin_battles_list' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">
+                  <button type="submit" class="ab-btn cancel" onclick="return confirm('Bekor qilasizmi?')" title="Bekor qilish">
+                    <i class="bi bi-slash-circle"></i>
+                  </button>
+                </form>
+                {% endif %}
+                <form method="post" action="{% url 'competitions:admin_battle_delete' uuid=battle.uuid %}" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{% url 'competitions:admin_battles_list' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">
+                  <button type="submit" class="ab-btn del" onclick="return confirm('O\'chirasizmi? Qaytarib bo\'lmaydi!')" title="O'chirish">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page.has_other_pages %}
+    <div class="ab-pagination">
+      {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&status={{ status_f }}&q={{ q }}">&laquo;</a>{% endif %}
+      {% for n in page.paginator.page_range %}
+        {% if n == page.number %}<span class="current">{{ n }}</span>
+        {% elif n >= page.number|add:"-2" and n <= page.number|add:"2" %}<a href="?page={{ n }}&status={{ status_f }}&q={{ q }}">{{ n }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page.has_next %}<a href="?page={{ page.next_page_number }}&status={{ status_f }}&q={{ q }}">&raquo;</a>{% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="ab-empty">
+      <i class="bi bi-lightning" style="font-size:2.5rem;color:var(--gray-200);"></i>
+      <p style="margin-top:0.75rem;">Janglar topilmadi</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+{% endblock %}

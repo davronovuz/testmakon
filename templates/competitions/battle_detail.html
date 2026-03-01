@@ -396,6 +396,32 @@
                 <a href="{% url 'competitions:battles_list' %}" class="bd-btn outline">
                     <i class="bi bi-arrow-left"></i> Janglarga qaytish
                 </a>
+
+                {% if request.user.is_staff or request.user.is_superuser %}
+                <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;text-align:center;">Admin amallar</div>
+                    <div style="display:flex;gap:0.5rem;">
+                        {% if battle.status not in 'completed,cancelled,expired' %}
+                        <form method="post" action="{% url 'competitions:admin_battle_cancel' uuid=battle.uuid %}" style="flex:1;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" onclick="return confirm('Jangni bekor qilasizmi?')"
+                                style="width:100%;padding:0.5rem;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#FBBF24;font-size:0.8rem;font-weight:700;cursor:pointer;">
+                                <i class="bi bi-slash-circle me-1"></i>Bekor qilish
+                            </button>
+                        </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'competitions:admin_battle_delete' uuid=battle.uuid %}" style="flex:1;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'competitions:admin_battles_list' %}">
+                            <button type="submit" onclick="return confirm('Jangni o\'chirasizmi? Bu amalni qaytarib bo\'lmaydi!')"
+                                style="width:100%;padding:0.5rem;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);border-radius:8px;color:#F87171;font-size:0.8rem;font-weight:700;cursor:pointer;">
+                                <i class="bi bi-trash me-1"></i>O'chirish
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
         </div>
