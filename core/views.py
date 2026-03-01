@@ -414,6 +414,94 @@ def api_activity(request):
     return JsonResponse({'activities': data})
 
 
+# ─────────────────────────────────────────────────
+# ADMIN ANALYTICS PANEL
+# ─────────────────────────────────────────────────
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def admin_analytics(request):
+    """Staff uchun platform analytics paneli."""
+    today = timezone.now().date()
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+
+    # Foydalanuvchilar
+    total_users = User.objects.filter(is_active=True).count()
+    new_today = User.objects.filter(date_joined__date=today).count()
+    new_week = User.objects.filter(date_joined__date__gte=week_ago).count()
+    new_month = User.objects.filter(date_joined__date__gte=month_ago).count()
+    dau = User.objects.filter(last_activity_date=today).count() if hasattr(User, 'last_activity_date') else 0
+
+    # Test urinishlari
+    attempts_today = TestAttempt.objects.filter(started_at__date=today, status='completed').count()
+    attempts_week = TestAttempt.objects.filter(started_at__date__gte=week_ago, status='completed').count()
+    attempts_month = TestAttempt.objects.filter(started_at__date__gte=month_ago, status='completed').count()
+
+    # O'rtacha ball
+    avg_score = TestAttempt.objects.filter(
+        status='completed', started_at__date__gte=month_ago
+    ).aggregate(avg=Avg('percentage'))['avg'] or 0
+
+    # Eng mashhur fanlar (oylik)
+    popular_subjects = (
+        TestAttempt.objects.filter(started_at__date__gte=month_ago, status='completed')
+        .values('test__subject__name')
+        .annotate(cnt=Count('id'))
+        .order_by('-cnt')[:8]
+    )
+
+    # So'nggi 14 kun — kunlik attempt grafigi
+    daily_attempts = []
+    for i in range(13, -1, -1):
+        d = today - timedelta(days=i)
+        cnt = TestAttempt.objects.filter(started_at__date=d, status='completed').count()
+        users_cnt = User.objects.filter(date_joined__date=d).count()
+        daily_attempts.append({'date': d.strftime('%d.%m'), 'attempts': cnt, 'new_users': users_cnt})
+
+    import json as json_mod
+    chart_labels = json_mod.dumps([d['date'] for d in daily_attempts])
+    chart_attempts = json_mod.dumps([d['attempts'] for d in daily_attempts])
+    chart_users = json_mod.dumps([d['new_users'] for d in daily_attempts])
+
+    # Top 10 foydalanuvchi (XP bo'yicha)
+    top_users = User.objects.filter(is_active=True).order_by('-xp_points')[:10]
+
+    # So'nggi xatolar (Sentry yo'q bo'lsa — oxirgi test urinishlari)
+    recent_attempts = TestAttempt.objects.filter(
+        status='completed'
+    ).select_related('user', 'test').order_by('-started_at')[:15]
+
+    # Obunalar
+    try:
+        from subscriptions.models import Subscription
+        premium_count = Subscription.objects.filter(is_active=True).count()
+    except Exception:
+        premium_count = 0
+
+    context = {
+        'total_users': total_users,
+        'new_today': new_today,
+        'new_week': new_week,
+        'new_month': new_month,
+        'dau': dau,
+        'attempts_today': attempts_today,
+        'attempts_week': attempts_week,
+        'attempts_month': attempts_month,
+        'avg_score': round(avg_score, 1),
+        'popular_subjects': popular_subjects,
+        'chart_labels': chart_labels,
+        'chart_attempts': chart_attempts,
+        'chart_users': chart_users,
+        'top_users': top_users,
+        'recent_attempts': recent_attempts,
+        'premium_count': premium_count,
+        'today': today,
+    }
+    return render(request, 'core/admin_analytics.html', context)
+
+
 # Error handlers
 
 def error_404(request, exception):

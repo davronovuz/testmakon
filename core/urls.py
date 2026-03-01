@@ -35,4 +35,7 @@ urlpatterns = [
     # API endpoints for dashboard widgets
     path('api/stats/', views.api_stats, name='api_stats'),
     path('api/activity/', views.api_activity, name='api_activity'),
+
+    # Admin analytics panel
+    path('panel/analytics/', views.admin_analytics, name='admin_analytics'),
 ]

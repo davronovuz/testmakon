@@ -1,0 +1,43 @@
+{
+  "name": "TestMakon — AI Ta'lim Platformasi",
+  "short_name": "TestMakon",
+  "description": "O'zbekiston abituriyentlari uchun AI quvvatli ta'lim platformasi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#8BC540",
+  "orientation": "portrait-primary",
+  "lang": "uz",
+  "icons": [
+    {
+      "src": "/static/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Testlar",
+      "short_name": "Testlar",
+      "description": "Testlarni boshlash",
+      "url": "/tests/",
+      "icons": [{ "src": "/static/images/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Mentor",
+      "short_name": "AI Mentor",
+      "description": "AI bilan suhbat",
+      "url": "/ai/mentor/",
+      "icons": [{ "src": "/static/images/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["education"],
+  "screenshots": []
+}

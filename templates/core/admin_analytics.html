@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Analytics | TestMakon{% endblock %}
+{% block meta_description %}Platform statistikasi va analytics paneli{% endblock %}
+
+{% block extra_css %}
+<style>
+.ap-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+.ap-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; flex-wrap:wrap; gap:1rem; }
+.ap-title { font-size:1.5rem; font-weight:900; color:var(--dark); margin:0; }
+.ap-badge { display:inline-flex; align-items:center; gap:0.35rem; padding:0.3rem 0.7rem; font-size:0.75rem; font-weight:700; background:rgba(139,197,64,0.12); color:var(--primary-dark); border:1px solid rgba(139,197,64,0.25); border-radius:999px; }
+
+/* KPI Grid */
+.ap-kpi-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem; }
+.ap-kpi { background:var(--white); border:1px solid var(--gray-200); border-radius:14px; padding:1.1rem 1.2rem; }
+.ap-kpi-val { font-size:1.8rem; font-weight:900; color:var(--dark); line-height:1; margin-bottom:0.2rem; }
+.ap-kpi-label { font-size:0.75rem; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.4px; }
+.ap-kpi-sub { font-size:0.78rem; color:var(--gray-500); margin-top:0.3rem; }
+.ap-kpi.green .ap-kpi-val { color:var(--primary-dark); }
+.ap-kpi.blue .ap-kpi-val { color:#2563EB; }
+.ap-kpi.amber .ap-kpi-val { color:#D97706; }
+.ap-kpi.purple .ap-kpi-val { color:#7C3AED; }
+
+/* Cards */
+.ap-card { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; overflow:hidden; margin-bottom:1.25rem; }
+.ap-card-head { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.25rem; border-bottom:1px solid var(--gray-100); }
+.ap-card-title { font-size:0.92rem; font-weight:800; color:var(--dark); margin:0; display:flex; align-items:center; gap:0.5rem; }
+.ap-card-body { padding:1.25rem; }
+
+/* Chart container */
+.ap-chart-wrap { position:relative; height:220px; }
+
+/* Table */
+.ap-table { width:100%; border-collapse:collapse; }
+.ap-table th { padding:0.6rem 1rem; font-size:0.72rem; font-weight:700; color:var(--gray-500); text-transform:uppercase; background:var(--gray-50); border-bottom:1px solid var(--gray-100); text-align:left; }
+.ap-table td { padding:0.7rem 1rem; border-bottom:1px solid var(--gray-100); font-size:0.85rem; color:var(--dark-600); vertical-align:middle; }
+.ap-table tr:last-child td { border-bottom:none; }
+.ap-table tr:hover td { background:var(--gray-50); }
+
+/* Subject bar */
+.ap-subj-bar { height:6px; border-radius:3px; background:var(--gradient-primary); }
+
+/* User avatar mini */
+.ap-av { width:32px; height:32px; border-radius:50%; background:var(--gradient-primary); color:#fff; font-size:0.8rem; font-weight:800; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
+.ap-av img { width:100%; height:100%; object-fit:cover; }
+
+/* Score badge */
+.ap-score { display:inline-block; padding:0.2rem 0.5rem; border-radius:6px; font-size:0.78rem; font-weight:700; }
+.ap-score.good { background:rgba(34,197,94,0.12); color:#16A34A; }
+.ap-score.ok { background:rgba(245,158,11,0.12); color:#D97706; }
+.ap-score.bad { background:rgba(239,68,68,0.1); color:#DC2626; }
+
+/* 2-col layout */
+.ap-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+@media(max-width:768px) { .ap-grid2 { grid-template-columns:1fr; } }
+
+@media(max-width:576px) {
+    .ap-kpi-grid { grid-template-columns:repeat(2,1fr); }
+    .ap-kpi-val { font-size:1.4rem; }
+    .ap-title { font-size:1.2rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-vh-100" style="background:var(--gray-50);">
+<div class="ap-page">
+
+    <!-- Header -->
+    <div class="ap-header">
+        <div>
+            <h1 class="ap-title"><i class="bi bi-bar-chart-fill me-2" style="color:var(--primary);"></i>Analytics Panel</h1>
+            <div style="font-size:0.82rem; color:var(--gray-500); margin-top:0.25rem;">Sana: {{ today|date:"d F Y" }} &nbsp;·&nbsp; <span class="ap-badge"><i class="bi bi-shield-fill-check"></i> Staff only</span></div>
+        </div>
+        <a href="{% url 'admin:index' %}" class="btn btn-sm" style="background:var(--gray-100);color:var(--dark-600);border-radius:8px;font-weight:700;font-size:0.8rem;border:1px solid var(--gray-200);">
+            <i class="bi bi-gear me-1"></i> Django Admin
+        </a>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="ap-kpi-grid">
+        <div class="ap-kpi green">
+            <div class="ap-kpi-val">{{ total_users }}</div>
+            <div class="ap-kpi-label">Jami foydalanuvchilar</div>
+            <div class="ap-kpi-sub">+{{ new_week }} bu hafta</div>
+        </div>
+        <div class="ap-kpi blue">
+            <div class="ap-kpi-val">{{ dau }}</div>
+            <div class="ap-kpi-label">Bugungi aktiv (DAU)</div>
+            <div class="ap-kpi-sub">+{{ new_today }} yangi bugun</div>
+        </div>
+        <div class="ap-kpi amber">
+            <div class="ap-kpi-val">{{ attempts_today }}</div>
+            <div class="ap-kpi-label">Testlar bugun</div>
+            <div class="ap-kpi-sub">{{ attempts_week }} bu hafta</div>
+        </div>
+        <div class="ap-kpi purple">
+            <div class="ap-kpi-val">{{ avg_score }}%</div>
+            <div class="ap-kpi-label">O'rtacha ball (30 kun)</div>
+            <div class="ap-kpi-sub">{{ attempts_month }} urinish</div>
+        </div>
+        <div class="ap-kpi green">
+            <div class="ap-kpi-val">{{ new_month }}</div>
+            <div class="ap-kpi-label">Yangi (30 kun)</div>
+            <div class="ap-kpi-sub">Ro'yxatdan o'tganlar</div>
+        </div>
+        <div class="ap-kpi amber">
+            <div class="ap-kpi-val">{{ premium_count }}</div>
+            <div class="ap-kpi-label">Premium obunalar</div>
+            <div class="ap-kpi-sub">Faol hozir</div>
+        </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="ap-grid2">
+        <!-- Attempts chart -->
+        <div class="ap-card">
+            <div class="ap-card-head">
+                <h2 class="ap-card-title"><i class="bi bi-graph-up" style="color:var(--primary);"></i> Kunlik testlar (14 kun)</h2>
+            </div>
+            <div class="ap-card-body">
+                <div class="ap-chart-wrap">
+                    <canvas id="attemptsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users chart -->
+        <div class="ap-card">
+            <div class="ap-card-head">
+                <h2 class="ap-card-title"><i class="bi bi-people-fill" style="color:#2563EB;"></i> Yangi foydalanuvchilar (14 kun)</h2>
+            </div>
+            <div class="ap-card-body">
+                <div class="ap-chart-wrap">
+                    <canvas id="usersChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subjects + Top users -->
+    <div class="ap-grid2">
+        <!-- Popular subjects -->
+        <div class="ap-card">
+            <div class="ap-card-head">
+                <h2 class="ap-card-title"><i class="bi bi-journal-fill" style="color:#D97706;"></i> Mashhur fanlar (30 kun)</h2>
+            </div>
+            <div class="ap-card-body" style="padding:0.75rem 1.25rem;">
+                {% if popular_subjects %}
+                {% with max_cnt=popular_subjects.0.cnt %}
+                {% for item in popular_subjects %}
+                <div style="margin-bottom:0.75rem;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; font-weight:600; color:var(--dark); margin-bottom:0.25rem;">
+                        <span>{{ item.test__subject__name|default:"Boshqa" }}</span>
+                        <span style="color:var(--gray-500);">{{ item.cnt }} ta</span>
+                    </div>
+                    <div style="height:6px; background:var(--gray-100); border-radius:3px; overflow:hidden;">
+                        <div class="ap-subj-bar" style="width:{% widthratio item.cnt max_cnt 100 %}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endwith %}
+                {% else %}
+                <p style="color:var(--gray-400);font-size:0.85rem;">Ma'lumot yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Top users -->
+        <div class="ap-card">
+            <div class="ap-card-head">
+                <h2 class="ap-card-title"><i class="bi bi-trophy-fill" style="color:#FBBF24;"></i> Top 10 foydalanuvchi</h2>
+            </div>
+            <table class="ap-table">
+                <thead><tr><th>#</th><th>Foydalanuvchi</th><th>XP</th><th>Testlar</th></tr></thead>
+                <tbody>
+                    {% for u in top_users %}
+                    <tr>
+                        <td style="font-weight:800; color:var(--gray-400);">{{ forloop.counter }}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:0.6rem;">
+                                <div class="ap-av">
+                                    {% if u.avatar %}<img src="{{ u.avatar.url }}" alt="">
+                                    {% else %}{{ u.first_name|slice:":1"|upper }}{% endif %}
+                                </div>
+                                <div>
+                                    <div style="font-size:0.85rem; font-weight:700; color:var(--dark);">{{ u.full_name|default:u.phone_number|truncatechars:18 }}</div>
+                                    <div style="font-size:0.7rem; color:var(--gray-400);">{{ u.get_level_display }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-weight:700; color:var(--primary-dark);">{{ u.xp_points }}</td>
+                        <td style="color:var(--gray-500);">{{ u.total_tests_taken }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent attempts -->
+    <div class="ap-card">
+        <div class="ap-card-head">
+            <h2 class="ap-card-title"><i class="bi bi-clock-history" style="color:var(--primary);"></i> So'nggi test urinishlari</h2>
+            <span style="font-size:0.78rem; color:var(--gray-500);">Oxirgi 15 ta</span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="ap-table">
+                <thead>
+                    <tr>
+                        <th>Foydalanuvchi</th>
+                        <th>Test</th>
+                        <th>Natija</th>
+                        <th>Ball</th>
+                        <th>Sana</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in recent_attempts %}
+                    <tr>
+                        <td>
+                            <div style="font-size:0.85rem; font-weight:600; color:var(--dark);">
+                                {{ a.user.full_name|default:a.user.phone_number|truncatechars:20 }}
+                            </div>
+                        </td>
+                        <td style="color:var(--gray-500); max-width:200px;">
+                            <span title="{{ a.test.title }}">{{ a.test.title|truncatechars:30 }}</span>
+                        </td>
+                        <td>
+                            <span class="ap-score {% if a.percentage >= 70 %}good{% elif a.percentage >= 50 %}ok{% else %}bad{% endif %}">
+                                {{ a.percentage|floatformat:0 }}%
+                            </span>
+                        </td>
+                        <td style="color:var(--dark-600);">{{ a.correct_answers }}/{{ a.total_questions }}</td>
+                        <td style="color:var(--gray-400); font-size:0.78rem; white-space:nowrap;">{{ a.started_at|date:"d.m H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+var labels = {{ chart_labels|safe }};
+var attempts = {{ chart_attempts|safe }};
+var newUsers = {{ chart_users|safe }};
+
+var chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, stepSize: 1 }, beginAtZero: true }
+    }
+};
+
+new Chart(document.getElementById('attemptsChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: attempts,
+            backgroundColor: 'rgba(139,197,64,0.25)',
+            borderColor: '#8BC540',
+            borderWidth: 2,
+            borderRadius: 6,
+        }]
+    },
+    options: chartDefaults
+});
+
+new Chart(document.getElementById('usersChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: newUsers,
+            borderColor: '#2563EB',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+        }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, grid: { color: '#F1F5F9' } } } }
+});
+</script>
+{% endblock %}

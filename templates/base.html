@@ -4,7 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TestMakon - O'zbekiston abituriyentlari uchun AI quvvatli ta'lim platformasi">
+    <meta name="description" content="{% block meta_description %}TestMakon — O'zbekiston abituriyentlari uchun AI quvvatli ta'lim platformasi. DTM tayyorgarligi, testlar, AI mentor.{% endblock %}">
+    <meta name="keywords" content="DTM tayyorgarligi, testlar, abituriyent, AI mentor, O'zbekiston, testmakon">
+    <meta name="author" content="TestMakon.uz">
+    <meta name="theme-color" content="#8BC540">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TestMakon">
+    <meta property="og:title" content="{% block og_title %}TestMakon — AI Ta'lim Platformasi{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}O'zbekiston abituriyentlari uchun AI quvvatli ta'lim platformasi. DTM tayyorgarligi, testlar, AI mentor.{% endblock %}">
+    <meta property="og:url" content="https://testmakon.uz{{ request.path }}">
+    <meta property="og:image" content="https://testmakon.uz{% block og_image %}/static/images/og-image.png{% endblock %}">
+    <meta property="og:locale" content="uz_UZ">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block tw_title %}TestMakon — AI Ta'lim Platformasi{% endblock %}">
+    <meta name="twitter:description" content="O'zbekiston abituriyentlari uchun AI quvvatli ta'lim platformasi.">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TestMakon">
+
     <title>{% block title %}TestMakon{% endblock %}</title>
 
     <!-- Google Fonts - Inter -->
@@ -2969,5 +2993,49 @@
     })();
     </script>
     {% endif %}
+
+    <!-- PWA Service Worker -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/static/js/sw.js').catch(function(){});
+        });
+    }
+    // PWA Install Banner
+    (function() {
+        var deferredPrompt;
+        var banner = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show banner after 30s if not installed
+            setTimeout(function() {
+                if (localStorage.getItem('pwa_dismissed')) return;
+                banner = document.createElement('div');
+                banner.id = 'pwa-banner';
+                banner.style.cssText = 'position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:9999;background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:0.85rem 1.1rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.12);max-width:360px;width:calc(100% - 2rem);animation:slideUp 0.3s ease;';
+                banner.innerHTML = '<div style="width:40px;height:40px;background:linear-gradient(135deg,#8BC540,#6BA832);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;flex-shrink:0;"><i class="bi bi-mortarboard-fill"></i></div><div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:#0F172A;">TestMakon ilovasini o\'rnating</div><div style="font-size:0.72rem;color:#64748B;">Tezroq va oflayn ishlaydi</div></div><button onclick="doPwaInstall()" style="padding:0.4rem 0.8rem;background:linear-gradient(135deg,#8BC540,#6BA832);color:#fff;border:none;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">O\'rnatish</button><button onclick="dismissPwa()" style="background:none;border:none;color:#94A3B8;cursor:pointer;font-size:0.9rem;padding:0.2rem;"><i class="bi bi-x-lg"></i></button>';
+                document.body.appendChild(banner);
+            }, 30000);
+        });
+        window.doPwaInstall = function() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function(r) {
+                deferredPrompt = null;
+                if (banner) banner.remove();
+            });
+        };
+        window.dismissPwa = function() {
+            localStorage.setItem('pwa_dismissed', '1');
+            if (banner) banner.remove();
+        };
+        var s = document.createElement('style');
+        s.textContent = '@keyframes slideUp{from{transform:translateX(-50%) translateY(80px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}';
+        document.head.appendChild(s);
+    })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
