@@ -653,28 +653,89 @@ def dtm_simulation(request):
         questions_count=Count('questions', filter=Q(questions__is_active=True))
     ).order_by('order')
 
-    # Oldindan belgilangan bloklar
-    preset_blocks = [
-        {
-            'name': 'Aniq fanlar',
-            'subjects': ['matematika', 'fizika', 'ingliz-tili'],
-            'description': 'Matematika + Fizika + Ingliz tili',
-        },
-        {
-            'name': 'Tabiiy fanlar',
-            'subjects': ['biologiya', 'kimyo', 'ingliz-tili'],
-            'description': 'Biologiya + Kimyo + Ingliz tili',
-        },
-        {
-            'name': 'Ijtimoiy fanlar',
-            'subjects': ['tarix', 'geografiya', 'ingliz-tili'],
-            'description': 'Tarix + Geografiya + Ingliz tili',
-        },
-    ]
+    # Slug → ID mapping (DB'dagi haqiqiy sluglar bilan ishlash)
+    slug_to_id = {s.slug: str(s.id) for s in subjects}
+
+    # DTM yo'nalish fanlari mosligi (slug-based definition)
+    # Sluglar populate_subjects dan kelib chiqadi — slugify() orqali
+    SLUG_COMPAT = {
+        'matematika':  ['fizika', 'informatika', 'ingliz-tili', 'geografiya'],
+        'fizika':      ['matematika', 'informatika', 'ingliz-tili'],
+        'kimyo':       ['biologiya', 'matematika', 'ingliz-tili'],
+        'biologiya':   ['kimyo', 'ingliz-tili', 'geografiya'],
+        'informatika': ['matematika', 'fizika', 'ingliz-tili'],
+        'ingliz-tili': ['matematika', 'fizika', 'kimyo', 'biologiya', 'informatika', 'geografiya'],
+        'geografiya':  ['matematika', 'ingliz-tili', 'biologiya'],
+        'tarix':       ['geografiya', 'ingliz-tili'],
+    }
+
+    # ID-asosida compat map qurish (sluglar DB'da topilmasa ham ishlaydi)
+    id_compat = {}
+    for s1_slug, compat_slugs in SLUG_COMPAT.items():
+        s1_id = slug_to_id.get(s1_slug)
+        if not s1_id:
+            # Slug to'liq mos kelmasa name orqali qidirish
+            for s in subjects:
+                if s1_slug.replace('-', '') in s.slug.replace('-', '').replace('_', ''):
+                    s1_id = str(s.id)
+                    break
+        if s1_id:
+            compat_ids = []
+            for cs in compat_slugs:
+                cid = slug_to_id.get(cs)
+                if not cid:
+                    for s in subjects:
+                        if cs.replace('-', '') in s.slug.replace('-', '').replace('_', ''):
+                            cid = str(s.id)
+                            break
+                if cid:
+                    compat_ids.append(cid)
+            if compat_ids:
+                id_compat[s1_id] = compat_ids
+
+    # Direction names map (ID asosida)
+    SLUG_DIR_NAMES = {
+        'matematika+fizika':        "Aniq fanlar (Muhandislik, IT)",
+        'matematika+informatika':   "Kompyuter fanlari, Dasturlash",
+        'matematika+ingliz-tili':   "Iqtisodiyot, Xalqaro biznes",
+        'matematika+geografiya':    "Geodeziya, Kartografiya",
+        'fizika+matematika':        "Aniq fanlar (Muhandislik, IT)",
+        'fizika+informatika':       "Kompyuter muhandisligi",
+        'fizika+ingliz-tili':       "Xalqaro muhandislik",
+        'kimyo+biologiya':          "Tibbiyot, Farmatsevtika",
+        'kimyo+matematika':         "Kimyoviy texnologiya",
+        'kimyo+ingliz-tili':        "Xalqaro tibbiyot",
+        'biologiya+kimyo':          "Tibbiyot, Farmatsevtika",
+        'biologiya+ingliz-tili':    "Biologik fanlar, Veterinariya",
+        'biologiya+geografiya':     "Ekologiya, Tuproqshunoslik",
+        'informatika+matematika':   "Kompyuter fanlari, Dasturlash",
+        'informatika+fizika':       "Kompyuter muhandisligi",
+        'informatika+ingliz-tili':  "IT, Sun'iy intellekt",
+        'ingliz-tili+matematika':   "Iqtisodiyot, Xalqaro biznes",
+        'ingliz-tili+fizika':       "Xalqaro muhandislik",
+        'ingliz-tili+kimyo':        "Xalqaro tibbiyot",
+        'ingliz-tili+biologiya':    "Biologik fanlar",
+        'ingliz-tili+informatika':  "IT, Sun'iy intellekt",
+        'ingliz-tili+geografiya':   "Turizm, Xalqaro munosabatlar",
+        'geografiya+matematika':    "Geodeziya, Kartografiya",
+        'geografiya+ingliz-tili':   "Turizm, Xalqaro munosabatlar",
+        'geografiya+biologiya':     "Ekologiya, Tuproqshunoslik",
+        'tarix+geografiya':         "Ijtimoiy fanlar, Pedagogika",
+        'tarix+ingliz-tili':        "Xalqaro munosabatlar, Huquq",
+    }
+    id_dir_names = {}
+    for key, val in SLUG_DIR_NAMES.items():
+        parts = key.split('+')
+        if len(parts) == 2:
+            id1 = slug_to_id.get(parts[0])
+            id2 = slug_to_id.get(parts[1])
+            if id1 and id2:
+                id_dir_names[id1 + '+' + id2] = val
 
     context = {
         'subjects': subjects,
-        'preset_blocks': preset_blocks,
+        'id_compat_json': json.dumps(id_compat),
+        'id_dir_names_json': json.dumps(id_dir_names),
     }
 
     return render(request, 'tests_app/dtm_simulation.html', context)
@@ -729,13 +790,29 @@ def dtm_simulation_start(request):
     all_questions.extend(get_questions(fan2, 30))
 
     # 3) MAJBURIY FANLAR — har biridan 10 ta
-    mandatory_slugs = ['ona-tili', 'matematika', 'ozbekiston-tarixi']
-    for slug in mandatory_slugs:
-        subj = Subject.objects.filter(slug=slug, is_active=True).first()
-        if not subj and slug == 'ozbekiston-tarixi':
-            subj = Subject.objects.filter(slug='tarix', is_active=True).first()
-        if subj:
-            all_questions.extend(get_questions(subj, 10))
+    # Sluglar turli xil bo'lishi mumkin — robust qidirish
+    def find_mandatory(slug_list, name_hint):
+        for slug in slug_list:
+            s = Subject.objects.filter(slug=slug, is_active=True).first()
+            if s:
+                return s
+        return Subject.objects.filter(name__icontains=name_hint, is_active=True).first()
+
+    mandatory_defs = [
+        (['ona-tili', 'ona-tili-va-adabiyot', 'ona-tili-adabiyot', 'onatili'], 'Ona tili'),
+        (['matematika'], 'Matematika'),
+        (['ozbekiston-tarixi', 'o\'zbekiston-tarixi', 'tarix', 'ozbek-tarixi'], "O'zbekiston tarixi"),
+    ]
+
+    selected_ids = {fan1.id, fan2.id}
+    mandatory_subjects = []
+    for slug_list, name_hint in mandatory_defs:
+        s = find_mandatory(slug_list, name_hint)
+        if s and s.id not in selected_ids:
+            mandatory_subjects.append(s)
+
+    for subj in mandatory_subjects:
+        all_questions.extend(get_questions(subj, 10))
 
     if len(all_questions) < 20:
         messages.error(request, "Yetarli savol topilmadi. Boshqa fanlarni tanlang.")
@@ -755,13 +832,7 @@ def dtm_simulation_start(request):
     )
 
     # Fanlarni bog'lash
-    subject_ids = set([fan1.id, fan2.id])
-    for slug in mandatory_slugs:
-        s = Subject.objects.filter(slug=slug, is_active=True).first()
-        if not s and slug == 'ozbekiston-tarixi':
-            s = Subject.objects.filter(slug='tarix', is_active=True).first()
-        if s:
-            subject_ids.add(s.id)
+    subject_ids = set([fan1.id, fan2.id] + [s.id for s in mandatory_subjects])
     test.subjects.set(Subject.objects.filter(id__in=subject_ids))
 
     # Savollarni TARTIB BILAN qo'shish (aralashtirilmaydi!)
