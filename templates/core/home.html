@@ -125,140 +125,95 @@
         margin-top: 0.25rem;
     }
 
-    /* Hero Right - AI Chat Preview */
-    .hero-chat {
+    /* Hero Right — Stat Cards */
+    .hero-stat-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .hero-stat-card {
         background: var(--white);
-        border-radius: 24px;
-        padding: 2rem;
-        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.12);
         border: 1px solid var(--gray-200);
-        position: relative;
-    }
-
-    .hero-chat::before {
-        content: '';
-        position: absolute;
-        inset: -1px;
-        border-radius: 25px;
-        padding: 1px;
-        background: linear-gradient(135deg, rgba(139, 197, 64, 0.3), transparent 50%);
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        pointer-events: none;
-    }
-
-    .chat-header {
+        border-radius: 20px;
+        padding: 1.4rem 1.75rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--gray-200);
+        gap: 1.25rem;
+        box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .chat-avatar {
-        width: 44px;
-        height: 44px;
-        background: var(--gradient-primary);
-        border-radius: 14px;
+    .hero-stat-card:hover {
+        transform: translateX(6px);
+        box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.13);
+    }
+
+    .hero-stat-card-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
         color: white;
-        font-size: 1.25rem;
-        box-shadow: 0 8px 20px -6px rgba(139, 197, 64, 0.5);
     }
 
-    .chat-online {
+    .hero-stat-card-num {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--dark);
+        line-height: 1;
+        letter-spacing: -0.03em;
+    }
+
+    .hero-stat-card-label {
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        font-weight: 600;
+        margin-top: 0.2rem;
+    }
+
+    /* Social proof */
+    .hero-social-proof {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.85rem;
+        margin-top: 2rem;
+        padding-top: 1.75rem;
+        border-top: 1px solid var(--gray-200);
     }
 
-    .chat-online-dot {
-        width: 7px;
-        height: 7px;
-        background: #22C55E;
-        border-radius: 50%;
-    }
-
-    .chat-bubble {
-        border-radius: 16px;
-        padding: 0.9rem 1.15rem;
-        margin-bottom: 0.75rem;
-        font-size: 0.92rem;
-        line-height: 1.6;
-    }
-
-    .bubble-user {
-        background: var(--gray-100);
-        color: var(--dark);
-        margin-left: 2rem;
-    }
-
-    .bubble-ai {
-        background: linear-gradient(135deg, rgba(139, 197, 64, 0.1) 0%, rgba(139, 197, 64, 0.04) 100%);
-        border-left: 3px solid var(--primary);
-        color: var(--dark-600);
-        margin-right: 1rem;
-    }
-
-    .typing-indicator {
+    .hero-avatars {
         display: flex;
-        gap: 4px;
-        padding: 0.75rem 1rem;
     }
 
-    .typing-indicator span {
-        width: 7px;
-        height: 7px;
-        background: var(--primary);
+    .hero-avatar {
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
-        animation: typing 1.4s ease-in-out infinite;
-    }
-
-    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes typing {
-        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-        30% { transform: translateY(-6px); opacity: 1; }
-    }
-
-    /* Floating Elements */
-    .float-badge {
-        position: absolute;
-        background: var(--white);
-        border-radius: 14px;
-        padding: 0.7rem 1rem;
-        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.12);
-        border: 1px solid var(--gray-200);
+        border: 2.5px solid white;
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        font-weight: 700;
-        font-size: 0.82rem;
-        color: var(--dark);
-        z-index: 2;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 900;
+        color: white;
+        margin-left: -9px;
+        flex-shrink: 0;
     }
 
-    .float-badge-top {
-        top: -20px;
-        right: -15px;
-        animation: float-slow 4s ease-in-out infinite;
+    .hero-avatar:first-child { margin-left: 0; }
+
+    .hero-social-text {
+        font-size: 0.88rem;
+        color: var(--gray-500);
+        line-height: 1.4;
     }
 
-    .float-badge-bottom {
-        bottom: -15px;
-        left: -15px;
-        animation: float-slow 4s ease-in-out infinite 1.5s;
-    }
-
-    @keyframes float-slow {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
+    .hero-social-text strong { color: var(--dark); }
 
     /* ==========================================
        3D ICON SYSTEM
@@ -857,20 +812,21 @@
     @media (max-width: 991px) {
         .hero { padding: 3.5rem 0 4rem; }
         .hero-title { font-size: 2.75rem; }
-        .hero-stats { gap: 1.5rem; }
-        .hero-stat-number { font-size: 1.4rem; }
         .section-heading { font-size: 2rem; }
         .cta-title { font-size: 2rem; }
-        .float-badge { display: none; }
+        .hero-stat-card { padding: 1.2rem 1.4rem; }
+        .hero-stat-card-num { font-size: 1.75rem; }
     }
 
     @media (max-width: 767px) {
         .hero { padding: 2.5rem 0 3rem; }
         .hero-title { font-size: 2.15rem; }
         .hero-subtitle { font-size: 1rem; }
-        .hero-stats { gap: 1.25rem; flex-wrap: wrap; }
-        .hero-stat-number { font-size: 1.25rem; }
-        .hero-chat { margin-top: 2rem; }
+        .hero-stat-cards { flex-direction: row; flex-wrap: wrap; }
+        .hero-stat-card { flex: 1 1 calc(50% - 0.5rem); min-width: 140px; }
+        .hero-stat-card:last-child { flex: 1 1 100%; flex-direction: row; }
+        .hero-stat-card-num { font-size: 1.5rem; }
+        .hero-stat-card-icon { width: 44px; height: 44px; font-size: 1.2rem; }
         .section-heading { font-size: 1.7rem; }
         .stat-number { font-size: 2rem; }
         .pricing-card { padding: 2rem 1.5rem; }
@@ -882,7 +838,7 @@
 
     @media (max-width: 575px) {
         .hero-title { font-size: 1.85rem; }
-        .hero-stats { gap: 1rem; }
+        .hero-stat-card { flex: 1 1 100%; }
         .pricing-amount { justify-content: center; }
         .features-section, .subjects-section, .steps-section, .pricing-section { padding: 4rem 0; }
     }
@@ -895,60 +851,85 @@
 <section class="hero">
     <div class="container">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6" data-aos="fade-right" data-aos-duration="800">
+
+            <!-- Left: Text -->
+            <div class="col-lg-7" data-aos="fade-right" data-aos-duration="800">
+
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    O'zbekistoning #1 AI ta'lim platformasi
+                </div>
+
                 <h1 class="hero-title">
-                    Imtihonda <span class="highlight">189+ ball</span> olish  — <span class="text-gradient">AI bilan </span>
+                    <span class="text-gradient">AI bilan</span> DTMga<br>
+                    <span class="highlight">tayyor bo'ling.</span>
                 </h1>
 
                 <p class="hero-subtitle">
-                    Shaxsiy AI mentor va real DTM . Har bir xatoyingizni tahlil qilamiz, zaif tomonlaringizni kuchli qilamiz.
+                    Shaxsiy AI mentor xatolaringizni tahlil qilib, kuchsiz mavzularingizni topadi va har kuni shaxsiy mashq rejasini tuzadi.
                 </p>
 
                 <div class="d-flex flex-wrap gap-3">
                     <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
                         Bepul boshlash <i class="bi bi-arrow-right ms-1"></i>
                     </a>
-                    <a href="{% url 'tests_app:tests_list' %}" class="btn btn-outline btn-lg">
-                        <i class="bi bi-play-circle me-1"></i> Demo test
+                    <a href="{% url 'tests_app:dtm_simulation' %}" class="btn btn-outline btn-lg">
+                        <i class="bi bi-play-circle me-1"></i> DTM Sinov
                     </a>
                 </div>
 
-            </div>
-
-            <div class="col-lg-6" data-aos="fade-left" data-aos-duration="800" data-aos-delay="200">
-                <div class="position-relative">
-
-                    <!-- AI Chat Preview -->
-                    <div class="hero-chat">
-                        <div class="chat-header">
-                            <div class="chat-avatar">
-                                <i class="bi bi-robot"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 800; color: var(--dark); font-size: 0.95rem;">AI Mentor</div>
-                                <div class="chat-online">
-                                    <span class="chat-online-dot"></span>
-                                    <small style="color: var(--gray-500); font-size: 0.78rem;">Doimo online</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="chat-bubble bubble-user">
-                            Matematikadan 68% oldim. Qaysi mavzularni qayta o'qishim kerak?
-                        </div>
-
-                        <div class="chat-bubble bubble-ai">
-                            <strong>Tahlil:</strong> Sizda geometriya (42%) va trigonometriya (55%) zaif. Quyidagi reja bo'yicha 2 haftada 85%+ ga chiqasiz:<br><br>
-                            📌 <strong>1-hafta:</strong> Geometriya asoslari + 50 ta mashq<br>
-                            📌 <strong>2-hafta:</strong> Trigonometriya formulalari + amaliyot
-                        </div>
-
-                        <div class="typing-indicator">
-                            <span></span><span></span><span></span>
-                        </div>
+                <!-- Social proof -->
+                <div class="hero-social-proof">
+                    <div class="hero-avatars">
+                        <div class="hero-avatar" style="background:linear-gradient(135deg,#9DD553,#6BA832);">A</div>
+                        <div class="hero-avatar" style="background:linear-gradient(135deg,#60A5FA,#2563EB);">B</div>
+                        <div class="hero-avatar" style="background:linear-gradient(135deg,#F87171,#DC2626);">C</div>
+                        <div class="hero-avatar" style="background:linear-gradient(135deg,#FBBF24,#D97706);">D</div>
+                        <div class="hero-avatar" style="background:linear-gradient(135deg,#A78BFA,#6D28D9);">E</div>
+                    </div>
+                    <div class="hero-social-text">
+                        <strong>12 000+</strong> o'quvchi allaqachon tayyorlanmoqda
                     </div>
                 </div>
             </div>
+
+            <!-- Right: Stat cards -->
+            <div class="col-lg-5">
+                <div class="hero-stat-cards">
+
+                    <div class="hero-stat-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="100">
+                        <div class="hero-stat-card-icon" style="background:linear-gradient(145deg,#9DD553,#6BA832); box-shadow:0 8px 20px -6px rgba(139,197,64,0.45);">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <div class="hero-stat-card-num">12 000+</div>
+                            <div class="hero-stat-card-label">Faol o'quvchilar</div>
+                        </div>
+                    </div>
+
+                    <div class="hero-stat-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="200">
+                        <div class="hero-stat-card-icon" style="background:linear-gradient(145deg,#60A5FA,#2563EB); box-shadow:0 8px 20px -6px rgba(37,99,235,0.4);">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <div>
+                            <div class="hero-stat-card-num">189</div>
+                            <div class="hero-stat-card-label">Maqsad — maksimal DTM bali</div>
+                        </div>
+                    </div>
+
+                    <div class="hero-stat-card" data-aos="fade-left" data-aos-duration="700" data-aos-delay="300">
+                        <div class="hero-stat-card-icon" style="background:linear-gradient(145deg,#FCD34D,#D97706); box-shadow:0 8px 20px -6px rgba(217,119,6,0.4);">
+                            <i class="bi bi-trophy-fill"></i>
+                        </div>
+                        <div>
+                            <div class="hero-stat-card-num">94%</div>
+                            <div class="hero-stat-card-label">O'quvchilar natijasini yaxshiladi</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
