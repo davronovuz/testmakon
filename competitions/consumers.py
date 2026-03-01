@@ -365,6 +365,11 @@ class ExamConsumer(AsyncWebsocketConsumer):
                 'status': 'active',
                 'end_time': result['end_time'],
             })
+            # Admin uchun timer loop boshlash (connect vaqtida active emas edi)
+            if not self._timer_task or self._timer_task.done():
+                self._timer_task = asyncio.ensure_future(
+                    self._timer_sync_loop({'end_time': result['end_time']})
+                )
 
     async def handle_pause(self):
         await self.do_pause_exam()

@@ -28,6 +28,7 @@ class Competition(models.Model):
         ('upcoming', 'Kutilmoqda'),
         ('registration', 'Ro\'yxatdan o\'tish'),
         ('active', 'Faol'),
+        ('paused', 'To\'xtatilgan'),
         ('finished', 'Yakunlangan'),
         ('cancelled', 'Bekor qilingan'),
     ]

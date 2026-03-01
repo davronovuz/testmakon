@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ comp.title }} — Imtihon | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+body { background: #0F172A !important; }
+.el-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; }
+.el-card { background: #1E293B; border: 1px solid #334155; border-radius: 24px; padding: 2.5rem; max-width: 680px; width: 100%; }
+
+.el-header { text-align: center; margin-bottom: 2rem; }
+.el-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.el-title { font-size: 1.4rem; font-weight: 900; color: #F1F5F9; margin-bottom: 0.3rem; }
+.el-sub { font-size: 0.85rem; color: #94A3B8; }
+
+/* Status badge */
+.el-status { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1.5rem; }
+.el-status.active { background: rgba(34,197,94,0.15); color: #4ADE80; border: 1px solid rgba(34,197,94,0.25); }
+.el-status.paused { background: rgba(245,158,11,0.15); color: #FBBF24; border: 1px solid rgba(245,158,11,0.25); }
+
+/* Timer */
+.el-timer-box { background: #0F172A; border: 1px solid #334155; border-radius: 16px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+.el-timer { font-size: 3rem; font-weight: 900; color: #8BC540; letter-spacing: -2px; font-variant-numeric: tabular-nums; }
+.el-timer-label { font-size: 0.75rem; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.3rem; }
+
+/* Announcement */
+.el-announce { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: none; }
+.el-announce.show { display: flex; align-items: flex-start; gap: 0.75rem; }
+.el-announce-text { color: #FBBF24; font-size: 0.9rem; font-weight: 600; }
+
+/* WS indicator */
+.el-ws { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #64748B; margin-top: 1.5rem; justify-content: center; }
+.el-ws-dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; }
+.el-ws-dot.connected { background: #4ADE80; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Overlay when paused */
+.el-paused-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; align-items: center; justify-content: center; }
+.el-paused-overlay.show { display: flex; }
+.el-paused-box { background: #1E293B; border: 1px solid #FBBF24; border-radius: 20px; padding: 2.5rem; text-align: center; max-width: 400px; }
+.el-paused-icon { font-size: 3rem; margin-bottom: 1rem; }
+.el-paused-title { font-size: 1.3rem; font-weight: 900; color: #FBBF24; margin-bottom: 0.5rem; }
+.el-paused-sub { font-size: 0.85rem; color: #94A3B8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="el-wrap">
+  <div class="el-card">
+
+    <div class="el-header">
+      <div class="el-icon">📝</div>
+      <div class="el-title">{{ comp.title }}</div>
+      <div class="el-sub">{{ comp.short_description }}</div>
+    </div>
+
+    <!-- Status -->
+    <div class="text-center">
+      <span class="el-status active" id="statusBadge">
+        <span class="bi bi-circle-fill" style="font-size:0.5rem;"></span> Imtihon davom etmoqda
+      </span>
+    </div>
+
+    <!-- Timer -->
+    <div class="el-timer-box">
+      <div class="el-timer" id="timerDisplay">--:--</div>
+      <div class="el-timer-label">Qolgan vaqt</div>
+    </div>
+
+    <!-- Announcement -->
+    <div class="el-announce" id="announceBox">
+      <span class="bi bi-megaphone-fill" style="color:#FBBF24;font-size:1.1rem;"></span>
+      <span class="el-announce-text" id="announceText"></span>
+    </div>
+
+    <!-- Info -->
+    <div style="text-align:center;color:#64748B;font-size:0.85rem;padding:0.5rem;">
+      <span class="bi bi-person-fill me-1"></span>
+      {{ participant.user.full_name|default:participant.user.phone_number }}
+      &nbsp;|&nbsp;
+      <span class="bi bi-trophy-fill me-1" style="color:#FBBF24;"></span>
+      Natija: <strong id="scoreDisplay" style="color:#F1F5F9;">{{ participant.score|default:0 }}</strong>
+    </div>
+
+    <!-- WS indicator -->
+    <div class="el-ws">
+      <div class="el-ws-dot" id="wsDot"></div>
+      <span id="wsStatus">Ulanmoqda...</span>
+    </div>
+  </div>
+</div>
+
+<!-- Paused Overlay -->
+<div class="el-paused-overlay" id="pausedOverlay">
+  <div class="el-paused-box">
+    <div class="el-paused-icon">⏸️</div>
+    <div class="el-paused-title">Imtihon to'xtatildi</div>
+    <div class="el-paused-sub">Administrator davom ettirishini kuting...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const WS_URL = "{{ ws_url }}";
+let ws, secondsLeft = 0, timerInterval;
+
+function fmt(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+function startLocalTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (secondsLeft > 0) {
+      secondsLeft--;
+      document.getElementById('timerDisplay').textContent = fmt(secondsLeft);
+      // Last 5 minutes — amber color
+      if (secondsLeft <= 300) document.getElementById('timerDisplay').style.color = '#FBBF24';
+    } else {
+      clearInterval(timerInterval);
+      document.getElementById('timerDisplay').textContent = '00:00';
+    }
+  }, 1000);
+}
+
+function connect() {
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + WS_URL);
+
+  ws.onopen = () => {
+    document.getElementById('wsDot').classList.add('connected');
+    document.getElementById('wsStatus').textContent = 'Ulangan';
+    ws.send(JSON.stringify({type: 'ping'}));
+  };
+
+  ws.onclose = () => {
+    document.getElementById('wsDot').classList.remove('connected');
+    document.getElementById('wsStatus').textContent = 'Uzildi — qayta ulanmoqda...';
+    setTimeout(connect, 3000);
+  };
+
+  ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === 'init') {
+      if (data.seconds_remaining > 0) {
+        secondsLeft = data.seconds_remaining;
+        document.getElementById('timerDisplay').textContent = fmt(secondsLeft);
+        if (data.status === 'active') startLocalTimer();
+      }
+      if (data.status === 'paused') setPaused(true);
+    } else if (data.type === 'exam_status' && data.status === 'active') {
+      setPaused(false);
+      startLocalTimer();
+    } else if (data.type === 'exam_paused') {
+      setPaused(true);
+    } else if (data.type === 'exam_resumed') {
+      secondsLeft = data.seconds_remaining;
+      setPaused(false);
+      startLocalTimer();
+    } else if (data.type === 'timer_sync') {
+      secondsLeft = data.seconds_remaining;
+    } else if (data.type === 'exam_ended') {
+      clearInterval(timerInterval);
+      document.getElementById('timerDisplay').textContent = 'Yakunlandi';
+      document.getElementById('statusBadge').className = 'el-status paused';
+      document.getElementById('statusBadge').innerHTML = '<span class="bi bi-stop-fill" style="font-size:0.5rem;"></span> Imtihon yakunlandi';
+      document.getElementById('pausedOverlay').style.display = 'none';
+      setTimeout(() => { location.href = '/competitions/'; }, 3000);
+    } else if (data.type === 'announcement') {
+      const box = document.getElementById('announceBox');
+      document.getElementById('announceText').textContent = data.message;
+      box.classList.add('show');
+      setTimeout(() => box.classList.remove('show'), 8000);
+    }
+  };
+}
+
+function setPaused(paused) {
+  const overlay = document.getElementById('pausedOverlay');
+  const badge = document.getElementById('statusBadge');
+  if (paused) {
+    clearInterval(timerInterval);
+    overlay.classList.add('show');
+    badge.className = 'el-status paused';
+    badge.innerHTML = '<span class="bi bi-pause-fill" style="font-size:0.5rem;"></span> To\'xtatildi';
+  } else {
+    overlay.classList.remove('show');
+    badge.className = 'el-status active';
+    badge.innerHTML = '<span class="bi bi-circle-fill" style="font-size:0.5rem;"></span> Imtihon davom etmoqda';
+  }
+}
+
+connect();
+</script>
+{% endblock %}
