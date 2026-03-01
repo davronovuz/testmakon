@@ -649,13 +649,13 @@ def _get_dtm_uni_data(user, attempt):
         user=user,
         test__title__icontains='DTM Simulyatsiya',
         status='completed',
-    ).order_by('-created_at')[:6]
+    ).order_by('-completed_at')[:6]
     for pa in past:
         tq = pa.total_questions or 90
         ball = round(pa.correct_answers * 189 / tq)
         history.append({
             'ball': ball,
-            'date': pa.created_at,
+            'date': pa.completed_at,
             'is_current': pa.id == attempt.id,
         })
 

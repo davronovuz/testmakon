@@ -794,13 +794,15 @@ def generate_dtm_advice(self, attempt_id):
         dtm_ball = round(attempt.correct_answers * 189 / total_q)
 
         # Oxirgi 5 ta DTM simulyatsiya natijasi (bu attemptdan tashqari)
+        # .values() slice'dan OLDIN bo'lishi shart (Django QuerySet cheklovi)
         past_attempts = list(
             TestAttempt.objects.filter(
                 user=user,
                 test__title__icontains='DTM Simulyatsiya',
                 status='completed',
-            ).exclude(id=attempt.id).order_by('-created_at')[:5]
-            .values('correct_answers', 'total_questions', 'created_at')
+            ).exclude(id=attempt.id)
+            .order_by('-completed_at')
+            .values('correct_answers', 'total_questions')[:5]
         )
 
         past_balls = []
