@@ -804,11 +804,10 @@ def dtm_simulation_start(request):
         (['ozbekiston-tarixi', 'o\'zbekiston-tarixi', 'tarix', 'ozbek-tarixi'], "O'zbekiston tarixi"),
     ]
 
-    selected_ids = {fan1.id, fan2.id}
     mandatory_subjects = []
     for slug_list, name_hint in mandatory_defs:
         s = find_mandatory(slug_list, name_hint)
-        if s and s.id not in selected_ids:
+        if s:
             mandatory_subjects.append(s)
 
     for subj in mandatory_subjects:
