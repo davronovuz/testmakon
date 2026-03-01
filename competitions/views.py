@@ -26,7 +26,7 @@ from .models import (
     DailyChallenge, DailyChallengeParticipant,
     WeeklyLeague, WeeklyLeagueParticipant
 )
-from tests_app.models import Subject, Topic, Question, Answer, Test
+from tests_app.models import Subject, Topic, Question, Answer, Test, TestAttempt
 
 
 # ============================================================
@@ -1761,5 +1761,3 @@ def exam_list_admin(request):
     return render(request, 'competitions/exam_list_admin.html', context)
 
 
-# Import needed for exam_live
-from tests_app.models import TestAttempt

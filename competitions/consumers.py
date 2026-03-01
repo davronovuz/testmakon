@@ -6,6 +6,7 @@ Olympiad va Mock Imtihon real-time boshqaruv
 
 import json
 import asyncio
+import datetime as dt
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
@@ -267,20 +268,20 @@ class ExamConsumer(AsyncWebsocketConsumer):
         action = data.get('action', '')
 
         if action == 'start':
-            await self.do_start_exam()
+            await self.handle_start()
 
         elif action == 'pause':
-            await self.do_pause_exam()
+            await self.handle_pause()
 
         elif action == 'resume':
-            await self.do_resume_exam()
+            await self.handle_resume()
 
         elif action == 'stop':
-            await self.do_stop_exam()
+            await self.handle_stop()
 
         elif action == 'extend':
             minutes = int(data.get('minutes', 10))
-            await self.do_extend_exam(minutes)
+            await self.handle_extend(minutes)
 
         elif action == 'announce':
             message = data.get('message', '')
@@ -308,7 +309,7 @@ class ExamConsumer(AsyncWebsocketConsumer):
             now = timezone.now()
             if comp.start_time < now:
                 comp.start_time = now
-            comp.end_time = comp.start_time + __import__('datetime').timedelta(minutes=comp.duration_minutes)
+            comp.end_time = comp.start_time + dt.timedelta(minutes=comp.duration_minutes)
             comp.save(update_fields=['status', 'start_time', 'end_time'])
             return {'status': 'active', 'end_time': comp.end_time.isoformat()}
         return None
@@ -531,7 +532,7 @@ class ExamConsumer(AsyncWebsocketConsumer):
             CompetitionParticipant.objects
             .filter(competition_id=self.competition_id)
             .select_related('user')
-            .order_by('-score', 'time_taken')[:20]
+            .order_by('-score', 'time_spent')[:20]
         )
         result = []
         for i, p in enumerate(participants, 1):
@@ -540,7 +541,7 @@ class ExamConsumer(AsyncWebsocketConsumer):
                 'name': p.user.full_name or p.user.phone_number,
                 'score': p.score,
                 'correct': p.correct_answers,
-                'time': p.time_taken,
+                'time': p.time_spent,
                 'status': p.status,
             })
         return result
