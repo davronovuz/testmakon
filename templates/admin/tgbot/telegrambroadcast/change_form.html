@@ -32,7 +32,7 @@
 {% if original and original.status == 'running' %}
 <script>
 (function() {
-  var statsUrl = '/admin/tgbot/telegrambroadcast/{{ original.pk }}/stats-api/';
+  var statsUrl = '/tm-admin-9x7/tgbot/telegrambroadcast/{{ original.pk }}/stats-api/';
   var pollInterval = 2500;
 
   function updateUI(d) {
