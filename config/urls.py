@@ -8,6 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic import TemplateView
+from django.http import Http404
 from core.sitemaps import StaticViewSitemap, SubjectSitemap, ArticleSitemap
 
 sitemaps = {
@@ -16,9 +17,15 @@ sitemaps = {
     'articles': ArticleSitemap,
 }
 
+
+def _trap_admin(request):
+    raise Http404
+
+
 urlpatterns = [
-    # Admin
-    path('admin/', admin.site.urls),
+    # Admin panel — yashirin URL (botlar /admin/ ga kelsa 404)
+    path('admin/', _trap_admin),
+    path('tm-admin-9x7/', admin.site.urls),
 
     # Apps
     path('', include('core.urls', namespace='core')),

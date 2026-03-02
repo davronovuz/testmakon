@@ -1020,7 +1020,7 @@
                         <i class="bi bi-gift"></i>
                     </div>
                     <h3 class="pricing-name">Bepul</h3>
-                    <p class="pricing-desc">Platformani sinab ko'rish uchun</p>
+                    <p class="pricing-desc">Ro'yxatdan o'tish bilan darhol boshlang</p>
 
                     <div class="pricing-amount">
                         <span class="pricing-value">0</span>
@@ -1029,18 +1029,33 @@
                     </div>
 
                     <ul class="pricing-features">
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Testlar yechish</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Cheksiz test yechish</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> DTM simulyatsiya</li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> Umumiy reyting</li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> Musobaqalar</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Asosiy statistika</li>
-                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> AI Mentor</li>
-                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> Shaxsiy tahlil</li>
-                        <li class="disabled"><span class="check"><i class="bi bi-x"></i></span> DTM simulyatsiya</li>
+                        <li>
+                            <span class="check" style="background:rgba(251,191,36,0.15);color:#d97706;"><i class="bi bi-hourglass-split"></i></span>
+                            <span>O'quv reja <span style="font-size:0.75rem;background:#FEF3C7;color:#92400E;padding:1px 7px;border-radius:5px;font-weight:700;margin-left:4px;">2× sinov</span></span>
+                        </li>
+                        <li>
+                            <span class="check" style="background:rgba(251,191,36,0.15);color:#d97706;"><i class="bi bi-hourglass-split"></i></span>
+                            <span>Xato javoblar <span style="font-size:0.75rem;background:#FEF3C7;color:#92400E;padding:1px 7px;border-radius:5px;font-weight:700;margin-left:4px;">2× sinov</span></span>
+                        </li>
+                        <li>
+                            <span class="check" style="background:rgba(251,191,36,0.15);color:#d97706;"><i class="bi bi-hourglass-split"></i></span>
+                            <span>AI Tahlil & Universitetlar <span style="font-size:0.75rem;background:#FEF3C7;color:#92400E;padding:1px 7px;border-radius:5px;font-weight:700;margin-left:4px;">1× sinov</span></span>
+                        </li>
                     </ul>
 
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'tests_app:tests_list' %}" class="btn btn-outline w-100">
+                        Testlarga o'tish
+                    </a>
+                    {% else %}
                     <a href="{% url 'accounts:register' %}" class="btn btn-outline w-100">
                         Bepul boshlash
                     </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -1052,7 +1067,7 @@
                         <i class="bi bi-lightning-charge-fill"></i>
                     </div>
                     <h3 class="pricing-name">Premium</h3>
-                    <p class="pricing-desc">DTM ga eng qisqa yo'l</p>
+                    <p class="pricing-desc">DTM ga eng qisqa yo'l — hech qanday cheklov yo'q</p>
 
                     <div class="pricing-amount">
                         <span class="pricing-value">30,000</span>
@@ -1061,13 +1076,13 @@
                     </div>
 
                     <ul class="pricing-features">
-                        <li><span class="check"><i class="bi bi-check2"></i></span> <strong>Cheksiz testlar</strong></li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Bepul rejadagi hamma narsa</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> <strong>O'quv reja — cheksiz</strong></li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Xato javoblar — cheksiz</li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> AI Mentor — cheksiz</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Shaxsiy zaiflik tahlili</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> DTM simulyatsiya</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Universitet tavsiyasi (AI)</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Zaiflik tahlili — cheksiz</li>
+                        <li><span class="check"><i class="bi bi-check2"></i></span> Universitet tavsiyasi — cheksiz</li>
                         <li><span class="check"><i class="bi bi-check2"></i></span> Reklama yo'q</li>
-                        <li><span class="check"><i class="bi bi-check2"></i></span> Sertifikat + PDF</li>
                     </ul>
 
                     {% if user.is_authenticated and user.is_premium %}
