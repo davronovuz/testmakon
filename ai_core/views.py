@@ -23,6 +23,42 @@ from tests_app.models import Subject, Topic, TestAttempt, AttemptAnswer, Test
 from universities.models import University, Direction, PassingScore
 
 
+def _check_trial(request, feature):
+    """False qaytarsa — caller redirect qilishi kerak. True = kirish mumkin."""
+    if request.user.is_premium:
+        # Stale flag emasligini ham tekshiramiz — soatlik task bilan sync uchun
+        from subscriptions.models import Subscription
+        active_sub = Subscription.objects.filter(
+            user=request.user, status='active'
+        ).first()
+        if active_sub and active_sub.is_active:
+            return True
+        # Obuna muddati o'tgan lekin flag hali tozalanmagan — shu yerda tozalaymiz
+        if active_sub:
+            active_sub.check_and_expire()
+        elif not active_sub:
+            # Aktiv obuna yo'q — flagni tozalaymiz
+            request.user.is_premium = False
+            request.user.premium_until = None
+            request.user.save(update_fields=['is_premium', 'premium_until'])
+    from subscriptions.models import FeatureTrialUsage
+    NAMES = {
+        'study_plan':           "O'quv reja",
+        'wrong_answers':        'Xato javoblar',
+        'behavioral_insights':  'Xulq tahlili',
+        'university_dashboard': 'Universitetlar',
+    }
+    can, count, limit = FeatureTrialUsage.check_and_increment(request.user, feature)
+    if not can:
+        messages.warning(
+            request,
+            f"«{NAMES.get(feature, feature)}» xususiyati {limit} marta bepul. "
+            f"Cheksiz foydalanish uchun Premium oling."
+        )
+        return redirect(reverse('subscriptions:pricing') + f'?upgrade=1&feature={feature}')
+    return True
+
+
 def generate_plan_tasks(plan):
     """Reja yaratilganda haftalik vazifalarni avtomatik yaratish (4 hafta yoki imtihon sanasigacha)."""
     from datetime import date
@@ -347,6 +383,9 @@ def study_plan_list(request):
 def study_plan_create(request):
     """Yangi o'quv reja -- AI yoki oddiy rejim."""
     if request.method == 'POST':
+        result = _check_trial(request, 'study_plan')
+        if result is not True:
+            return result
         mode = request.POST.get('mode', 'manual')
         title = (request.POST.get('title') or '').strip() or "O'quv reja"
         target_date_str = request.POST.get('target_date', '').strip()
@@ -697,6 +736,10 @@ def university_dashboard(request):
     - DTM ballini passing_score bilan solishtiradi
     - AI do'stona maslahat beradi (cached)
     """
+    result = _check_trial(request, 'university_dashboard')
+    if result is not True:
+        return result
+
     from tests_app.models import UserAnalyticsSummary, UserSubjectPerformance
     from django.db.models import Max, Prefetch
     from django.core.cache import cache
@@ -966,6 +1009,10 @@ def progress_dashboard(request):
 @login_required
 def behavioral_insights(request):
     """Behavioral insights — o'qish vaqti, charchash, uslub."""
+    result = _check_trial(request, 'behavioral_insights')
+    if result is not True:
+        return result
+
     from tests_app.models import UserAnalyticsSummary, DailyUserStats
     from django.core.cache import cache
 

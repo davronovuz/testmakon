@@ -7,7 +7,7 @@ from django.utils.html import format_html
 from django.utils import timezone
 from .models import (
     SubscriptionPlan, Subscription, Payment,
-    PromoCode, PromoCodeUsage, UserDailyLimit
+    PromoCode, PromoCodeUsage, UserDailyLimit, FeatureTrialUsage
 )
 
 
@@ -292,3 +292,10 @@ class UserDailyLimitAdmin(admin.ModelAdmin):
     search_fields = ['user__phone_number']
     raw_id_fields = ['user']
     date_hierarchy = 'date'
+
+
+@admin.register(FeatureTrialUsage)
+class FeatureTrialUsageAdmin(admin.ModelAdmin):
+    list_display = ['user', 'feature', 'usage_count', 'first_used_at']
+    list_filter = ['feature']
+    search_fields = ['user__phone_number']

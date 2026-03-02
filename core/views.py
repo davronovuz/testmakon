@@ -95,6 +95,13 @@ def home(request):
             is_active=True
         ).first()
 
+        # Faol obuna (is_active tekshiriladi)
+        from subscriptions.models import Subscription
+        _sub = Subscription.objects.filter(
+            user=user, status='active'
+        ).select_related('plan').first()
+        home_subscription = _sub if (_sub and _sub.is_active) else None
+
         context.update({
             'user_stats': {
                 'xp': user.xp_points,
@@ -107,6 +114,7 @@ def home(request):
             'weekly_tests': weekly_attempts.count(),
             'weekly_xp': weekly_attempts.aggregate(Sum('xp_earned'))['xp_earned__sum'] or 0,
             'daily_challenge': daily_challenge,
+            'home_subscription': home_subscription,
         })
 
     return render(request, 'core/home.html', context)

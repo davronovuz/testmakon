@@ -175,6 +175,14 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ai_core.tasks.send_inactivity_reminders',
         'schedule': crontab(hour=10, minute=0),  # 10:00 har kuni
     },
+    'check-subscriptions-expiry': {
+        'task': 'subscriptions.tasks.check_all_subscriptions_expiry',
+        'schedule': 3600.0,  # har soatda — muddati o'tgan obunalarni expired qiladi
+    },
+    'expiring-soon-notifications': {
+        'task': 'subscriptions.tasks.send_expiring_soon_notifications',
+        'schedule': crontab(hour=10, minute=30),  # har kuni 10:30 — 3 kun qolganida ogohlantirish
+    },
 }
 
 # Password validation

@@ -1599,6 +1599,12 @@ def unsave_question(request, question_id):
 @login_required
 def wrong_answers(request):
     """Noto'g'ri javoblar"""
+    if not request.user.is_premium:
+        from subscriptions.models import FeatureTrialUsage
+        can, count, limit = FeatureTrialUsage.check_and_increment(request.user, 'wrong_answers')
+        if not can:
+            messages.warning(request, f"Xato javoblar {limit} marta bepul. Premium oling!")
+            return redirect('/subscriptions/pricing/?upgrade=1&feature=wrong_answers')
     wrong = AttemptAnswer.objects.filter(
         attempt__user=request.user,
         is_correct=False

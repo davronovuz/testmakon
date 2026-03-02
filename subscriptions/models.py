@@ -154,6 +154,28 @@ class Subscription(models.Model):
         self.user.premium_until = self.expires_at
         self.user.save()
 
+        # Premium sotib olganda trial limitlarni tozalash (keyingi bepuz davr uchun yangi shans)
+        try:
+            FeatureTrialUsage.objects.filter(user=self.user).delete()
+        except Exception:
+            pass
+
+        # Premium Notification yuborish
+        try:
+            from news.models import Notification
+            Notification.objects.create(
+                user=self.user,
+                notification_type='system',
+                title='Premium faollashtirildi!',
+                message=(
+                    f"{self.plan.name} tarif rejangiz muvaffaqiyatli faollashtirildi. "
+                    f"Barcha premium imkoniyatlardan to'liq foydalaning!"
+                ),
+                link='/ai/mentor/',
+            )
+        except Exception:
+            pass  # Notification xatosi asosiy flowni to'xtatmasin
+
     def cancel(self):
         """Obunani bekor qilish"""
         self.status = 'cancelled'
@@ -171,6 +193,23 @@ class Subscription(models.Model):
             self.user.is_premium = False
             self.user.premium_until = None
             self.user.save()
+
+            # Expiry Notification yuborish
+            try:
+                from news.models import Notification
+                Notification.objects.create(
+                    user=self.user,
+                    notification_type='system',
+                    title='Premium obunangiz tugadi',
+                    message=(
+                        f"{self.plan.name} obunangiz muddati tugadi. "
+                        f"Premium imkoniyatlardan foydalanishni davom ettirish uchun "
+                        f"yangi obuna xarid qiling."
+                    ),
+                    link='/subscriptions/pricing/',
+                )
+            except Exception:
+                pass
             return True
         return False
 
@@ -399,3 +438,49 @@ class UserDailyLimit(models.Model):
         if plan.daily_ai_chat_limit is None:
             return True
         return self.ai_chats_used < plan.daily_ai_chat_limit
+
+
+class FeatureTrialUsage(models.Model):
+    """Premium funksiyalar uchun sinov foydalanish hisobi"""
+
+    FEATURES = [
+        ('study_plan',           "O'quv reja"),
+        ('wrong_answers',        'Xato javoblar'),
+        ('behavioral_insights',  'Xulq tahlili'),
+        ('university_dashboard', 'Universitetlar'),
+    ]
+    FEATURE_LIMITS = {
+        'study_plan':           2,
+        'wrong_answers':        2,
+        'behavioral_insights':  1,
+        'university_dashboard': 1,
+    }
+
+    user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='feature_trials')
+    feature      = models.CharField(max_length=50, choices=FEATURES)
+    usage_count  = models.PositiveIntegerField(default=0)
+    first_used_at = models.DateTimeField(auto_now_add=True)
+    last_used_at  = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'feature']
+        verbose_name = 'Sinov foydalanish'
+        verbose_name_plural = 'Sinov foydalanishlar'
+
+    @classmethod
+    def check_and_increment(cls, user, feature):
+        """(can_access: bool, count: int, limit: int)"""
+        limit = cls.FEATURE_LIMITS.get(feature, 1)
+        obj, _ = cls.objects.get_or_create(user=user, feature=feature)
+        if obj.usage_count >= limit:
+            return False, obj.usage_count, limit
+        obj.usage_count += 1
+        obj.save(update_fields=['usage_count', 'last_used_at'])
+        return True, obj.usage_count, limit
+
+    @classmethod
+    def get_usage(cls, user, feature):
+        """(count, limit) — increment qilmasdan"""
+        limit = cls.FEATURE_LIMITS.get(feature, 1)
+        obj = cls.objects.filter(user=user, feature=feature).first()
+        return (obj.usage_count if obj else 0), limit

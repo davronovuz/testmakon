@@ -21,13 +21,19 @@ def pricing(request):
     """Narxlar sahifasi"""
     plans = SubscriptionPlan.objects.filter(is_active=True).order_by('order', 'price')
 
-    # Foydalanuvchi joriy obunasi
+    # Foydalanuvchi joriy obunasi — is_active property orqali tekshiriladi
     current_subscription = None
     if request.user.is_authenticated:
-        current_subscription = Subscription.objects.filter(
+        sub = Subscription.objects.filter(
             user=request.user,
-            status='active'
-        ).first()
+            status='active',
+        ).select_related('plan').first()
+        if sub:
+            if sub.is_active:
+                current_subscription = sub
+            else:
+                # Muddati o'tgan — avtomatik expire qilamiz
+                sub.check_and_expire()
 
     context = {
         'plans': plans,

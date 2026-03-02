@@ -1070,9 +1070,15 @@
                         <li><span class="check"><i class="bi bi-check2"></i></span> Sertifikat + PDF</li>
                     </ul>
 
+                    {% if user.is_authenticated and home_subscription %}
+                    <a href="{% url 'subscriptions:my_subscription' %}" class="btn w-100" style="background: rgba(139,197,64,0.1); color: var(--primary); border: 1.5px solid rgba(139,197,64,0.3); font-weight: 800;">
+                        ✓ Premium faol — {{ home_subscription.days_remaining }} kun
+                    </a>
+                    {% else %}
                     <a href="{% url 'subscriptions:pricing' %}" class="btn btn-primary w-100">
                         Sotib olish <i class="bi bi-arrow-right ms-1"></i>
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1086,9 +1092,21 @@
             <h2 class="cta-title">Imtihon kuni hech narsaga afsuslanmang</h2>
             <p class="cta-desc">Hozir boshlang — 2 haftada farqni ko'rasiz. 5 200+ abituriyent allaqachon natija olmoqda.</p>
             <div class="d-flex flex-wrap justify-content-center gap-3">
+                {% if user.is_authenticated %}
+                    {% if home_subscription %}
+                    <a href="{% url 'tests_app:tests_list' %}" class="cta-btn-white">
+                        O'qishni davom ettirish <i class="bi bi-arrow-right"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'subscriptions:pricing' %}" class="cta-btn-white">
+                        Premium olish <i class="bi bi-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                {% else %}
                 <a href="{% url 'accounts:register' %}" class="cta-btn-white">
                     Bepul ro'yxatdan o'tish <i class="bi bi-arrow-right"></i>
                 </a>
+                {% endif %}
                 <a href="{% url 'ai_core:ai_mentor' %}" class="cta-btn-outline">
                     <i class="bi bi-robot"></i> AI Mentorni sinash
                 </a>
