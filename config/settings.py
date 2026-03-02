@@ -3,6 +3,7 @@ TestMakon.uz - AI Powered Ta'lim Platformasi
 Django Settings
 """
 
+
 from pathlib import Path
 import os
 import sentry_sdk
@@ -32,8 +33,10 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    # CSRF faqat HTTPS
+    # CSRF faqat HTTPS (HTTP variantlari yo'q — production da HTTP bo'lmasin)
     CSRF_TRUSTED_ORIGINS = ['https://testmakon.uz', 'https://www.testmakon.uz']
+else:
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
 
 # Application definition
 INSTALLED_APPS = [
@@ -99,10 +102,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
-# Django Channels — Redis Channel Layer (DB 2, alohida)
-_redis_url = config('REDIS_URL', default='redis://localhost:6379/0')
-# Channels uchun alohida DB (DB 2)
-_channel_redis_url = _redis_url.rsplit('/', 1)[0] + '/2'
+# Redis bazaviy URL (DB raqamisiz) — har bir xizmat o'z DB'sini ishlatadi
+# DB 1 = Cache, DB 2 = Channels, DB 3 = Celery
+_redis_base = config('REDIS_URL', default='redis://localhost:6379/0').rsplit('/', 1)[0]
+_channel_redis_url = _redis_base + '/2'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
@@ -114,13 +117,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://testmakon.uz',
-    'https://www.testmakon.uz',
-    'http://testmakon.uz',
-    'http://www.testmakon.uz',
-]
 
 # Database
 DATABASES = {
@@ -135,7 +131,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL', default='redis://localhost:6379/1'),
+        'LOCATION': _redis_base + '/1',
         'TIMEOUT': 300,  # 5 daqiqa default
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
@@ -145,12 +141,12 @@ CACHES = {
 }
 
 # Session ham Redis da saqlash (ko'p user uchun tezroq)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 SESSION_CACHE_ALIAS = 'default'
 
 # Celery + Redis
-CELERY_BROKER_URL        = config('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND    = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_BROKER_URL        = _redis_base + '/3'
+CELERY_RESULT_BACKEND    = _redis_base + '/3'
 CELERY_ACCEPT_CONTENT    = ['json']
 CELERY_TASK_SERIALIZER   = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
