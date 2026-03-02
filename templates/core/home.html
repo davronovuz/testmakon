@@ -1070,9 +1070,9 @@
                         <li><span class="check"><i class="bi bi-check2"></i></span> Sertifikat + PDF</li>
                     </ul>
 
-                    {% if user.is_authenticated and home_subscription %}
+                    {% if user.is_authenticated and user.is_premium %}
                     <a href="{% url 'subscriptions:my_subscription' %}" class="btn w-100" style="background: rgba(139,197,64,0.1); color: var(--primary); border: 1.5px solid rgba(139,197,64,0.3); font-weight: 800;">
-                        ✓ Premium faol — {{ home_subscription.days_remaining }} kun
+                        ✓ Premium faol{% if home_subscription %} — {{ home_subscription.days_remaining }} kun{% endif %}
                     </a>
                     {% else %}
                     <a href="{% url 'subscriptions:pricing' %}" class="btn btn-primary w-100">
