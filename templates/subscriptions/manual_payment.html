@@ -233,7 +233,7 @@
                 </div>
                 <div class="mp-card-label">Karta raqami</div>
                 <div class="mp-card-number" id="cardNumber">
-                    <span>8600</span><span>1234</span><span>5678</span><span>9012</span>
+                    <span>9860</span><span>0801</span><span>4780</span><span>2732</span>
                 </div>
                 <button class="mp-copy-btn" onclick="copyCard()">
                     <i class="bi bi-clipboard" id="copyIcon"></i> Nusxalash
@@ -241,11 +241,11 @@
                 <div class="mp-card-meta">
                     <div class="mp-card-meta-item">
                         <div class="mp-card-label">Karta egasi</div>
-                        <div class="mp-card-meta-val">TESTMAKON ADMIN</div>
+                        <div class="mp-card-meta-val">G'OLIBJON DAVRONOV</div>
                     </div>
                     <div class="mp-card-meta-item">
                         <div class="mp-card-label">Bank</div>
-                        <div class="mp-card-meta-val">Hamkorbank</div>
+                        <div class="mp-card-meta-val">Xalq Bank</div>
                     </div>
                 </div>
             </div>
@@ -264,7 +264,7 @@
                     </li>
                     <li>
                         <div class="mp-instr-num">3</div>
-                        <span>Quyidagi formaga chek rasmini yuklang va jo'nating</span>
+                        <span>Quyidagi tugmani bosib Telegramda chek rasmini yuboring</span>
                     </li>
                     <li>
                         <div class="mp-instr-num">4</div>
@@ -273,37 +273,15 @@
                 </ul>
             </div>
 
-            <!-- Upload form -->
-            <div class="mp-form">
-                <div class="mp-form-title"><i class="bi bi-upload" style="color:var(--primary);"></i> Chek yuborish</div>
+            <!-- Telegram button -->
+            <a href="https://t.me/testmakonaibot?start=payment_{{ plan.slug }}" target="_blank" class="mp-submit" style="text-decoration:none; display:flex;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white" style="flex-shrink:0;"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.19 14.447l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.626.139z"/></svg>
+                Telegramda chek yuborish
+            </a>
 
-                <div class="mp-warning">
-                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
-                    <span>To'lovni amalga oshirib bo'lgach chek rasmini yuboring. Tasdiqlash 1-24 soat oladi.</span>
-                </div>
-
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-
-                    <label class="mp-label">To'lovchining ismi (ixtiyoriy)</label>
-                    <input type="text" name="sender_name" class="mp-input" placeholder="Masalan: Alisher Karimov">
-
-                    <label class="mp-label">To'lov cheki <span style="color:#ef4444;">*</span></label>
-
-                    <div class="mp-upload-zone" id="uploadZone">
-                        <input type="file" name="receipt_image" accept="image/*" id="receiptInput" required>
-                        <img src="" alt="" class="mp-preview" id="previewImg">
-                        <div id="uploadPlaceholder">
-                            <div class="mp-upload-icon"><i class="bi bi-image"></i></div>
-                            <div class="mp-upload-text">Chek rasmini bu yerga tashlang yoki bosing</div>
-                            <div class="mp-upload-sub">JPG, PNG, HEIC — max 5MB</div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="mp-submit">
-                        <i class="bi bi-send-fill"></i> Chekni yuborish
-                    </button>
-                </form>
+            <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; padding:0.875rem 1rem; margin-top:1rem; display:flex; align-items:flex-start; gap:0.6rem;">
+                <i class="bi bi-info-circle-fill" style="color:#16a34a; flex-shrink:0; margin-top:2px;"></i>
+                <span style="font-size:0.82rem; color:#166534;">Telegramda chek yuborilgandan so'ng admin <strong>1-24 soat</strong> ichida premiumingizni faollashtiradi va bildirishnoma olasiz.</span>
             </div>
 
         </div>
@@ -313,30 +291,8 @@
 
 {% block extra_js %}
 <script>
-// Image preview
-document.getElementById('receiptInput').addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-        var preview = document.getElementById('previewImg');
-        var placeholder = document.getElementById('uploadPlaceholder');
-        preview.src = ev.target.result;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-});
-
-// Drag & drop style
-var zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag'); });
-zone.addEventListener('dragleave', function() { zone.classList.remove('drag'); });
-zone.addEventListener('drop', function(e) { zone.classList.remove('drag'); });
-
-// Copy card number
 function copyCard() {
-    var num = '8600123456789012';
+    var num = '9860080147802732';
     navigator.clipboard.writeText(num).then(function() {
         var icon = document.getElementById('copyIcon');
         icon.className = 'bi bi-check-lg';
