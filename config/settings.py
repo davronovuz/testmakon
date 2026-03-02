@@ -19,6 +19,22 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testmakon.uz', 'www.testmakon.uz']
 
+# ─── Production xavfsizlik sozlamalari ───────────────────────────────────────
+if not DEBUG:
+    # nginx SSL ni boshqaradi — redirect loop oldini olish uchun False
+    SECURE_SSL_REDIRECT = False
+    # nginx HTTPS ni Django ga xabar beradi
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Cookie lar faqat HTTPS orqali
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # HSTS — brauzer 1 yil davomida faqat HTTPS ishlatadi
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    # CSRF faqat HTTPS
+    CSRF_TRUSTED_ORIGINS = ['https://testmakon.uz', 'https://www.testmakon.uz']
+
 # Application definition
 INSTALLED_APPS = [
     'daphne',
@@ -231,8 +247,7 @@ LOGOUT_REDIRECT_URL = 'core:home'
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
-# Telegram Bot
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8205738917:AAHIVL5FvDqOg-AM_6Qwe22_ey1JAcG_h78')
+# Telegram Bot (token faqat server .env dan — hardcoded bo'lmasin)
 TELEGRAM_BOT_USERNAME = os.environ.get('TELEGRAM_BOT_USERNAME', 'testmakonaibot')
 
 # Session settings
@@ -255,7 +270,7 @@ MESSAGE_TAGS = {
 # SENTRY — xatolarni real vaqtda kuzatish
 # DSN ni sentry.io dan oling
 # ============================================================
-SENTRY_DSN = os.environ.get('SENTRY_DSN', 'https://3781979e4fc948a9411faa1a67ded53e@o4510917351440384.ingest.de.sentry.io/4510917390827600')
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
 
 if SENTRY_DSN:
     sentry_sdk.init(
