@@ -871,7 +871,7 @@ class BattleInvitation(models.Model):
 class DailyChallenge(models.Model):
     """Kunlik challenge"""
 
-    date = models.DateField('Sana', unique=True)
+    date = models.DateField('Sana', db_index=True)
 
     subject = models.ForeignKey(
         'tests_app.Subject',

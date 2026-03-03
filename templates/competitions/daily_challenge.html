@@ -85,74 +85,76 @@
             {% include 'competitions/_sidebar.html' with active='daily_challenge' %}
 
             <div>
-                {% if challenge %}
-                    <!-- Hero -->
-                    <div class="dc-hero">
+                {% if challenges_data %}
+                    {% for item in challenges_data %}
+                    {% with ch=item.challenge %}
+                    <!-- Challenge #{{ forloop.counter }} Hero -->
+                    <div class="dc-hero" style="{% if not forloop.first %}margin-top:1.5rem;{% endif %}">
                         <div class="dc-hero-inner">
-                            <div class="dc-hero-badge"><i class="bi bi-calendar-check-fill"></i> Bugungi challenge</div>
-                            <h2>{% with subs=challenge.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif challenge.subject %}{{ challenge.subject.name }}{% else %}Umumiy{% endif %}{% endwith %} Challenge</h2>
-                            <p>{{ challenge.question_count }} ta savolga {{ challenge.time_limit }} daqiqa ichida javob bering va XP yuting!</p>
+                            <div class="dc-hero-badge"><i class="bi bi-lightning-fill"></i> Challenge #{{ forloop.counter }}</div>
+                            <h2>{% with subs=ch.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif ch.subject %}{{ ch.subject.name }}{% else %}Umumiy{% endif %}{% endwith %}</h2>
+                            <p>{{ ch.question_count }} ta savolga {{ ch.time_limit }} daqiqa ichida javob bering va XP yuting!</p>
                             <div class="dc-hero-stats">
                                 <div class="dc-hero-stat">
-                                    <strong>{{ challenge.participants_count }}</strong>
+                                    <strong>{{ ch.participants_count }}</strong>
                                     <span>qatnashdi</span>
                                 </div>
                                 <div class="dc-hero-stat">
-                                    <strong>+{{ challenge.xp_reward }}</strong>
+                                    <strong>+{{ ch.xp_reward }}</strong>
                                     <span>XP mukofot</span>
                                 </div>
-                                {% if challenge.bonus_xp_top10 > 0 %}
+                                {% if ch.bonus_xp_top10 > 0 %}
                                 <div class="dc-hero-stat">
-                                    <strong>+{{ challenge.bonus_xp_top10 }}</strong>
+                                    <strong>+{{ ch.bonus_xp_top10 }}</strong>
                                     <span>Top 10 bonus</span>
                                 </div>
                                 {% endif %}
                             </div>
-                            {% if completed %}
+                            {% if item.completed %}
                             <span class="dc-hero-btn done"><i class="bi bi-check-circle-fill"></i> Yakunladingiz ✓</span>
                             {% elif user.is_authenticated %}
-                            <a href="{% url 'competitions:daily_challenge_start' %}" class="dc-hero-btn start"><i class="bi bi-play-fill"></i> Boshlash</a>
+                            <a href="{% url 'competitions:daily_challenge_start' ch.pk %}" class="dc-hero-btn start"><i class="bi bi-play-fill"></i> Boshlash</a>
                             {% else %}
-                            <a href="{% url 'account_login' %}" class="dc-hero-btn start"><i class="bi bi-box-arrow-in-right"></i> Kirish va boshlash</a>
+                            <a href="{% url 'accounts:login' %}" class="dc-hero-btn start"><i class="bi bi-box-arrow-in-right"></i> Kirish va boshlash</a>
                             {% endif %}
                         </div>
                     </div>
 
-                    <!-- Challenge info (compact) -->
+                    <!-- Info -->
                     <div class="dc-info-card">
                         <h4><i class="bi bi-info-circle-fill" style="color:var(--primary);"></i> Ma'lumot</h4>
                         <ul class="dc-info-list">
-                            <li><span>Fan</span><span>{% with subs=challenge.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif challenge.subject %}{{ challenge.subject.name }}{% else %}Umumiy{% endif %}{% endwith %}</span></li>
-                            <li><span>Savollar</span><span>{{ challenge.question_count }} ta</span></li>
-                            <li><span>Vaqt</span><span>{{ challenge.time_limit }} daqiqa</span></li>
-                            <li><span>XP mukofot</span><span style="color:var(--primary);font-weight:800;">+{{ challenge.xp_reward }}</span></li>
-                            <li><span>Qatnashchilar</span><span>{{ challenge.participants_count }}</span></li>
+                            <li><span>Fan</span><span>{% with subs=ch.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif ch.subject %}{{ ch.subject.name }}{% else %}Umumiy{% endif %}{% endwith %}</span></li>
+                            <li><span>Savollar</span><span>{{ ch.question_count }} ta</span></li>
+                            <li><span>Vaqt</span><span>{{ ch.time_limit }} daqiqa</span></li>
+                            <li><span>XP mukofot</span><span style="color:var(--primary);font-weight:800;">+{{ ch.xp_reward }}</span></li>
+                            <li><span>Qatnashchilar</span><span>{{ ch.participants_count }}</span></li>
                         </ul>
                     </div>
 
                     <!-- My result -->
-                    {% if participant %}
+                    {% if item.participant %}
                     <div class="dc-result">
                         <div class="dc-result-head">
                             <span style="font-size:1.25rem;">📊</span>
                             <h3>Sizning natijangiz</h3>
                         </div>
                         <div class="dc-result-grid">
-                            <div class="dc-result-item"><div class="dc-result-val primary">{{ participant.score }}</div><div class="dc-result-label">Ball</div></div>
-                            <div class="dc-result-item"><div class="dc-result-val green">{{ participant.correct_answers }}</div><div class="dc-result-label">To'g'ri</div></div>
-                            <div class="dc-result-item"><div class="dc-result-val red">{{ participant.wrong_answers }}</div><div class="dc-result-label">Noto'g'ri</div></div>
-                            <div class="dc-result-item"><div class="dc-result-val">+{{ participant.xp_earned }}</div><div class="dc-result-label">XP olindi</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val primary">{{ item.participant.score }}</div><div class="dc-result-label">Ball</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val green">{{ item.participant.correct_answers }}</div><div class="dc-result-label">To'g'ri</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val red">{{ item.participant.wrong_answers }}</div><div class="dc-result-label">Noto'g'ri</div></div>
+                            <div class="dc-result-item"><div class="dc-result-val">+{{ item.participant.xp_earned }}</div><div class="dc-result-label">XP olindi</div></div>
                         </div>
                     </div>
                     {% endif %}
 
                     <!-- Leaderboard -->
-                    <div class="dc-lb">
+                    <div class="dc-lb" style="margin-bottom:2rem;">
                         <div class="dc-lb-head">
-                            <h3><i class="bi bi-bar-chart-fill"></i> Bugungi reyting</h3>
+                            <h3><i class="bi bi-bar-chart-fill"></i> Reyting</h3>
                         </div>
-                        {% if leaderboard %}
-                            {% for p in leaderboard %}
+                        {% if item.leaderboard %}
+                            {% for p in item.leaderboard %}
                             <div class="dc-lb-row {% if p.user == request.user %}me{% endif %}">
                                 <div class="dc-lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% endif %}">
                                     {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
@@ -166,6 +168,8 @@
                             <div class="dc-lb-empty">Hali hech kim qatnashmagan. Birinchi bo'ling!</div>
                         {% endif %}
                     </div>
+                    {% endwith %}
+                    {% endfor %}
 
                 {% else %}
                 <div class="dc-empty">

@@ -354,33 +354,37 @@
                     </p>
                 </div>
 
-                <!-- Daily Challenge -->
-                {% if daily_challenge %}
+                <!-- Daily Challenges -->
+                {% if daily_challenges %}
                 <div class="comp-section">
-                    <div class="daily-card">
+                    <div class="section-head">
+                        <h2 class="section-title"><i class="bi bi-calendar-check-fill" style="color:var(--primary);"></i> Bugungi challengelar</h2>
+                    </div>
+                    {% for ch in daily_challenges %}
+                    <div class="daily-card" style="margin-bottom:0.75rem;">
                         <div class="daily-left">
                             <div class="daily-tag">
-                                <i class="bi bi-calendar-check-fill"></i> Bugungi challenge
+                                <i class="bi bi-lightning-fill"></i> Challenge #{{ forloop.counter }}
                             </div>
-                            <h3>{% with subs=daily_challenge.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif daily_challenge.subject %}{{ daily_challenge.subject.name }}{% else %}Umumiy{% endif %}{% endwith %} — {{ daily_challenge.question_count }} savol</h3>
-                            <p>{{ daily_challenge.time_limit }} daqiqa • +{{ daily_challenge.xp_reward }} XP</p>
+                            <h3>{% with subs=ch.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif ch.subject %}{{ ch.subject.name }}{% else %}Umumiy{% endif %}{% endwith %} — {{ ch.question_count }} savol</h3>
+                            <p>{{ ch.time_limit }} daqiqa • +{{ ch.xp_reward }} XP</p>
                             <div class="daily-meta">
                                 <div class="daily-meta-item">
-                                    <strong>{{ daily_challenge.participants_count }}</strong>
+                                    <strong>{{ ch.participants_count }}</strong>
                                     <span>qatnashdi</span>
                                 </div>
                                 <div class="daily-meta-item">
-                                    <strong>+{{ daily_challenge.xp_reward }}</strong>
+                                    <strong>+{{ ch.xp_reward }}</strong>
                                     <span>XP</span>
                                 </div>
                             </div>
                         </div>
-                        {% if daily_completed %}
+                        {% if ch.id in completed_ids %}
                         <span class="daily-btn done">
                             <i class="bi bi-check-circle-fill"></i> Bajarildi ✓
                         </span>
                         {% elif user.is_authenticated %}
-                        <a href="{% url 'competitions:daily_challenge_start' %}" class="daily-btn start">
+                        <a href="{% url 'competitions:daily_challenge_start' ch.pk %}" class="daily-btn start">
                             <i class="bi bi-play-fill"></i> Boshlash
                         </a>
                         {% else %}
@@ -389,6 +393,7 @@
                         </a>
                         {% endif %}
                     </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
 

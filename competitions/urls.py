@@ -25,9 +25,9 @@ urlpatterns = [
     path('battles/matchmaking/', views.battle_matchmaking, name='battle_matchmaking'),
     path('battles/matchmaking/<int:subject_id>/', views.battle_matchmaking, name='battle_matchmaking_subject'),
 
-    # 3. DAILY CHALLENGE (Static qismlar)
+    # 3. DAILY CHALLENGE
     path('daily/', views.daily_challenge, name='daily_challenge'),
-    path('daily/start/', views.daily_challenge_start, name='daily_challenge_start'),
+    path('daily/<int:pk>/start/', views.daily_challenge_start, name='daily_challenge_start'),
     path('daily/play/', views.daily_challenge_play, name='daily_challenge_play'),
     path('daily/submit/', views.daily_challenge_submit, name='daily_challenge_submit'),
 

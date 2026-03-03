@@ -223,15 +223,16 @@ def competitions_list(request):
         is_active=True
     ).order_by('-end_time')[:6]
 
-    # Kunlik challenge
+    # Kunlik challengelar (bir nechta bo'lishi mumkin)
     today = now.date()
-    daily_challenge = DailyChallenge.objects.filter(date=today, is_active=True).first()
-    daily_completed = False
-    if daily_challenge and request.user.is_authenticated:
-        daily_completed = DailyChallengeParticipant.objects.filter(
-            challenge=daily_challenge,
-            user=request.user
-        ).exists()
+    daily_challenges = DailyChallenge.objects.filter(date=today, is_active=True).prefetch_related('subjects')
+    completed_ids = set()
+    if request.user.is_authenticated:
+        completed_ids = set(
+            DailyChallengeParticipant.objects
+            .filter(challenge__in=daily_challenges, user=request.user)
+            .values_list('challenge_id', flat=True)
+        )
 
     # User stats
     user_stats = None
@@ -248,8 +249,8 @@ def competitions_list(request):
         'active': active,
         'registration_open': registration_open,
         'finished': finished,
-        'daily_challenge': daily_challenge,
-        'daily_completed': daily_completed,
+        'daily_challenges': daily_challenges,
+        'completed_ids': completed_ids,
         'user_stats': user_stats,
         'user_battles': user_battles,
     }
@@ -1212,45 +1213,52 @@ def battle_result(request, uuid):
 
 @login_required
 def daily_challenge(request):
-    """Kunlik challenge"""
+    """Kunlik challengelar ro'yxati"""
     today = timezone.now().date()
+    challenges = DailyChallenge.objects.filter(date=today, is_active=True).prefetch_related('subjects')
 
-    challenge = DailyChallenge.objects.filter(date=today, is_active=True).first()
+    completed_ids = set()
+    if request.user.is_authenticated:
+        completed_ids = set(
+            DailyChallengeParticipant.objects
+            .filter(challenge__in=challenges, user=request.user)
+            .values_list('challenge_id', flat=True)
+        )
 
-    if not challenge:
-        context = {'challenge': None}
-        return render(request, 'competitions/daily_challenge.html', context)
-
-    # User qatnashganmi?
-    participant = DailyChallengeParticipant.objects.filter(
-        challenge=challenge,
-        user=request.user
-    ).first()
-
-    # Top 10 leaderboard
-    leaderboard = DailyChallengeParticipant.objects.filter(
-        challenge=challenge
-    ).select_related('user').order_by('-score', 'time_spent')[:10]
+    # Har bir challenge uchun leaderboard
+    challenges_data = []
+    for ch in challenges:
+        leaderboard = DailyChallengeParticipant.objects.filter(
+            challenge=ch
+        ).select_related('user').order_by('-score', 'time_spent')[:10]
+        participant = None
+        if request.user.is_authenticated:
+            participant = DailyChallengeParticipant.objects.filter(
+                challenge=ch, user=request.user
+            ).first()
+        challenges_data.append({
+            'challenge': ch,
+            'leaderboard': leaderboard,
+            'participant': participant,
+            'completed': ch.id in completed_ids,
+        })
 
     context = {
-        'challenge': challenge,
-        'participant': participant,
-        'leaderboard': leaderboard,
-        'completed': participant is not None,
+        'challenges_data': challenges_data,
+        'today': today,
     }
     return render(request, 'competitions/daily_challenge.html', context)
 
 
 @login_required
-def daily_challenge_start(request):
+def daily_challenge_start(request, pk):
     """Kunlik challengeni boshlash"""
     today = timezone.now().date()
-
-    challenge = get_object_or_404(DailyChallenge, date=today, is_active=True)
+    challenge = get_object_or_404(DailyChallenge, pk=pk, date=today, is_active=True)
 
     # Allaqachon qatnashganmi?
     if DailyChallengeParticipant.objects.filter(challenge=challenge, user=request.user).exists():
-        messages.info(request, "Siz bugun allaqachon ishtirok etgansiz!")
+        messages.info(request, "Siz bu challengeda allaqachon ishtirok etgansiz!")
         return redirect('competitions:daily_challenge')
 
     # Savollarni session'ga saqlash

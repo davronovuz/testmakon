@@ -8,7 +8,18 @@
       "Bash(pip3 install:*)",
       "Bash(source:*)",
       "Bash(tail:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(python3:*)",
+      "Bash(git:*)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:moldstud.com)",
+      "WebFetch(domain:realpython.com)",
+      "WebFetch(domain:testdriven.io)",
+      "WebFetch(domain:blog.gitguardian.com)",
+      "WebFetch(domain:www.vintasoftware.com)",
+      "WebFetch(domain:breadcrumbscollector.tech)",
+      "WebFetch(domain:oliygoh.uz)",
+      "WebFetch(domain:api.oliygoh.uz)"
     ]
   }
 }
