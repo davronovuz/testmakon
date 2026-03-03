@@ -362,7 +362,7 @@
                             <div class="daily-tag">
                                 <i class="bi bi-calendar-check-fill"></i> Bugungi challenge
                             </div>
-                            <h3>{{ daily_challenge.subject.name|default:"Umumiy" }} — {{ daily_challenge.question_count }} savol</h3>
+                            <h3>{% with subs=daily_challenge.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif daily_challenge.subject %}{{ daily_challenge.subject.name }}{% else %}Umumiy{% endif %}{% endwith %} — {{ daily_challenge.question_count }} savol</h3>
                             <p>{{ daily_challenge.time_limit }} daqiqa • +{{ daily_challenge.xp_reward }} XP</p>
                             <div class="daily-meta">
                                 <div class="daily-meta-item">

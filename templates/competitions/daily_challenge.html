@@ -90,7 +90,7 @@
                     <div class="dc-hero">
                         <div class="dc-hero-inner">
                             <div class="dc-hero-badge"><i class="bi bi-calendar-check-fill"></i> Bugungi challenge</div>
-                            <h2>{{ challenge.subject.name|default:"Umumiy" }} Challenge</h2>
+                            <h2>{% with subs=challenge.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif challenge.subject %}{{ challenge.subject.name }}{% else %}Umumiy{% endif %}{% endwith %} Challenge</h2>
                             <p>{{ challenge.question_count }} ta savolga {{ challenge.time_limit }} daqiqa ichida javob bering va XP yuting!</p>
                             <div class="dc-hero-stats">
                                 <div class="dc-hero-stat">
@@ -122,7 +122,7 @@
                     <div class="dc-info-card">
                         <h4><i class="bi bi-info-circle-fill" style="color:var(--primary);"></i> Ma'lumot</h4>
                         <ul class="dc-info-list">
-                            <li><span>Fan</span><span>{{ challenge.subject.name|default:"Umumiy" }}</span></li>
+                            <li><span>Fan</span><span>{% with subs=challenge.subjects.all %}{% if subs %}{% for s in subs %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% elif challenge.subject %}{{ challenge.subject.name }}{% else %}Umumiy{% endif %}{% endwith %}</span></li>
                             <li><span>Savollar</span><span>{{ challenge.question_count }} ta</span></li>
                             <li><span>Vaqt</span><span>{{ challenge.time_limit }} daqiqa</span></li>
                             <li><span>XP mukofot</span><span style="color:var(--primary);font-weight:800;">+{{ challenge.xp_reward }}</span></li>
