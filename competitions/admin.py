@@ -727,18 +727,84 @@ class MatchmakingQueueAdmin(admin.ModelAdmin):
 
 @admin.register(DailyChallenge)
 class DailyChallengeAdmin(admin.ModelAdmin):
-    list_display = ['date', 'subject', 'question_count', 'participants_count', 'average_score_display', 'xp_reward',
-                    'is_active']
-    list_filter = ['is_active', 'subject']
+    list_display  = ['date', 'subjects_display', 'question_count', 'questions_count_display',
+                     'participants_count', 'average_score_display', 'xp_reward', 'is_active']
+    list_filter   = ['is_active', 'subjects']
     search_fields = ['date']
-    ordering = ['-date']
-    filter_horizontal = ['questions']
+    ordering      = ['-date']
+    filter_horizontal = ['subjects']
+    readonly_fields   = ['questions_preview', 'participants_count', 'average_score']
     inlines = [DailyChallengeParticipantInline]
+
+    fieldsets = (
+        ('Asosiy', {
+            'fields': ('date', 'is_active'),
+        }),
+        ('Fanlar va savollar', {
+            'fields': ('subjects', 'question_count', 'time_limit'),
+            'description': (
+                '⚡ Fanlarni tanlang va savollar sonini kiriting. '
+                'Saqlashda DB dan avtomatik random savollar tanlanadi.'
+            ),
+        }),
+        ('Mukofotlar', {
+            'fields': ('xp_reward', 'bonus_xp_top10'),
+        }),
+        ('Tanlangan savollar (avtomatik)', {
+            'fields': ('questions_preview',),
+            'classes': ('collapse',),
+        }),
+    )
+
+    def subjects_display(self, obj):
+        names = [s.name for s in obj.subjects.all()]
+        return ', '.join(names) if names else '—'
+    subjects_display.short_description = 'Fanlar'
+
+    def questions_count_display(self, obj):
+        cnt = obj.questions.count()
+        return f'{cnt} ta' if cnt else '—'
+    questions_count_display.short_description = 'Savollar'
 
     def average_score_display(self, obj):
         return f'{obj.average_score:.1f}%'
+    average_score_display.short_description = "O'rtacha ball"
 
-    average_score_display.short_description = 'O\'rtacha ball'
+    def questions_preview(self, obj):
+        from django.utils.html import format_html
+        qs = obj.questions.all().select_related('subject')[:20]
+        if not qs:
+            return '—'
+        rows = ''.join(
+            f'<li>[{q.subject.name}] {q.text[:80]}{"…" if len(q.text) > 80 else ""}</li>'
+            for q in qs
+        )
+        total = obj.questions.count()
+        more  = f'<li><em>... va yana {total - 20} ta</em></li>' if total > 20 else ''
+        return format_html('<ul style="margin:0;padding-left:1.2rem">{}{}</ul>', rows, more)
+    questions_preview.short_description = 'Tanlangan savollar'
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        obj = form.instance
+        subject_ids = list(obj.subjects.values_list('id', flat=True))
+        if not subject_ids:
+            return
+        from tests_app.models import Question
+        questions = list(
+            Question.objects
+            .filter(subject_id__in=subject_ids, is_active=True)
+            .order_by('?')[:obj.question_count]
+        )
+        obj.questions.set(questions)
+        # Agar yetarli savol bo'lmasa admin ga xabar
+        if len(questions) < obj.question_count:
+            self.message_user(
+                request,
+                f'Diqqat: tanlangan fanlardan faqat {len(questions)} ta faol savol topildi '
+                f'({obj.question_count} ta so\'raldi).',
+                level='WARNING',
+            )
 
 
 @admin.register(DailyChallengeParticipant)

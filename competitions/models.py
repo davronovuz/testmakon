@@ -876,12 +876,23 @@ class DailyChallenge(models.Model):
     subject = models.ForeignKey(
         'tests_app.Subject',
         on_delete=models.SET_NULL,
-        null=True,
-        related_name='daily_challenges'
+        null=True, blank=True,
+        related_name='daily_challenges',
+        verbose_name='Fan (eski)',
+        help_text='Eski maydon — "Fanlar" ishlatiladi'
+    )
+    subjects = models.ManyToManyField(
+        'tests_app.Subject',
+        related_name='daily_challenges_multi',
+        blank=True,
+        verbose_name='Fanlar',
+        help_text='Bir yoki bir nechta fan tanlang — savollar avtomatik random tanlanadi'
     )
     questions = models.ManyToManyField(
         'tests_app.Question',
-        related_name='daily_challenges'
+        related_name='daily_challenges',
+        blank=True,
+        verbose_name='Savollar (avtomatik)'
     )
 
     # Settings
