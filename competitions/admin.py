@@ -732,7 +732,7 @@ class DailyChallengeAdmin(admin.ModelAdmin):
     list_filter   = ['is_active', 'subjects']
     search_fields = ['date']
     ordering      = ['-date']
-    filter_horizontal = ['subjects']
+    filter_horizontal = ['subjects', 'questions']
     readonly_fields   = ['questions_preview', 'participants_count', 'average_score']
     inlines = [DailyChallengeParticipantInline]
 
@@ -740,17 +740,26 @@ class DailyChallengeAdmin(admin.ModelAdmin):
         ('Asosiy', {
             'fields': ('date', 'is_active'),
         }),
-        ('Fanlar va savollar', {
+        ('🎲 Avtomatik (random) rejim', {
             'fields': ('subjects', 'question_count', 'time_limit'),
             'description': (
-                '⚡ Fanlarni tanlang va savollar sonini kiriting. '
-                'Saqlashda DB dan avtomatik random savollar tanlanadi.'
+                '⚡ Bir yoki bir nechta fan tanlang — saqlashda DB dan '
+                'avtomatik random savollar tanlanadi. '
+                'Qo\'lda savollar tanlangan bo\'lsa ular o\'chib ketadi.'
             ),
+        }),
+        ('✋ Qo\'lda rejim', {
+            'fields': ('questions',),
+            'description': (
+                'Fanlar bo\'sh bo\'lsa bu yerdan savollarni o\'zingiz tanlaysiz. '
+                'Fanlar tanlangan bo\'lsa bu bo\'lim e\'tiborga olinmaydi.'
+            ),
+            'classes': ('collapse',),
         }),
         ('Mukofotlar', {
             'fields': ('xp_reward', 'bonus_xp_top10'),
         }),
-        ('Tanlangan savollar (avtomatik)', {
+        ('📋 Tanlangan savollar (ko\'rish)', {
             'fields': ('questions_preview',),
             'classes': ('collapse',),
         }),
@@ -788,23 +797,30 @@ class DailyChallengeAdmin(admin.ModelAdmin):
         super().save_related(request, form, formsets, change)
         obj = form.instance
         subject_ids = list(obj.subjects.values_list('id', flat=True))
-        if not subject_ids:
-            return
-        from tests_app.models import Question
-        questions = list(
-            Question.objects
-            .filter(subject_id__in=subject_ids, is_active=True)
-            .order_by('?')[:obj.question_count]
-        )
-        obj.questions.set(questions)
-        # Agar yetarli savol bo'lmasa admin ga xabar
-        if len(questions) < obj.question_count:
-            self.message_user(
-                request,
-                f'Diqqat: tanlangan fanlardan faqat {len(questions)} ta faol savol topildi '
-                f'({obj.question_count} ta so\'raldi).',
-                level='WARNING',
+
+        # Fanlar tanlangan bo'lsa — avtomatik random rejim
+        if subject_ids:
+            from tests_app.models import Question
+            questions = list(
+                Question.objects
+                .filter(subject_id__in=subject_ids, is_active=True)
+                .order_by('?')[:obj.question_count]
             )
+            obj.questions.set(questions)
+            if len(questions) < obj.question_count:
+                self.message_user(
+                    request,
+                    f'Diqqat: tanlangan fanlardan faqat {len(questions)} ta faol savol topildi '
+                    f'({obj.question_count} ta so\'raldi).',
+                    level='WARNING',
+                )
+            else:
+                self.message_user(
+                    request,
+                    f'✅ {len(questions)} ta random savol avtomatik tanlandi '
+                    f'({", ".join(obj.subjects.values_list("name", flat=True))}).',
+                )
+        # Fanlar bo'sh — qo'lda tanlangan savollar saqlanadi (hech narsa qilmaymiz)
 
 
 @admin.register(DailyChallengeParticipant)
