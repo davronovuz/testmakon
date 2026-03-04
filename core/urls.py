@@ -42,4 +42,8 @@ urlpatterns = [
     # Admin tools
     path('panel/broadcast/', views.admin_broadcast, name='admin_broadcast'),
     path('panel/system/', views.admin_system_health, name='admin_system_health'),
+
+    # SEO Landing Pages
+    path('dtm-tayyorgarligi/', views.landing_dtm, name='landing_dtm'),
+    path('online-test/', views.landing_online_test, name='landing_online_test'),
 ]

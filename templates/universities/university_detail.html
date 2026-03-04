@@ -1,7 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ university.name }} | TestMakon{% endblock %}
+{% block title %}{{ university.name }} — Qabul Ballari 2025 | TestMakon.uz{% endblock %}
+{% block meta_description %}{{ university.name }} 2025 yil qabul ballari, yo'nalishlar, grant va kontrakt narxlari. TestMakon da universitetlarni solishtiring va DTM natijangizga mos yo'nalishni toping.{% endblock %}
+{% block meta_keywords %}{{ university.name }}, {{ university.name }} qabul 2025, {{ university.name }} grant bali, {{ university.name }} yo'nalishlar{% endblock %}
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollegeOrUniversity",
+  "name": "{{ university.name }}",
+  "url": "https://testmakon.uz/universities/{{ university.slug }}/",
+  "address": {"@type": "PostalAddress", "addressCountry": "UZ"},
+  "description": "{{ university.name }} — O'zbekiston universiteti. Qabul ballari, yo'nalishlar va grant imkoniyatlari."
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <style>

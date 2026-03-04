@@ -1,7 +1,25 @@
 {% extends 'base.html' %}
 {% load static icon_tags %}
 
-{% block title %}{{ subject.name }} — Mashq | TestMakon{% endblock %}
+{% block title %}{{ subject.name }} Testi Online — Bepul Mashq | TestMakon.uz{% endblock %}
+{% block meta_description %}{{ subject.name }} bo'yicha online testlar. Barcha mavzular bo'yicha {{ subject.name }} savollarini ishlang va bilimingizni tekshiring. DTM uchun {{ subject.name }} testlari — bepul!{% endblock %}
+{% block meta_keywords %}{{ subject.name }} testi, {{ subject.name }} online test, {{ subject.name }} DTM savollari, {{ subject.name }} mashq testi, bepul {{ subject.name }} testi{% endblock %}
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "{{ subject.name }} Testi — Online Mashq",
+  "description": "{{ subject.name }} bo'yicha barcha mavzularda online testlar. DTM uchun tayyorgarlik.",
+  "provider": {"@type": "Organization", "name": "TestMakon", "url": "https://testmakon.uz"},
+  "url": "https://testmakon.uz/tests/practice/{{ subject.slug }}/",
+  "isAccessibleForFree": true,
+  "inLanguage": "uz",
+  "educationalLevel": "high school",
+  "about": {"@type": "Thing", "name": "{{ subject.name }}"}
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">

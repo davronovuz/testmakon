@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
+from django.db import models
 from django.db.models import Count, Avg, Sum
 from django.utils import timezone
 from datetime import timedelta
@@ -301,6 +302,34 @@ def privacy(request):
 def terms(request):
     """Foydalanish shartlari"""
     return render(request, 'core/terms.html')
+
+
+def landing_dtm(request):
+    """DTM tayyorgarligi landing page — SEO uchun"""
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+    stats = {
+        'users': User.objects.filter(is_active=True).count(),
+        'questions': Test.objects.filter(is_active=True).aggregate(
+            total=models.Sum('question_count'))['total'] or 0,
+        'tests': Test.objects.filter(is_active=True).count(),
+    }
+    return render(request, 'core/landing_dtm.html', {
+        'subjects': subjects,
+        'stats': stats,
+    })
+
+
+def landing_online_test(request):
+    """Online test landing page — SEO uchun"""
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+    stats = {
+        'users': User.objects.filter(is_active=True).count(),
+        'tests': Test.objects.filter(is_active=True).count(),
+    }
+    return render(request, 'core/landing_online_test.html', {
+        'subjects': subjects,
+        'stats': stats,
+    })
 
 
 @login_required

@@ -1,7 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ test.title }} | TestMakon{% endblock %}
+{% block title %}{{ test.title }} — Online Test | TestMakon.uz{% endblock %}
+{% block meta_description %}{{ test.title }}{% if test.description %} — {{ test.description|truncatechars:120 }}{% else %} — TestMakon da online test ishlang. {{ test.question_count }} savol, {{ test.time_limit }} daqiqa.{% endif %}{% endblock %}
+{% block meta_keywords %}{{ test.title }}, {% if test.subject %}{{ test.subject.name }} testi, {% endif %}online test, DTM testi{% endblock %}
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Quiz",
+  "name": "{{ test.title }}",
+  "description": "{% if test.description %}{{ test.description|truncatechars:200 }}{% else %}TestMakon da {{ test.question_count }} savollik online test.{% endif %}",
+  "provider": {"@type": "Organization", "name": "TestMakon", "url": "https://testmakon.uz"},
+  "url": "https://testmakon.uz/tests/test/{{ test.slug }}/",
+  "isAccessibleForFree": {% if test.is_premium %}false{% else %}true{% endif %},
+  "inLanguage": "uz",
+  "timeRequired": "PT{{ test.time_limit }}M",
+  "numberOfQuestions": {{ test.question_count }}{% if test.subject %},
+  "about": {"@type": "Thing", "name": "{{ test.subject.name }}"}{% endif %}
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <style>

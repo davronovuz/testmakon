@@ -1,7 +1,23 @@
 {% extends 'base.html' %}
 {% load static icon_tags %}
 
-{% block title %}DTM Blok Test | TestMakon{% endblock %}
+{% block title %}DTM Blok Test — Ko'p Fanli Imtihon | TestMakon.uz{% endblock %}
+{% block meta_description %}DTM blok test — bir vaqtda bir nechta fandan test ishlang. DTM formatida blok testlar, to'liq tahlil va AI tavsiyalar. TestMakon da bepul!{% endblock %}
+{% block meta_keywords %}blok test, DTM blok test, ko'p fanli test, DTM format testi, DTM tayyorgarligi 2025{% endblock %}
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "DTM Blok Test",
+  "description": "DTM formatida bir nechta fandan blok test ishlang. To'liq tahlil va AI tavsiyalar.",
+  "provider": {"@type": "Organization", "name": "TestMakon", "url": "https://testmakon.uz"},
+  "url": "https://testmakon.uz/tests/block-test/",
+  "isAccessibleForFree": true,
+  "inLanguage": "uz"
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <style>

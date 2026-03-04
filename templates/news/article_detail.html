@@ -1,7 +1,36 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ article.title }} | TestMakon{% endblock %}
+{% block title %}{{ article.title }} | TestMakon.uz{% endblock %}
+{% block meta_description %}{{ article.meta_description|default:article.excerpt|default:article.content|truncatechars:155 }}{% endblock %}
+{% block meta_keywords %}{{ article.title }}, DTM 2026, testmakon, online test{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ article.title }}{% endblock %}
+{% block og_description %}{{ article.meta_description|default:article.excerpt|default:article.content|truncatechars:155 }}{% endblock %}
+{% block og_image %}{% if article.featured_image %}{{ article.featured_image.url }}{% else %}/static/images/og-image.png{% endif %}{% endblock %}
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ article.title }}",
+  "description": "{{ article.meta_description|default:article.excerpt|default:article.content|truncatechars:155 }}",
+  "url": "https://testmakon.uz/news/article/{{ article.slug }}/",
+  "datePublished": "{{ article.published_at|date:'c' }}",
+  "dateModified": "{{ article.updated_at|date:'c' }}",
+  "image": "https://testmakon.uz{% if article.featured_image %}{{ article.featured_image.url }}{% else %}/static/images/og-image.png{% endif %}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "TestMakon",
+    "url": "https://testmakon.uz",
+    "logo": {"@type": "ImageObject", "url": "https://testmakon.uz/static/images/favicon.svg"}
+  },
+  "mainEntityOfPage": {"@type": "WebPage", "@id": "https://testmakon.uz/news/article/{{ article.slug }}/"},
+  "inLanguage": "uz",
+  "keywords": "{{ article.title }}, DTM 2026, online test, testmakon.uz"
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -72,6 +101,40 @@
                 <div class="d-flex gap-2 mb-5">
                     <span class="badge bg-light text-dark border p-2">#{{ article.get_article_type_display }}</span>
                     <span class="badge bg-light text-dark border p-2"><i class="bi bi-eye me-1"></i> {{ article.views_count }} ko'rish</span>
+                </div>
+
+                <!-- Internal Linking — DTM Testlari -->
+                <div style="background:linear-gradient(135deg,#F0F9E8,#E8F5D4); border:1px solid #C7E8A0; border-radius:16px; padding:24px; margin-bottom:32px;">
+                    <div style="font-weight:700; color:#0F172A; font-size:16px; margin-bottom:16px;">
+                        <i class="bi bi-lightning-charge-fill" style="color:#8BC540;"></i>
+                        DTM ga Hoziroq Tayyorlanish
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <a href="{% url 'tests_app:dtm_simulation' %}" style="display:block; background:#fff; border-radius:10px; padding:12px; text-align:center; text-decoration:none; border:1px solid #C7E8A0;">
+                                <div style="font-size:20px;">🎯</div>
+                                <div style="font-size:12px; font-weight:600; color:#0F172A; margin-top:4px;">DTM Simulyatsiya</div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="{% url 'tests_app:practice_select' %}" style="display:block; background:#fff; border-radius:10px; padding:12px; text-align:center; text-decoration:none; border:1px solid #C7E8A0;">
+                                <div style="font-size:20px;">📚</div>
+                                <div style="font-size:12px; font-weight:600; color:#0F172A; margin-top:4px;">Mavzu Mashq</div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="{% url 'tests_app:quick_test' %}" style="display:block; background:#fff; border-radius:10px; padding:12px; text-align:center; text-decoration:none; border:1px solid #C7E8A0;">
+                                <div style="font-size:20px;">⚡</div>
+                                <div style="font-size:12px; font-weight:600; color:#0F172A; margin-top:4px;">Tezkor Test</div>
+                            </a>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <a href="{% url 'tests_app:block_test' %}" style="display:block; background:#fff; border-radius:10px; padding:12px; text-align:center; text-decoration:none; border:1px solid #C7E8A0;">
+                                <div style="font-size:20px;">🏆</div>
+                                <div style="font-size:12px; font-weight:600; color:#0F172A; margin-top:4px;">Blok Test</div>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
             </div>

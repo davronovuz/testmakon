@@ -1,7 +1,35 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}TestMakon — Universitetga kirish imtihoniga AI bilan tayyorlaning{% endblock %}
+{% block title %}TestMakon — Online Test va DTM Tayyorgarligi | O'zbekiston{% endblock %}
+{% block meta_description %}TestMakon — O'zbekiston abituriyentlari uchun #1 online test platformasi. 10,000+ savol, DTM simulyatsiya, AI mentor. Matematika, fizika, biologiya, kimyo testlari bepul!{% endblock %}
+{% block meta_keywords %}online test, DTM tayyorgarligi, abituriyent testi, bepul test, matematika testi, fizika testi, DTM 2025, testmakon{% endblock %}
+{% block canonical_path %}/{% endblock %}
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "TestMakon bepulmi?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Ha, TestMakon da asosiy testlar va mashqlar to'liq bepul. Premium imkoniyatlar ham mavjud."}
+    },
+    {
+      "@type": "Question",
+      "name": "DTM ga qanday tayyorlanaman?",
+      "acceptedAnswer": {"@type": "Answer", "text": "TestMakon da DTM simulyatsiya testini ishlang, AI mentor bilan kuchsiz mavzularingizni aniqlang va kunlik mashq qiling."}
+    },
+    {
+      "@type": "Question",
+      "name": "Qancha savol bor?",
+      "acceptedAnswer": {"@type": "Answer", "text": "TestMakon da 10,000 dan ortiq savol mavjud. Barcha DTM fanlari bo'yicha."}
+    }
+  ]
+}
+</script>
+{% endblock %}
 
 {% block extra_css %}
 <!-- AOS.js CSS -->
