@@ -2,61 +2,43 @@
 
 {% block title %}{{ problem.title }} — Dasturlash | TestMakon.uz{% endblock %}
 
-{% block bottom_nav %}{% endblock %}
-
 {% block extra_css %}
 <style>
-    /* Navbar footer ham yashirish — fullscreen editor */
-    footer, .mob-bottom-nav { display: none !important; }
+    {% include 'includes/_sidebar_css.html' %}
 
-    /* Split pane layout */
-    .coding-layout {
-        display: flex; height: calc(100vh - 70px); overflow: hidden;
-    }
-    .coding-left {
-        width: 45%; min-width: 320px; overflow-y: auto;
-        border-right: 1px solid var(--gray-200); background: #fff;
-    }
-    .coding-right {
-        flex: 1; display: flex; flex-direction: column; background: #1E1E1E;
-    }
-
-    /* Resizer */
-    .coding-resizer {
-        width: 5px; background: var(--gray-200); cursor: col-resize; flex-shrink: 0;
-        transition: background 0.2s;
-    }
-    .coding-resizer:hover { background: var(--primary); }
-
-    /* Left panel tabs */
-    .left-tabs {
-        display: flex; border-bottom: 1px solid var(--gray-200); background: #FAFBFC;
-        position: sticky; top: 0; z-index: 5;
-    }
-    .left-tab {
-        padding: 10px 16px; font-size: 0.78rem; font-weight: 700; color: var(--gray-400);
-        cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s;
-        background: none; border-top: none; border-left: none; border-right: none;
-    }
-    .left-tab:hover { color: var(--dark); }
-    .left-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-
-    .left-content { padding: 1.25rem; }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
-
-    /* Problem section */
-    .problem-header { margin-bottom: 1rem; }
     .problem-back {
-        color: var(--gray-400); font-size: 0.78rem; text-decoration: none;
-        display: inline-flex; align-items: center; gap: 4px; margin-bottom: 8px;
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 0.8rem; color: var(--gray-400); text-decoration: none;
+        font-weight: 600; margin-bottom: 1rem;
     }
     .problem-back:hover { color: var(--primary); }
-    .problem-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0 0 8px; }
-    .problem-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    .diff-badge {
-        padding: 2px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700;
+
+    /* Masala + Editor grid */
+    .coding-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+        align-items: start;
     }
+
+    /* Card style */
+    .coding-card {
+        background: #fff; border: 1px solid var(--gray-200); border-radius: 14px;
+        overflow: hidden;
+    }
+    .card-header-custom {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 16px; border-bottom: 1px solid var(--gray-200);
+        background: var(--gray-50);
+    }
+    .card-header-custom h3 {
+        font-size: 0.78rem; font-weight: 700; color: var(--gray-500);
+        margin: 0; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .card-body-custom { padding: 1rem 1.25rem; }
+
+    /* Problem header */
+    .problem-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0 0 8px; }
+    .problem-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .diff-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; }
     .diff-easy { background: #DCFCE7; color: #166534; }
     .diff-medium { background: #FEF3C7; color: #92400E; }
     .diff-hard { background: #FEE2E2; color: #991B1B; }
@@ -69,365 +51,383 @@
         padding: 2px 10px; border-radius: 6px; font-weight: 700;
     }
 
+    /* Sections */
     .problem-section { margin-bottom: 1rem; }
-    .problem-section h3 {
-        font-size: 0.82rem; font-weight: 800; color: var(--dark); margin-bottom: 0.4rem;
+    .problem-section h4 {
+        font-size: 0.8rem; font-weight: 800; color: var(--dark); margin-bottom: 0.35rem;
     }
     .problem-section p, .problem-section div {
-        font-size: 0.83rem; color: #475569; line-height: 1.7;
+        font-size: 0.82rem; color: #475569; line-height: 1.7;
     }
 
-    /* Sample test cases */
+    /* Tabs on left card */
+    .left-tabs {
+        display: flex; gap: 0; border-bottom: 1px solid var(--gray-200);
+        background: var(--gray-50);
+    }
+    .left-tab {
+        padding: 9px 16px; font-size: 0.76rem; font-weight: 700; color: var(--gray-400);
+        cursor: pointer; border: none; background: none;
+        border-bottom: 2px solid transparent; transition: all 0.15s;
+    }
+    .left-tab:hover { color: var(--dark); }
+    .left-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Sample cases */
     .sample-case {
         background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
         padding: 0.6rem 0.75rem; margin-bottom: 0.6rem;
     }
     .sample-label {
-        font-size: 0.7rem; font-weight: 700; color: var(--gray-400); margin-bottom: 3px;
+        font-size: 0.68rem; font-weight: 700; color: var(--gray-400); margin-bottom: 3px;
         display: flex; align-items: center; justify-content: space-between;
     }
     .copy-btn {
-        background: none; border: none; color: var(--gray-400); font-size: 0.72rem;
+        background: none; border: none; color: var(--gray-400); font-size: 0.7rem;
         cursor: pointer; padding: 2px 6px; border-radius: 4px;
     }
     .copy-btn:hover { color: var(--primary); background: var(--gray-100); }
     .sample-data {
-        font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--dark);
-        white-space: pre-wrap; background: #fff; padding: 6px 10px; border-radius: 6px;
+        font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--dark);
+        white-space: pre-wrap; background: #fff; padding: 5px 10px; border-radius: 6px;
         border: 1px solid var(--gray-200);
     }
 
-    /* Submissions tab */
+    /* Submissions mini list */
     .sub-item {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 8px 10px; border-radius: 8px; margin-bottom: 4px;
-        border: 1px solid var(--gray-200); font-size: 0.78rem;
+        padding: 7px 10px; border-radius: 8px; margin-bottom: 3px;
+        border: 1px solid var(--gray-100); font-size: 0.76rem;
     }
     .sub-item:hover { background: var(--gray-50); }
     .sub-status-ac { color: #22C55E; font-weight: 700; }
     .sub-status-wa { color: #EF4444; font-weight: 700; }
     .sub-status-other { color: #F59E0B; font-weight: 700; }
-    .sub-meta { color: var(--gray-400); font-size: 0.72rem; }
+    .sub-meta { color: var(--gray-400); font-size: 0.7rem; }
 
-    /* Editor toolbar */
+    /* Editor right card */
+    .editor-right { position: sticky; top: 90px; }
+
     .editor-toolbar {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 6px 12px; background: #252526; border-bottom: 1px solid #333;
-        gap: 8px;
+        padding: 8px 14px; border-bottom: 1px solid var(--gray-200);
+        background: var(--gray-50);
     }
     .lang-select {
-        background: #333; color: #E2E8F0; border: 1px solid #444; border-radius: 6px;
-        padding: 5px 10px; font-size: 0.78rem; font-weight: 600; outline: none;
-        cursor: pointer;
+        background: #fff; color: var(--dark); border: 1px solid var(--gray-200);
+        border-radius: 8px; padding: 5px 10px; font-size: 0.78rem; font-weight: 600;
+        outline: none; cursor: pointer;
     }
     .lang-select:focus { border-color: var(--primary); }
-    .toolbar-actions {
-        display: flex; gap: 4px; align-items: center;
-    }
+    .toolbar-actions { display: flex; gap: 2px; align-items: center; }
     .toolbar-btn {
-        background: none; border: none; color: #64748B; font-size: 0.9rem;
-        cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.15s;
+        background: none; border: none; color: var(--gray-400); font-size: 0.85rem;
+        cursor: pointer; padding: 4px 7px; border-radius: 6px; transition: all 0.15s;
     }
-    .toolbar-btn:hover { color: #E2E8F0; background: #333; }
-    .toolbar-divider { width: 1px; height: 18px; background: #444; margin: 0 2px; }
+    .toolbar-btn:hover { color: var(--primary); background: var(--gray-100); }
 
-    .editor-container { flex: 1; min-height: 300px; position: relative; }
+    /* Monaco wrapper */
+    .monaco-wrap {
+        height: 380px; border-bottom: 1px solid var(--gray-200);
+        position: relative;
+    }
 
-    /* Bottom bar — Run / Submit */
+    /* Bottom bar */
     .editor-bottom {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 6px 12px; background: #252526; border-top: 1px solid #333;
+        padding: 8px 14px; background: var(--gray-50);
     }
-    .bottom-left {
-        display: flex; gap: 6px; align-items: center;
-    }
+    .bottom-left { display: flex; gap: 6px; align-items: center; }
     .btn-run {
-        padding: 5px 14px; border-radius: 6px; border: 1px solid #444;
-        background: #333; color: #E2E8F0; font-size: 0.78rem; font-weight: 700;
+        padding: 6px 14px; border-radius: 8px; border: 1px solid var(--gray-200);
+        background: #fff; color: var(--dark); font-size: 0.78rem; font-weight: 700;
         cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px;
     }
-    .btn-run:hover { background: #3D3D3D; border-color: #555; }
+    .btn-run:hover { border-color: var(--primary); color: var(--primary); }
     .btn-submit {
-        padding: 5px 18px; border-radius: 6px; border: none;
+        padding: 6px 18px; border-radius: 8px; border: none;
         background: linear-gradient(135deg, #8BC540, #6BA832); color: #fff;
         font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
         display: inline-flex; align-items: center; gap: 4px;
     }
-    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,197,64,0.4); }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,197,64,0.3); }
     .btn-submit:disabled, .btn-run:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-    .bottom-info { font-size: 0.72rem; color: #64748B; }
-    .shortcut-hint { font-size: 0.68rem; color: #4A5568; margin-left: 2px; }
+    .shortcut-hint { font-size: 0.65rem; color: var(--gray-400); }
+    .bottom-info { font-size: 0.72rem; color: var(--gray-400); }
 
-    /* Results panel — bottom of editor */
-    .results-panel {
-        background: #1B1B1B; border-top: 2px solid #333; max-height: 280px;
-        overflow-y: auto; display: none;
+    /* Results panel */
+    .results-card {
+        margin-top: 1rem; background: #fff; border: 1px solid var(--gray-200);
+        border-radius: 14px; overflow: hidden; display: none;
     }
-    .results-panel.show { display: block; }
-    .results-tabs {
-        display: flex; border-bottom: 1px solid #333; padding: 0 12px;
-        background: #252526; position: sticky; top: 0; z-index: 2;
+    .results-card.show { display: block; }
+    .results-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 16px; border-bottom: 1px solid var(--gray-200);
+        background: var(--gray-50);
     }
-    .results-tab {
-        padding: 7px 14px; font-size: 0.75rem; font-weight: 700; color: #64748B;
-        cursor: pointer; border-bottom: 2px solid transparent;
-        background: none; border-top: none; border-left: none; border-right: none;
-    }
-    .results-tab.active { color: #E2E8F0; border-bottom-color: var(--primary); }
-    .results-tab.tab-pass { color: #22C55E; }
-    .results-tab.tab-fail { color: #EF4444; }
+    .results-title { font-size: 0.78rem; font-weight: 700; color: var(--gray-500); margin: 0; }
     .results-close {
-        margin-left: auto; background: none; border: none; color: #64748B;
-        font-size: 1rem; cursor: pointer; padding: 7px 10px;
+        background: none; border: none; color: var(--gray-400); font-size: 0.9rem;
+        cursor: pointer; padding: 2px 6px; border-radius: 4px;
     }
-    .results-close:hover { color: #E2E8F0; }
+    .results-close:hover { color: #EF4444; }
+    .results-body { padding: 0.75rem 1rem; }
 
-    .results-body { padding: 10px 12px; }
-
-    /* Result summary */
     .result-summary {
-        display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-        border-radius: 8px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 700;
+        display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+        border-radius: 10px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 700;
     }
-    .result-summary.accepted { background: rgba(34,197,94,0.1); color: #22C55E; }
-    .result-summary.failed { background: rgba(239,68,68,0.1); color: #EF4444; }
+    .result-summary.accepted { background: #DCFCE7; color: #166534; }
+    .result-summary.failed { background: #FEE2E2; color: #991B1B; }
 
     .result-item {
-        display: flex; align-items: center; gap: 8px; padding: 5px 10px;
+        display: flex; align-items: center; gap: 6px; padding: 5px 10px;
         border-radius: 6px; margin-bottom: 3px; font-size: 0.76rem;
     }
-    .result-accepted { background: rgba(34,197,94,0.08); color: #22C55E; }
-    .result-wrong { background: rgba(239,68,68,0.08); color: #EF4444; }
-    .result-error { background: rgba(245,158,11,0.08); color: #F59E0B; }
-    .result-pending { background: rgba(100,116,139,0.08); color: #64748B; }
+    .result-accepted { background: #F0FDF4; color: #166534; }
+    .result-wrong { background: #FEF2F2; color: #991B1B; }
+    .result-error { background: #FFFBEB; color: #92400E; }
+    .result-pending { background: var(--gray-50); color: var(--gray-400); }
 
     .result-output {
-        background: #111; border-radius: 6px; padding: 8px 10px; margin: 4px 0;
-        font-family: 'Courier New', monospace; font-size: 0.75rem; color: #94A3B8;
-        white-space: pre-wrap; border: 1px solid #222;
+        background: var(--gray-50); border-radius: 8px; padding: 8px 10px; margin: 4px 0;
+        font-family: 'Courier New', monospace; font-size: 0.75rem; color: #475569;
+        white-space: pre-wrap; border: 1px solid var(--gray-200);
     }
 
     /* Status overlay */
     .status-overlay {
         display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.7); z-index: 10; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.85); z-index: 10;
+        align-items: center; justify-content: center;
     }
     .status-overlay.show { display: flex; }
     .status-box {
-        background: #252526; border-radius: 12px; padding: 1.5rem 2rem;
-        text-align: center; color: #E2E8F0;
+        background: #fff; border-radius: 14px; padding: 1.5rem 2rem;
+        text-align: center; color: var(--dark); box-shadow: 0 8px 30px rgba(0,0,0,0.1);
     }
     .status-spinner {
-        width: 36px; height: 36px; border: 3px solid #333; border-top: 3px solid var(--primary);
+        width: 36px; height: 36px; border: 3px solid var(--gray-200);
+        border-top: 3px solid var(--primary);
         border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 0.75rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-        .coding-layout { flex-direction: column; height: auto; }
-        .coding-left { width: 100%; border-right: none; border-bottom: 1px solid var(--gray-200); max-height: 50vh; }
-        .coding-right { min-height: 60vh; }
-        .coding-resizer { display: none; }
-        .shortcut-hint { display: none; }
-    }
-
-    /* Dark theme for left panel */
-    [data-theme="dark"] .coding-left { background: var(--dark-card); border-color: #1E293B; }
+    /* Dark mode */
+    [data-theme="dark"] .coding-card { background: var(--dark-card); border-color: #1E293B; }
+    [data-theme="dark"] .card-header-custom { background: #0F172A; border-color: #1E293B; }
     [data-theme="dark"] .left-tabs { background: #0F172A; border-color: #1E293B; }
-    [data-theme="dark"] .left-tab { color: #64748B; }
-    [data-theme="dark"] .left-tab.active { color: var(--primary); }
     [data-theme="dark"] .problem-title { color: #F1F5F9; }
-    [data-theme="dark"] .problem-section h3 { color: #F1F5F9; }
-    [data-theme="dark"] .problem-section p, [data-theme="dark"] .problem-section div { color: #94A3B8; }
+    [data-theme="dark"] .problem-section h4 { color: #F1F5F9; }
+    [data-theme="dark"] .problem-section p,
+    [data-theme="dark"] .problem-section div { color: #94A3B8; }
     [data-theme="dark"] .sample-case { background: #1E293B; border-color: #334155; }
     [data-theme="dark"] .sample-data { background: #0F172A; border-color: #334155; color: #E2E8F0; }
     [data-theme="dark"] .meta-tag { background: #1E293B; color: #94A3B8; }
-    [data-theme="dark"] .sub-item { background: #1E293B; border-color: #334155; }
+    [data-theme="dark"] .editor-toolbar { background: #0F172A; border-color: #1E293B; }
+    [data-theme="dark"] .lang-select { background: var(--dark-card); border-color: #1E293B; color: #F1F5F9; }
+    [data-theme="dark"] .editor-bottom { background: #0F172A; }
+    [data-theme="dark"] .btn-run { background: var(--dark-card); border-color: #1E293B; color: #F1F5F9; }
+    [data-theme="dark"] .results-card { background: var(--dark-card); border-color: #1E293B; }
+    [data-theme="dark"] .results-header { background: #0F172A; border-color: #1E293B; }
+    [data-theme="dark"] .result-output { background: #1E293B; border-color: #334155; color: #94A3B8; }
+    [data-theme="dark"] .sub-item { border-color: #1E293B; }
+    [data-theme="dark"] .status-overlay { background: rgba(15,23,42,0.85); }
+    [data-theme="dark"] .status-box { background: var(--dark-card); color: #F1F5F9; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+    @media (max-width: 992px) {
+        .coding-grid { grid-template-columns: 1fr; }
+        .editor-right { position: static; }
+        .monaco-wrap { height: 320px; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="coding-layout">
-    <!-- Left: Problem Description -->
-    <div class="coding-left" id="leftPanel">
-        <div class="left-tabs">
-            <button class="left-tab active" onclick="switchLeftTab('description', this)">
-                <i class="bi bi-file-text"></i> Masala
-            </button>
-            <button class="left-tab" onclick="switchLeftTab('submissions', this)">
-                <i class="bi bi-clock-history"></i> Yuborishlar
-            </button>
+<div class="container-fluid" style="max-width:1400px; padding:1.5rem;">
+    <div class="row g-4">
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'includes/_sidebar.html' with active='coding' %}
         </div>
 
-        <div class="left-content">
-            <!-- Description tab -->
-            <div class="tab-pane active" id="tab-description">
-                <div class="problem-header">
-                    <a href="{% url 'coding:problems_list' %}" class="problem-back">
-                        <i class="bi bi-chevron-left"></i> Masalalar
-                    </a>
-                    <h1 class="problem-title">{{ problem.order }}. {{ problem.title }}</h1>
-                    <div class="problem-meta">
-                        <span class="diff-badge diff-{{ problem.difficulty }}">{{ problem.get_difficulty_display }}</span>
-                        {% if problem.category %}
-                        <span class="meta-tag"><i class="bi {{ problem.category.icon }}"></i> {{ problem.category.name }}</span>
-                        {% endif %}
-                        <span class="meta-tag"><i class="bi bi-clock"></i> {{ problem.time_limit }}s</span>
-                        <span class="meta-tag"><i class="bi bi-memory"></i> {{ problem.memory_limit }}MB</span>
-                        {% if is_solved %}
-                        <span class="solved-badge"><i class="bi bi-check-circle-fill"></i> Yechilgan</span>
-                        {% endif %}
+        <div class="col-lg-9 col-xl-10">
+            <a href="{% url 'coding:problems_list' %}" class="problem-back">
+                <i class="bi bi-chevron-left"></i> Masalalar ro'yxati
+            </a>
+
+            <div class="coding-grid">
+                <!-- CHAP: Masala -->
+                <div>
+                    <div class="coding-card">
+                        <div class="left-tabs">
+                            <button class="left-tab active" onclick="switchTab('description', this)">
+                                <i class="bi bi-file-text"></i> Masala
+                            </button>
+                            <button class="left-tab" onclick="switchTab('submissions', this)">
+                                <i class="bi bi-clock-history"></i> Yuborishlar
+                            </button>
+                        </div>
+
+                        <div class="card-body-custom">
+                            <!-- Masala tab -->
+                            <div class="tab-pane active" id="tab-description">
+                                <h1 class="problem-title">{{ problem.order }}. {{ problem.title }}</h1>
+                                <div class="problem-meta">
+                                    <span class="diff-badge diff-{{ problem.difficulty }}">{{ problem.get_difficulty_display }}</span>
+                                    {% if problem.category %}
+                                    <span class="meta-tag"><i class="bi {{ problem.category.icon }}"></i> {{ problem.category.name }}</span>
+                                    {% endif %}
+                                    <span class="meta-tag"><i class="bi bi-clock"></i> {{ problem.time_limit }}s</span>
+                                    <span class="meta-tag"><i class="bi bi-memory"></i> {{ problem.memory_limit }}MB</span>
+                                    {% if is_solved %}
+                                    <span class="solved-badge"><i class="bi bi-check-circle-fill"></i> Yechilgan</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="problem-section">
+                                    <h4>Masala sharti</h4>
+                                    <div>{{ problem.description|safe }}</div>
+                                </div>
+
+                                <div class="problem-section">
+                                    <h4>Kirish formati</h4>
+                                    <div>{{ problem.input_format|safe }}</div>
+                                </div>
+
+                                <div class="problem-section">
+                                    <h4>Chiqish formati</h4>
+                                    <div>{{ problem.output_format|safe }}</div>
+                                </div>
+
+                                {% if problem.constraints %}
+                                <div class="problem-section">
+                                    <h4>Cheklovlar</h4>
+                                    <div>{{ problem.constraints|safe }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if sample_cases %}
+                                <div class="problem-section">
+                                    <h4>Namunalar</h4>
+                                    {% for tc in sample_cases %}
+                                    <div class="sample-case">
+                                        <div class="sample-label">
+                                            Kirish #{{ tc.order }}
+                                            <button class="copy-btn" onclick="copyText(this, `{{ tc.input_data|escapejs }}`)" title="Nusxalash">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                        <div class="sample-data">{{ tc.input_data }}</div>
+                                        <div class="sample-label" style="margin-top:6px;">
+                                            Chiqish #{{ tc.order }}
+                                            <button class="copy-btn" onclick="copyText(this, `{{ tc.expected_output|escapejs }}`)" title="Nusxalash">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                        <div class="sample-data">{{ tc.expected_output }}</div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Yuborishlar tab -->
+                            <div class="tab-pane" id="tab-submissions">
+                                {% if recent_submissions %}
+                                    {% for sub in recent_submissions %}
+                                    <div class="sub-item">
+                                        <div>
+                                            <span class="{% if sub.status == 'accepted' %}sub-status-ac{% elif sub.status == 'wrong_answer' %}sub-status-wa{% else %}sub-status-other{% endif %}">
+                                                {{ sub.get_status_display }}
+                                            </span>
+                                            <span class="sub-meta"> — {{ sub.language.name }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="sub-meta">{{ sub.passed_count }}/{{ sub.total_count }}</span>
+                                            <span class="sub-meta" style="margin-left:6px;">{{ sub.execution_time|floatformat:0 }}ms</span>
+                                            <span class="sub-meta" style="margin-left:6px;">{{ sub.created_at|timesince }} oldin</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div style="text-align:center; padding:2rem; color:var(--gray-400); font-size:0.82rem;">
+                                        <i class="bi bi-inbox" style="font-size:1.5rem; display:block; margin-bottom:6px;"></i>
+                                        Hali yuborish yo'q
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="problem-section">
-                    <h3>Masala sharti</h3>
-                    <div>{{ problem.description|safe }}</div>
-                </div>
-
-                <div class="problem-section">
-                    <h3>Kirish formati</h3>
-                    <div>{{ problem.input_format|safe }}</div>
-                </div>
-
-                <div class="problem-section">
-                    <h3>Chiqish formati</h3>
-                    <div>{{ problem.output_format|safe }}</div>
-                </div>
-
-                {% if problem.constraints %}
-                <div class="problem-section">
-                    <h3>Cheklovlar</h3>
-                    <div>{{ problem.constraints|safe }}</div>
-                </div>
-                {% endif %}
-
-                {% if sample_cases %}
-                <div class="problem-section">
-                    <h3>Namunalar</h3>
-                    {% for tc in sample_cases %}
-                    <div class="sample-case">
-                        <div class="sample-label">
-                            Kirish #{{ tc.order }}
-                            <button class="copy-btn" onclick="copyText(this, `{{ tc.input_data|escapejs }}`)" title="Nusxalash">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
+                <!-- O'NG: Kod Editor -->
+                <div class="editor-right">
+                    <div class="coding-card">
+                        <div class="editor-toolbar">
+                            <select id="langSelect" class="lang-select">
+                                {% for lang in languages %}
+                                <option value="{{ lang.id }}" data-monaco="{{ lang.monaco_language }}" data-slug="{{ lang.slug }}">{{ lang.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="toolbar-actions">
+                                <button class="toolbar-btn" onclick="resetCode()" title="Qaytarish">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                                <button class="toolbar-btn" onclick="changeFontSize(1)" title="Kattalashtirish">
+                                    <i class="bi bi-zoom-in"></i>
+                                </button>
+                                <button class="toolbar-btn" onclick="changeFontSize(-1)" title="Kichiklashtirish">
+                                    <i class="bi bi-zoom-out"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="sample-data">{{ tc.input_data }}</div>
-                        <div class="sample-label" style="margin-top:6px;">
-                            Chiqish #{{ tc.order }}
-                            <button class="copy-btn" onclick="copyText(this, `{{ tc.expected_output|escapejs }}`)" title="Nusxalash">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
+
+                        <div class="monaco-wrap" id="editorContainer">
+                            <div id="monacoEditor" style="width:100%; height:100%;"></div>
+                            <div class="status-overlay" id="statusOverlay">
+                                <div class="status-box">
+                                    <div class="status-spinner"></div>
+                                    <div id="statusText" style="font-size:0.85rem;">Ishlamoqda...</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="sample-data">{{ tc.expected_output }}</div>
+
+                        <div class="editor-bottom">
+                            <div class="bottom-left">
+                                <button class="btn-run" id="btnRun" onclick="runSample()">
+                                    <i class="bi bi-play-fill"></i> Sinash
+                                </button>
+                                <button class="btn-submit" id="btnSubmit" onclick="submitCode()">
+                                    <i class="bi bi-cloud-upload"></i> Yuborish
+                                </button>
+                            </div>
+                            <div class="bottom-info" id="submissionInfo">
+                                <span class="shortcut-hint">Ctrl+Enter — sinash &nbsp;|&nbsp; Ctrl+Shift+Enter — yuborish</span>
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
 
-            <!-- Submissions tab -->
-            <div class="tab-pane" id="tab-submissions">
-                <div id="submissionsContent">
-                    {% if recent_submissions %}
-                        {% for sub in recent_submissions %}
-                        <div class="sub-item">
-                            <div>
-                                <span class="{% if sub.status == 'accepted' %}sub-status-ac{% elif sub.status == 'wrong_answer' %}sub-status-wa{% else %}sub-status-other{% endif %}">
-                                    {{ sub.get_status_display }}
-                                </span>
-                                <span class="sub-meta"> — {{ sub.language.name }}</span>
-                            </div>
-                            <div>
-                                <span class="sub-meta">{{ sub.passed_count }}/{{ sub.total_count }}</span>
-                                <span class="sub-meta" style="margin-left:6px;">{{ sub.execution_time|floatformat:0 }}ms</span>
-                                <span class="sub-meta" style="margin-left:6px;">{{ sub.created_at|timesince }} oldin</span>
-                            </div>
+                    <!-- Natijalar -->
+                    <div class="results-card" id="resultsPanel">
+                        <div class="results-header">
+                            <h3 class="results-title" id="resultsTitle">Natijalar</h3>
+                            <button class="results-close" onclick="document.getElementById('resultsPanel').classList.remove('show')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <div style="text-align:center; padding:2rem; color:var(--gray-400); font-size:0.82rem;">
-                            <i class="bi bi-inbox" style="font-size:2rem; display:block; margin-bottom:8px;"></i>
-                            Hali yuborish yo'q
-                        </div>
-                    {% endif %}
+                        <div class="results-body" id="resultsBody"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Resizer -->
-    <div class="coding-resizer" id="resizer"></div>
-
-    <!-- Right: Editor -->
-    <div class="coding-right" id="rightPanel">
-        <div class="editor-toolbar">
-            <div style="display:flex; gap:8px; align-items:center;">
-                <select id="langSelect" class="lang-select">
-                    {% for lang in languages %}
-                    <option value="{{ lang.id }}" data-monaco="{{ lang.monaco_language }}" data-slug="{{ lang.slug }}">{{ lang.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="toolbar-actions">
-                <button class="toolbar-btn" onclick="resetCode()" title="Boshlang'ich kodga qaytarish">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                </button>
-                <button class="toolbar-btn" onclick="changeFontSize(1)" title="Shrift kattalashtirish">
-                    <i class="bi bi-zoom-in"></i>
-                </button>
-                <button class="toolbar-btn" onclick="changeFontSize(-1)" title="Shrift kichiklashtirish">
-                    <i class="bi bi-zoom-out"></i>
-                </button>
-                <div class="toolbar-divider"></div>
-                <button class="toolbar-btn" onclick="toggleFullscreen()" title="Kengaytirish">
-                    <i class="bi bi-arrows-fullscreen"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="editor-container" id="editorContainer">
-            <div id="monacoEditor" style="width:100%; height:100%;"></div>
-            <div class="status-overlay" id="statusOverlay">
-                <div class="status-box">
-                    <div class="status-spinner"></div>
-                    <div id="statusText" style="font-size:0.85rem;">Ishlamoqda...</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="editor-bottom">
-            <div class="bottom-left">
-                <button class="btn-run" id="btnRun" onclick="runSample()">
-                    <i class="bi bi-play-fill"></i> Sinash
-                    <span class="shortcut-hint">Ctrl+Enter</span>
-                </button>
-                <button class="btn-submit" id="btnSubmit" onclick="submitCode()">
-                    <i class="bi bi-cloud-upload"></i> Yuborish
-                    <span class="shortcut-hint">Ctrl+Shift+Enter</span>
-                </button>
-            </div>
-            <div class="bottom-info" id="submissionInfo"></div>
-        </div>
-
-        <!-- Results -->
-        <div class="results-panel" id="resultsPanel">
-            <div class="results-tabs">
-                <span class="results-tab active" id="resultsTitle">Natijalar</span>
-                <button class="results-close" onclick="document.getElementById('resultsPanel').classList.remove('show')">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="results-body" id="resultsBody"></div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Monaco Editor CDN -->
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
 <script>
 const PROBLEM_ID = {{ problem.id }};
@@ -438,15 +438,13 @@ let currentLanguage = null;
 let pollingInterval = null;
 let currentFontSize = 14;
 
-// Left panel tabs
-function switchLeftTab(tab, btn) {
+function switchTab(tab, btn) {
     document.querySelectorAll('.left-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
 }
 
-// Copy text helper
 function copyText(btn, text) {
     navigator.clipboard.writeText(text).then(() => {
         const icon = btn.querySelector('i');
@@ -455,7 +453,7 @@ function copyText(btn, text) {
     });
 }
 
-// Monaco Editor
+// Monaco — LIGHT theme
 require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
 require(['vs/editor/editor.main'], function () {
     const langSelect = document.getElementById('langSelect');
@@ -464,15 +462,28 @@ require(['vs/editor/editor.main'], function () {
 
     const savedCode = localStorage.getItem(`code_${PROBLEM_ID}_${firstOption.dataset.slug}`);
 
+    // Custom light theme — sayt ranglariga mos
+    monaco.editor.defineTheme('testmakon-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [],
+        colors: {
+            'editor.background': '#FAFBFC',
+            'editor.lineHighlightBackground': '#F1F5F9',
+            'editorLineNumber.foreground': '#94A3B8',
+            'editorCursor.foreground': '#8BC540',
+        }
+    });
+
     editor = monaco.editor.create(document.getElementById('monacoEditor'), {
         value: savedCode || STARTER_CODE[firstOption.dataset.slug] || '',
         language: currentLanguage,
-        theme: 'vs-dark',
+        theme: 'testmakon-light',
         fontSize: currentFontSize,
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
         automaticLayout: true,
-        padding: { top: 12, bottom: 12 },
+        padding: { top: 10, bottom: 10 },
         lineNumbers: 'on',
         renderWhitespace: 'selection',
         tabSize: 4,
@@ -480,94 +491,42 @@ require(['vs/editor/editor.main'], function () {
         smoothScrolling: true,
         cursorBlinking: 'smooth',
         cursorSmoothCaretAnimation: 'on',
+        roundedSelection: true,
+        renderLineHighlight: 'line',
     });
 
-    // Keyboard shortcuts
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
-        runSample();
-    });
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter, function () {
-        submitCode();
-    });
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runSample());
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter, () => submitCode());
 
-    // Auto-save
-    editor.onDidChangeModelContent(function() {
+    editor.onDidChangeModelContent(() => {
         const slug = langSelect.options[langSelect.selectedIndex].dataset.slug;
         localStorage.setItem(`code_${PROBLEM_ID}_${slug}`, editor.getValue());
     });
 
-    // Language change
     langSelect.addEventListener('change', function () {
         const opt = this.options[this.selectedIndex];
-        const monacoLang = opt.dataset.monaco;
         const slug = opt.dataset.slug;
-        currentLanguage = monacoLang;
-
+        currentLanguage = opt.dataset.monaco;
         const savedCode = localStorage.getItem(`code_${PROBLEM_ID}_${slug}`);
-        const code = savedCode || STARTER_CODE[slug] || '';
-
-        const model = editor.getModel();
-        monaco.editor.setModelLanguage(model, monacoLang);
-        editor.setValue(code);
+        monaco.editor.setModelLanguage(editor.getModel(), currentLanguage);
+        editor.setValue(savedCode || STARTER_CODE[slug] || '');
     });
 });
 
-// Reset code
 function resetCode() {
     if (!editor) return;
-    const langSelect = document.getElementById('langSelect');
-    const slug = langSelect.options[langSelect.selectedIndex].dataset.slug;
-    const starter = STARTER_CODE[slug] || '';
+    const slug = document.getElementById('langSelect').options[document.getElementById('langSelect').selectedIndex].dataset.slug;
     if (confirm("Boshlang'ich kodga qaytarilsinmi?")) {
-        editor.setValue(starter);
+        editor.setValue(STARTER_CODE[slug] || '');
         localStorage.removeItem(`code_${PROBLEM_ID}_${slug}`);
     }
 }
 
-// Font size
 function changeFontSize(delta) {
     if (!editor) return;
     currentFontSize = Math.max(10, Math.min(24, currentFontSize + delta));
     editor.updateOptions({ fontSize: currentFontSize });
 }
-
-// Fullscreen toggle
-function toggleFullscreen() {
-    const left = document.getElementById('leftPanel');
-    const resizer = document.getElementById('resizer');
-    if (left.style.display === 'none') {
-        left.style.display = '';
-        resizer.style.display = '';
-    } else {
-        left.style.display = 'none';
-        resizer.style.display = 'none';
-    }
-}
-
-// Resizer
-(function() {
-    const resizer = document.getElementById('resizer');
-    const left = document.getElementById('leftPanel');
-    let isResizing = false;
-    resizer.addEventListener('mousedown', function(e) {
-        isResizing = true;
-        document.addEventListener('mousemove', resize);
-        document.addEventListener('mouseup', stopResize);
-    });
-    function resize(e) {
-        if (!isResizing) return;
-        const containerWidth = document.querySelector('.coding-layout').offsetWidth;
-        const newWidth = (e.clientX / containerWidth) * 100;
-        if (newWidth > 20 && newWidth < 70) {
-            left.style.width = newWidth + '%';
-        }
-    }
-    function stopResize() {
-        isResizing = false;
-        document.removeEventListener('mousemove', resize);
-        document.removeEventListener('mouseup', stopResize);
-    }
-})();
 
 function getSelectedLanguageId() {
     return document.getElementById('langSelect').value;
@@ -594,45 +553,34 @@ function showResults(data) {
 
     let html = '';
     const statusColors = {
-        'accepted': 'result-accepted',
-        'wrong_answer': 'result-wrong',
-        'time_limit': 'result-error',
-        'memory_limit': 'result-error',
-        'runtime_error': 'result-error',
-        'compilation_error': 'result-error',
+        'accepted': 'result-accepted', 'wrong_answer': 'result-wrong',
+        'time_limit': 'result-error', 'memory_limit': 'result-error',
+        'runtime_error': 'result-error', 'compilation_error': 'result-error',
         'internal_error': 'result-error',
     };
     const statusIcons = {
-        'accepted': 'bi-check-circle-fill',
-        'wrong_answer': 'bi-x-circle-fill',
-        'time_limit': 'bi-clock-fill',
-        'runtime_error': 'bi-exclamation-triangle-fill',
+        'accepted': 'bi-check-circle-fill', 'wrong_answer': 'bi-x-circle-fill',
+        'time_limit': 'bi-clock-fill', 'runtime_error': 'bi-exclamation-triangle-fill',
         'compilation_error': 'bi-exclamation-triangle-fill',
     };
 
     if (data.status === 'accepted') {
-        title.className = 'results-tab active tab-pass';
-        title.innerHTML = '<i class="bi bi-check-circle-fill"></i> Qabul qilindi — ' +
-            data.passed_count + '/' + data.total_count + ' (' + (data.execution_time || 0).toFixed(0) + 'ms)';
-
+        title.innerHTML = '<i class="bi bi-check-circle-fill" style="color:#22C55E;"></i> Qabul qilindi';
         html += '<div class="result-summary accepted">';
-        html += '<i class="bi bi-check-circle-fill" style="font-size:1.2rem;"></i> ';
-        html += 'Barcha testlar muvaffaqiyatli o\'tdi!';
+        html += '<i class="bi bi-check-circle-fill" style="font-size:1.1rem;"></i> ';
+        html += 'Barcha testlar o\'tdi! — ' + data.passed_count + '/' + data.total_count + ' (' + (data.execution_time || 0).toFixed(0) + 'ms)';
         html += '</div>';
     } else {
         const statusDisplay = data.status_display || data.status;
-        title.className = 'results-tab active tab-fail';
-        title.innerHTML = '<i class="bi bi-x-circle-fill"></i> ' + statusDisplay + ' — ' +
-            data.passed_count + '/' + data.total_count;
-
+        title.innerHTML = '<i class="bi bi-x-circle-fill" style="color:#EF4444;"></i> ' + statusDisplay;
         html += '<div class="result-summary failed">';
-        html += '<i class="bi bi-x-circle-fill" style="font-size:1.2rem;"></i> ';
+        html += '<i class="bi bi-x-circle-fill" style="font-size:1.1rem;"></i> ';
         html += statusDisplay + ' — ' + data.passed_count + '/' + data.total_count + ' test o\'tdi';
         html += '</div>';
     }
 
     if (data.error_message) {
-        html += '<div class="result-output" style="color:#EF4444; border-color:#333;">' + escapeHtml(data.error_message) + '</div>';
+        html += '<div class="result-output" style="color:#991B1B;">' + escapeHtml(data.error_message) + '</div>';
     }
 
     if (data.results) {
@@ -648,7 +596,7 @@ function showResults(data) {
                 if (r.input) html += '<div class="result-output"><b>Kirish:</b>\n' + escapeHtml(r.input) + '</div>';
                 if (r.expected) html += '<div class="result-output"><b>Kutilgan:</b>\n' + escapeHtml(r.expected) + '</div>';
                 if (r.stdout) html += '<div class="result-output"><b>Sizning javob:</b>\n' + escapeHtml(r.stdout) + '</div>';
-                if (r.stderr) html += '<div class="result-output" style="color:#F59E0B;"><b>Xato:</b>\n' + escapeHtml(r.stderr) + '</div>';
+                if (r.stderr) html += '<div class="result-output" style="color:#92400E;"><b>Xato:</b>\n' + escapeHtml(r.stderr) + '</div>';
             }
         });
     }
@@ -675,10 +623,9 @@ function pollSubmission(submissionId) {
                     hideStatus();
                     setButtonsDisabled(false);
                     showResults(data);
-
                     if (data.status === 'accepted') {
                         document.getElementById('submissionInfo').innerHTML =
-                            '<span style="color:#22C55E;"><i class="bi bi-check-circle-fill"></i> Qabul qilindi!</span>';
+                            '<span style="color:#22C55E;font-weight:700;"><i class="bi bi-check-circle-fill"></i> Qabul qilindi!</span>';
                     }
                 }
             })
@@ -695,68 +642,40 @@ function runSample() {
     if (!editor) return;
     const code = editor.getValue().trim();
     if (!code) return;
-
     setButtonsDisabled(true);
     showStatus('Namuna testlar ishlamoqda...');
 
     fetch('/coding/api/run-sample/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify({
-            problem_id: PROBLEM_ID,
-            language_id: getSelectedLanguageId(),
-            code: code,
-        })
+        body: JSON.stringify({ problem_id: PROBLEM_ID, language_id: getSelectedLanguageId(), code: code })
     })
     .then(r => r.json())
     .then(data => {
-        if (data.error) {
-            hideStatus();
-            setButtonsDisabled(false);
-            alert(data.error);
-            return;
-        }
+        if (data.error) { hideStatus(); setButtonsDisabled(false); alert(data.error); return; }
         pollSubmission(data.submission_id);
     })
-    .catch(() => {
-        hideStatus();
-        setButtonsDisabled(false);
-        alert('Xatolik yuz berdi');
-    });
+    .catch(() => { hideStatus(); setButtonsDisabled(false); alert('Xatolik yuz berdi'); });
 }
 
 function submitCode() {
     if (!editor) return;
     const code = editor.getValue().trim();
     if (!code) return;
-
     setButtonsDisabled(true);
     showStatus('Barcha testlar tekshirilmoqda...');
 
     fetch('/coding/api/submit/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify({
-            problem_id: PROBLEM_ID,
-            language_id: getSelectedLanguageId(),
-            code: code,
-        })
+        body: JSON.stringify({ problem_id: PROBLEM_ID, language_id: getSelectedLanguageId(), code: code })
     })
     .then(r => r.json())
     .then(data => {
-        if (data.error) {
-            hideStatus();
-            setButtonsDisabled(false);
-            alert(data.error);
-            return;
-        }
+        if (data.error) { hideStatus(); setButtonsDisabled(false); alert(data.error); return; }
         pollSubmission(data.submission_id);
     })
-    .catch(() => {
-        hideStatus();
-        setButtonsDisabled(false);
-        alert('Xatolik yuz berdi');
-    });
+    .catch(() => { hideStatus(); setButtonsDisabled(false); alert('Xatolik yuz berdi'); });
 }
 </script>
 {% endblock %}
