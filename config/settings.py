@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'leaderboard.apps.LeaderboardConfig',
     'subscriptions.apps.SubscriptionsConfig',
     'tgbot.apps.TgbotConfig',
+    'coding.apps.CodingConfig',
     'django_celery_beat',
 ]
 
@@ -195,7 +196,15 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'subscriptions.tasks.send_expiring_soon_notifications',
         'schedule': crontab(hour=10, minute=30),  # har kuni 10:30 — 3 kun qolganida ogohlantirish
     },
+    'cleanup-coding-containers': {
+        'task': 'coding.tasks.cleanup_old_containers',
+        'schedule': 1800.0,  # har 30 daqiqada
+    },
 }
+
+# ─── Coding Sandbox (Docker) sozlamalari ─────────────────────────────────────
+SANDBOX_TIME_LIMIT = 5       # sekundda (max)
+SANDBOX_MEMORY_LIMIT = '256m'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

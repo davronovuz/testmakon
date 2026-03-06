@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Dasturlash Masalalari — Online Judge | TestMakon.uz{% endblock %}
+
+{% block extra_css %}
+<style>
+    {% include 'includes/_sidebar_css.html' %}
+
+    .coding-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .coding-title { font-size: 1.3rem; font-weight: 900; color: var(--dark); margin: 0; }
+    .coding-subtitle { font-size: 0.82rem; color: var(--gray-400); font-weight: 500; }
+
+    /* Stats cards */
+    .coding-stats {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+        background: #fff; border: 1px solid var(--gray-200); border-radius: 12px;
+        padding: 1rem; text-align: center;
+    }
+    .stat-card .stat-num { font-size: 1.5rem; font-weight: 900; color: var(--dark); }
+    .stat-card .stat-label { font-size: 0.75rem; color: var(--gray-400); font-weight: 600; margin-top: 2px; }
+    .stat-card.easy .stat-num { color: #22C55E; }
+    .stat-card.medium .stat-num { color: #F59E0B; }
+    .stat-card.hard .stat-num { color: #EF4444; }
+
+    /* Filters */
+    .coding-filters {
+        display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem; align-items: center;
+    }
+    .filter-group { display: flex; gap: 4px; flex-wrap: wrap; }
+    .filter-btn {
+        padding: 6px 14px; border-radius: 8px; border: 1px solid var(--gray-200);
+        background: #fff; color: var(--gray-400); font-size: 0.78rem; font-weight: 600;
+        cursor: pointer; transition: all 0.2s; text-decoration: none;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .filter-search {
+        flex: 1; min-width: 200px; padding: 8px 14px; border-radius: 8px;
+        border: 1px solid var(--gray-200); font-size: 0.82rem; outline: none;
+    }
+    .filter-search:focus { border-color: var(--primary); }
+
+    /* Problems table */
+    .problems-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .problems-table th {
+        padding: 10px 12px; font-size: 0.72rem; font-weight: 700;
+        color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--gray-200); text-align: left;
+    }
+    .problems-table td {
+        padding: 12px; border-bottom: 1px solid var(--gray-100); vertical-align: middle;
+    }
+    .problems-table tr:hover td { background: var(--gray-50); }
+
+    .problem-status { width: 32px; text-align: center; }
+    .problem-status i { font-size: 1rem; }
+    .status-solved { color: #22C55E; }
+    .status-attempted { color: #F59E0B; }
+
+    .problem-link {
+        font-weight: 700; color: var(--dark); text-decoration: none; font-size: 0.88rem;
+    }
+    .problem-link:hover { color: var(--primary); }
+    .problem-num { color: var(--gray-400); font-weight: 500; margin-right: 6px; }
+
+    .diff-badge {
+        padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+        display: inline-block;
+    }
+    .diff-easy { background: #DCFCE7; color: #166534; }
+    .diff-medium { background: #FEF3C7; color: #92400E; }
+    .diff-hard { background: #FEE2E2; color: #991B1B; }
+
+    .accept-rate { font-size: 0.8rem; color: var(--gray-400); font-weight: 600; }
+    .category-tag {
+        font-size: 0.7rem; background: var(--gray-100); color: var(--gray-500);
+        padding: 2px 8px; border-radius: 6px; font-weight: 600;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center; padding: 3rem 1rem; color: var(--gray-400);
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+
+    /* Pagination */
+    .pagination-wrap {
+        display: flex; justify-content: center; gap: 4px; margin-top: 1.5rem;
+    }
+    .page-btn {
+        padding: 6px 12px; border-radius: 8px; border: 1px solid var(--gray-200);
+        background: #fff; color: var(--dark); font-size: 0.82rem; font-weight: 600;
+        text-decoration: none; transition: all 0.2s;
+    }
+    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Dark mode */
+    [data-theme="dark"] .stat-card { background: var(--dark-card); border-color: #1E293B; }
+    [data-theme="dark"] .stat-card .stat-num { color: #F1F5F9; }
+    [data-theme="dark"] .filter-btn { background: var(--dark-card); border-color: #1E293B; color: #94A3B8; }
+    [data-theme="dark"] .filter-btn.active { background: var(--primary); color: #fff; }
+    [data-theme="dark"] .filter-search { background: var(--dark-card); border-color: #1E293B; color: #F1F5F9; }
+    [data-theme="dark"] .problems-table th { color: #64748B; border-color: #1E293B; }
+    [data-theme="dark"] .problems-table td { border-color: #1E293B; }
+    [data-theme="dark"] .problems-table tr:hover td { background: #1E293B; }
+    [data-theme="dark"] .problem-link { color: #F1F5F9; }
+    [data-theme="dark"] .category-tag { background: #1E293B; color: #94A3B8; }
+    [data-theme="dark"] .page-btn { background: var(--dark-card); border-color: #1E293B; color: #94A3B8; }
+
+    @media (max-width: 768px) {
+        .problems-table .hide-mobile { display: none; }
+        .coding-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:1400px; padding:1.5rem;">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'includes/_sidebar.html' with active='coding' %}
+        </div>
+
+        <!-- Main -->
+        <div class="col-lg-9 col-xl-10">
+            <div class="coding-header">
+                <div>
+                    <h1 class="coding-title"><i class="bi bi-code-slash" style="color:var(--primary);"></i> Dasturlash Masalalari</h1>
+                    <p class="coding-subtitle">Kod yozing, testlardan o'ting, daraja oshiring</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'coding:my_submissions' %}" class="filter-btn"><i class="bi bi-clock-history"></i> Yuborishlarim</a>
+                    <a href="{% url 'coding:leaderboard' %}" class="filter-btn"><i class="bi bi-trophy"></i> Reyting</a>
+                </div>
+            </div>
+
+            {% if stats %}
+            <div class="coding-stats">
+                <div class="stat-card">
+                    <div class="stat-num">{{ stats.problems_solved }}</div>
+                    <div class="stat-label">Yechilgan</div>
+                </div>
+                <div class="stat-card easy">
+                    <div class="stat-num">{{ stats.easy_solved }}</div>
+                    <div class="stat-label">Oson</div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-num">{{ stats.medium_solved }}</div>
+                    <div class="stat-label">O'rta</div>
+                </div>
+                <div class="stat-card hard">
+                    <div class="stat-num">{{ stats.hard_solved }}</div>
+                    <div class="stat-label">Qiyin</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Filters -->
+            <form method="get" class="coding-filters">
+                <div class="filter-group">
+                    <a href="{% url 'coding:problems_list' %}" class="filter-btn {% if not current_difficulty %}active{% endif %}">Barchasi</a>
+                    <a href="?difficulty=easy{% if current_category %}&category={{ current_category }}{% endif %}" class="filter-btn {% if current_difficulty == 'easy' %}active{% endif %}">Oson</a>
+                    <a href="?difficulty=medium{% if current_category %}&category={{ current_category }}{% endif %}" class="filter-btn {% if current_difficulty == 'medium' %}active{% endif %}">O'rta</a>
+                    <a href="?difficulty=hard{% if current_category %}&category={{ current_category }}{% endif %}" class="filter-btn {% if current_difficulty == 'hard' %}active{% endif %}">Qiyin</a>
+                </div>
+                {% if user.is_authenticated %}
+                <div class="filter-group">
+                    <a href="?status=solved{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}" class="filter-btn {% if current_status == 'solved' %}active{% endif %}"><i class="bi bi-check-circle"></i> Yechilgan</a>
+                    <a href="?status=attempted{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}" class="filter-btn {% if current_status == 'attempted' %}active{% endif %}"><i class="bi bi-dash-circle"></i> Urinilgan</a>
+                    <a href="?status=new{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}" class="filter-btn {% if current_status == 'new' %}active{% endif %}"><i class="bi bi-circle"></i> Yangi</a>
+                </div>
+                {% endif %}
+                <input type="text" name="q" value="{{ current_search }}" placeholder="Masala qidirish..." class="filter-search">
+            </form>
+
+            {% if categories %}
+            <div class="coding-filters" style="margin-top:-0.75rem;">
+                <div class="filter-group">
+                    {% for cat in categories %}
+                    <a href="?category={{ cat.slug }}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}" class="filter-btn {% if current_category == cat.slug %}active{% endif %}">
+                        <i class="bi {{ cat.icon }}"></i> {{ cat.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Problems Table -->
+            {% if page_obj %}
+            <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; overflow:hidden;">
+                <table class="problems-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;"></th>
+                            <th>#</th>
+                            <th>Masala</th>
+                            <th class="hide-mobile">Kategoriya</th>
+                            <th>Daraja</th>
+                            <th class="hide-mobile">Qabul %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for problem in page_obj %}
+                        <tr>
+                            <td class="problem-status">
+                                {% if problem.id in solved_ids %}
+                                    <i class="bi bi-check-circle-fill status-solved"></i>
+                                {% elif problem.id in attempted_ids %}
+                                    <i class="bi bi-dash-circle-fill status-attempted"></i>
+                                {% endif %}
+                            </td>
+                            <td><span class="problem-num">{{ problem.order }}</span></td>
+                            <td>
+                                <a href="{% url 'coding:problem_detail' problem.slug %}" class="problem-link">{{ problem.title }}</a>
+                            </td>
+                            <td class="hide-mobile">
+                                {% if problem.category %}
+                                <span class="category-tag">{{ problem.category.name }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="diff-badge diff-{{ problem.difficulty }}">{{ problem.get_difficulty_display }}</span>
+                            </td>
+                            <td class="hide-mobile">
+                                <span class="accept-rate">{{ problem.acceptance_rate }}%</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <div class="pagination-wrap">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-btn">&laquo;</a>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-btn">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-btn">&raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-code-slash"></i>
+                <h3>Masalalar topilmadi</h3>
+                <p>Boshqa filtr sinab ko'ring</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

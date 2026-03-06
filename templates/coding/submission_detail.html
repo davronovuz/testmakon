@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Yuborish #{{ submission.id }} — {{ submission.problem.title }} | TestMakon.uz{% endblock %}
+
+{% block extra_css %}
+<style>
+    {% include 'includes/_sidebar_css.html' %}
+
+    .detail-header { margin-bottom: 1.5rem; }
+    .detail-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0 0 0.5rem; }
+    .detail-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .meta-tag {
+        font-size: 0.72rem; background: var(--gray-100); color: var(--gray-500);
+        padding: 3px 8px; border-radius: 6px; font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;
+    }
+    .status-accepted { background: #DCFCE7; color: #166534; }
+    .status-wrong_answer { background: #FEE2E2; color: #991B1B; }
+    .status-time_limit { background: #FEF3C7; color: #92400E; }
+    .status-runtime_error { background: #FEE2E2; color: #991B1B; }
+    .status-compilation_error { background: #FEE2E2; color: #991B1B; }
+    .status-pending { background: var(--gray-100); color: var(--gray-500); }
+    .status-running { background: #DBEAFE; color: #1E40AF; }
+    .status-memory_limit { background: #FEF3C7; color: #92400E; }
+    .status-internal_error { background: var(--gray-100); color: var(--gray-500); }
+
+    .result-card {
+        background: #fff; border: 1px solid var(--gray-200); border-radius: 12px;
+        padding: 1rem; margin-bottom: 1rem;
+    }
+    .result-card h3 { font-size: 0.85rem; font-weight: 800; color: var(--dark); margin-bottom: 0.75rem; }
+
+    .tc-item {
+        display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+        border-radius: 8px; margin-bottom: 4px; font-size: 0.82rem;
+    }
+    .tc-accepted { background: rgba(34,197,94,0.08); color: #166534; }
+    .tc-wrong { background: rgba(239,68,68,0.08); color: #991B1B; }
+    .tc-error { background: rgba(245,158,11,0.08); color: #92400E; }
+
+    .code-block {
+        background: #1E1E1E; color: #D4D4D4; border-radius: 10px; padding: 1rem;
+        font-family: 'Courier New', monospace; font-size: 0.82rem; line-height: 1.6;
+        overflow-x: auto; white-space: pre-wrap;
+    }
+    .error-block {
+        background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px;
+        padding: 1rem; font-family: monospace; font-size: 0.8rem; color: #991B1B;
+        white-space: pre-wrap;
+    }
+
+    .progress-bar-wrap {
+        background: var(--gray-100); border-radius: 8px; height: 8px; overflow: hidden; margin-top: 8px;
+    }
+    .progress-fill {
+        height: 100%; border-radius: 8px; transition: width 0.3s;
+    }
+
+    [data-theme="dark"] .result-card { background: var(--dark-card); border-color: #1E293B; }
+    [data-theme="dark"] .result-card h3 { color: #F1F5F9; }
+    [data-theme="dark"] .detail-title { color: #F1F5F9; }
+    [data-theme="dark"] .meta-tag { background: #1E293B; color: #94A3B8; }
+    [data-theme="dark"] .error-block { background: #1C1917; border-color: #44403C; color: #FCA5A5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:1400px; padding:1.5rem;">
+    <div class="row g-4">
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'includes/_sidebar.html' with active='coding' %}
+        </div>
+        <div class="col-lg-9 col-xl-10">
+            <div class="detail-header">
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <a href="{% url 'coding:problem_detail' submission.problem.slug %}" style="color:var(--gray-400); font-size:0.8rem; text-decoration:none;">
+                        <i class="bi bi-arrow-left"></i> {{ submission.problem.title }}
+                    </a>
+                </div>
+                <h1 class="detail-title">Yuborish #{{ submission.id }}</h1>
+                <div class="detail-meta">
+                    <span class="status-badge status-{{ submission.status }}">{{ submission.get_status_display }}</span>
+                    <span class="meta-tag"><i class="bi bi-code-slash"></i> {{ submission.language.name }}</span>
+                    <span class="meta-tag"><i class="bi bi-clock"></i> {% if submission.execution_time %}{{ submission.execution_time|floatformat:0 }}ms{% else %}—{% endif %}</span>
+                    <span class="meta-tag"><i class="bi bi-calendar3"></i> {{ submission.created_at|timesince }} oldin</span>
+                </div>
+            </div>
+
+            <!-- Test natijalar -->
+            <div class="result-card">
+                <h3>
+                    <i class="bi bi-list-check" style="color:var(--primary);"></i>
+                    Natijalar — {{ submission.passed_count }}/{{ submission.total_count }} test o'tdi
+                </h3>
+                {% if submission.total_count > 0 %}
+                <div class="progress-bar-wrap">
+                    <div class="progress-fill" style="width:{% widthratio submission.passed_count submission.total_count 100 %}%; background:{% if submission.status == 'accepted' %}#22C55E{% else %}#EF4444{% endif %};"></div>
+                </div>
+                {% endif %}
+
+                <div style="margin-top:0.75rem;">
+                    {% for r in submission.results %}
+                    <div class="tc-item {% if r.status == 'accepted' %}tc-accepted{% elif r.status == 'wrong_answer' %}tc-wrong{% else %}tc-error{% endif %}">
+                        {% if r.status == 'accepted' %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% elif r.status == 'wrong_answer' %}
+                            <i class="bi bi-x-circle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% endif %}
+                        Test #{{ r.order }} — {{ r.status }}
+                        {% if r.execution_time %}<span style="margin-left:auto; font-size:0.72rem; opacity:0.7;">{{ r.execution_time|floatformat:0 }}ms</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if submission.error_message %}
+            <div class="result-card">
+                <h3><i class="bi bi-exclamation-triangle" style="color:#EF4444;"></i> Xato xabari</h3>
+                <div class="error-block">{{ submission.error_message }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Kod -->
+            <div class="result-card">
+                <h3><i class="bi bi-code-slash" style="color:var(--primary);"></i> Kod — {{ submission.language.name }}</h3>
+                <div class="code-block">{{ submission.code }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

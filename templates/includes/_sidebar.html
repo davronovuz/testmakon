@@ -63,6 +63,24 @@
         </div>
     </div>
 
+    {# === DASTURLASH === #}
+    <div class="tl-sidebar-group {% if active == 'coding' %}open{% endif %}" data-group="coding">
+        <button class="tl-group-toggle" onclick="toggleSidebarGroup(this)">
+            <span class="tl-group-label tl-group-label--section">Dasturlash</span>
+            <i class="bi bi-chevron-down tl-chevron"></i>
+        </button>
+        <div class="tl-group-body">
+            <a href="{% url 'coding:problems_list' %}" class="tl-nav-item {% if active == 'coding' %}active{% endif %}">
+                <i class="bi bi-code-slash"></i>
+                <span>Masalalar</span>
+            </a>
+            <a href="{% url 'coding:leaderboard' %}" class="tl-nav-item">
+                <i class="bi bi-trophy"></i>
+                <span>Reyting</span>
+            </a>
+        </div>
+    </div>
+
     {# === UNIVERSITETLAR === #}
     <div class="tl-sidebar-group {% if active == 'universities_list' or active == 'all_directions' or active == 'compare' %}open{% endif %}" data-group="uni">
         <button class="tl-group-toggle" onclick="toggleSidebarGroup(this)">

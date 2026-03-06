@@ -1,0 +1,544 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ problem.title }} — Dasturlash | TestMakon.uz{% endblock %}
+
+{% block bottom_nav %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Navbar footer ham yashirish — fullscreen editor */
+    footer, .mob-bottom-nav { display: none !important; }
+
+    /* Split pane layout */
+    .coding-layout {
+        display: flex; height: calc(100vh - 70px); overflow: hidden;
+    }
+    .coding-left {
+        width: 45%; min-width: 320px; overflow-y: auto; padding: 1.5rem;
+        border-right: 1px solid var(--gray-200); background: #fff;
+    }
+    .coding-right {
+        flex: 1; display: flex; flex-direction: column; background: #1E1E1E;
+    }
+
+    /* Resizer */
+    .coding-resizer {
+        width: 5px; background: var(--gray-200); cursor: col-resize; flex-shrink: 0;
+        transition: background 0.2s;
+    }
+    .coding-resizer:hover { background: var(--primary); }
+
+    /* Problem section */
+    .problem-header { margin-bottom: 1.25rem; }
+    .problem-title { font-size: 1.3rem; font-weight: 900; color: var(--dark); margin: 0 0 0.5rem; }
+    .problem-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .diff-badge {
+        padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+    }
+    .diff-easy { background: #DCFCE7; color: #166534; }
+    .diff-medium { background: #FEF3C7; color: #92400E; }
+    .diff-hard { background: #FEE2E2; color: #991B1B; }
+    .meta-tag {
+        font-size: 0.72rem; background: var(--gray-100); color: var(--gray-500);
+        padding: 3px 8px; border-radius: 6px; font-weight: 600;
+    }
+    .solved-badge {
+        font-size: 0.72rem; background: #DCFCE7; color: #166534;
+        padding: 3px 10px; border-radius: 6px; font-weight: 700;
+    }
+
+    .problem-section { margin-bottom: 1.25rem; }
+    .problem-section h3 {
+        font-size: 0.85rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem;
+    }
+    .problem-section p, .problem-section div {
+        font-size: 0.85rem; color: #475569; line-height: 1.7;
+    }
+
+    /* Sample test cases */
+    .sample-case {
+        background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 10px;
+        padding: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .sample-label { font-size: 0.72rem; font-weight: 700; color: var(--gray-400); margin-bottom: 4px; }
+    .sample-data {
+        font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--dark);
+        white-space: pre-wrap; background: #fff; padding: 8px 10px; border-radius: 6px;
+        border: 1px solid var(--gray-200);
+    }
+
+    /* Editor section */
+    .editor-toolbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 12px; background: #252526; border-bottom: 1px solid #333;
+    }
+    .lang-select {
+        background: #333; color: #fff; border: 1px solid #555; border-radius: 6px;
+        padding: 4px 10px; font-size: 0.78rem; outline: none;
+    }
+    .editor-container { flex: 1; min-height: 300px; }
+
+    /* Action buttons */
+    .editor-actions {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 12px; background: #252526; border-top: 1px solid #333;
+    }
+    .btn-run {
+        padding: 6px 16px; border-radius: 8px; border: 1px solid #555;
+        background: #333; color: #fff; font-size: 0.8rem; font-weight: 700;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .btn-run:hover { background: #444; }
+    .btn-submit {
+        padding: 6px 20px; border-radius: 8px; border: none;
+        background: linear-gradient(135deg, #8BC540, #6BA832); color: #fff;
+        font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,197,64,0.4); }
+    .btn-submit:disabled, .btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Results panel */
+    .results-panel {
+        background: #1E1E1E; border-top: 1px solid #333; max-height: 250px;
+        overflow-y: auto; padding: 12px; display: none;
+    }
+    .results-panel.show { display: block; }
+    .results-header {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .results-title { font-size: 0.82rem; font-weight: 700; color: #E2E8F0; }
+    .results-close {
+        background: none; border: none; color: #64748B; font-size: 1.1rem; cursor: pointer;
+    }
+
+    .result-item {
+        display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+        border-radius: 6px; margin-bottom: 4px; font-size: 0.78rem;
+    }
+    .result-accepted { background: rgba(34,197,94,0.1); color: #22C55E; }
+    .result-wrong { background: rgba(239,68,68,0.1); color: #EF4444; }
+    .result-error { background: rgba(239,68,68,0.1); color: #F59E0B; }
+    .result-pending { background: rgba(100,116,139,0.1); color: #64748B; }
+
+    .result-output {
+        background: #111; border-radius: 6px; padding: 8px; margin-top: 4px;
+        font-family: monospace; font-size: 0.75rem; color: #94A3B8; white-space: pre-wrap;
+    }
+
+    /* Status overlay */
+    .status-overlay {
+        display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.7); z-index: 10; align-items: center; justify-content: center;
+    }
+    .status-overlay.show { display: flex; }
+    .status-box {
+        background: #252526; border-radius: 12px; padding: 2rem; text-align: center; color: #E2E8F0;
+    }
+    .status-spinner {
+        width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid var(--primary);
+        border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .coding-layout { flex-direction: column; height: auto; }
+        .coding-left { width: 100%; border-right: none; border-bottom: 1px solid var(--gray-200); max-height: 50vh; }
+        .coding-right { min-height: 60vh; }
+        .coding-resizer { display: none; }
+    }
+
+    /* Dark theme for left panel */
+    [data-theme="dark"] .coding-left { background: var(--dark-card); border-color: #1E293B; }
+    [data-theme="dark"] .problem-title { color: #F1F5F9; }
+    [data-theme="dark"] .problem-section h3 { color: #F1F5F9; }
+    [data-theme="dark"] .problem-section p, [data-theme="dark"] .problem-section div { color: #94A3B8; }
+    [data-theme="dark"] .sample-case { background: #1E293B; border-color: #334155; }
+    [data-theme="dark"] .sample-data { background: #0F172A; border-color: #334155; color: #E2E8F0; }
+    [data-theme="dark"] .meta-tag { background: #1E293B; color: #94A3B8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="coding-layout">
+    <!-- Left: Problem Description -->
+    <div class="coding-left" id="leftPanel">
+        <div class="problem-header">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <a href="{% url 'coding:problems_list' %}" style="color:var(--gray-400); font-size:0.8rem; text-decoration:none;">
+                    <i class="bi bi-arrow-left"></i> Masalalar
+                </a>
+            </div>
+            <h1 class="problem-title">{{ problem.order }}. {{ problem.title }}</h1>
+            <div class="problem-meta">
+                <span class="diff-badge diff-{{ problem.difficulty }}">{{ problem.get_difficulty_display }}</span>
+                {% if problem.category %}
+                <span class="meta-tag"><i class="bi {{ problem.category.icon }}"></i> {{ problem.category.name }}</span>
+                {% endif %}
+                <span class="meta-tag"><i class="bi bi-clock"></i> {{ problem.time_limit }}s</span>
+                <span class="meta-tag"><i class="bi bi-memory"></i> {{ problem.memory_limit }}MB</span>
+                {% if is_solved %}
+                <span class="solved-badge"><i class="bi bi-check-circle-fill"></i> Yechilgan</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="problem-section">
+            <h3>Masala sharti</h3>
+            <div>{{ problem.description|safe }}</div>
+        </div>
+
+        <div class="problem-section">
+            <h3>Kirish formati</h3>
+            <div>{{ problem.input_format|safe }}</div>
+        </div>
+
+        <div class="problem-section">
+            <h3>Chiqish formati</h3>
+            <div>{{ problem.output_format|safe }}</div>
+        </div>
+
+        {% if problem.constraints %}
+        <div class="problem-section">
+            <h3>Cheklovlar</h3>
+            <div>{{ problem.constraints|safe }}</div>
+        </div>
+        {% endif %}
+
+        {% if sample_cases %}
+        <div class="problem-section">
+            <h3>Namunalar</h3>
+            {% for tc in sample_cases %}
+            <div class="sample-case">
+                <div class="sample-label">Namuna #{{ tc.order }} — Kirish:</div>
+                <div class="sample-data">{{ tc.input_data }}</div>
+                <div class="sample-label" style="margin-top:8px;">Kutilgan chiqish:</div>
+                <div class="sample-data">{{ tc.expected_output }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Resizer -->
+    <div class="coding-resizer" id="resizer"></div>
+
+    <!-- Right: Editor -->
+    <div class="coding-right" id="rightPanel">
+        <div class="editor-toolbar">
+            <select id="langSelect" class="lang-select">
+                {% for lang in languages %}
+                <option value="{{ lang.id }}" data-monaco="{{ lang.monaco_language }}" data-slug="{{ lang.slug }}">{{ lang.name }}</option>
+                {% endfor %}
+            </select>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <span style="font-size:0.72rem; color:#64748B;">
+                    <i class="bi bi-keyboard"></i> Ctrl+Enter = Run | Ctrl+Shift+Enter = Submit
+                </span>
+            </div>
+        </div>
+
+        <div class="editor-container" id="editorContainer" style="position:relative;">
+            <div id="monacoEditor" style="width:100%; height:100%;"></div>
+            <div class="status-overlay" id="statusOverlay">
+                <div class="status-box">
+                    <div class="status-spinner"></div>
+                    <div id="statusText">Ishlamoqda...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="editor-actions">
+            <div style="display:flex; gap:8px;">
+                <button class="btn-run" id="btnRun" onclick="runSample()">
+                    <i class="bi bi-play-fill"></i> Sinash
+                </button>
+                <button class="btn-submit" id="btnSubmit" onclick="submitCode()">
+                    <i class="bi bi-cloud-upload"></i> Yuborish
+                </button>
+            </div>
+            <div id="submissionInfo" style="font-size:0.75rem; color:#64748B;"></div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-panel" id="resultsPanel">
+            <div class="results-header">
+                <span class="results-title" id="resultsTitle">Natijalar</span>
+                <button class="results-close" onclick="document.getElementById('resultsPanel').classList.remove('show')">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div id="resultsBody"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Monaco Editor CDN -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+<script>
+const PROBLEM_ID = {{ problem.id }};
+const STARTER_CODE = {{ starter_code_json|safe }};
+const CSRF_TOKEN = '{{ csrf_token }}';
+let editor = null;
+let currentLanguage = null;
+let pollingInterval = null;
+
+// Monaco Editor yuklash
+require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+require(['vs/editor/editor.main'], function () {
+    const langSelect = document.getElementById('langSelect');
+    const firstOption = langSelect.options[0];
+    currentLanguage = firstOption.dataset.monaco;
+
+    const savedCode = localStorage.getItem(`code_${PROBLEM_ID}_${firstOption.dataset.slug}`);
+
+    editor = monaco.editor.create(document.getElementById('monacoEditor'), {
+        value: savedCode || STARTER_CODE[firstOption.dataset.slug] || '',
+        language: currentLanguage,
+        theme: 'vs-dark',
+        fontSize: 14,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        padding: { top: 12, bottom: 12 },
+        lineNumbers: 'on',
+        renderWhitespace: 'selection',
+        tabSize: 4,
+    });
+
+    // Keyboard shortcuts
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, function () {
+        runSample();
+    });
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter, function () {
+        submitCode();
+    });
+
+    // Auto-save
+    editor.onDidChangeModelContent(function() {
+        const slug = langSelect.options[langSelect.selectedIndex].dataset.slug;
+        localStorage.setItem(`code_${PROBLEM_ID}_${slug}`, editor.getValue());
+    });
+
+    // Language change
+    langSelect.addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+        const monacoLang = opt.dataset.monaco;
+        const slug = opt.dataset.slug;
+        currentLanguage = monacoLang;
+
+        const savedCode = localStorage.getItem(`code_${PROBLEM_ID}_${slug}`);
+        const code = savedCode || STARTER_CODE[slug] || '';
+
+        const model = editor.getModel();
+        monaco.editor.setModelLanguage(model, monacoLang);
+        editor.setValue(code);
+    });
+});
+
+// Resizer
+(function() {
+    const resizer = document.getElementById('resizer');
+    const left = document.getElementById('leftPanel');
+    let isResizing = false;
+    resizer.addEventListener('mousedown', function(e) {
+        isResizing = true;
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', stopResize);
+    });
+    function resize(e) {
+        if (!isResizing) return;
+        const containerWidth = document.querySelector('.coding-layout').offsetWidth;
+        const newWidth = (e.clientX / containerWidth) * 100;
+        if (newWidth > 20 && newWidth < 70) {
+            left.style.width = newWidth + '%';
+        }
+    }
+    function stopResize() {
+        isResizing = false;
+        document.removeEventListener('mousemove', resize);
+        document.removeEventListener('mouseup', stopResize);
+    }
+})();
+
+function getSelectedLanguageId() {
+    return document.getElementById('langSelect').value;
+}
+
+function setButtonsDisabled(disabled) {
+    document.getElementById('btnRun').disabled = disabled;
+    document.getElementById('btnSubmit').disabled = disabled;
+}
+
+function showStatus(text) {
+    document.getElementById('statusText').textContent = text;
+    document.getElementById('statusOverlay').classList.add('show');
+}
+
+function hideStatus() {
+    document.getElementById('statusOverlay').classList.remove('show');
+}
+
+function showResults(data) {
+    const panel = document.getElementById('resultsPanel');
+    const body = document.getElementById('resultsBody');
+    const title = document.getElementById('resultsTitle');
+
+    let html = '';
+    const statusColors = {
+        'accepted': 'result-accepted',
+        'wrong_answer': 'result-wrong',
+        'time_limit': 'result-error',
+        'memory_limit': 'result-error',
+        'runtime_error': 'result-error',
+        'compilation_error': 'result-error',
+        'internal_error': 'result-error',
+    };
+    const statusIcons = {
+        'accepted': 'bi-check-circle-fill',
+        'wrong_answer': 'bi-x-circle-fill',
+        'time_limit': 'bi-clock-fill',
+        'runtime_error': 'bi-exclamation-triangle-fill',
+        'compilation_error': 'bi-exclamation-triangle-fill',
+    };
+
+    if (data.status === 'accepted') {
+        title.innerHTML = '<span style="color:#22C55E;"><i class="bi bi-check-circle-fill"></i> Qabul qilindi!</span> — ' +
+            data.passed_count + '/' + data.total_count + ' test o\'tdi (' + (data.execution_time || 0).toFixed(0) + 'ms)';
+    } else {
+        const statusDisplay = data.status_display || data.status;
+        title.innerHTML = '<span style="color:#EF4444;"><i class="bi bi-x-circle-fill"></i> ' + statusDisplay + '</span> — ' +
+            data.passed_count + '/' + data.total_count + ' test o\'tdi';
+    }
+
+    if (data.error_message) {
+        html += '<div class="result-output" style="color:#EF4444;">' + escapeHtml(data.error_message) + '</div>';
+    }
+
+    if (data.results) {
+        data.results.forEach(function (r) {
+            const cls = statusColors[r.status] || 'result-pending';
+            const icon = statusIcons[r.status] || 'bi-dash-circle';
+            html += '<div class="result-item ' + cls + '">';
+            html += '<i class="bi ' + icon + '"></i> ';
+            html += 'Test #' + r.order + ' — ' + r.status + ' (' + (r.execution_time || 0).toFixed(0) + 'ms)';
+            html += '</div>';
+
+            if (r.is_sample && r.status !== 'accepted') {
+                if (r.input) html += '<div class="result-output"><b>Kirish:</b>\n' + escapeHtml(r.input) + '</div>';
+                if (r.expected) html += '<div class="result-output"><b>Kutilgan:</b>\n' + escapeHtml(r.expected) + '</div>';
+                if (r.stdout) html += '<div class="result-output"><b>Sizning javob:</b>\n' + escapeHtml(r.stdout) + '</div>';
+                if (r.stderr) html += '<div class="result-output" style="color:#F59E0B;"><b>Xato:</b>\n' + escapeHtml(r.stderr) + '</div>';
+            }
+        });
+    }
+
+    body.innerHTML = html;
+    panel.classList.add('show');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function pollSubmission(submissionId) {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(function () {
+        fetch('/coding/api/status/' + submissionId + '/')
+            .then(r => r.json())
+            .then(data => {
+                if (data.status !== 'pending' && data.status !== 'running') {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                    hideStatus();
+                    setButtonsDisabled(false);
+                    showResults(data);
+
+                    if (data.status === 'accepted') {
+                        document.getElementById('submissionInfo').innerHTML =
+                            '<span style="color:#22C55E;"><i class="bi bi-check-circle-fill"></i> Qabul qilindi!</span>';
+                    }
+                }
+            })
+            .catch(() => {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                hideStatus();
+                setButtonsDisabled(false);
+            });
+    }, 1000);
+}
+
+function runSample() {
+    if (!editor) return;
+    const code = editor.getValue().trim();
+    if (!code) return;
+
+    setButtonsDisabled(true);
+    showStatus('Namuna testlar ishlamoqda...');
+
+    fetch('/coding/api/run-sample/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            problem_id: PROBLEM_ID,
+            language_id: getSelectedLanguageId(),
+            code: code,
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            hideStatus();
+            setButtonsDisabled(false);
+            alert(data.error);
+            return;
+        }
+        pollSubmission(data.submission_id);
+    })
+    .catch(() => {
+        hideStatus();
+        setButtonsDisabled(false);
+        alert('Xatolik yuz berdi');
+    });
+}
+
+function submitCode() {
+    if (!editor) return;
+    const code = editor.getValue().trim();
+    if (!code) return;
+
+    setButtonsDisabled(true);
+    showStatus('Barcha testlar tekshirilmoqda...');
+
+    fetch('/coding/api/submit/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            problem_id: PROBLEM_ID,
+            language_id: getSelectedLanguageId(),
+            code: code,
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            hideStatus();
+            setButtonsDisabled(false);
+            alert(data.error);
+            return;
+        }
+        pollSubmission(data.submission_id);
+    })
+    .catch(() => {
+        hideStatus();
+        setButtonsDisabled(false);
+        alert('Xatolik yuz berdi');
+    });
+}
+</script>
+{% endblock %}

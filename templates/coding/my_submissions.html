@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Yuborishlarim — Dasturlash | TestMakon.uz{% endblock %}
+
+{% block extra_css %}
+<style>
+    {% include 'includes/_sidebar_css.html' %}
+
+    .page-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .page-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0; }
+
+    .sub-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .sub-table th {
+        padding: 10px 12px; font-size: 0.72rem; font-weight: 700;
+        color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--gray-200); text-align: left;
+    }
+    .sub-table td {
+        padding: 10px 12px; border-bottom: 1px solid var(--gray-100);
+        font-size: 0.82rem; vertical-align: middle;
+    }
+    .sub-table tr:hover td { background: var(--gray-50); }
+
+    .status-badge {
+        padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+        display: inline-block;
+    }
+    .status-accepted { background: #DCFCE7; color: #166534; }
+    .status-wrong_answer { background: #FEE2E2; color: #991B1B; }
+    .status-time_limit { background: #FEF3C7; color: #92400E; }
+    .status-runtime_error { background: #FEE2E2; color: #991B1B; }
+    .status-compilation_error { background: #FEE2E2; color: #991B1B; }
+    .status-pending { background: var(--gray-100); color: var(--gray-500); }
+    .status-running { background: #DBEAFE; color: #1E40AF; }
+    .status-memory_limit { background: #FEF3C7; color: #92400E; }
+    .status-internal_error { background: var(--gray-100); color: var(--gray-500); }
+
+    .problem-link { color: var(--dark); font-weight: 600; text-decoration: none; }
+    .problem-link:hover { color: var(--primary); }
+
+    .filter-bar { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-btn {
+        padding: 5px 12px; border-radius: 8px; border: 1px solid var(--gray-200);
+        background: #fff; color: var(--gray-400); font-size: 0.75rem; font-weight: 600;
+        text-decoration: none; transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    [data-theme="dark"] .sub-table th { color: #64748B; border-color: #1E293B; }
+    [data-theme="dark"] .sub-table td { border-color: #1E293B; }
+    [data-theme="dark"] .sub-table tr:hover td { background: #1E293B; }
+    [data-theme="dark"] .problem-link { color: #F1F5F9; }
+    [data-theme="dark"] .filter-btn { background: var(--dark-card); border-color: #1E293B; color: #94A3B8; }
+
+    .pagination-wrap { display: flex; justify-content: center; gap: 4px; margin-top: 1.5rem; }
+    .page-btn {
+        padding: 6px 12px; border-radius: 8px; border: 1px solid var(--gray-200);
+        background: #fff; color: var(--dark); font-size: 0.82rem; font-weight: 600;
+        text-decoration: none;
+    }
+    .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:1400px; padding:1.5rem;">
+    <div class="row g-4">
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'includes/_sidebar.html' with active='coding' %}
+        </div>
+        <div class="col-lg-9 col-xl-10">
+            <div class="page-header">
+                <h1 class="page-title"><i class="bi bi-clock-history" style="color:var(--primary);"></i> Yuborishlarim</h1>
+                <a href="{% url 'coding:problems_list' %}" class="filter-btn"><i class="bi bi-arrow-left"></i> Masalalar</a>
+            </div>
+
+            <div class="filter-bar">
+                <a href="{% url 'coding:my_submissions' %}" class="filter-btn {% if not current_status %}active{% endif %}">Barchasi</a>
+                <a href="?status=accepted" class="filter-btn {% if current_status == 'accepted' %}active{% endif %}">Qabul qilingan</a>
+                <a href="?status=wrong_answer" class="filter-btn {% if current_status == 'wrong_answer' %}active{% endif %}">Noto'g'ri</a>
+                <a href="?status=time_limit" class="filter-btn {% if current_status == 'time_limit' %}active{% endif %}">Vaqt chegarasi</a>
+                <a href="?status=runtime_error" class="filter-btn {% if current_status == 'runtime_error' %}active{% endif %}">Runtime xato</a>
+            </div>
+
+            {% if page_obj %}
+            <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; overflow:hidden;">
+                <table class="sub-table">
+                    <thead>
+                        <tr>
+                            <th>Masala</th>
+                            <th>Til</th>
+                            <th>Holat</th>
+                            <th>Testlar</th>
+                            <th>Vaqt</th>
+                            <th>Sana</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in page_obj %}
+                        <tr>
+                            <td><a href="{% url 'coding:problem_detail' sub.problem.slug %}" class="problem-link">{{ sub.problem.title }}</a></td>
+                            <td>{{ sub.language.name }}</td>
+                            <td>
+                                <a href="{% url 'coding:submission_detail' sub.pk %}" style="text-decoration:none;">
+                                    <span class="status-badge status-{{ sub.status }}">{{ sub.get_status_display }}</span>
+                                </a>
+                            </td>
+                            <td>{{ sub.passed_count }}/{{ sub.total_count }}</td>
+                            <td>{% if sub.execution_time %}{{ sub.execution_time|floatformat:0 }}ms{% else %}—{% endif %}</td>
+                            <td style="color:var(--gray-400); font-size:0.75rem;">{{ sub.created_at|timesince }} oldin</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <div class="pagination-wrap">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="page-btn">&laquo;</a>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if current_status %}&status={{ current_status }}{% endif %}" class="page-btn">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="page-btn">&raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div style="text-align:center; padding:3rem; color:var(--gray-400);">
+                <i class="bi bi-inbox" style="font-size:3rem; display:block; margin-bottom:1rem;"></i>
+                <p>Hali yuborishlar yo'q</p>
+                <a href="{% url 'coding:problems_list' %}" style="color:var(--primary); font-weight:600;">Masalalar ro'yxatiga o'tish</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

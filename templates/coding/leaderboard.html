@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Dasturlash Reytingi | TestMakon.uz{% endblock %}
+
+{% block extra_css %}
+<style>
+    {% include 'includes/_sidebar_css.html' %}
+
+    .lb-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .lb-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0; }
+
+    /* User card */
+    .my-rank-card {
+        background: linear-gradient(135deg, #8BC540, #6BA832); border-radius: 14px;
+        padding: 1.25rem; margin-bottom: 1.5rem; color: #fff;
+        display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+    }
+    .my-rank-num { font-size: 2.5rem; font-weight: 900; line-height: 1; }
+    .my-rank-label { font-size: 0.78rem; opacity: 0.85; }
+    .my-rank-stat { text-align: center; }
+    .my-rank-stat .num { font-size: 1.3rem; font-weight: 800; }
+    .my-rank-stat .label { font-size: 0.7rem; opacity: 0.8; }
+
+    /* Table */
+    .lb-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .lb-table th {
+        padding: 10px 12px; font-size: 0.72rem; font-weight: 700;
+        color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--gray-200); text-align: left;
+    }
+    .lb-table td {
+        padding: 10px 12px; border-bottom: 1px solid var(--gray-100);
+        font-size: 0.85rem; vertical-align: middle;
+    }
+    .lb-table tr:hover td { background: var(--gray-50); }
+
+    .rank-num { font-weight: 800; color: var(--dark); width: 40px; }
+    .rank-1 { color: #F59E0B; }
+    .rank-2 { color: #94A3B8; }
+    .rank-3 { color: #CD7F32; }
+
+    .lb-user { font-weight: 700; color: var(--dark); }
+    .lb-solved { font-weight: 800; color: var(--primary); }
+
+    .diff-mini {
+        font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+        display: inline-block; margin-right: 2px;
+    }
+    .diff-mini.easy { background: #DCFCE7; color: #166534; }
+    .diff-mini.medium { background: #FEF3C7; color: #92400E; }
+    .diff-mini.hard { background: #FEE2E2; color: #991B1B; }
+
+    [data-theme="dark"] .lb-table th { color: #64748B; border-color: #1E293B; }
+    [data-theme="dark"] .lb-table td { border-color: #1E293B; }
+    [data-theme="dark"] .lb-table tr:hover td { background: #1E293B; }
+    [data-theme="dark"] .lb-user { color: #F1F5F9; }
+    [data-theme="dark"] .rank-num { color: #F1F5F9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:1400px; padding:1.5rem;">
+    <div class="row g-4">
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'includes/_sidebar.html' with active='coding' %}
+        </div>
+        <div class="col-lg-9 col-xl-10">
+            <div class="lb-header">
+                <h1 class="lb-title"><i class="bi bi-trophy" style="color:#F59E0B;"></i> Dasturlash Reytingi</h1>
+                <a href="{% url 'coding:problems_list' %}" style="font-size:0.82rem; color:var(--primary); text-decoration:none; font-weight:600;">
+                    <i class="bi bi-arrow-left"></i> Masalalar
+                </a>
+            </div>
+
+            {% if user_stats and user_rank %}
+            <div class="my-rank-card">
+                <div>
+                    <div class="my-rank-num">#{{ user_rank }}</div>
+                    <div class="my-rank-label">Sizning o'rningiz</div>
+                </div>
+                <div class="my-rank-stat">
+                    <div class="num">{{ user_stats.problems_solved }}</div>
+                    <div class="label">Yechilgan</div>
+                </div>
+                <div class="my-rank-stat">
+                    <div class="num">{{ user_stats.easy_solved }}</div>
+                    <div class="label">Oson</div>
+                </div>
+                <div class="my-rank-stat">
+                    <div class="num">{{ user_stats.medium_solved }}</div>
+                    <div class="label">O'rta</div>
+                </div>
+                <div class="my-rank-stat">
+                    <div class="num">{{ user_stats.hard_solved }}</div>
+                    <div class="label">Qiyin</div>
+                </div>
+                <div class="my-rank-stat">
+                    <div class="num">{{ user_stats.current_streak }}</div>
+                    <div class="label">Streak</div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if stats_list %}
+            <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; overflow:hidden;">
+                <table class="lb-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Foydalanuvchi</th>
+                            <th>Yechilgan</th>
+                            <th>Darajalar</th>
+                            <th>Streak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in stats_list %}
+                        <tr>
+                            <td>
+                                <span class="rank-num {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">
+                                    {% if forloop.counter == 1 %}<i class="bi bi-trophy-fill"></i>{% elif forloop.counter == 2 %}<i class="bi bi-award-fill"></i>{% elif forloop.counter == 3 %}<i class="bi bi-award"></i>{% else %}{{ forloop.counter }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="lb-user">{{ s.user.get_full_name|default:s.user.phone_number }}</span>
+                            </td>
+                            <td><span class="lb-solved">{{ s.problems_solved }}</span></td>
+                            <td>
+                                <span class="diff-mini easy">{{ s.easy_solved }}</span>
+                                <span class="diff-mini medium">{{ s.medium_solved }}</span>
+                                <span class="diff-mini hard">{{ s.hard_solved }}</span>
+                            </td>
+                            <td>
+                                {% if s.current_streak > 0 %}
+                                <span style="color:#F59E0B; font-weight:700;">{{ s.current_streak }} kun</span>
+                                {% else %}
+                                <span style="color:var(--gray-400);">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align:center; padding:3rem; color:var(--gray-400);">
+                <i class="bi bi-trophy" style="font-size:3rem; display:block; margin-bottom:1rem;"></i>
+                <p>Hali hech kim masala yechmagan</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
