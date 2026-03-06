@@ -19,6 +19,10 @@ DEFAULT_CPU_QUOTA = 50000  # 50% CPU
 DEFAULT_PIDS_LIMIT = 64
 MAX_OUTPUT_SIZE = 5000  # chars
 
+# Docker-in-Docker uchun umumiy papka
+# Celery konteyner VA host bir xil papkani ko'radi
+SANDBOX_DIR = '/tmp/testmakon_sandbox'
+
 
 class DockerSandbox:
     """Docker konteynerda xavfsiz kod ishlatish"""
@@ -49,8 +53,10 @@ class DockerSandbox:
         tmpdir = None
 
         try:
-            # Vaqtinchalik papka
-            tmpdir = tempfile.mkdtemp(prefix='testmakon_')
+            # Umumiy papkada vaqtinchalik katalog yaratish
+            # Bu papka host va celery konteynerda bir xil path'da
+            os.makedirs(SANDBOX_DIR, exist_ok=True)
+            tmpdir = tempfile.mkdtemp(prefix='run_', dir=SANDBOX_DIR)
 
             # Java uchun fayl nomi — public class nomi bilan mos bo'lishi SHART
             if language.slug == 'java':

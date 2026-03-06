@@ -61,6 +61,9 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/testmakon_sandbox:/tmp/testmakon_sandbox
     depends_on:
       postgres:
         condition: service_healthy
