@@ -74,6 +74,11 @@ class DockerSandbox:
             with open(input_path, 'w') as f:
                 f.write(input_data)
 
+            # nobody user o'qiy olishi uchun ruxsat berish
+            os.chmod(tmpdir, 0o755)
+            os.chmod(code_path, 0o644)
+            os.chmod(input_path, 0o644)
+
             # Command — compile + run yoki faqat run
             if language.compile_cmd:
                 compile_cmd = language.compile_cmd.replace('{file}', f'/sandbox/{code_file}')
