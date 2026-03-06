@@ -19,10 +19,13 @@
     }
     .header-btn:hover { border-color: var(--primary); color: var(--primary); }
 
-    /* Filter bar — compact */
+    /* Filter bar — compact + sticky */
     .filter-bar {
         display: flex; gap: 8px; margin-bottom: 1.25rem; align-items: center; flex-wrap: wrap;
+        position: sticky; top: 70px; z-index: 10;
+        background: var(--gray-50, #F8FAFC); padding: 10px 0;
     }
+    [data-theme="dark"] .filter-bar { background: var(--dark-bg, #0F172A); }
     .filter-select {
         padding: 7px 12px; border-radius: 8px; border: 1px solid var(--gray-200);
         background: #fff; color: var(--dark); font-size: 0.8rem; font-weight: 600;
