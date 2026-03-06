@@ -14,7 +14,7 @@
         display: flex; height: calc(100vh - 70px); overflow: hidden;
     }
     .coding-left {
-        width: 45%; min-width: 320px; overflow-y: auto; padding: 1.5rem;
+        width: 45%; min-width: 320px; overflow-y: auto;
         border-right: 1px solid var(--gray-200); background: #fff;
     }
     .coding-right {
@@ -28,101 +28,183 @@
     }
     .coding-resizer:hover { background: var(--primary); }
 
+    /* Left panel tabs */
+    .left-tabs {
+        display: flex; border-bottom: 1px solid var(--gray-200); background: #FAFBFC;
+        position: sticky; top: 0; z-index: 5;
+    }
+    .left-tab {
+        padding: 10px 16px; font-size: 0.78rem; font-weight: 700; color: var(--gray-400);
+        cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s;
+        background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .left-tab:hover { color: var(--dark); }
+    .left-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .left-content { padding: 1.25rem; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
     /* Problem section */
-    .problem-header { margin-bottom: 1.25rem; }
-    .problem-title { font-size: 1.3rem; font-weight: 900; color: var(--dark); margin: 0 0 0.5rem; }
-    .problem-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .problem-header { margin-bottom: 1rem; }
+    .problem-back {
+        color: var(--gray-400); font-size: 0.78rem; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 4px; margin-bottom: 8px;
+    }
+    .problem-back:hover { color: var(--primary); }
+    .problem-title { font-size: 1.2rem; font-weight: 900; color: var(--dark); margin: 0 0 8px; }
+    .problem-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
     .diff-badge {
-        padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+        padding: 2px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700;
     }
     .diff-easy { background: #DCFCE7; color: #166534; }
     .diff-medium { background: #FEF3C7; color: #92400E; }
     .diff-hard { background: #FEE2E2; color: #991B1B; }
     .meta-tag {
-        font-size: 0.72rem; background: var(--gray-100); color: var(--gray-500);
-        padding: 3px 8px; border-radius: 6px; font-weight: 600;
+        font-size: 0.7rem; background: var(--gray-100); color: var(--gray-500);
+        padding: 2px 8px; border-radius: 6px; font-weight: 600;
     }
     .solved-badge {
-        font-size: 0.72rem; background: #DCFCE7; color: #166534;
-        padding: 3px 10px; border-radius: 6px; font-weight: 700;
+        font-size: 0.7rem; background: #DCFCE7; color: #166534;
+        padding: 2px 10px; border-radius: 6px; font-weight: 700;
     }
 
-    .problem-section { margin-bottom: 1.25rem; }
+    .problem-section { margin-bottom: 1rem; }
     .problem-section h3 {
-        font-size: 0.85rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem;
+        font-size: 0.82rem; font-weight: 800; color: var(--dark); margin-bottom: 0.4rem;
     }
     .problem-section p, .problem-section div {
-        font-size: 0.85rem; color: #475569; line-height: 1.7;
+        font-size: 0.83rem; color: #475569; line-height: 1.7;
     }
 
     /* Sample test cases */
     .sample-case {
-        background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 10px;
-        padding: 0.75rem; margin-bottom: 0.75rem;
+        background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px;
+        padding: 0.6rem 0.75rem; margin-bottom: 0.6rem;
     }
-    .sample-label { font-size: 0.72rem; font-weight: 700; color: var(--gray-400); margin-bottom: 4px; }
+    .sample-label {
+        font-size: 0.7rem; font-weight: 700; color: var(--gray-400); margin-bottom: 3px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .copy-btn {
+        background: none; border: none; color: var(--gray-400); font-size: 0.72rem;
+        cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    }
+    .copy-btn:hover { color: var(--primary); background: var(--gray-100); }
     .sample-data {
-        font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--dark);
-        white-space: pre-wrap; background: #fff; padding: 8px 10px; border-radius: 6px;
+        font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--dark);
+        white-space: pre-wrap; background: #fff; padding: 6px 10px; border-radius: 6px;
         border: 1px solid var(--gray-200);
     }
 
-    /* Editor section */
+    /* Submissions tab */
+    .sub-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 10px; border-radius: 8px; margin-bottom: 4px;
+        border: 1px solid var(--gray-200); font-size: 0.78rem;
+    }
+    .sub-item:hover { background: var(--gray-50); }
+    .sub-status-ac { color: #22C55E; font-weight: 700; }
+    .sub-status-wa { color: #EF4444; font-weight: 700; }
+    .sub-status-other { color: #F59E0B; font-weight: 700; }
+    .sub-meta { color: var(--gray-400); font-size: 0.72rem; }
+
+    /* Editor toolbar */
     .editor-toolbar {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 8px 12px; background: #252526; border-bottom: 1px solid #333;
+        padding: 6px 12px; background: #252526; border-bottom: 1px solid #333;
+        gap: 8px;
     }
     .lang-select {
-        background: #333; color: #fff; border: 1px solid #555; border-radius: 6px;
-        padding: 4px 10px; font-size: 0.78rem; outline: none;
+        background: #333; color: #E2E8F0; border: 1px solid #444; border-radius: 6px;
+        padding: 5px 10px; font-size: 0.78rem; font-weight: 600; outline: none;
+        cursor: pointer;
     }
-    .editor-container { flex: 1; min-height: 300px; }
+    .lang-select:focus { border-color: var(--primary); }
+    .toolbar-actions {
+        display: flex; gap: 4px; align-items: center;
+    }
+    .toolbar-btn {
+        background: none; border: none; color: #64748B; font-size: 0.9rem;
+        cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.15s;
+    }
+    .toolbar-btn:hover { color: #E2E8F0; background: #333; }
+    .toolbar-divider { width: 1px; height: 18px; background: #444; margin: 0 2px; }
 
-    /* Action buttons */
-    .editor-actions {
+    .editor-container { flex: 1; min-height: 300px; position: relative; }
+
+    /* Bottom bar — Run / Submit */
+    .editor-bottom {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 8px 12px; background: #252526; border-top: 1px solid #333;
+        padding: 6px 12px; background: #252526; border-top: 1px solid #333;
+    }
+    .bottom-left {
+        display: flex; gap: 6px; align-items: center;
     }
     .btn-run {
-        padding: 6px 16px; border-radius: 8px; border: 1px solid #555;
-        background: #333; color: #fff; font-size: 0.8rem; font-weight: 700;
-        cursor: pointer; transition: all 0.2s;
+        padding: 5px 14px; border-radius: 6px; border: 1px solid #444;
+        background: #333; color: #E2E8F0; font-size: 0.78rem; font-weight: 700;
+        cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px;
     }
-    .btn-run:hover { background: #444; }
+    .btn-run:hover { background: #3D3D3D; border-color: #555; }
     .btn-submit {
-        padding: 6px 20px; border-radius: 8px; border: none;
+        padding: 5px 18px; border-radius: 6px; border: none;
         background: linear-gradient(135deg, #8BC540, #6BA832); color: #fff;
-        font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+        font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+        display: inline-flex; align-items: center; gap: 4px;
     }
     .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,197,64,0.4); }
-    .btn-submit:disabled, .btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-submit:disabled, .btn-run:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .bottom-info { font-size: 0.72rem; color: #64748B; }
+    .shortcut-hint { font-size: 0.68rem; color: #4A5568; margin-left: 2px; }
 
-    /* Results panel */
+    /* Results panel — bottom of editor */
     .results-panel {
-        background: #1E1E1E; border-top: 1px solid #333; max-height: 250px;
-        overflow-y: auto; padding: 12px; display: none;
+        background: #1B1B1B; border-top: 2px solid #333; max-height: 280px;
+        overflow-y: auto; display: none;
     }
     .results-panel.show { display: block; }
-    .results-header {
-        display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    .results-tabs {
+        display: flex; border-bottom: 1px solid #333; padding: 0 12px;
+        background: #252526; position: sticky; top: 0; z-index: 2;
     }
-    .results-title { font-size: 0.82rem; font-weight: 700; color: #E2E8F0; }
+    .results-tab {
+        padding: 7px 14px; font-size: 0.75rem; font-weight: 700; color: #64748B;
+        cursor: pointer; border-bottom: 2px solid transparent;
+        background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .results-tab.active { color: #E2E8F0; border-bottom-color: var(--primary); }
+    .results-tab.tab-pass { color: #22C55E; }
+    .results-tab.tab-fail { color: #EF4444; }
     .results-close {
-        background: none; border: none; color: #64748B; font-size: 1.1rem; cursor: pointer;
+        margin-left: auto; background: none; border: none; color: #64748B;
+        font-size: 1rem; cursor: pointer; padding: 7px 10px;
     }
+    .results-close:hover { color: #E2E8F0; }
+
+    .results-body { padding: 10px 12px; }
+
+    /* Result summary */
+    .result-summary {
+        display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+        border-radius: 8px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 700;
+    }
+    .result-summary.accepted { background: rgba(34,197,94,0.1); color: #22C55E; }
+    .result-summary.failed { background: rgba(239,68,68,0.1); color: #EF4444; }
 
     .result-item {
-        display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-        border-radius: 6px; margin-bottom: 4px; font-size: 0.78rem;
+        display: flex; align-items: center; gap: 8px; padding: 5px 10px;
+        border-radius: 6px; margin-bottom: 3px; font-size: 0.76rem;
     }
-    .result-accepted { background: rgba(34,197,94,0.1); color: #22C55E; }
-    .result-wrong { background: rgba(239,68,68,0.1); color: #EF4444; }
-    .result-error { background: rgba(239,68,68,0.1); color: #F59E0B; }
-    .result-pending { background: rgba(100,116,139,0.1); color: #64748B; }
+    .result-accepted { background: rgba(34,197,94,0.08); color: #22C55E; }
+    .result-wrong { background: rgba(239,68,68,0.08); color: #EF4444; }
+    .result-error { background: rgba(245,158,11,0.08); color: #F59E0B; }
+    .result-pending { background: rgba(100,116,139,0.08); color: #64748B; }
 
     .result-output {
-        background: #111; border-radius: 6px; padding: 8px; margin-top: 4px;
-        font-family: monospace; font-size: 0.75rem; color: #94A3B8; white-space: pre-wrap;
+        background: #111; border-radius: 6px; padding: 8px 10px; margin: 4px 0;
+        font-family: 'Courier New', monospace; font-size: 0.75rem; color: #94A3B8;
+        white-space: pre-wrap; border: 1px solid #222;
     }
 
     /* Status overlay */
@@ -132,11 +214,12 @@
     }
     .status-overlay.show { display: flex; }
     .status-box {
-        background: #252526; border-radius: 12px; padding: 2rem; text-align: center; color: #E2E8F0;
+        background: #252526; border-radius: 12px; padding: 1.5rem 2rem;
+        text-align: center; color: #E2E8F0;
     }
     .status-spinner {
-        width: 40px; height: 40px; border: 3px solid #333; border-top: 3px solid var(--primary);
-        border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;
+        width: 36px; height: 36px; border: 3px solid #333; border-top: 3px solid var(--primary);
+        border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 0.75rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -146,16 +229,21 @@
         .coding-left { width: 100%; border-right: none; border-bottom: 1px solid var(--gray-200); max-height: 50vh; }
         .coding-right { min-height: 60vh; }
         .coding-resizer { display: none; }
+        .shortcut-hint { display: none; }
     }
 
     /* Dark theme for left panel */
     [data-theme="dark"] .coding-left { background: var(--dark-card); border-color: #1E293B; }
+    [data-theme="dark"] .left-tabs { background: #0F172A; border-color: #1E293B; }
+    [data-theme="dark"] .left-tab { color: #64748B; }
+    [data-theme="dark"] .left-tab.active { color: var(--primary); }
     [data-theme="dark"] .problem-title { color: #F1F5F9; }
     [data-theme="dark"] .problem-section h3 { color: #F1F5F9; }
     [data-theme="dark"] .problem-section p, [data-theme="dark"] .problem-section div { color: #94A3B8; }
     [data-theme="dark"] .sample-case { background: #1E293B; border-color: #334155; }
     [data-theme="dark"] .sample-data { background: #0F172A; border-color: #334155; color: #E2E8F0; }
     [data-theme="dark"] .meta-tag { background: #1E293B; color: #94A3B8; }
+    [data-theme="dark"] .sub-item { background: #1E293B; border-color: #334155; }
 </style>
 {% endblock %}
 
@@ -163,61 +251,111 @@
 <div class="coding-layout">
     <!-- Left: Problem Description -->
     <div class="coding-left" id="leftPanel">
-        <div class="problem-header">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                <a href="{% url 'coding:problems_list' %}" style="color:var(--gray-400); font-size:0.8rem; text-decoration:none;">
-                    <i class="bi bi-arrow-left"></i> Masalalar
-                </a>
-            </div>
-            <h1 class="problem-title">{{ problem.order }}. {{ problem.title }}</h1>
-            <div class="problem-meta">
-                <span class="diff-badge diff-{{ problem.difficulty }}">{{ problem.get_difficulty_display }}</span>
-                {% if problem.category %}
-                <span class="meta-tag"><i class="bi {{ problem.category.icon }}"></i> {{ problem.category.name }}</span>
+        <div class="left-tabs">
+            <button class="left-tab active" onclick="switchLeftTab('description', this)">
+                <i class="bi bi-file-text"></i> Masala
+            </button>
+            <button class="left-tab" onclick="switchLeftTab('submissions', this)">
+                <i class="bi bi-clock-history"></i> Yuborishlar
+            </button>
+        </div>
+
+        <div class="left-content">
+            <!-- Description tab -->
+            <div class="tab-pane active" id="tab-description">
+                <div class="problem-header">
+                    <a href="{% url 'coding:problems_list' %}" class="problem-back">
+                        <i class="bi bi-chevron-left"></i> Masalalar
+                    </a>
+                    <h1 class="problem-title">{{ problem.order }}. {{ problem.title }}</h1>
+                    <div class="problem-meta">
+                        <span class="diff-badge diff-{{ problem.difficulty }}">{{ problem.get_difficulty_display }}</span>
+                        {% if problem.category %}
+                        <span class="meta-tag"><i class="bi {{ problem.category.icon }}"></i> {{ problem.category.name }}</span>
+                        {% endif %}
+                        <span class="meta-tag"><i class="bi bi-clock"></i> {{ problem.time_limit }}s</span>
+                        <span class="meta-tag"><i class="bi bi-memory"></i> {{ problem.memory_limit }}MB</span>
+                        {% if is_solved %}
+                        <span class="solved-badge"><i class="bi bi-check-circle-fill"></i> Yechilgan</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="problem-section">
+                    <h3>Masala sharti</h3>
+                    <div>{{ problem.description|safe }}</div>
+                </div>
+
+                <div class="problem-section">
+                    <h3>Kirish formati</h3>
+                    <div>{{ problem.input_format|safe }}</div>
+                </div>
+
+                <div class="problem-section">
+                    <h3>Chiqish formati</h3>
+                    <div>{{ problem.output_format|safe }}</div>
+                </div>
+
+                {% if problem.constraints %}
+                <div class="problem-section">
+                    <h3>Cheklovlar</h3>
+                    <div>{{ problem.constraints|safe }}</div>
+                </div>
                 {% endif %}
-                <span class="meta-tag"><i class="bi bi-clock"></i> {{ problem.time_limit }}s</span>
-                <span class="meta-tag"><i class="bi bi-memory"></i> {{ problem.memory_limit }}MB</span>
-                {% if is_solved %}
-                <span class="solved-badge"><i class="bi bi-check-circle-fill"></i> Yechilgan</span>
+
+                {% if sample_cases %}
+                <div class="problem-section">
+                    <h3>Namunalar</h3>
+                    {% for tc in sample_cases %}
+                    <div class="sample-case">
+                        <div class="sample-label">
+                            Kirish #{{ tc.order }}
+                            <button class="copy-btn" onclick="copyText(this, `{{ tc.input_data|escapejs }}`)" title="Nusxalash">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <div class="sample-data">{{ tc.input_data }}</div>
+                        <div class="sample-label" style="margin-top:6px;">
+                            Chiqish #{{ tc.order }}
+                            <button class="copy-btn" onclick="copyText(this, `{{ tc.expected_output|escapejs }}`)" title="Nusxalash">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <div class="sample-data">{{ tc.expected_output }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </div>
-        </div>
 
-        <div class="problem-section">
-            <h3>Masala sharti</h3>
-            <div>{{ problem.description|safe }}</div>
-        </div>
-
-        <div class="problem-section">
-            <h3>Kirish formati</h3>
-            <div>{{ problem.input_format|safe }}</div>
-        </div>
-
-        <div class="problem-section">
-            <h3>Chiqish formati</h3>
-            <div>{{ problem.output_format|safe }}</div>
-        </div>
-
-        {% if problem.constraints %}
-        <div class="problem-section">
-            <h3>Cheklovlar</h3>
-            <div>{{ problem.constraints|safe }}</div>
-        </div>
-        {% endif %}
-
-        {% if sample_cases %}
-        <div class="problem-section">
-            <h3>Namunalar</h3>
-            {% for tc in sample_cases %}
-            <div class="sample-case">
-                <div class="sample-label">Namuna #{{ tc.order }} — Kirish:</div>
-                <div class="sample-data">{{ tc.input_data }}</div>
-                <div class="sample-label" style="margin-top:8px;">Kutilgan chiqish:</div>
-                <div class="sample-data">{{ tc.expected_output }}</div>
+            <!-- Submissions tab -->
+            <div class="tab-pane" id="tab-submissions">
+                <div id="submissionsContent">
+                    {% if recent_submissions %}
+                        {% for sub in recent_submissions %}
+                        <div class="sub-item">
+                            <div>
+                                <span class="{% if sub.status == 'accepted' %}sub-status-ac{% elif sub.status == 'wrong_answer' %}sub-status-wa{% else %}sub-status-other{% endif %}">
+                                    {{ sub.get_status_display }}
+                                </span>
+                                <span class="sub-meta"> — {{ sub.language.name }}</span>
+                            </div>
+                            <div>
+                                <span class="sub-meta">{{ sub.passed_count }}/{{ sub.total_count }}</span>
+                                <span class="sub-meta" style="margin-left:6px;">{{ sub.execution_time|floatformat:0 }}ms</span>
+                                <span class="sub-meta" style="margin-left:6px;">{{ sub.created_at|timesince }} oldin</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align:center; padding:2rem; color:var(--gray-400); font-size:0.82rem;">
+                            <i class="bi bi-inbox" style="font-size:2rem; display:block; margin-bottom:8px;"></i>
+                            Hali yuborish yo'q
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-            {% endfor %}
         </div>
-        {% endif %}
     </div>
 
     <!-- Resizer -->
@@ -226,49 +364,63 @@
     <!-- Right: Editor -->
     <div class="coding-right" id="rightPanel">
         <div class="editor-toolbar">
-            <select id="langSelect" class="lang-select">
-                {% for lang in languages %}
-                <option value="{{ lang.id }}" data-monaco="{{ lang.monaco_language }}" data-slug="{{ lang.slug }}">{{ lang.name }}</option>
-                {% endfor %}
-            </select>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <span style="font-size:0.72rem; color:#64748B;">
-                    <i class="bi bi-keyboard"></i> Ctrl+Enter = Run | Ctrl+Shift+Enter = Submit
-                </span>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <select id="langSelect" class="lang-select">
+                    {% for lang in languages %}
+                    <option value="{{ lang.id }}" data-monaco="{{ lang.monaco_language }}" data-slug="{{ lang.slug }}">{{ lang.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="toolbar-actions">
+                <button class="toolbar-btn" onclick="resetCode()" title="Boshlang'ich kodga qaytarish">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+                <button class="toolbar-btn" onclick="changeFontSize(1)" title="Shrift kattalashtirish">
+                    <i class="bi bi-zoom-in"></i>
+                </button>
+                <button class="toolbar-btn" onclick="changeFontSize(-1)" title="Shrift kichiklashtirish">
+                    <i class="bi bi-zoom-out"></i>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="toolbar-btn" onclick="toggleFullscreen()" title="Kengaytirish">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
             </div>
         </div>
 
-        <div class="editor-container" id="editorContainer" style="position:relative;">
+        <div class="editor-container" id="editorContainer">
             <div id="monacoEditor" style="width:100%; height:100%;"></div>
             <div class="status-overlay" id="statusOverlay">
                 <div class="status-box">
                     <div class="status-spinner"></div>
-                    <div id="statusText">Ishlamoqda...</div>
+                    <div id="statusText" style="font-size:0.85rem;">Ishlamoqda...</div>
                 </div>
             </div>
         </div>
 
-        <div class="editor-actions">
-            <div style="display:flex; gap:8px;">
+        <div class="editor-bottom">
+            <div class="bottom-left">
                 <button class="btn-run" id="btnRun" onclick="runSample()">
                     <i class="bi bi-play-fill"></i> Sinash
+                    <span class="shortcut-hint">Ctrl+Enter</span>
                 </button>
                 <button class="btn-submit" id="btnSubmit" onclick="submitCode()">
                     <i class="bi bi-cloud-upload"></i> Yuborish
+                    <span class="shortcut-hint">Ctrl+Shift+Enter</span>
                 </button>
             </div>
-            <div id="submissionInfo" style="font-size:0.75rem; color:#64748B;"></div>
+            <div class="bottom-info" id="submissionInfo"></div>
         </div>
 
         <!-- Results -->
         <div class="results-panel" id="resultsPanel">
-            <div class="results-header">
-                <span class="results-title" id="resultsTitle">Natijalar</span>
+            <div class="results-tabs">
+                <span class="results-tab active" id="resultsTitle">Natijalar</span>
                 <button class="results-close" onclick="document.getElementById('resultsPanel').classList.remove('show')">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-            <div id="resultsBody"></div>
+            <div class="results-body" id="resultsBody"></div>
         </div>
     </div>
 </div>
@@ -284,8 +436,26 @@ const CSRF_TOKEN = '{{ csrf_token }}';
 let editor = null;
 let currentLanguage = null;
 let pollingInterval = null;
+let currentFontSize = 14;
 
-// Monaco Editor yuklash
+// Left panel tabs
+function switchLeftTab(tab, btn) {
+    document.querySelectorAll('.left-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// Copy text helper
+function copyText(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'bi bi-check';
+        setTimeout(() => { icon.className = 'bi bi-clipboard'; }, 1500);
+    });
+}
+
+// Monaco Editor
 require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
 require(['vs/editor/editor.main'], function () {
     const langSelect = document.getElementById('langSelect');
@@ -298,7 +468,7 @@ require(['vs/editor/editor.main'], function () {
         value: savedCode || STARTER_CODE[firstOption.dataset.slug] || '',
         language: currentLanguage,
         theme: 'vs-dark',
-        fontSize: 14,
+        fontSize: currentFontSize,
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
         automaticLayout: true,
@@ -306,6 +476,10 @@ require(['vs/editor/editor.main'], function () {
         lineNumbers: 'on',
         renderWhitespace: 'selection',
         tabSize: 4,
+        wordWrap: 'on',
+        smoothScrolling: true,
+        cursorBlinking: 'smooth',
+        cursorSmoothCaretAnimation: 'on',
     });
 
     // Keyboard shortcuts
@@ -337,6 +511,38 @@ require(['vs/editor/editor.main'], function () {
         editor.setValue(code);
     });
 });
+
+// Reset code
+function resetCode() {
+    if (!editor) return;
+    const langSelect = document.getElementById('langSelect');
+    const slug = langSelect.options[langSelect.selectedIndex].dataset.slug;
+    const starter = STARTER_CODE[slug] || '';
+    if (confirm("Boshlang'ich kodga qaytarilsinmi?")) {
+        editor.setValue(starter);
+        localStorage.removeItem(`code_${PROBLEM_ID}_${slug}`);
+    }
+}
+
+// Font size
+function changeFontSize(delta) {
+    if (!editor) return;
+    currentFontSize = Math.max(10, Math.min(24, currentFontSize + delta));
+    editor.updateOptions({ fontSize: currentFontSize });
+}
+
+// Fullscreen toggle
+function toggleFullscreen() {
+    const left = document.getElementById('leftPanel');
+    const resizer = document.getElementById('resizer');
+    if (left.style.display === 'none') {
+        left.style.display = '';
+        resizer.style.display = '';
+    } else {
+        left.style.display = 'none';
+        resizer.style.display = 'none';
+    }
+}
 
 // Resizer
 (function() {
@@ -405,16 +611,28 @@ function showResults(data) {
     };
 
     if (data.status === 'accepted') {
-        title.innerHTML = '<span style="color:#22C55E;"><i class="bi bi-check-circle-fill"></i> Qabul qilindi!</span> — ' +
-            data.passed_count + '/' + data.total_count + ' test o\'tdi (' + (data.execution_time || 0).toFixed(0) + 'ms)';
+        title.className = 'results-tab active tab-pass';
+        title.innerHTML = '<i class="bi bi-check-circle-fill"></i> Qabul qilindi — ' +
+            data.passed_count + '/' + data.total_count + ' (' + (data.execution_time || 0).toFixed(0) + 'ms)';
+
+        html += '<div class="result-summary accepted">';
+        html += '<i class="bi bi-check-circle-fill" style="font-size:1.2rem;"></i> ';
+        html += 'Barcha testlar muvaffaqiyatli o\'tdi!';
+        html += '</div>';
     } else {
         const statusDisplay = data.status_display || data.status;
-        title.innerHTML = '<span style="color:#EF4444;"><i class="bi bi-x-circle-fill"></i> ' + statusDisplay + '</span> — ' +
-            data.passed_count + '/' + data.total_count + ' test o\'tdi';
+        title.className = 'results-tab active tab-fail';
+        title.innerHTML = '<i class="bi bi-x-circle-fill"></i> ' + statusDisplay + ' — ' +
+            data.passed_count + '/' + data.total_count;
+
+        html += '<div class="result-summary failed">';
+        html += '<i class="bi bi-x-circle-fill" style="font-size:1.2rem;"></i> ';
+        html += statusDisplay + ' — ' + data.passed_count + '/' + data.total_count + ' test o\'tdi';
+        html += '</div>';
     }
 
     if (data.error_message) {
-        html += '<div class="result-output" style="color:#EF4444;">' + escapeHtml(data.error_message) + '</div>';
+        html += '<div class="result-output" style="color:#EF4444; border-color:#333;">' + escapeHtml(data.error_message) + '</div>';
     }
 
     if (data.results) {

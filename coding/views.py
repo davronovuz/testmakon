@@ -118,12 +118,18 @@ def problem_detail(request, slug):
         user=request.user, problem=problem, status='accepted', is_sample_run=False
     ).exists()
 
+    # Oxirgi yuborishlar (submissions tab uchun)
+    recent_submissions = CodeSubmission.objects.filter(
+        user=request.user, problem=problem, is_sample_run=False
+    ).select_related('language').order_by('-created_at')[:10]
+
     context = {
         'problem': problem,
         'languages': languages,
         'sample_cases': sample_cases,
         'last_submission': last_submission,
         'is_solved': is_solved,
+        'recent_submissions': recent_submissions,
         'starter_code_json': json.dumps(problem.starter_code),
     }
     return render(request, 'coding/problem_detail.html', context)
