@@ -10,7 +10,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
 
+import random
+from datetime import timedelta
+from django.utils import timezone
 from .models import TelegramUser
+from accounts.models import TelegramAuthCode
 
 logger = logging.getLogger('tgbot')
 
@@ -30,6 +34,35 @@ def _tg_send(chat_id, text, parse_mode='HTML', reply_markup=None):
         )
     except Exception as exc:
         logger.warning(f'Telegram xabar xatosi: {exc}')
+
+
+def _send_auth_code(chat_id, tg_id, username, first_name):
+    """Autentifikatsiya kodi yaratib Telegram ga yuborish"""
+    # Eski ishlatilmagan kodlarni bekor qilish
+    TelegramAuthCode.objects.filter(
+        telegram_id=tg_id,
+        is_used=False,
+    ).update(is_used=True)
+
+    # Yangi 6 xonali kod
+    code = str(random.randint(100000, 999999))
+
+    # Saqlash (5 daqiqa amal qiladi)
+    TelegramAuthCode.objects.create(
+        telegram_id=tg_id,
+        telegram_username=username or '',
+        telegram_first_name=first_name or '',
+        code=code,
+        expires_at=timezone.now() + timedelta(minutes=5),
+    )
+
+    _tg_send(chat_id,
+        f"<b>TestMakon.uz</b>\n\n"
+        f"Sizning kodingiz:\n\n"
+        f"<code>{code}</code>\n\n"
+        f"Kodni ilovaga kiriting. 5 daqiqa amal qiladi.\n\n"
+        f"Yangi kod olish uchun /code bosing."
+    )
 
 
 def _get_site_user(tg_id):
@@ -262,15 +295,23 @@ def webhook(request, token):
     cmd = text.split()[0].lower() if text else ''
 
     if cmd == '/start':
-        display_name = fname or "Do'st"
-        welcome = getattr(settings, 'TELEGRAM_WELCOME_MESSAGE',
-            f'👋 Salom, <b>{display_name}</b>!\n\n'
-            "TestMakon.uz botiga xush kelibsiz. "
-            'Saytimizga o\'ting: <a href="https://testmakon.uz">testmakon.uz</a>'
-        )
-        _tg_send(chat_id, welcome)
-        if created:
-            logger.info(f'Yangi Telegram user: @{uname or tg_id}')
+        # /start login — kod yaratib yuborish
+        parts = text.split()
+        if len(parts) > 1 and parts[1] == 'login':
+            _send_auth_code(chat_id, tg_id, uname, fname)
+        else:
+            display_name = fname or "Do'st"
+            welcome = getattr(settings, 'TELEGRAM_WELCOME_MESSAGE',
+                f'👋 Salom, <b>{display_name}</b>!\n\n'
+                "TestMakon.uz botiga xush kelibsiz. "
+                'Saytimizga o\'ting: <a href="https://testmakon.uz">testmakon.uz</a>'
+            )
+            _tg_send(chat_id, welcome)
+            if created:
+                logger.info(f'Yangi Telegram user: @{uname or tg_id}')
+
+    elif cmd == '/code':
+        _send_auth_code(chat_id, tg_id, uname, fname)
 
     elif cmd == '/result':
         _handle_result(chat_id, tg_id)
@@ -285,6 +326,7 @@ def webhook(request, token):
         _tg_send(chat_id,
             "📚 <b>TestMakon Bot buyruqlari:</b>\n\n"
             "/start — Botni ishga tushirish\n"
+            "/code — Ilovaga kirish kodi olish\n"
             "/result — DTM bashorati va oxirgi test natijasi\n"
             "/streak — Joriy streak va rekord\n"
             "/weaktest — Sust mavzulardan AI Smart Test\n"
