@@ -41,6 +41,7 @@ urlpatterns = [
     path('subscriptions/', include('subscriptions.urls', namespace='subscriptions')),
     path('tgbot/', include('tgbot.urls', namespace='tgbot')),
     path('coding/', include('coding.urls', namespace='coding')),
+    path('api/v1/', include('api.urls', namespace='api')),
 
     # SEO
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),

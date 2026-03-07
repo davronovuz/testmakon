@@ -20,6 +20,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testmakon.uz', 'www.testmakon.uz']
 
+# Development uchun — DEBUG=True bo'lganda barcha hostlar ruxsat
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+
 # ─── Production xavfsizlik sozlamalari ───────────────────────────────────────
 if not DEBUG:
     # nginx SSL ni boshqaradi — redirect loop oldini olish uchun False
@@ -52,6 +56,9 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'import_export',
     'channels',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
 
     # Local apps
     'core.apps.CoreConfig',
@@ -66,11 +73,13 @@ INSTALLED_APPS = [
     'tgbot.apps.TgbotConfig',
     'coding.apps.CodingConfig',
     'django_celery_beat',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -485,3 +494,30 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success",
     },
 }
+
+# ============================================================
+# REST FRAMEWORK — Mobile API uchun
+# ============================================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# CORS — Mobile app uchun
+CORS_ALLOW_ALL_ORIGINS = True  # Development uchun; production da specific origins qo'shiladi
