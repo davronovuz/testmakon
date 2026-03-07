@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db.models import Q
 
-from accounts.models import User
+from accounts.models import User, TelegramAuthCode, UserActivity
 from tests_app.models import (
     Subject, Topic, Question, Answer, Test, TestAttempt,
     AttemptAnswer, SavedQuestion,
@@ -72,6 +72,75 @@ class LoginView(APIView):
                 {'error': "Telefon raqam yoki parol noto'g'ri"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserProfileSerializer(user, context={'request': request}).data,
+            'tokens': {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }
+        })
+
+
+class TelegramCodeLoginView(APIView):
+    """Telegram bot kodi orqali kirish/ro'yxatdan o'tish"""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        code = request.data.get('code', '').strip()
+
+        if not code or len(code) != 6:
+            return Response({'error': '6 xonali kodni kiriting'}, status=400)
+
+        try:
+            auth_code = TelegramAuthCode.objects.get(
+                code=code,
+                is_used=False,
+                expires_at__gt=timezone.now(),
+            )
+        except TelegramAuthCode.DoesNotExist:
+            return Response(
+                {'error': "Kod noto'g'ri yoki muddati o'tgan. Botdan yangi kod oling."},
+                status=400,
+            )
+
+        auth_code.is_used = True
+        auth_code.save()
+
+        # User topish yoki yaratish
+        try:
+            user = User.objects.get(telegram_id=auth_code.telegram_id)
+            if auth_code.telegram_username:
+                user.telegram_username = auth_code.telegram_username
+            if auth_code.telegram_first_name:
+                user.first_name = auth_code.telegram_first_name
+            user.save()
+        except User.DoesNotExist:
+            base_phone = f'+998{str(auth_code.telegram_id)[-9:].zfill(9)}'
+            phone_number = base_phone
+            counter = 0
+            while User.objects.filter(phone_number=phone_number).exists():
+                counter += 1
+                phone_number = f'+998{str(auth_code.telegram_id + counter)[-9:].zfill(9)}'
+                if counter > 10:
+                    phone_number = f'+998{str(auth_code.telegram_id)[:9].zfill(9)}'
+                    break
+
+            user = User.objects.create(
+                phone_number=phone_number,
+                first_name=auth_code.telegram_first_name or 'User',
+                telegram_id=auth_code.telegram_id,
+                telegram_username=auth_code.telegram_username,
+                is_phone_verified=True,
+            )
+
+        user.update_streak()
+        UserActivity.objects.create(
+            user=user,
+            activity_type='login',
+            description='Mobile app — Telegram bot orqali kirdi',
+        )
 
         refresh = RefreshToken.for_user(user)
         return Response({

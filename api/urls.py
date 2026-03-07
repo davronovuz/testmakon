@@ -9,6 +9,7 @@ urlpatterns = [
     path('auth/register/', views.RegisterView.as_view(), name='register'),
     path('auth/login/', views.LoginView.as_view(), name='login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/telegram-code/', views.TelegramCodeLoginView.as_view(), name='telegram_code_login'),
 
     # ─── Profile ─────────────────────────────────────────
     path('profile/', views.ProfileView.as_view(), name='profile'),
