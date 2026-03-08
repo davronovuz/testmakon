@@ -5,10 +5,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.db.models import Q
+from django.conf import settings
+from datetime import timedelta
+import random
 
 from accounts.models import User, TelegramAuthCode, UserActivity
 from tests_app.models import (
-    Subject, Topic, Question, Answer, Test, TestAttempt,
+    Subject, Topic, Question, Answer, Test, TestAttempt, TestQuestion,
     AttemptAnswer, SavedQuestion,
     UserTopicPerformance, UserSubjectPerformance, UserAnalyticsSummary,
 )
@@ -150,6 +153,32 @@ class TelegramCodeLoginView(APIView):
                 'refresh': str(refresh),
             }
         })
+
+
+class DevGenerateCodeView(APIView):
+    """DEV ONLY: Local test uchun Telegram auth kodi yaratish."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.DEBUG:
+            return Response({'error': 'Faqat dev rejimda ishlaydi'}, status=403)
+
+        telegram_id = request.data.get('telegram_id', 12345678)
+
+        # Eski kodlarni bekor qilish
+        TelegramAuthCode.objects.filter(
+            telegram_id=telegram_id, is_used=False
+        ).update(is_used=True)
+
+        code = str(random.randint(100000, 999999))
+        TelegramAuthCode.objects.create(
+            telegram_id=telegram_id,
+            telegram_username='dev_user',
+            telegram_first_name='Dev Test',
+            code=code,
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+        return Response({'code': code, 'telegram_id': telegram_id})
 
 
 # ─── PROFILE ────────────────────────────────────────────────
@@ -539,6 +568,166 @@ class SavedQuestionToggleView(APIView):
             saved.delete()
             return Response({'saved': False})
         return Response({'saved': True}, status=201)
+
+
+# ─── WRONG ANSWERS ───────────────────────────────────────────
+
+class WrongAnswersListView(APIView):
+    """Noto'g'ri javoblar ro'yxati"""
+    def get(self, request):
+        wrong = AttemptAnswer.objects.filter(
+            attempt__user=request.user,
+            is_correct=False,
+        ).select_related(
+            'question', 'question__subject', 'question__topic',
+            'selected_answer',
+        ).order_by('-answered_at')[:50]
+
+        data = []
+        for wa in wrong:
+            correct_ans = wa.question.answers.filter(is_correct=True).first()
+            data.append({
+                'id': wa.id,
+                'question_text': wa.question.text,
+                'subject_name': wa.question.subject.name if wa.question.subject else '',
+                'topic_name': wa.question.topic.name if wa.question.topic else '',
+                'user_answer': wa.selected_answer.text if wa.selected_answer else "Javob berilmagan",
+                'correct_answer': correct_ans.text if correct_ans else '',
+                'answered_at': wa.answered_at,
+            })
+        return Response(data)
+
+
+class WrongAnswersPracticeView(APIView):
+    """Noto'g'ri javoblar ustida mashq testi yaratish"""
+    def post(self, request):
+        wrong_q_ids = list(
+            AttemptAnswer.objects.filter(
+                attempt__user=request.user,
+                is_correct=False,
+            ).values_list('question_id', flat=True).distinct()[:30]
+        )
+        questions = list(Question.objects.filter(id__in=wrong_q_ids, is_active=True))
+
+        if not questions:
+            return Response({'error': "Xato javoblar yo'q"}, status=400)
+
+        random.shuffle(questions)
+        test = Test.objects.create(
+            title="Xatolar ustida ishlash",
+            slug=f"wrong-{request.user.id}-{int(timezone.now().timestamp())}",
+            test_type='practice',
+            time_limit=max(len(questions) * 2, 5),
+            question_count=len(questions),
+            shuffle_answers=True,
+            show_correct_answers=True,
+            created_by=request.user,
+        )
+        for i, q in enumerate(questions):
+            TestQuestion.objects.create(test=test, question=q, order=i)
+
+        attempt = TestAttempt.objects.create(
+            user=request.user,
+            test=test,
+            total_questions=len(questions),
+            status='in_progress',
+        )
+        from .serializers import TestDetailSerializer
+        return Response({
+            'attempt_id': str(attempt.uuid),
+            'test': TestDetailSerializer(test).data,
+            'time_limit': test.time_limit,
+        })
+
+
+# ─── PRACTICE ────────────────────────────────────────────────
+
+class PracticeStartView(APIView):
+    """Mavzu bo'yicha mashq testi"""
+    def post(self, request):
+        subject_slug = request.data.get('subject')
+        topic_slug = request.data.get('topic')
+        count = min(int(request.data.get('question_count', 20)), 50)
+
+        qs = Question.objects.filter(is_active=True)
+        if subject_slug:
+            qs = qs.filter(subject__slug=subject_slug)
+        if topic_slug:
+            qs = qs.filter(topic__slug=topic_slug)
+
+        questions = list(qs.order_by('?')[:count])
+        if not questions:
+            return Response({'error': "Savollar topilmadi"}, status=400)
+
+        subj_name = questions[0].subject.name if questions[0].subject else 'Mashq'
+        test = Test.objects.create(
+            title=f"{subj_name} — Mashq",
+            slug=f"practice-{request.user.id}-{int(timezone.now().timestamp())}",
+            test_type='practice',
+            time_limit=max(len(questions) * 2, 5),
+            question_count=len(questions),
+            shuffle_questions=True,
+            shuffle_answers=True,
+            show_correct_answers=True,
+            created_by=request.user,
+        )
+        for i, q in enumerate(questions):
+            TestQuestion.objects.create(test=test, question=q, order=i)
+
+        attempt = TestAttempt.objects.create(
+            user=request.user,
+            test=test,
+            total_questions=len(questions),
+            status='in_progress',
+        )
+        from .serializers import TestDetailSerializer
+        return Response({
+            'attempt_id': str(attempt.uuid),
+            'test': TestDetailSerializer(test).data,
+            'time_limit': test.time_limit,
+        })
+
+
+class QuickTestStartView(APIView):
+    """Tezkor test: 10 ta tasodifiy savol"""
+    def post(self, request):
+        subject_slug = request.data.get('subject')
+        count = min(int(request.data.get('question_count', 10)), 20)
+
+        qs = Question.objects.filter(is_active=True)
+        if subject_slug:
+            qs = qs.filter(subject__slug=subject_slug)
+
+        questions = list(qs.order_by('?')[:count])
+        if not questions:
+            return Response({'error': "Savollar topilmadi"}, status=400)
+
+        test = Test.objects.create(
+            title="Tezkor test",
+            slug=f"quick-{request.user.id}-{int(timezone.now().timestamp())}",
+            test_type='quick',
+            time_limit=max(len(questions) * 1, 5),
+            question_count=len(questions),
+            shuffle_questions=True,
+            shuffle_answers=True,
+            show_correct_answers=True,
+            created_by=request.user,
+        )
+        for i, q in enumerate(questions):
+            TestQuestion.objects.create(test=test, question=q, order=i)
+
+        attempt = TestAttempt.objects.create(
+            user=request.user,
+            test=test,
+            total_questions=len(questions),
+            status='in_progress',
+        )
+        from .serializers import TestDetailSerializer
+        return Response({
+            'attempt_id': str(attempt.uuid),
+            'test': TestDetailSerializer(test).data,
+            'time_limit': test.time_limit,
+        })
 
 
 # ─── UNIVERSITIES ────────────────────────────────────────────

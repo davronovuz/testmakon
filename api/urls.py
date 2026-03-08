@@ -10,6 +10,7 @@ urlpatterns = [
     path('auth/login/', views.LoginView.as_view(), name='login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/telegram-code/', views.TelegramCodeLoginView.as_view(), name='telegram_code_login'),
+    path('auth/dev-code/', views.DevGenerateCodeView.as_view(), name='dev_generate_code'),
 
     # ─── Profile ─────────────────────────────────────────
     path('profile/', views.ProfileView.as_view(), name='profile'),
@@ -42,6 +43,14 @@ urlpatterns = [
     # ─── Saved Questions ─────────────────────────────────
     path('saved-questions/', views.SavedQuestionListView.as_view(), name='saved_questions'),
     path('saved-questions/<int:question_id>/toggle/', views.SavedQuestionToggleView.as_view(), name='saved_question_toggle'),
+
+    # ─── Wrong Answers ───────────────────────────────────────────
+    path("tests/wrong-answers/", views.WrongAnswersListView.as_view(), name="wrong_answers"),
+    path("tests/wrong-answers/practice/", views.WrongAnswersPracticeView.as_view(), name="wrong_answers_practice"),
+
+    # ─── Practice & Quick Test ───────────────────────────────────
+    path("tests/practice/start/", views.PracticeStartView.as_view(), name="practice_start"),
+    path("tests/quick-test/start/", views.QuickTestStartView.as_view(), name="quick_test_start"),
 
     # ─── Universities ────────────────────────────────────
     path('universities/', views.UniversityListView.as_view(), name='university_list'),
