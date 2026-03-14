@@ -388,6 +388,64 @@
                 </a>
             </div>
             {% endif %}
+
+            <!-- ── Milliy Sertifikat saqlangan savollar ── -->
+            {% if cert_saved %}
+            <div style="margin-top:2rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
+                    <div style="width:4px;height:22px;background:linear-gradient(135deg,#8BC540,#4a7a12);border-radius:4px;"></div>
+                    <h6 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--dark);">Milliy Sertifikat — Saqlangan savollar</h6>
+                    <span style="background:#f0fdf4;color:#166534;padding:2px 10px;border-radius:20px;font-size:0.78rem;font-weight:700;">{{ cert_saved|length }} ta</span>
+                </div>
+                <div class="saved-list">
+                    {% for item in cert_saved %}
+                    <div class="saved-item">
+                        <div class="saved-item-header">
+                            <div class="saved-item-meta">
+                                <span class="saved-item-subject" style="background:#f0fdf4;color:#166534;">
+                                    🏅 {{ item.question.mock.cert_subject.subject.name }}
+                                </span>
+                                {% if item.question.topic %}
+                                <span class="saved-item-topic">{{ item.question.topic.name }}</span>
+                                {% endif %}
+                                <span class="saved-item-difficulty {{ item.question.difficulty }}">
+                                    {% if item.question.difficulty == 'easy' %}Oson
+                                    {% elif item.question.difficulty == 'medium' %}O'rta
+                                    {% else %}Qiyin{% endif %}
+                                </span>
+                            </div>
+                            <span class="saved-item-date">
+                                <i class="bi bi-calendar3 me-1"></i>{{ item.created_at|date:"d.m.Y" }}
+                            </span>
+                        </div>
+                        <div class="saved-item-body">
+                            <div class="saved-item-question">{{ item.question.text }}</div>
+                            {% if item.question.question_type == 'choice' %}
+                            <div class="saved-item-answers">
+                                {% for choice in item.question.choices.all %}
+                                <div class="saved-answer {% if choice.is_correct %}correct{% endif %}">
+                                    <span class="saved-answer-letter">{{ choice.label }}</span>
+                                    {{ choice.text }}
+                                    {% if choice.is_correct %}<i class="bi bi-check-circle-fill ms-auto"></i>{% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="saved-item-footer">
+                                <small style="color:var(--gray-400);">{{ item.question.mock.title }}</small>
+                                <form method="POST" action="{% url 'certificate:toggle_save_question' question_id=item.question.id %}" style="margin-left:auto;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="saved-btn danger">
+                                        <i class="bi bi-bookmark-x"></i> O'chirish
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </main>
     </div>
 </div>

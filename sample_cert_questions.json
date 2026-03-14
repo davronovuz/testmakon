@@ -1,0 +1,110 @@
+{
+  "subject_slug": "matematika",
+  "mock_slug": "matematika-2024-1-variant",
+  "mock_title": "Matematika 2024 — 1-variant",
+  "year": 2024,
+  "version": "1-variant",
+  "time_limit": 150,
+  "is_free": true,
+  "questions": [
+
+    {
+      "number": 1,
+      "type": "choice",
+      "text": "2 + 2 = ?",
+      "points": 1,
+      "explanation": "Oddiy qo'shish amali: 2 + 2 = 4",
+      "hint": "Ikkita sonni qo'shing",
+      "choices": [
+        {"label": "A", "text": "3",  "is_correct": false, "order": 1},
+        {"label": "B", "text": "4",  "is_correct": true,  "order": 2},
+        {"label": "C", "text": "5",  "is_correct": false, "order": 3},
+        {"label": "D", "text": "6",  "is_correct": false, "order": 4}
+      ]
+    },
+
+    {
+      "number": 2,
+      "type": "choice",
+      "text": "√144 = ?",
+      "points": 1,
+      "explanation": "144 = 12 × 12, shuning uchun √144 = 12",
+      "choices": [
+        {"label": "A", "text": "10", "is_correct": false, "order": 1},
+        {"label": "B", "text": "11", "is_correct": false, "order": 2},
+        {"label": "C", "text": "12", "is_correct": true,  "order": 3},
+        {"label": "D", "text": "14", "is_correct": false, "order": 4}
+      ]
+    },
+
+    {
+      "number": 33,
+      "type": "grouped_af",
+      "text": "Quyidagi sonlar va ularning xususiyatlarini moslashtiring.",
+      "points": 3,
+      "options": [
+        {"label": "A", "text": "natural son",   "order": 1},
+        {"label": "B", "text": "butun son",     "order": 2},
+        {"label": "C", "text": "ratsional son", "order": 3},
+        {"label": "D", "text": "irratsional",   "order": 4},
+        {"label": "E", "text": "haqiqiy son",   "order": 5},
+        {"label": "F", "text": "kompleks son",  "order": 6}
+      ],
+      "items": [
+        {"number": 1, "text": "π (pi son)",    "correct_option": "D"},
+        {"number": 2, "text": "−5",            "correct_option": "B"},
+        {"number": 3, "text": "3/4",           "correct_option": "C"}
+      ]
+    },
+
+    {
+      "number": 34,
+      "type": "short_open",
+      "text": "Tenglamani yeching: 3x − 9 = 0. x = ?",
+      "points": 2,
+      "explanation": "3x = 9, x = 3",
+      "answer": {
+        "value": "3",
+        "type": "integer",
+        "tolerance": 0
+      }
+    },
+
+    {
+      "number": 35,
+      "type": "multi_part",
+      "text": "Berilgan: a = 5, b = 3",
+      "points": 4,
+      "parts": [
+        {
+          "label": "a",
+          "text": "a + b = ?",
+          "points": 1,
+          "answer": "8",
+          "answer_type": "integer",
+          "tolerance": 0,
+          "manual_check": false
+        },
+        {
+          "label": "b",
+          "text": "a × b = ?",
+          "points": 1,
+          "answer": "15",
+          "answer_type": "integer",
+          "tolerance": 0,
+          "manual_check": false
+        },
+        {
+          "label": "c",
+          "text": "a² − b² = ?",
+          "points": 2,
+          "answer": "16",
+          "answer_type": "integer",
+          "tolerance": 0,
+          "manual_check": false
+        }
+      ]
+    }
+
+  ]
+}

@@ -1,0 +1,210 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}JSON dan import | {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:certificate_certmock_changelist' %}">Mock Testlar</a>
+    &rsaquo; JSON dan import
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>JSON dan Mock Test Import</h1>
+
+{% if messages %}
+<ul class="messagelist">
+    {% for message in messages %}
+    <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+
+    <!-- FORM -->
+    <div style="flex:1;min-width:340px;background:white;padding:24px;border-radius:8px;border:1px solid #ddd;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <fieldset class="module aligned">
+                <h2>Import sozlamalari</h2>
+
+                <div class="form-row">
+                    <label for="cert_subject" style="font-weight:bold;">Fan (CertSubject):</label>
+                    <select name="cert_subject" id="cert_subject" style="width:100%;padding:6px;margin-top:4px;border:1px solid #ccc;border-radius:4px;">
+                        <option value="">— JSON dan auto-aniqlash (subject_slug) —</option>
+                        {% for cs in cert_subjects %}
+                        <option value="{{ cs.pk }}">{{ cs.subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="help" style="color:#666;font-size:0.85em;margin-top:4px;">
+                        Tanlasangiz, JSON dagi subject_slug e'tiborga olinmaydi.
+                    </p>
+                </div>
+
+                <div class="form-row" style="margin-top:16px;">
+                    <label for="json_file" style="font-weight:bold;">JSON fayl: <span style="color:red;">*</span></label>
+                    <input type="file" name="json_file" id="json_file" accept=".json"
+                           style="display:block;margin-top:6px;padding:6px;border:1px solid #ccc;border-radius:4px;width:100%;">
+                </div>
+
+                <div class="form-row" style="margin-top:16px;">
+                    <label style="font-weight:bold;display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" name="is_free" id="is_free" style="width:16px;height:16px;">
+                        Bepul (is_free)
+                    </label>
+                    <p class="help" style="color:#666;font-size:0.85em;margin-top:4px;">
+                        Belgilansa, import qilinadigan mock bepul bo'ladi.
+                    </p>
+                </div>
+
+                <div class="form-row" style="margin-top:16px;">
+                    <label style="font-weight:bold;display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" name="do_update" id="do_update" style="width:16px;height:16px;">
+                        Mavjudlarni yangilash (update)
+                    </label>
+                    <p class="help" style="color:#666;font-size:0.85em;margin-top:4px;">
+                        Belgilansa, bir xil slug bilan mavjud mock va savollar yangilanadi.
+                    </p>
+                </div>
+            </fieldset>
+
+            <div style="margin-top:20px;display:flex;gap:12px;">
+                <input type="submit" value="Import qilish"
+                       style="background:#417690;color:white;padding:10px 24px;border:none;border-radius:4px;font-size:1rem;font-weight:bold;cursor:pointer;">
+                <a href="{% url 'admin:certificate_certmock_changelist' %}"
+                   style="padding:10px 20px;border:1px solid #ccc;border-radius:4px;color:#333;text-decoration:none;font-size:0.95rem;">
+                    Bekor qilish
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- GUIDE -->
+    <div style="flex:1;min-width:320px;background:#f8f9fa;padding:24px;border-radius:8px;border:1px solid #ddd;">
+        <h2 style="margin-top:0;">JSON format</h2>
+        <p style="color:#555;font-size:0.9em;">Fayl quyidagi tuzilishga ega bo'lishi kerak:</p>
+
+        <pre style="background:#1e293b;color:#e2e8f0;padding:16px;border-radius:6px;font-size:0.78em;overflow-x:auto;line-height:1.5;">{
+  "subject_slug": "matematika",
+  "mock_slug": "mat-2024-1",
+  "mock_title": "Matematika 2024 — 1-variant",
+  "year": 2024,
+  "version": "1-variant",
+  "time_limit": 150,
+  "questions": [
+    {
+      "number": 1,
+      "type": "choice",
+      "text": "2 + 2 = ?",
+      "points": 1,
+      "difficulty": "easy",
+      "topic_slug": "arifmetika",
+      "explanation": "To'g'ri javob B) 4",
+      "choices": [
+        {"label":"A","text":"3","is_correct":false,"order":1},
+        {"label":"B","text":"4","is_correct":true,"order":2},
+        {"label":"C","text":"5","is_correct":false,"order":3},
+        {"label":"D","text":"6","is_correct":false,"order":4}
+      ]
+    },
+    {
+      "number": 33,
+      "type": "grouped_af",
+      "text": "Kvadrat funksiyalarni moslashtiring.",
+      "points": 3,
+      "difficulty": "medium",
+      "topic_slug": "kvadrat-funksiyalar",
+      "options": [
+        {"label":"A","text":"$(1,0)$","order":1},
+        {"label":"B","text":"$(2,-1)$","order":2},
+        {"label":"C","text":"$(0,3)$","order":3},
+        {"label":"D","text":"$(-1,2)$","order":4},
+        {"label":"E","text":"$(-2,5)$","order":5},
+        {"label":"F","text":"$(3,1)$","order":6}
+      ],
+      "items": [
+        {"number":33,"text":"$y=(x-1)^2$","correct_option":"A"},
+        {"number":34,"text":"$y=(x-2)^2-1$","correct_option":"B"},
+        {"number":35,"text":"$y=x^2+3$","correct_option":"C"}
+      ]
+    },
+    {
+      "number": 34,
+      "type": "short_open",
+      "text": "x = ?",
+      "points": 2,
+      "difficulty": "hard",
+      "topic_slug": "tenlamalar",
+      "explanation": "x = 3 chunki ...",
+      "answer": {"value":"3","type":"integer","tolerance":0}
+    },
+    {
+      "number": 35,
+      "type": "multi_part",
+      "text": "a=5, b=3",
+      "points": 4,
+      "difficulty": "medium",
+      "topic_slug": "arifmetika",
+      "parts": [
+        {"label":"a","text":"a+b=?","points":1,
+         "answer":"8","answer_type":"integer","tolerance":0}
+      ]
+    }
+  ]
+}</pre>
+
+        <h3 style="margin-top:20px;font-size:0.95em;">Savol turlari:</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:0.85em;">
+            <tr style="background:#417690;color:white;">
+                <th style="padding:6px 10px;text-align:left;">type</th>
+                <th style="padding:6px 10px;text-align:left;">Tavsif</th>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>choice</code></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;">A/B/C/D tanlov. <code>choices</code> massiv kerak.</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>grouped_af</code></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;">A–F variantlar. <code>options</code> + <code>items</code> kerak.</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>short_open</code></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;">Ochiq javob. <code>answer</code> ob'ekti kerak.</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;"><code>multi_part</code></td>
+                <td style="padding:6px 10px;">Ko'p qismli. <code>parts</code> massiv kerak.</td>
+            </tr>
+        </table>
+
+        <h3 style="margin-top:20px;font-size:0.95em;">Ixtiyoriy maydonlar (har bir savol uchun):</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:0.85em;">
+            <tr style="background:#417690;color:white;">
+                <th style="padding:6px 10px;text-align:left;">Maydon</th>
+                <th style="padding:6px 10px;text-align:left;">Qiymatlar</th>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>difficulty</code></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>"easy"</code> | <code>"medium"</code> | <code>"hard"</code> (default: medium)</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>topic_slug</code></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;">Mavzu slug (tests_app.Topic.slug). Topilmasa e'tiborga olinmaydi.</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;"><code>explanation</code></td>
+                <td style="padding:6px 10px;border-bottom:1px solid #ddd;">Javob tushuntirishi (string)</td>
+            </tr>
+            <tr>
+                <td style="padding:6px 10px;"><code>hint</code></td>
+                <td style="padding:6px 10px;">Maslahat matni (string)</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

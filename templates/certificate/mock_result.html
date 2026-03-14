@@ -1,0 +1,650 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Natija | {{ mock.title }} | TestMakon{% endblock %}
+
+{% block mathjax %}
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .result-header {
+        padding: 3rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .result-header.excellent { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+    .result-header.good      { background: linear-gradient(135deg, #8BC540 0%, #6BA832 100%); }
+    .result-header.average   { background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%); }
+    .result-header.poor      { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+    .result-header::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .result-header-content { position: relative; z-index: 1; color: white; }
+    .result-icon {
+        width: 80px; height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+    }
+    .result-header h1 { font-size: 2.5rem; color: white; margin-bottom: 0.5rem; }
+    .result-subtitle { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem; }
+
+    /* Score Circle */
+    .result-score-circle {
+        width: 160px; height: 160px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 4px solid rgba(255,255,255,0.3);
+    }
+    .result-score-value { font-size: 2.8rem; font-weight: 900; line-height: 1; }
+    .result-score-sub   { font-size: 1rem; font-weight: 700; opacity: 0.9; margin-top: 2px; }
+    .result-score-label { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+    /* Stats Row */
+    .result-stats-row {
+        display: flex; justify-content: center;
+        gap: 3rem; flex-wrap: wrap;
+    }
+    .result-stat { text-align: center; }
+    .result-stat-value { font-size: 1.75rem; font-weight: 800; }
+    .result-stat-label { font-size: 0.85rem; opacity: 0.8; }
+
+    /* ========== CONTENT ========== */
+    .result-content { padding: 2rem 0 4rem; }
+    .result-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+    @media (max-width: 992px) { .result-grid { grid-template-columns: 1fr; } }
+
+    /* ========== CARDS ========== */
+    .result-card {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--gray-200);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .result-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .result-card-title {
+        font-size: 1rem; font-weight: 700;
+        color: var(--dark); margin: 0;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+    .result-card-title i { color: var(--primary); }
+    .result-card-body { padding: 1.5rem; }
+
+    /* ========== TOPIC ANALYSIS ========== */
+    .topic-analysis-item { margin-bottom: 1.25rem; }
+    .topic-analysis-item:last-child { margin-bottom: 0; }
+    .topic-analysis-header {
+        display: flex; align-items: center;
+        justify-content: space-between; margin-bottom: 0.5rem;
+    }
+    .topic-analysis-name {
+        font-size: 0.95rem; font-weight: 600;
+        color: var(--dark); display: flex; align-items: center; gap: 0.5rem;
+    }
+    .topic-analysis-name .badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; }
+    .topic-analysis-score { font-size: 0.9rem; font-weight: 700; }
+    .topic-analysis-score.good    { color: #10B981; }
+    .topic-analysis-score.average { color: #F59E0B; }
+    .topic-analysis-score.poor    { color: #EF4444; }
+    .topic-analysis-bar {
+        height: 8px; background: var(--gray-200);
+        border-radius: 4px; overflow: hidden;
+    }
+    .topic-analysis-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .topic-analysis-fill.good    { background: linear-gradient(90deg, #10B981, #059669); }
+    .topic-analysis-fill.average { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+    .topic-analysis-fill.poor    { background: linear-gradient(90deg, #EF4444, #DC2626); }
+    .topic-analysis-meta {
+        display: flex; gap: 1rem; margin-top: 0.35rem;
+        font-size: 0.8rem; color: var(--gray-500);
+    }
+
+    /* ========== ANSWERS LIST ========== */
+    .answers-filter { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .answers-filter-btn {
+        padding: 0.5rem 1rem;
+        background: var(--gray-100); border: 1px solid var(--gray-200);
+        border-radius: var(--radius); font-size: 0.85rem; font-weight: 600;
+        color: var(--dark-600); cursor: pointer; transition: all 0.2s;
+    }
+    .answers-filter-btn:hover { background: var(--gray-200); }
+    .answers-filter-btn.active { background: var(--dark); border-color: var(--dark); color: var(--white); }
+    .answer-item {
+        padding: 1.25rem; border: 1px solid var(--gray-200);
+        border-radius: var(--radius); margin-bottom: 0.75rem; transition: all 0.2s;
+    }
+    .answer-item:hover { box-shadow: var(--shadow-sm); }
+    .answer-item.correct  { border-color: #10B981; background: #F0FDF4; }
+    .answer-item.incorrect{ border-color: #EF4444; background: #FEF2F2; }
+    .answer-item.skipped  { border-color: var(--gray-300); background: var(--gray-50); }
+    .answer-item-header {
+        display: flex; align-items: center;
+        justify-content: space-between; margin-bottom: 0.75rem;
+    }
+    .answer-item-number { display: flex; align-items: center; gap: 0.75rem; }
+    .answer-item-badge {
+        width: 32px; height: 32px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; font-weight: 700;
+    }
+    .answer-item.correct  .answer-item-badge { background: #10B981; color: white; }
+    .answer-item.incorrect .answer-item-badge { background: #EF4444; color: white; }
+    .answer-item.skipped  .answer-item-badge { background: var(--gray-300); color: var(--gray-600); }
+    .answer-item-topic { font-size: 0.8rem; color: var(--gray-500); }
+    .answer-item-status {
+        display: flex; align-items: center;
+        gap: 0.35rem; font-size: 0.85rem; font-weight: 600;
+    }
+    .answer-item-status.correct  { color: #10B981; }
+    .answer-item-status.incorrect{ color: #EF4444; }
+    .answer-item-status.skipped  { color: var(--gray-500); }
+    .answer-item-question {
+        font-size: 0.95rem; color: var(--dark);
+        margin-bottom: 0.75rem; line-height: 1.6;
+    }
+    .answer-item-choices { display: flex; flex-direction: column; gap: 0.5rem; }
+    .answer-choice {
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 0.5rem 0.75rem; background: var(--white);
+        border-radius: 6px; font-size: 0.9rem;
+    }
+    .answer-choice.user-selected  { background: #FEE2E2; border: 1px solid #FECACA; }
+    .answer-choice.correct-answer { background: #D1FAE5; border: 1px solid #A7F3D0; }
+    .answer-choice-letter {
+        width: 24px; height: 24px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 700;
+        background: var(--gray-200); color: var(--dark-600); flex-shrink: 0;
+    }
+    .answer-choice.correct-answer .answer-choice-letter { background: #10B981; color: white; }
+    .answer-choice.user-selected  .answer-choice-letter { background: #EF4444; color: white; }
+
+    /* ========== BOOKMARK ========== */
+    .bookmark-btn {
+        border: none; background: none; cursor: pointer;
+        color: var(--gray-400); padding: 4px;
+        transition: color 0.15s; font-size: 1rem;
+    }
+    .bookmark-btn:hover { color: #f59e0b; }
+    .bookmark-btn.saved { color: #f59e0b; }
+
+    /* ========== SIDEBAR ========== */
+    .result-sidebar { position: sticky; top: 100px; align-self: start; }
+    .grade-card {
+        border-radius: var(--radius-lg);
+        padding: 1.5rem; color: white;
+        text-align: center; margin-bottom: 1.5rem;
+    }
+    .grade-card.excellent { background: linear-gradient(135deg, #10B981, #059669); }
+    .grade-card.good      { background: linear-gradient(135deg, #8BC540, #6BA832); }
+    .grade-card.average   { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+    .grade-card.poor      { background: linear-gradient(135deg, #EF4444, #DC2626); }
+    .grade-card-icon {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,0.2); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1rem; font-size: 1.5rem;
+    }
+    .grade-card-value { font-size: 2.5rem; font-weight: 900; line-height: 1; }
+    .grade-card-label { font-size: 0.9rem; opacity: 0.9; margin-top: 4px; }
+    .grade-scale {
+        display: flex; flex-direction: column; gap: 4px;
+        font-size: 0.8rem; margin-top: 12px;
+    }
+    .grade-scale-row {
+        display: flex; justify-content: space-between;
+        padding: 4px 8px; border-radius: 6px;
+        background: rgba(255,255,255,0.15);
+    }
+    .grade-scale-row.current { background: rgba(255,255,255,0.35); font-weight: 800; }
+
+    /* Actions */
+    .actions-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .action-btn {
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: var(--gray-50); border: 1px solid var(--gray-200);
+        border-radius: var(--radius); font-size: 0.9rem; font-weight: 600;
+        color: var(--dark); transition: all 0.2s; text-decoration: none;
+    }
+    .action-btn:hover {
+        background: var(--gray-100); border-color: var(--gray-300);
+        transform: translateX(4px); color: var(--dark);
+    }
+    .action-btn i { font-size: 1.1rem; color: var(--primary); }
+    .action-btn.primary { background: var(--gradient-primary); border-color: transparent; color: white; }
+    .action-btn.primary i { color: white; }
+    .action-btn.primary:hover { box-shadow: var(--shadow-primary); color: white; }
+
+    /* Recommendations */
+    .recommendation-item {
+        display: flex; gap: 1rem; padding: 1rem;
+        background: var(--gray-50); border-radius: var(--radius); margin-bottom: 0.75rem;
+    }
+    .recommendation-icon {
+        width: 40px; height: 40px; border-radius: var(--radius);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; flex-shrink: 0;
+    }
+    .recommendation-icon.warning { background: #FEF3C7; color: #D97706; }
+    .recommendation-icon.success { background: #D1FAE5; color: #059669; }
+    .recommendation-content h4 {
+        font-size: 0.9rem; font-weight: 700; color: var(--dark); margin: 0 0 0.25rem;
+    }
+    .recommendation-content p { font-size: 0.85rem; color: var(--gray-500); margin: 0; }
+
+    /* ── DARK MODE ── */
+    [data-theme="dark"] .result-card { background: var(--white); border-color: var(--gray-200); }
+    [data-theme="dark"] .result-card-header { border-color: var(--gray-200); }
+    [data-theme="dark"] .result-card-title { color: var(--dark); }
+    [data-theme="dark"] .answer-item { border-color: var(--gray-200); }
+    [data-theme="dark"] .answer-item.correct  { background: #0a1f0f; border-color: #16a34a; }
+    [data-theme="dark"] .answer-item.incorrect { background: #1f0a0a; border-color: #dc2626; }
+    [data-theme="dark"] .answer-item.skipped  { background: var(--gray-50); border-color: var(--gray-300); }
+    [data-theme="dark"] .answer-item-question { color: var(--dark); }
+    [data-theme="dark"] .answer-choice { background: var(--gray-100); }
+    [data-theme="dark"] .answer-choice.user-selected  { background: #1f0a0a; border-color: #7f1d1d; }
+    [data-theme="dark"] .answer-choice.correct-answer { background: #0a1f0f; border-color: #14532d; }
+    [data-theme="dark"] .topic-analysis-bar { background: var(--gray-200); }
+    [data-theme="dark"] .answers-filter-btn { background: var(--gray-100); border-color: var(--gray-200); color: var(--dark); }
+    [data-theme="dark"] .answers-filter-btn:hover { background: var(--gray-200); }
+    [data-theme="dark"] .answers-filter-btn.active { background: var(--dark); border-color: var(--dark); color: var(--white); }
+    [data-theme="dark"] .action-btn { background: var(--gray-50); border-color: var(--gray-200); color: var(--dark); }
+    [data-theme="dark"] .action-btn:hover { background: var(--gray-100); border-color: var(--gray-300); }
+    [data-theme="dark"] .action-btn i { color: #8BC540; }
+    [data-theme="dark"] .recommendation-item { background: var(--gray-50); }
+    [data-theme="dark"] .recommendation-content h4 { color: var(--dark); }
+    [data-theme="dark"] .grade-scale-row { background: rgba(255,255,255,0.1); }
+    [data-theme="dark"] .grade-scale-row.current { background: rgba(255,255,255,0.25); }
+    [data-theme="dark"] .topic-analysis-name { color: var(--dark); }
+</style>
+{% endblock %}
+
+{% block content %}
+{% with sc=attempt.earned_points %}
+{% with grade=attempt.grade %}
+{% with hclass=grade|default:"" %}
+
+<!-- Header -->
+<div class="result-header {% if sc >= 70 %}excellent{% elif sc >= 55 %}good{% elif sc >= 46 %}average{% else %}poor{% endif %}">
+    <div class="container">
+        <div class="result-header-content">
+            <div class="result-icon">
+                {% if sc >= 70 %}<i class="bi bi-trophy-fill"></i>
+                {% elif sc >= 55 %}<i class="bi bi-award-fill"></i>
+                {% elif sc >= 46 %}<i class="bi bi-emoji-neutral-fill"></i>
+                {% else %}<i class="bi bi-emoji-frown-fill"></i>{% endif %}
+            </div>
+            <h1>
+                {% if grade == 'A+' %}A+ Sertifikat!
+                {% elif grade == 'A' %}A Sertifikat!
+                {% elif grade == 'B+' or grade == 'B' %}Yaxshi natija!
+                {% elif grade == 'C+' or grade == 'C' %}O'rtacha natija
+                {% else %}Mashq qiling!{% endif %}
+            </h1>
+            <p class="result-subtitle">{{ cert_subject.subject.name }} · {{ mock.title }}</p>
+
+            <div class="result-score-circle">
+                <span class="result-score-value">{{ sc|floatformat:1 }}</span>
+                <span class="result-score-sub">{% if grade %}{{ grade }}{% else %}—{% endif %}</span>
+                <span class="result-score-label">/ 100 ball</span>
+            </div>
+
+            <div class="result-stats-row">
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.correct_answers }}</div>
+                    <div class="result-stat-label">To'g'ri</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.wrong_answers }}</div>
+                    <div class="result-stat-label">Noto'g'ri</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value">{{ attempt.skipped_questions }}</div>
+                    <div class="result-stat-label">O'tkazilgan</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value">{% widthratio attempt.time_spent 60 1 %}daq</div>
+                    <div class="result-stat-label">Vaqt</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="result-content">
+    <div class="container">
+        <div class="result-grid">
+            <!-- Main Column -->
+            <div class="result-main">
+                <!-- Topic Analysis -->
+                {% if topic_stats %}
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            Mavzular bo'yicha tahlil
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        {% for topic_name, stats in topic_stats.items %}
+                        <div class="topic-analysis-item">
+                            <div class="topic-analysis-header">
+                                <span class="topic-analysis-name">
+                                    {{ topic_name }}
+                                    {% if stats.is_weak %}
+                                    <span class="badge bg-danger">Kuchsiz</span>
+                                    {% endif %}
+                                </span>
+                                <span class="topic-analysis-score {% if stats.percentage >= 70 %}good{% elif stats.percentage >= 50 %}average{% else %}poor{% endif %}">
+                                    {{ stats.percentage }}%
+                                </span>
+                            </div>
+                            <div class="topic-analysis-bar">
+                                <div class="topic-analysis-fill {% if stats.percentage >= 70 %}good{% elif stats.percentage >= 50 %}average{% else %}poor{% endif %}"
+                                     style="width: {{ stats.percentage }}%"></div>
+                            </div>
+                            <div class="topic-analysis-meta">
+                                <span>{{ stats.correct }}/{{ stats.total }} to'g'ri</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Answers Review -->
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-list-check"></i>
+                            Javoblar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        <div class="answers-filter">
+                            <button class="answers-filter-btn active" data-filter="all">
+                                Barchasi ({{ answers_data|length }})
+                            </button>
+                            <button class="answers-filter-btn" data-filter="correct">
+                                To'g'ri ({{ attempt.correct_answers }})
+                            </button>
+                            <button class="answers-filter-btn" data-filter="incorrect">
+                                Noto'g'ri ({{ attempt.wrong_answers }})
+                            </button>
+                        </div>
+
+                        <div class="answers-list" id="answersList">
+                            {% for item in answers_data %}
+                            {% with ans=item.answer %}
+                            <div class="answer-item {% if ans.is_correct %}correct{% elif not ans.is_skipped %}incorrect{% else %}skipped{% endif %}"
+                                 data-type="{% if ans.is_correct %}correct{% elif not ans.is_skipped %}incorrect{% else %}skipped{% endif %}">
+                                <div class="answer-item-header">
+                                    <div class="answer-item-number">
+                                        <div class="answer-item-badge">{{ ans.question.number }}</div>
+                                        {% if ans.question.topic %}
+                                        <span class="answer-item-topic">{{ ans.question.topic.name }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span class="answer-item-status {% if ans.is_correct %}correct{% elif not ans.is_skipped %}incorrect{% else %}skipped{% endif %}">
+                                            {% if ans.is_correct %}
+                                            <i class="bi bi-check-circle-fill"></i> To'g'ri
+                                            {% elif not ans.is_skipped %}
+                                            <i class="bi bi-x-circle-fill"></i> Noto'g'ri
+                                            {% else %}
+                                            <i class="bi bi-dash-circle"></i> O'tkazilgan
+                                            {% endif %}
+                                        </span>
+                                        <button class="bookmark-btn {% if ans.question.id in saved_ids %}saved{% endif %}"
+                                                onclick="toggleSaveResult(this, {{ ans.question.id }})"
+                                                title="Saqlash">
+                                            <i class="bi {% if ans.question.id in saved_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {% if ans.question.text %}
+                                <div class="answer-item-question">{{ ans.question.text }}</div>
+                                {% endif %}
+
+                                {% if not ans.is_correct and ans.question.question_type == 'choice' %}
+                                <div class="answer-item-choices">
+                                    {% if ans.selected_choice %}
+                                    <div class="answer-choice user-selected">
+                                        <span class="answer-choice-letter">✗</span>
+                                        <span>Sizning javobingiz: <strong>{{ ans.selected_choice.label }})</strong> {{ ans.selected_choice.text }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if item.correct_choice %}
+                                    <div class="answer-choice correct-answer">
+                                        <span class="answer-choice-letter">✓</span>
+                                        <span>To'g'ri javob: <strong>{{ item.correct_choice.label }})</strong> {{ item.correct_choice.text }}</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if ans.question.explanation %}
+                                    <div style="padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:0.85rem;color:#92400e;margin-top:4px;">
+                                        <i class="bi bi-lightbulb-fill me-1"></i>{{ ans.question.explanation }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="result-sidebar">
+                <!-- Grade Card -->
+                <div class="grade-card {% if sc >= 70 %}excellent{% elif sc >= 55 %}good{% elif sc >= 46 %}average{% else %}poor{% endif %}">
+                    <div class="grade-card-icon">
+                        {% if grade %}<i class="bi bi-award-fill"></i>
+                        {% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                    </div>
+                    <div class="grade-card-value">{% if grade %}{{ grade }}{% else %}—{% endif %}</div>
+                    <div class="grade-card-label">
+                        {% if grade %}Sertifikat darajasi{% else %}Sertifikat yo'q (< 46 ball){% endif %}
+                    </div>
+                    <div class="grade-scale">
+                        <div class="grade-scale-row {% if grade == 'A+' %}current{% endif %}">
+                            <span>A+</span><span>70–100</span>
+                        </div>
+                        <div class="grade-scale-row {% if grade == 'A' %}current{% endif %}">
+                            <span>A</span><span>65–69.9</span>
+                        </div>
+                        <div class="grade-scale-row {% if grade == 'B+' %}current{% endif %}">
+                            <span>B+</span><span>60–64.9</span>
+                        </div>
+                        <div class="grade-scale-row {% if grade == 'B' %}current{% endif %}">
+                            <span>B</span><span>55–59.9</span>
+                        </div>
+                        <div class="grade-scale-row {% if grade == 'C+' %}current{% endif %}">
+                            <span>C+</span><span>50–54.9</span>
+                        </div>
+                        <div class="grade-scale-row {% if grade == 'C' %}current{% endif %}">
+                            <span>C</span><span>46–49.9</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-arrow-repeat"></i>
+                            Keyingi qadamlar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        <div class="actions-list">
+                            <a href="{% url 'certificate:mock_start' subject_slug=cert_subject.subject.slug mock_slug=mock.slug %}"
+                               class="action-btn primary">
+                                <i class="bi bi-arrow-clockwise"></i>
+                                Qayta topshirish
+                            </a>
+                            <a href="{% url 'certificate:subject_mocks' subject_slug=cert_subject.subject.slug %}"
+                               class="action-btn">
+                                <i class="bi bi-list-ul"></i>
+                                Boshqa mocklar
+                            </a>
+                            <a href="{% url 'tests_app:my_results' %}" class="action-btn">
+                                <i class="bi bi-clock-history"></i>
+                                Barcha natijalar
+                            </a>
+                            <a href="{% url 'tests_app:saved_questions' %}" class="action-btn">
+                                <i class="bi bi-bookmark-check"></i>
+                                Saqlangan savollar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other mocks -->
+                {% if other_mocks %}
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-journals"></i>
+                            Boshqa variantlar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        <div class="actions-list">
+                            {% for om in other_mocks %}
+                            <a href="{% url 'certificate:mock_detail' subject_slug=cert_subject.subject.slug mock_slug=om.slug %}"
+                               class="action-btn">
+                                <i class="bi bi-file-earmark-text"></i>
+                                {{ om.title }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Recommendations -->
+                {% if topic_stats %}
+                <div class="result-card">
+                    <div class="result-card-header">
+                        <h3 class="result-card-title">
+                            <i class="bi bi-lightbulb-fill"></i>
+                            Tavsiyalar
+                        </h3>
+                    </div>
+                    <div class="result-card-body">
+                        {% for topic_name, stats in topic_stats.items %}
+                            {% if stats.is_weak %}
+                            <div class="recommendation-item">
+                                <div class="recommendation-icon warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="recommendation-content">
+                                    <h4>{{ topic_name }}</h4>
+                                    <p>Bu mavzuni ko'proq mashq qiling. {{ stats.correct }}/{{ stats.total }} to'g'ri.</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if sc >= 70 %}
+                        <div class="recommendation-item">
+                            <div class="recommendation-icon success">
+                                <i class="bi bi-trophy"></i>
+                            </div>
+                            <div class="recommendation-content">
+                                <h4>Ajoyib natija!</h4>
+                                <p>{{ grade }} sertifikat olishga loyiqsiz. Davom eting!</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endwith %}{% endwith %}{% endwith %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = "{{ csrf_token }}";
+const SAVE_URL_TMPL = "{% url 'certificate:toggle_save_question' question_id=1 %}";
+const savedSet = new Set([{% for qid in saved_ids %}{{ qid }},{% endfor %}]);
+
+function getSaveUrl(qid) {
+    return SAVE_URL_TMPL.replace('/1/', '/' + qid + '/');
+}
+
+function toggleSaveResult(btn, qid) {
+    fetch(getSaveUrl(qid), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' }
+    }).then(r => r.json()).then(d => {
+        const ic = btn.querySelector('i');
+        if (d.saved) {
+            btn.classList.add('saved');
+            ic.className = 'bi bi-bookmark-fill';
+            savedSet.add(qid);
+        } else {
+            btn.classList.remove('saved');
+            ic.className = 'bi bi-bookmark';
+            savedSet.delete(qid);
+        }
+    });
+}
+
+// Answers filter
+document.querySelectorAll('.answers-filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.answers-filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.answer-item').forEach(item => {
+            if (filter === 'all' || item.dataset.type === filter) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

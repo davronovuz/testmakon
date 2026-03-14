@@ -16,7 +16,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-)a=p2h3jl%!hb+6@@^e@xih796ilgkx$6s_6xpkk-*2^6*)0l3')
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+# DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testmakon.uz', 'www.testmakon.uz']
 
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
     'coding.apps.CodingConfig',
     'django_celery_beat',
     'api.apps.ApiConfig',
+    'certificate.apps.CertificateConfig',
 ]
 
 MIDDLEWARE = [

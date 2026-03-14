@@ -1,0 +1,1161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ mock.title }} | TestMakon{% endblock %}
+{% block bottom_nav %}{% endblock bottom_nav %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+<style>
+/* Navbar, footer va page padding ni yashirish */
+.navbar,
+.footer,
+.bottom-nav,
+nav.navbar { display: none !important; }
+.page-wrapper { padding-top: 0 !important; padding-bottom: 0 !important; }
+.page-content { padding: 0 !important; margin: 0 !important; }
+
+:root {
+    --primary: #8BC540;
+    --primary-soft: rgba(139,197,64,0.10);
+    --primary-mid: rgba(139,197,64,0.22);
+    --red: #EF4444;
+    --red-soft: rgba(239,68,68,0.10);
+    --bg: #F0F2F5;
+    --card: #FFFFFF;
+    --border: #E8ECF0;
+    --text: #1A2235;
+    --muted: #7A8A9A;
+    --radius: 16px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+
+[data-theme="dark"] {
+    --bg: #0F172A;
+    --card: #1A2332;
+    --border: #1E293B;
+    --text: #F1F5F9;
+    --muted: #94A3B8;
+    --shadow: 0 2px 16px rgba(0,0,0,0.35);
+    --primary-soft: rgba(139,197,64,0.12);
+    --primary-mid: rgba(139,197,64,0.20);
+    --red-soft: rgba(239,68,68,0.12);
+}
+
+body {
+    font-family: 'Manrope', sans-serif !important;
+    background: var(--bg) !important;
+    color: var(--text) !important;
+}
+.page-content { padding: 0 !important; }
+
+/* ── TOPBAR (O'zgartirildi) ── */
+.tm-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 60px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.tm-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tm-logo:hover { background: var(--primary-mid); }
+
+/* Timer pill */
+.tm-timer-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1.5px;
+    transition: all 0.3s;
+    background: #fff;
+}
+.tm-timer-pill svg {
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+.tm-timer-pill.warning {
+    border-color: #F59E0B;
+    color: #D97706;
+    background: #FFFBEB;
+}
+.tm-timer-pill.warning svg { opacity: 0.8; }
+.tm-timer-pill.danger {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-soft);
+    animation: pulse-border 1s infinite;
+}
+.tm-timer-pill.danger svg { opacity: 1; }
+
+/* Finish button (O'zgartirildi) */
+.tm-finish-btn {
+    padding: 0.5rem 1.2rem;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+}
+.tm-finish-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(239,68,68,0.3);
+}
+
+/* ── PAGE WRAP ── */
+.tm-page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 1.75rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ── QUESTION CARD (Asl holicha qoldi) ── */
+.tm-qcard {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    border: 1.5px solid transparent;
+}
+.tm-qcard.answered {
+    border-color: var(--primary);
+}
+
+/* Card header strip */
+.tm-qcard-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: #FAFBFC;
+}
+.tm-qcard-meta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.tm-qcard-meta .sep { opacity: 0.4; }
+.tm-qcard-meta .subj {
+    background: var(--primary-soft);
+    color: #4a7a12;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+}
+.tm-topic-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #5b6a7a;
+    background: #eef2f7;
+    padding: 2px 8px;
+    border-radius: 20px;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tm-bookmark-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 3px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+}
+.tm-bookmark-btn:hover { color: var(--primary); background: var(--primary-soft); }
+.tm-bookmark-btn.saved  { color: var(--primary); }
+
+/* Card body */
+.tm-qcard-body {
+    padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.tm-qtext {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+.tm-qimg {
+    display: block;
+    max-width: 60%;
+    max-height: 260px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin: 0 auto 1rem;
+    border: 1px solid var(--border);
+}
+
+/* Hint */
+.tm-hint-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #92400e;
+    background: #FEF3C7;
+    border: none;
+    border-radius: 20px;
+    padding: 3px 10px;
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+.tm-hint-btn:hover { background: #FDE68A; }
+.tm-hint-box {
+    display: none;
+    padding: 10px 14px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    color: #92400e;
+    margin-bottom: 0.75rem;
+}
+
+/* ── CHOICES 2×2 (Asl holicha) ── */
+.tm-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+.tm-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #FAFBFC;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+.tm-choice::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.tm-choice:hover {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+}
+.tm-choice.selected {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    box-shadow: 0 2px 10px var(--primary-mid);
+}
+.tm-choice input[type=radio] {
+    display: none !important;
+}
+.tm-choice-lbl {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--border);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    text-transform: uppercase;
+}
+.tm-choice.selected .tm-choice-lbl {
+    background: var(--primary);
+    color: #fff;
+}
+.tm-choice-text {
+    position: relative;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.tm-choice-img {
+    display: block;
+    max-width: 80%;
+    max-height: 100px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 6px auto 0;
+    border: 1px solid var(--border);
+}
+.tm-choice-has-img {
+    flex-direction: column;
+    align-items: flex-start;
+}
+.tm-choice-has-img .tm-choice-lbl {
+    margin-bottom: 4px;
+}
+
+/* ── GROUPED AF (Asl holicha qoldi) ── */
+.tm-gaf-header {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4a7a12;
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-mid);
+    border-radius: 10px;
+    padding: 9px 14px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+.tm-gaf-layout {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.tm-gaf-opts-box {
+    flex: 0 0 190px;
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.tm-gaf-opt-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+.tm-gaf-opt-lbl {
+    font-weight: 800;
+    color: var(--primary);
+    min-width: 16px;
+    flex-shrink: 0;
+}
+.tm-gaf-opt-txt { color: var(--text); }
+.tm-gaf-items-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.tm-gaf-item {
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+}
+.tm-gaf-item.item-answered { border-color: var(--primary); background: #f7fdf0; }
+.tm-gaf-item-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.tm-gaf-item-num {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 0.9rem;
+    min-width: 28px;
+    flex-shrink: 0;
+}
+.tm-gaf-item-body { flex: 1; }
+.tm-gaf-item-txt {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.55;
+}
+.tm-gaf-item-img {
+    display: block;
+    max-width: 65%;
+    max-height: 120px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 6px auto 0;
+    object-fit: contain;
+}
+.tm-gaf-item-ans {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+.tm-gaf-ans-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+.tm-gaf-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+.tm-gaf-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tm-gaf-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-soft);
+}
+.tm-gaf-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px var(--primary-mid);
+}
+
+/* ── SHORT OPEN ── */
+.tm-open-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    font-weight: 600;
+    background: #FAFBFC;
+    transition: all 0.15s;
+    outline: none;
+    color: var(--text);
+}
+.tm-open-input:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* ── MULTI PART ── */
+.tm-mp-context {
+    padding: 12px 14px;
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+.tm-mp-item {
+    padding: 12px 14px;
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+.tm-mp-lbl {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+.tm-mp-q {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+/* ── FLOATING SUMMARY (O'zgartirildi) ── */
+.tm-float-bar {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    background: #1B212D;
+    color: #94A3B8;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.tm-float-bar .fbar-count { color: #8BC540; font-size: 1rem; font-weight: 900; }
+.tm-float-bar .fbar-sep { opacity: 0.4; margin: 0 0.2rem; }
+
+/* ── MODAL (Rasmga qarab yangilandi) ── */
+.tm-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+}
+.tm-modal-overlay.show { display: flex; }
+.tm-modal-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: modalIn 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.tm-modal-icon {
+    width: 72px;
+    height: 72px;
+    background-color: #FEF3C7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+}
+.tm-modal-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+.tm-modal-msg {
+    font-size: 0.95rem;
+    color: #6B7280;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+.tm-modal-stats-box {
+    display: flex;
+    justify-content: space-between;
+    background: #F8FAFC;
+    border-radius: 16px;
+    padding: 1.25rem 1rem;
+    margin-bottom: 1.5rem;
+}
+.tm-modal-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+.tm-modal-stat-num {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #111827;
+}
+.tm-modal-stat-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6B7280;
+}
+.tm-modal-btns {
+    display: flex;
+    gap: 0.75rem;
+}
+.tm-modal-cancel, .tm-modal-ok {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+.tm-modal-cancel {
+    background: #F8FAFC;
+    border: 1px solid #E5E7EB;
+    color: #374151;
+}
+.tm-modal-cancel:hover { background: #F1F5F9; }
+.tm-modal-ok {
+    background: #EF4444;
+    border: none;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.25);
+}
+.tm-modal-ok:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(239,68,68,0.35);
+}
+
+/* ── DARK MODE ── */
+[data-theme="dark"] .tm-topbar { background: #1A2332; border-color: #1E293B; }
+[data-theme="dark"] .tm-logo  { background: var(--primary-soft); }
+[data-theme="dark"] .tm-timer-pill { background: #1A2332; border-color: #1E293B; color: #F1F5F9; }
+[data-theme="dark"] .tm-timer-pill.warning { background: #1c1a0a; border-color: #a16207; color: #fbbf24; }
+[data-theme="dark"] .tm-qcard { background: #1A2332; border-color: #1E293B; }
+[data-theme="dark"] .tm-qcard-head { background: #162032; border-color: #1E293B; }
+[data-theme="dark"] .tm-qcard-meta .subj { background: rgba(139,197,64,0.12); color: #86efac; }
+[data-theme="dark"] .tm-qcard-meta .tm-topic-tag { background: #1e2d1a; color: #86efac; }
+[data-theme="dark"] .tm-qcard-body { background: #1A2332; }
+[data-theme="dark"] .tm-choice { background: #162032; border-color: #1E293B; }
+[data-theme="dark"] .tm-choice:hover { background: var(--primary-soft); border-color: var(--primary); }
+[data-theme="dark"] .tm-choice.selected { background: var(--primary-soft); border-color: var(--primary); }
+[data-theme="dark"] .tm-choice-lbl { background: #0F172A; color: #94A3B8; }
+[data-theme="dark"] .tm-choice-text { color: #F1F5F9; }
+[data-theme="dark"] .tm-hint-btn { background: #1c1a0a; color: #fbbf24; }
+[data-theme="dark"] .tm-hint-btn:hover { background: #292509; }
+[data-theme="dark"] .tm-hint-box { background: #1c1a0a; border-color: #a16207; color: #fde68a; }
+[data-theme="dark"] .tm-gaf-header { background: rgba(139,197,64,0.1); border-color: rgba(139,197,64,0.2); color: #86efac; }
+[data-theme="dark"] .tm-gaf-opts-box { background: #162032; border-color: #1E293B; }
+[data-theme="dark"] .tm-gaf-opt-txt { color: #CBD5E1; }
+[data-theme="dark"] .tm-gaf-item { background: #162032; border-color: #1E293B; }
+[data-theme="dark"] .tm-gaf-item.item-answered { background: #0f1f0a; border-color: var(--primary); }
+[data-theme="dark"] .tm-gaf-item-ans { border-color: #1E293B; }
+[data-theme="dark"] .tm-gaf-btn { background: #0F172A; border-color: #1E293B; color: #94A3B8; }
+[data-theme="dark"] .tm-gaf-btn:hover { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+[data-theme="dark"] .tm-open-input { background: #162032; border-color: #1E293B; color: #F1F5F9; }
+[data-theme="dark"] .tm-open-input:focus { background: #0F172A; }
+[data-theme="dark"] .tm-mp-context,
+[data-theme="dark"] .tm-mp-item { background: #162032; border-color: #1E293B; }
+[data-theme="dark"] .tm-modal-overlay .tm-modal-box { background: #1A2332; }
+[data-theme="dark"] .tm-modal-title { color: #F1F5F9; }
+[data-theme="dark"] .tm-modal-msg { color: #94A3B8; }
+[data-theme="dark"] .tm-modal-stats-box { background: #162032; }
+[data-theme="dark"] .tm-modal-stat-num { color: #F1F5F9; }
+[data-theme="dark"] .tm-modal-cancel { background: #162032; border-color: #1E293B; color: #CBD5E1; }
+[data-theme="dark"] .tm-modal-cancel:hover { background: #0F172A; }
+[data-theme="dark"] .tm-bookmark-btn { color: #475569; }
+[data-theme="dark"] .tm-bookmark-btn.saved { color: var(--primary); }
+[data-theme="dark"] .tm-qcard-meta .sep { color: #334155; }
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+    .tm-gaf-layout { flex-direction: column; }
+    .tm-gaf-opts-box { flex: none; width: 100%; }
+    .tm-choices { grid-template-columns: 1fr; }
+    .tm-page { padding: 1rem 0.75rem 5rem; }
+    .tm-topbar { padding: 0 1rem; }
+    .tm-float-bar { bottom: 1rem; padding: 0.5rem 1.2rem; }
+    .tm-modal-box { padding: 2rem 1.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tm-topbar">
+    <button type="button" class="tm-logo" onclick="openFinishModal()">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--primary)" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+    </button>
+
+    <div class="tm-timer-pill" id="timerPill">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path stroke-linecap="round" d="M12 7v5l3 3"></path>
+        </svg>
+        <span id="timerDisplay">{{ mock.time_limit }}:00</span>
+    </div>
+
+    <button type="button" class="tm-finish-btn" onclick="openFinishModal()">
+        Yakunlash
+    </button>
+</div>
+
+<div class="tm-page" id="tmPage">
+    {% for q in questions %}
+    <div class="tm-qcard {% if q.id in answered_ids %}answered{% endif %}"
+         id="qcard-{{ q.id }}"
+         data-qid="{{ q.id }}"
+         data-qtype="{{ q.question_type }}">
+
+        <div class="tm-qcard-head">
+            <div class="tm-qcard-meta">
+                <span>{{ forloop.counter }}/{{ total_questions }}</span>
+                <span class="sep">•</span>
+                <span class="subj">{{ mock.cert_subject.subject.name }}</span>
+                {% if q.topic %}
+                <span class="sep">•</span>
+                <span class="tm-topic-tag">{{ q.topic.name }}</span>
+                {% endif %}
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                {% if q.id in answered_ids %}
+                <div style="width:8px;height:8px;border-radius:50%;background:#8BC540;" title="Javoblandi"></div>
+                {% endif %}
+                <button type="button"
+                        class="tm-bookmark-btn {% if q.id in saved_ids %}saved{% endif %}"
+                        onclick="toggleSave(this, {{ q.id }})"
+                        title="Saqlash">
+                    <svg width="16" height="16" fill="{% if q.id in saved_ids %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="tm-qcard-body">
+
+            {% if q.hint %}
+            <button type="button" class="tm-hint-btn" onclick="toggleHint('hint-{{ q.id }}')">
+                💡 Maslahat
+            </button>
+            <div class="tm-hint-box" id="hint-{{ q.id }}">{{ q.hint }}</div>
+            {% endif %}
+
+            {% if q.question_type == 'grouped_af' %}
+            {% with items=q.grouped_items.all opts=q.grouped_options.all %}
+            <div class="tm-gaf-header">
+                {{ q.number }}–{{ q.number|add:items.count|add:"-1" }}-test topshiriqlariga mos keluvchi javoblarni
+                ({% for o in opts %}{{ o.label }}{% if not forloop.last %}–{% endif %}{% endfor %})
+                javob variantlaridan tanlang.
+            </div>
+            {% if q.text %}
+            <div class="tm-qtext" style="margin-bottom:10px;">{{ q.text }}</div>
+            {% endif %}
+            {% if q.image %}
+            <img src="{{ q.image.url }}" class="tm-qimg" alt="Savol rasmi">
+            {% endif %}
+            <div class="tm-gaf-layout">
+                <div class="tm-gaf-opts-box">
+                    {% for opt in opts %}
+                    <div class="tm-gaf-opt-row">
+                        <span class="tm-gaf-opt-lbl">{{ opt.label }})</span>
+                        <span class="tm-gaf-opt-txt">{{ opt.text }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="tm-gaf-items-box">
+                    {% for item in items %}
+                    <div class="tm-gaf-item" id="gaf-item-{{ q.id }}-{{ item.id }}">
+                        <div class="tm-gaf-item-top">
+                            <div class="tm-gaf-item-num">{{ q.number|add:forloop.counter0 }}.</div>
+                            <div class="tm-gaf-item-body">
+                                <div class="tm-gaf-item-txt">{{ item.text }}</div>
+                                {% if item.image %}
+                                <img src="{{ item.image.url }}" class="tm-gaf-item-img" alt="">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="tm-gaf-item-ans">
+                            <span class="tm-gaf-ans-label">Javob:</span>
+                            <div class="tm-gaf-btns">
+                                {% for opt in opts %}
+                                <button type="button"
+                                        class="tm-gaf-btn"
+                                        id="gaf-btn-{{ q.id }}-{{ item.id }}-{{ opt.id }}"
+                                        onclick="selectGroupedOption(this,{{ q.id }},{{ item.id }},{{ opt.id }})">
+                                    {{ opt.label }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endwith %}
+
+            {% else %}
+
+            {% if q.text %}
+            <div class="tm-qtext">{{ q.text|linebreaksbr }}</div>
+            {% endif %}
+            {% if q.image %}
+            <img src="{{ q.image.url }}" class="tm-qimg" alt="Savol rasmi">
+            {% endif %}
+
+            {% if q.question_type == 'choice' %}
+            <div class="tm-choices">
+                {% for choice in q.choices.all %}
+                <label class="tm-choice {% if choice.image %}tm-choice-has-img{% endif %}"
+                       id="cho-{{ q.id }}-{{ choice.id }}"
+                       onclick="selectChoice(this, {{ q.id }}, {{ choice.id }})">
+                    <input type="radio" name="choice_{{ q.id }}" value="{{ choice.id }}">
+                    <div class="tm-choice-lbl">{{ choice.label }}</div>
+                    <div class="tm-choice-text">
+                        {{ choice.text }}
+                        {% if choice.image %}
+                        <img src="{{ choice.image.url }}" class="tm-choice-img" alt="">
+                        {% endif %}
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            {% elif q.question_type == 'short_open' %}
+            <input type="text"
+                   class="tm-open-input"
+                   id="so-{{ q.id }}"
+                   placeholder="Javobingizni shu yerga kiriting…"
+                   oninput="submitShortOpen({{ q.id }}, this.value)">
+
+            {% elif q.question_type == 'multi_part' %}
+            {% for part in q.parts.all %}
+            <div class="tm-mp-item">
+                <div class="tm-mp-lbl">{{ part.part_label }})</div>
+                <div class="tm-mp-q">{{ part.text }}</div>
+                <input type="text"
+                       class="tm-open-input"
+                       id="mp-{{ q.id }}-{{ part.part_label }}"
+                       placeholder="Javob…"
+                       oninput="updateMultiPart({{ q.id }})">
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% endif %}{# /grouped_af else #}
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="tm-float-bar" id="floatBar">
+    <span><span class="fbar-count" id="floatAnswered">0</span> ta javoblandi</span>
+    <span class="fbar-sep">|</span>
+    <span id="floatUnanswered">0 ta javobsiz</span>
+</div>
+
+<div class="tm-modal-overlay" id="finishOverlay" onclick="closeModalOutside(event)">
+    <div class="tm-modal-box">
+        <div class="tm-modal-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="#FDE047" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        </div>
+        <div class="tm-modal-title">Testni yakunlaysizmi?</div>
+        <div class="tm-modal-msg">Yakunlagandan so'ng javoblarni o'zgartira olmaysiz.</div>
+
+        <div class="tm-modal-stats-box">
+            <div class="tm-modal-stat">
+                <span class="tm-modal-stat-num" id="modalAnswered">0</span>
+                <span class="tm-modal-stat-lbl">Javob berilgan</span>
+            </div>
+            <div class="tm-modal-stat">
+                <span class="tm-modal-stat-num" id="modalUnanswered">0</span>
+                <span class="tm-modal-stat-lbl">Javobsiz</span>
+            </div>
+            <div class="tm-modal-stat">
+                <span class="tm-modal-stat-num" id="modalFlagged">0</span>
+                <span class="tm-modal-stat-lbl">Belgilangan</span>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'certificate:mock_finish' attempt_uuid=attempt.uuid %}" id="finishForm">
+            {% csrf_token %}
+            <div class="tm-modal-btns">
+                <button type="button" class="tm-modal-cancel" onclick="closeFinishModal()">Davom etish</button>
+                <button type="submit" class="tm-modal-ok">Yakunlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SUBMIT_URL = "{% url 'certificate:submit_answer' attempt_uuid=attempt.uuid %}";
+const CSRF = "{{ csrf_token }}";
+const TIME_REMAINING = {{ time_remaining }};
+const TOTAL = {{ total_questions }};
+const PREFILL = {{ prefill_json|safe }};
+
+let answeredSet = new Set([{% for qid in answered_ids %}{{ qid }},{% endfor %}]);
+let savedSet = new Set([{% for qid in saved_ids %}{{ qid }},{% endfor %}]);
+let debounceTimers = {};
+let groupedState = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+    Object.entries(PREFILL).forEach(([qid, ans]) => {
+        qid = parseInt(qid);
+
+        if (ans.choice_id) {
+            const el = document.getElementById('cho-' + qid + '-' + ans.choice_id);
+            if (el) el.classList.add('selected');
+        }
+
+        if (ans.text_answer) {
+            const el = document.getElementById('so-' + qid);
+            if (el) el.value = ans.text_answer;
+        }
+
+        if (ans.structured_answer) {
+            Object.entries(ans.structured_answer).forEach(([itemId, optId]) => {
+                // grouped_af tugmalar
+                const btn = document.getElementById('gaf-btn-' + qid + '-' + itemId + '-' + optId);
+                if (btn) {
+                    btn.classList.add('selected');
+                    const itemEl = document.getElementById('gaf-item-' + qid + '-' + itemId);
+                    if (itemEl) itemEl.classList.add('item-answered');
+                    if (!groupedState[qid]) groupedState[qid] = {};
+                    groupedState[qid][itemId] = optId;
+                }
+                // multi_part inputlar
+                const mpEl = document.getElementById('mp-' + qid + '-' + itemId);
+                if (mpEl) mpEl.value = optId;
+            });
+        }
+    });
+
+    updateCounters();
+});
+
+function updateCounters() {
+    const count = answeredSet.size;
+    const left = TOTAL - count;
+    document.getElementById('floatAnswered').textContent = count;
+    document.getElementById('floatUnanswered').textContent = left + ' ta javobsiz';
+}
+
+function markAnswered(qid) {
+    answeredSet.add(qid);
+    const card = document.getElementById('qcard-' + qid);
+    if (card) card.classList.add('answered');
+    updateCounters();
+}
+
+function markUnanswered(qid) {
+    answeredSet.delete(qid);
+    const card = document.getElementById('qcard-' + qid);
+    if (card) card.classList.remove('answered');
+    updateCounters();
+}
+
+(function startTimer(rem) {
+    const display = document.getElementById('timerDisplay');
+    const pill = document.getElementById('timerPill');
+
+    function tick() {
+        if (rem <= 0) {
+            clearInterval(iv);
+            document.getElementById('finishForm').submit();
+            return;
+        }
+
+        const m = String(Math.floor(rem / 60)).padStart(2, '0');
+        const s = String(rem % 60).padStart(2, '0');
+        display.textContent = m + ':' + s;
+
+        pill.className = 'tm-timer-pill';
+        if (rem <= 300 && rem > 60) {
+            pill.classList.add('warning');
+        } else if (rem <= 60) {
+            pill.classList.add('danger');
+        }
+
+        rem--;
+    }
+
+    tick();
+    const iv = setInterval(tick, 1000);
+})(TIME_REMAINING);
+
+function submitAnswer(payload) {
+    fetch(SUBMIT_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': CSRF
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            if (!d.skipped) {
+                markAnswered(payload.question_id);
+            } else {
+                markUnanswered(payload.question_id);
+            }
+        }
+    })
+    .catch(() => {});
+}
+
+function selectChoice(el, qid, choiceId) {
+    const wrap = el.closest('.tm-choices');
+    if (wrap) {
+        wrap.querySelectorAll('.tm-choice').forEach(o => o.classList.remove('selected'));
+    }
+    el.classList.add('selected');
+    submitAnswer({ question_id: qid, choice_id: choiceId });
+}
+
+function submitShortOpen(qid, val) {
+    clearTimeout(debounceTimers['so' + qid]);
+    debounceTimers['so' + qid] = setTimeout(() => {
+        submitAnswer({
+            question_id: qid,
+            text_answer: val,
+            skipped: !val.trim()
+        });
+    }, 700);
+}
+
+function selectGroupedOption(btn, qid, itemId, optId) {
+    document.querySelectorAll('[id^="gaf-btn-' + qid + '-' + itemId + '-"]').forEach(b => {
+        b.classList.remove('selected');
+    });
+    btn.classList.add('selected');
+
+    const itemEl = document.getElementById('gaf-item-' + qid + '-' + itemId);
+    if (itemEl) itemEl.classList.add('item-answered');
+
+    if (!groupedState[qid]) groupedState[qid] = {};
+    groupedState[qid][itemId] = String(optId);
+
+    const data = {};
+    Object.entries(groupedState[qid]).forEach(([k, v]) => { data[k] = String(v); });
+
+    submitAnswer({
+        question_id: qid,
+        structured_answer: data,
+        skipped: false
+    });
+}
+
+function updateMultiPart(qid) {
+    clearTimeout(debounceTimers['mp' + qid]);
+    debounceTimers['mp' + qid] = setTimeout(() => {
+        const inputs = document.querySelectorAll('[id^="mp-' + qid + '-"]');
+        let parts = {};
+
+        inputs.forEach(i => {
+            parts[i.id.replace('mp-' + qid + '-', '')] = i.value;
+        });
+
+        const has = Object.values(parts).some(v => v.trim());
+        submitAnswer({
+            question_id: qid,
+            structured_answer: parts,
+            skipped: !has
+        });
+    }, 700);
+}
+
+function toggleHint(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+// ── BOOKMARK ─────────────────────────────────────────────────
+const SAVE_URL_TMPL = "{% url 'certificate:toggle_save_question' question_id=1 %}";
+function getSaveUrl(qid) { return SAVE_URL_TMPL.replace('/1/', '/' + qid + '/'); }
+
+function toggleSave(btn, qid) {
+    fetch(getSaveUrl(qid), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(d => {
+        const svg = btn.querySelector('svg');
+        if (d.saved) {
+            btn.classList.add('saved');
+            svg.setAttribute('fill', 'currentColor');
+            savedSet.add(qid);
+        } else {
+            btn.classList.remove('saved');
+            svg.setAttribute('fill', 'none');
+            savedSet.delete(qid);
+        }
+    });
+}
+
+// ── MODAL BOSHQARUVI ─────────────────────────────────────────
+function openFinishModal() {
+    document.getElementById('modalAnswered').textContent = answeredSet.size;
+    document.getElementById('modalUnanswered').textContent = TOTAL - answeredSet.size;
+    document.getElementById('modalFlagged').textContent = savedSet.size;
+    document.getElementById('finishOverlay').classList.add('show');
+}
+
+function closeFinishModal() {
+    document.getElementById('finishOverlay').classList.remove('show');
+}
+
+function closeModalOutside(e) {
+    if(e.target === document.getElementById('finishOverlay')) {
+        closeFinishModal();
+    }
+}
+
+// Faqat back tugmani bloklash (browser native dialog yo'q)
+let _submitting = false;
+document.getElementById('finishForm').addEventListener('submit', () => { _submitting = true; });
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function() {
+    if (_submitting) return;
+    history.pushState(null, null, location.href);
+    openFinishModal();
+});
+</script>
+{% endblock %}

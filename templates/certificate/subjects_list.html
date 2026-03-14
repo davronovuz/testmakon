@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Milliy Sertifikat | TestMakon{% endblock %}
+
+{% block content %}
+
+<div class="ms-page-bg" style="min-height:100vh; padding: 28px 0 48px;">
+  <div class="container" style="max-width:1200px;">
+    <nav class="mb-4 d-flex align-items-center gap-2 flex-wrap">
+      <a href="{% url 'core:home' %}" class="ms-cert-back">Bosh sahifa</a>
+      <span class="text-muted" style="font-size:0.9rem;">/</span>
+      <span class="ms-cert-bread-current">Milliy Sertifikat</span>
+    </nav>
+
+    <h1 class="ms-cert-title">Milliy Sertifikat</h1>
+    <p class="text-center text-muted mb-4" style="font-size:0.95rem; max-width:560px; margin-left:auto; margin-right:auto;">Fan bo‘yicha mock testlar — DTM formatida tayyorgarlik</p>
+
+    {% if not subjects %}
+    <div class="ms-empty-state">
+      <div class="ms-empty-icon">📋</div>
+      <h3 class="ms-empty-title">Hozircha fanlar mavjud emas</h3>
+      <p class="ms-empty-desc">Admin panel orqali sertifikat fanlari qo‘shilgach shu yerda ko‘rinadi.</p>
+      <a href="{% url 'core:home' %}" class="ms-cert-back mt-3 d-inline-flex align-items-center gap-2">Bosh sahifaga qaytish</a>
+    </div>
+    {% else %}
+    <div class="ms-grid">
+      {% for cert_subject in subjects %}
+      {% if cert_subject.total_mocks > 0 %}
+      <a href="{% url 'certificate:subject_mocks' subject_slug=cert_subject.subject.slug %}" class="ms-card-link">
+        <div class="ms-card">
+          <div class="ms-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3L1 9l11 12L23 9l-5-6H6z" stroke="currentColor" stroke-width="2.5" fill="none"/>
+            </svg>
+            <span>{{ cert_subject.total_mocks }}</span>
+          </div>
+
+          <div class="ms-icon-wrap">
+            {% if cert_subject.subject.image %}
+              <img src="{{ cert_subject.subject.image.url }}" alt="{{ cert_subject.subject.name }}" class="ms-icon-img">
+            {% else %}
+              <span style="font-size:2.5rem;">{{ cert_subject.subject.icon }}</span>
+            {% endif %}
+          </div>
+
+          <p class="ms-name">{{ cert_subject.subject.name }}</p>
+        </div>
+      </a>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+/* ── Page bg ── */
+.ms-page-bg { background: #f0f4f8; }
+
+/* ── Back link ── */
+.ms-cert-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #4b5563;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.ms-cert-back:hover { color: #8BC540; }
+
+/* ── Title ── */
+.ms-cert-bread-current { color: #111827; font-weight: 600; font-size: 0.95rem; }
+.ms-cert-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+.ms-empty-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background: #fff;
+  border-radius: 20px;
+  border: 1.5px dashed #e5e7eb;
+}
+.ms-empty-icon { font-size: 4rem; opacity: 0.4; margin-bottom: 1rem; }
+.ms-empty-title { font-size: 1.25rem; font-weight: 700; color: #374151; margin-bottom: 0.5rem; }
+.ms-empty-desc { color: #6b7280; font-size: 0.95rem; margin: 0; }
+
+/* ── Grid: 4 talik qilingan qism ── */
+.ms-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 3 dan 4 ga o'zgartirildi */
+  gap: 20px;
+}
+
+/* ── Card ── */
+.ms-card-link { text-decoration: none; }
+
+.ms-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 20px 15px; /* 4 talikda sig'ishi uchun padding kamaytirildi */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.ms-card:hover {
+  background: #d1fae5;
+  border-color: #10b981;
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.15);
+}
+
+/* ── Badge ── */
+.ms-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f3f4f6;
+  color: #9ca3af;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.ms-card:hover .ms-badge {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* ── Icon ── */
+.ms-icon-wrap {
+  height: 65px; /* O'lcham biroz kichraytirildi */
+  width: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.ms-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ── Name ── */
+.ms-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+/* Mobile moslashuv */
+@media (max-width: 1024px) {
+  .ms-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .ms-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .ms-grid { grid-template-columns: repeat(1, 1fr); }
+}
+
+/* ── Dark mode ── */
+[data-theme="dark"] .ms-cert-back { color: #94A3B8; }
+[data-theme="dark"] .ms-cert-bread-current { color: #F1F5F9; }
+[data-theme="dark"] .ms-cert-title { color: #F1F5F9; }
+[data-theme="dark"] .ms-card {
+  background: #1A2332;
+  border-color: #1E293B;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.25);
+}
+[data-theme="dark"] .ms-card:hover {
+  background: #0d2d1e;
+  border-color: #10b981;
+}
+[data-theme="dark"] .ms-badge {
+  background: #0F172A;
+  color: #64748B;
+}
+[data-theme="dark"] .ms-name { color: #F1F5F9; }
+[data-theme="dark"] .ms-empty-state {
+  background: #1A2332;
+  border-color: #1E293B;
+}
+[data-theme="dark"] .ms-empty-title { color: #E2E8F0; }
+[data-theme="dark"] .ms-empty-desc { color: #94A3B8; }
+[data-theme="dark"] .ms-page-bg { background: #0F172A; }
+</style>
+
+{% endblock %}

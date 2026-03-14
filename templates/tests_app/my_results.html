@@ -529,6 +529,59 @@
                 </a>
             </div>
             {% endif %}
+
+            <!-- ── Milliy Sertifikat natijalari ── -->
+            {% if cert_attempts %}
+            <div style="margin-top:2rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
+                    <div style="width:4px;height:22px;background:linear-gradient(135deg,#8BC540,#4a7a12);border-radius:4px;"></div>
+                    <h6 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--dark);">Milliy Sertifikat natijalari</h6>
+                </div>
+                <div class="results-list">
+                    {% for ca in cert_attempts %}
+                    <div class="result-item">
+                        <div class="result-score
+                            {% if ca.grade == 'A+' or ca.grade == 'A' %}excellent
+                            {% elif ca.grade == 'B+' or ca.grade == 'B' %}good
+                            {% elif ca.grade == 'C+' or ca.grade == 'C' %}average
+                            {% else %}poor{% endif %}">
+                            {{ ca.grade|default:"—" }}
+                        </div>
+                        <div class="result-info">
+                            <div class="result-title">{{ ca.mock.title }}</div>
+                            <div class="result-meta">
+                                <span class="result-subject" style="background:#f0fdf4;color:#166534;">
+                                    🏅 {{ ca.mock.cert_subject.subject.name }}
+                                </span>
+                                <span><i class="bi bi-bullseye"></i> {{ ca.earned_points|floatformat:1 }} ball</span>
+                                <span><i class="bi bi-check-circle"></i> {{ ca.correct_answers }}/{{ ca.total_questions }}</span>
+                                <span><i class="bi bi-calendar3"></i> {{ ca.completed_at|date:"d.m.Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="result-stats">
+                            <div class="result-stat">
+                                <div class="result-stat-value green">{{ ca.correct_answers }}</div>
+                                <div class="result-stat-label">To'g'ri</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="result-stat-value red">{{ ca.wrong_answers }}</div>
+                                <div class="result-stat-label">Xato</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="result-stat-value" style="color:#8BC540;">{{ ca.earned_points|floatformat:0 }}</div>
+                                <div class="result-stat-label">Ball</div>
+                            </div>
+                        </div>
+                        <div class="result-actions">
+                            <a href="{% url 'certificate:mock_result' attempt_uuid=ca.uuid %}" class="result-btn" style="background:linear-gradient(135deg,#8BC540,#4a7a12);">
+                                Batafsil
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </main>
     </div>
 </div>

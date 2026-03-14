@@ -2195,6 +2195,11 @@
                         <a href="{% url 'news:news_list' %}" class="nav-link-simple {% if 'news' in request.path %}active{% endif %}">
                             Yangiliklar
                         </a>
+                        <a href="{% url 'certificate:subjects_list' %}" class="nav-link-simple position-relative {% if 'certificate' in request.path %}active{% endif %}">
+                            Milliy Sertifikat
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white"
+                                  style="font-size:0.55rem;padding:2px 5px;transform:translate(-60%,-20%)!important;">New</span>
+                        </a>
                     </div>
 
                     <!-- Right: Theme + Bell + Profile (Desktop) + Hamburger (Mobile) -->
@@ -2405,6 +2410,11 @@
                 <a href="{% url 'news:news_list' %}" class="mob-item {% if 'news' in request.path %}active{% endif %}" onclick="closeMobMenu()">
                     <div class="mob-icon mi-blue"><i class="bi bi-newspaper"></i></div>
                     Yangiliklar
+                </a>
+                <a href="{% url 'certificate:subjects_list' %}" class="mob-item {% if 'certificate' in request.path %}active{% endif %}" onclick="closeMobMenu()">
+                    <div class="mob-icon" style="background:#fef3c720;color:#f59e0b;"><i class="bi bi-award-fill"></i></div>
+                    Milliy Sertifikat
+                    <span class="badge bg-danger ms-auto" style="font-size:0.65rem;">New</span>
                 </a>
 
                 {% if user.is_authenticated %}

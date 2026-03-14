@@ -1545,6 +1545,16 @@ def my_results(request):
         'subject_legend': subject_legend,
     }
 
+    # Milliy Sertifikat urinishlari ham qo'shilsin
+    try:
+        from certificate.models import CertMockAttempt
+        cert_attempts = CertMockAttempt.objects.filter(
+            user=request.user, status='completed'
+        ).select_related('mock__cert_subject__subject').order_by('-completed_at')
+    except Exception:
+        cert_attempts = []
+
+    context.update({'cert_attempts': cert_attempts})
     return render(request, 'tests_app/my_results.html', context)
 
 
@@ -1561,8 +1571,17 @@ def saved_questions(request):
         user=request.user
     ).select_related('question', 'question__subject', 'question__topic').order_by('-created_at')
 
+    try:
+        from certificate.models import CertSavedQuestion
+        cert_saved = CertSavedQuestion.objects.filter(
+            user=request.user
+        ).select_related('question__mock__cert_subject__subject', 'question__topic').order_by('-created_at')
+    except Exception:
+        cert_saved = []
+
     context = {
         'saved': saved,
+        'cert_saved': cert_saved,
     }
 
     return render(request, 'tests_app/saved_questions.html', context)
