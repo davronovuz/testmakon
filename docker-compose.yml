@@ -63,6 +63,9 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+      - SITE_DOMAIN=${SITE_DOMAIN:-https://testmakon.uz}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/testmakon_sandbox:/tmp/testmakon_sandbox
@@ -81,6 +84,9 @@ services:
       - DEBUG=False
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+      - SITE_DOMAIN=${SITE_DOMAIN:-https://testmakon.uz}
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,6 +101,8 @@ services:
       - DEBUG=False
       - ALLOWED_HOSTS=testmakon.uz,www.testmakon.uz,localhost,127.0.0.1
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+      - SITE_DOMAIN=${SITE_DOMAIN:-https://testmakon.uz}
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgres://testmakon_user:TestMakon2024!@postgres:5432/testmakon_db
     command: python manage.py run_bot
