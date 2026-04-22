@@ -685,6 +685,13 @@ def send_inactivity_reminders():
     Har kuni 10:00 da ishga tushadi.
     2+ kun faol bo'lmagan foydalanuvchilarga eslatma yuboradi.
     5+ kun bo'lmaganlarni telegram orqali ham ogohlantirib.
+
+    Spam-ga qarshi himoya:
+      - 2-4 kun inactive: oxirgi 3 kun ichida reminder yuborilmagan bo'lsa yuboriladi
+      - 5+ kun inactive: oxirgi 5 kun ichida reminder (sayt yoki telegram)
+        yuborilmagan bo'lsa yuboriladi.
+      - Telegram xabarlari ham Notification qator bilan bir vaqtda yaratiladi,
+        shuning uchun bir marta yuborilsa keyingi 5 kun ichida qayta yuborilmaydi.
     """
     from accounts.models import User
     from news.models import Notification
@@ -692,19 +699,26 @@ def send_inactivity_reminders():
     today = timezone.localdate()
     two_days_ago = today - timedelta(days=2)
     five_days_ago = today - timedelta(days=5)
-    created = 0
 
-    # 2-4 kun faol bo'lmaganlar
+    # Cooldown oynalar: bu muddat ichida reminder yuborilgan bo'lsa qaytadan yubormaymiz
+    reminder_cooldown_2 = today - timedelta(days=3)   # 2-4 kun inactive uchun
+    reminder_cooldown_5 = today - timedelta(days=5)   # 5+ kun inactive uchun
+
+    created = 0
+    tg_sent = 0
+
+    # ═════ 2-4 kun faol bo'lmaganlar — faqat sayt Notification ═════
     inactive_2 = User.objects.filter(
         last_activity_date__lte=two_days_ago,
         last_activity_date__gt=five_days_ago,
         is_active=True,
     )
     for user in inactive_2:
+        # Oxirgi 3 kun ichida reminder bormi?
         already = Notification.objects.filter(
             user_id=user.id,
             notification_type='reminder',
-            created_at__date=today,
+            created_at__date__gte=reminder_cooldown_2,
         ).exists()
         if already:
             continue
@@ -722,17 +736,20 @@ def send_inactivity_reminders():
         )
         created += 1
 
-    # 5+ kun faol bo'lmaganlar — kuchli eslatma + telegram
+    # ═════ 5+ kun faol bo'lmaganlar — sayt + telegram ═════
     inactive_5 = User.objects.filter(
         last_activity_date__lte=five_days_ago,
         is_active=True,
     ).exclude(last_activity_date=None)
 
     for user in inactive_5:
+        # Oxirgi 5 kun ichida reminder bormi? (sayt + telegram har ikkisi
+        # ham shu Notification bilan birga yaratiladi, shuning uchun
+        # bir marta tekshirish kifoya — spam oldini oladi)
         already = Notification.objects.filter(
             user_id=user.id,
             notification_type='reminder',
-            created_at__date=today,
+            created_at__date__gte=reminder_cooldown_5,
         ).exists()
         if already:
             continue
@@ -749,7 +766,8 @@ def send_inactivity_reminders():
         )
         created += 1
 
-        # Telegram xabar yuborish
+        # Telegram xabar yuborish — yuqoridagi cooldown tekshirildi,
+        # shuning uchun 5 kunda bir martadan ko'p yuborilmaydi
         if user.telegram_id:
             try:
                 import requests
@@ -763,15 +781,20 @@ def send_inactivity_reminders():
                         f"DTMga tayyorgarlik to'xtamaydi — bugun testlar ishlab keling! 💪\n\n"
                         f"🌐 testmakon.uz"
                     )
-                    requests.post(
+                    resp = requests.post(
                         f"https://api.telegram.org/bot{bot_token}/sendMessage",
                         json={"chat_id": user.telegram_id, "text": text},
                         timeout=5,
                     )
+                    # Agar user botni bloklagan bo'lsa, telegram_id ni tozalash
+                    if resp.status_code == 403:
+                        User.objects.filter(id=user.id).update(telegram_id=None)
+                    elif resp.ok:
+                        tg_sent += 1
             except Exception as tg_err:
                 logger.warning(f"Telegram xabar xatosi: user={user.id}, {tg_err}")
 
-    logger.info(f"Inactivity reminders: {created} ta yaratildi")
+    logger.info(f"Inactivity reminders: {created} ta Notification, {tg_sent} ta Telegram yuborildi")
 
 
 @shared_task(bind=True, max_retries=2, default_retry_delay=60)
