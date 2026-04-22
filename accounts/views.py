@@ -993,3 +993,196 @@ def api_telegram_check(request):
             }
         })
     return JsonResponse({'authenticated': False})
+
+
+# ====================
+# GOOGLE OAUTH 2.0
+# ====================
+import secrets
+import urllib.parse
+import requests as http_requests
+
+GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'
+
+
+def _generate_phone_for_google(google_id):
+    """Google foydalanuvchisi uchun unikal soxta telefon raqam yaratish.
+    Telegram flow'dagi bilan bir xil mantiq — phone_number majburiy bo'lgani uchun.
+    """
+    # google_id odatda 21-xonali raqamli string, lekin kafolatlamaymiz
+    try:
+        numeric = str(int(google_id))
+    except (ValueError, TypeError):
+        # Agar raqamli bo'lmasa — hash orqali
+        numeric = str(abs(hash(google_id)))
+
+    base_digits = numeric[-9:].zfill(9)
+    phone_number = f'+998{base_digits}'
+    counter = 0
+
+    while User.objects.filter(phone_number=phone_number).exists():
+        counter += 1
+        try:
+            shifted = (int(base_digits) + counter) % 1_000_000_000
+        except ValueError:
+            shifted = counter
+        phone_number = f'+998{str(shifted).zfill(9)}'
+        if counter > 100:
+            # Ultimate fallback — crypto-random
+            phone_number = f'+998{secrets.randbelow(10**9):09d}'
+            while User.objects.filter(phone_number=phone_number).exists():
+                phone_number = f'+998{secrets.randbelow(10**9):09d}'
+            break
+
+    return phone_number
+
+
+def google_login(request):
+    """Google OAuth flow boshlanishi — foydalanuvchini Google consent sahifasiga yo'naltirish."""
+    if request.user.is_authenticated:
+        return redirect('tests_app:tests_list')
+
+    client_id = django_settings.GOOGLE_CLIENT_ID
+    if not client_id:
+        messages.error(request, "Google bilan kirish hozircha mavjud emas")
+        return redirect('accounts:login')
+
+    # CSRF himoyasi uchun state
+    state = secrets.token_urlsafe(32)
+    request.session['google_oauth_state'] = state
+
+    # Keyin qayerga yo'naltirish (login GET parametridan)
+    next_url = request.GET.get('next', '')
+    if next_url:
+        request.session['google_oauth_next'] = next_url
+
+    params = {
+        'client_id': client_id,
+        'redirect_uri': django_settings.GOOGLE_REDIRECT_URI,
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'state': state,
+        'access_type': 'online',
+        'prompt': 'select_account',
+    }
+    return redirect(f'{GOOGLE_AUTH_URL}?{urllib.parse.urlencode(params)}')
+
+
+def google_callback(request):
+    """Google OAuth callback — tokenni olib, user yaratish/login qilish."""
+    # Xato qaytdimi?
+    error = request.GET.get('error')
+    if error:
+        messages.error(request, f"Google autentifikatsiya rad etildi: {error}")
+        return redirect('accounts:login')
+
+    # State tekshirish (CSRF)
+    returned_state = request.GET.get('state', '')
+    saved_state = request.session.pop('google_oauth_state', None)
+    if not saved_state or returned_state != saved_state:
+        messages.error(request, "Xavfsizlik xatosi — qaytadan urinib ko'ring")
+        return redirect('accounts:login')
+
+    code = request.GET.get('code')
+    if not code:
+        messages.error(request, "Google kodni yubormadi")
+        return redirect('accounts:login')
+
+    # Code → access token
+    try:
+        token_resp = http_requests.post(
+            GOOGLE_TOKEN_URL,
+            data={
+                'code': code,
+                'client_id': django_settings.GOOGLE_CLIENT_ID,
+                'client_secret': django_settings.GOOGLE_CLIENT_SECRET,
+                'redirect_uri': django_settings.GOOGLE_REDIRECT_URI,
+                'grant_type': 'authorization_code',
+            },
+            timeout=10,
+        )
+        token_resp.raise_for_status()
+        token_data = token_resp.json()
+        access_token = token_data.get('access_token')
+        if not access_token:
+            raise ValueError('access_token not in response')
+    except Exception as e:
+        messages.error(request, "Google serveri bilan aloqa xatosi")
+        return redirect('accounts:login')
+
+    # Access token → user info
+    try:
+        userinfo_resp = http_requests.get(
+            GOOGLE_USERINFO_URL,
+            headers={'Authorization': f'Bearer {access_token}'},
+            timeout=10,
+        )
+        userinfo_resp.raise_for_status()
+        userinfo = userinfo_resp.json()
+    except Exception:
+        messages.error(request, "Google foydalanuvchi ma'lumotlarini olishda xato")
+        return redirect('accounts:login')
+
+    google_id = userinfo.get('sub')
+    email = userinfo.get('email', '').strip().lower()
+    email_verified = userinfo.get('email_verified', False)
+    first_name = userinfo.get('given_name', '') or userinfo.get('name', 'User')
+    last_name = userinfo.get('family_name', '')
+    picture = userinfo.get('picture', '')
+
+    if not google_id:
+        messages.error(request, "Google ma'lumotlari to'liq emas")
+        return redirect('accounts:login')
+
+    # User topish yoki yaratish — FAQAT google_id bo'yicha (xavfsizlik uchun)
+    try:
+        user = User.objects.get(google_id=google_id)
+        # Yangilash
+        if email and email_verified and not user.email:
+            user.email = email
+        if picture:
+            user.google_photo_url = picture
+        if first_name and not user.first_name:
+            user.first_name = first_name
+        if last_name and not user.last_name:
+            user.last_name = last_name
+        user.save(update_fields=['email', 'google_photo_url', 'first_name', 'last_name'])
+    except User.DoesNotExist:
+        # Yangi user yaratish
+        phone_number = _generate_phone_for_google(google_id)
+        user = User.objects.create(
+            phone_number=phone_number,
+            first_name=first_name or 'User',
+            last_name=last_name or '',
+            email=email if email and email_verified else None,
+            google_id=google_id,
+            google_photo_url=picture,
+            is_phone_verified=False,  # Telefon haqiqiy emas
+        )
+
+    # Login
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    request.session.set_expiry(86400 * 30)
+
+    try:
+        user.update_streak()
+    except Exception:
+        pass
+
+    UserActivity.objects.create(
+        user=user,
+        activity_type='login',
+        description='Google orqali kirdi',
+    )
+
+    messages.success(request, f"Xush kelibsiz, {user.first_name}!")
+
+    # Qayerga yo'naltirish?
+    next_url = request.session.pop('google_oauth_next', '')
+    if not next_url:
+        if user.is_staff or user.is_superuser:
+            return redirect('core:admin_analytics')
+        next_url = 'tests_app:tests_list'
+    return redirect(next_url)

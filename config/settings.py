@@ -169,6 +169,18 @@ CELERY_TASK_TIME_LIMIT    = 60 * 60  # 1 soat max (broadcast uchun)
 # Telegram Bot
 TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 SITE_DOMAIN        = config('SITE_DOMAIN', default='https://testmakon.uz')
+
+# ─── Google OAuth 2.0 ────────────────────────────────────────────────────────
+# Production: credentials .env fayldan olinadi. Agar bo'sh bo'lsa, Google
+# tugmasi login/register sahifalarida ko'rsatilmaydi (sinmaydi).
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
+# Redirect URI: Google Console'da ro'yxatdan o'tkazilgan bilan bir xil bo'lishi shart.
+# Agar bo'sh bo'lsa, SITE_DOMAIN + /accounts/google/callback/ ishlatiladi.
+GOOGLE_REDIRECT_URI = config(
+    'GOOGLE_REDIRECT_URI',
+    default=f"{SITE_DOMAIN.rstrip('/')}/accounts/google/callback/"
+)
 TELEGRAM_WELCOME_MESSAGE = (
     '👋 Salom! <b>TestMakon.uz</b> botiga xush kelibsiz!\n\n'
     '📚 O\'zingizni DTMga tayyorlang, testlar ishlang va '

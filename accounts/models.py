@@ -68,6 +68,10 @@ class User(AbstractUser):
     telegram_username = models.CharField('Telegram username', max_length=100, blank=True)
     telegram_photo_url = models.URLField('Telegram foto', blank=True)
 
+    # Google OAuth
+    google_id = models.CharField('Google ID', max_length=100, unique=True, null=True, blank=True, db_index=True)
+    google_photo_url = models.URLField('Google foto', blank=True)
+
     first_name = models.CharField('Ism', max_length=50)
     last_name = models.CharField('Familiya', max_length=50)
     middle_name = models.CharField('Otasining ismi', max_length=50, blank=True)

@@ -57,4 +57,6 @@ def analytics_settings(request):
     return {
         'GOOGLE_ANALYTICS_ID': getattr(settings, 'GOOGLE_ANALYTICS_ID', ''),
         'TELEGRAM_BOT_USERNAME': getattr(settings, 'TELEGRAM_BOT_USERNAME', 'testmakonaibot'),
+        # Google OAuth mavjudligi — login/register sahifalarida tugmani shartli ko'rsatish
+        'GOOGLE_OAUTH_ENABLED': bool(getattr(settings, 'GOOGLE_CLIENT_ID', '')),
     }

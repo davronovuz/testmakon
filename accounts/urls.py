@@ -58,4 +58,8 @@ urlpatterns = [
     path('telegram/callback/', views.telegram_callback, name='telegram_callback'),
     path('telegram/code/', views.telegram_code_login, name='telegram_code_login'),
     path('api/telegram-check/', views.api_telegram_check, name='api_telegram_check'),
+
+    # Google OAuth 2.0
+    path('google/login/', views.google_login, name='google_login'),
+    path('google/callback/', views.google_callback, name='google_callback'),
 ]
