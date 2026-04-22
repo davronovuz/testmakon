@@ -170,6 +170,14 @@ CELERY_TASK_TIME_LIMIT    = 60 * 60  # 1 soat max (broadcast uchun)
 TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 SITE_DOMAIN        = config('SITE_DOMAIN', default='https://testmakon.uz')
 
+# Telegram adminlar — bot ichida /broadcast, /stats kabi buyruqlarni
+# faqat shu ro'yxatdagi ID lar ishlata oladi. Vergul bilan ajratiladi.
+TELEGRAM_ADMIN_IDS = [
+    int(x.strip())
+    for x in config('TELEGRAM_ADMIN_IDS', default='1879114908').split(',')
+    if x.strip().isdigit()
+]
+
 # ─── Google OAuth 2.0 ────────────────────────────────────────────────────────
 # Production: credentials .env fayldan olinadi. Agar bo'sh bo'lsa, Google
 # tugmasi login/register sahifalarida ko'rsatilmaydi (sinmaydi).

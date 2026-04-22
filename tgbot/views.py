@@ -36,6 +36,20 @@ def _tg_send(chat_id, text, parse_mode='HTML', reply_markup=None):
         logger.warning(f'Telegram xabar xatosi: {exc}')
 
 
+def _tg_answer_callback(callback_id, text=''):
+    """Inline tugma bosilganda loading state ni yopish."""
+    import requests
+    token = settings.TELEGRAM_BOT_TOKEN
+    try:
+        requests.post(
+            f'https://api.telegram.org/bot{token}/answerCallbackQuery',
+            json={'callback_query_id': callback_id, 'text': text[:200]},
+            timeout=5,
+        )
+    except Exception as exc:
+        logger.warning(f'answerCallbackQuery xatosi: {exc}')
+
+
 def _send_auth_code(chat_id, tg_id, username, first_name):
     """Autentifikatsiya kodi yaratib Telegram ga yuborish"""
     # Eski ishlatilmagan kodlarni bekor qilish
@@ -261,10 +275,23 @@ def webhook(request, token):
     except json.JSONDecodeError:
         return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
 
+    # ═══ Callback query (inline tugma bosish) ═══
+    callback_query = data.get('callback_query')
+    if callback_query:
+        try:
+            from tgbot.admin_handlers import handle_callback
+            handle_callback(callback_query, _tg_send, _tg_answer_callback)
+        except Exception as exc:
+            logger.error(f'callback_query xato: {exc}')
+            cb_id = callback_query.get('id')
+            if cb_id:
+                _tg_answer_callback(cb_id, 'Xato yuz berdi')
+        return JsonResponse({'ok': True})
+
     # Message yoki channel_post
     message = data.get('message') or data.get('channel_post')
     if not message:
-        return JsonResponse({'ok': True})  # callback_query etc — ignore
+        return JsonResponse({'ok': True})  # boshqa turlar — ignore
 
     chat    = message.get('chat', {})
     from_u  = message.get('from', {})
@@ -293,6 +320,26 @@ def webhook(request, token):
     )
 
     cmd = text.split()[0].lower() if text else ''
+
+    # ═══ ADMIN buyruqlari — faqat admin uchun ═══
+    try:
+        from tgbot.admin_handlers import is_admin, route_admin_command, get_state
+        if is_admin(tg_id):
+            # 1. Agar admin state-da kutayotgan matn bo'lsa — matnni qabul qilish
+            state = get_state(tg_id)
+            if state and state.get('state') == 'wait_bc_text' \
+                    and not state.get('data', {}).get('text') \
+                    and text and not text.startswith('/'):
+                from tgbot.admin_handlers import handle_broadcast_text
+                handle_broadcast_text(chat_id, tg_id, text, _tg_send)
+                return JsonResponse({'ok': True})
+
+            # 2. Admin buyrug'i bo'lsa — handle
+            if route_admin_command(cmd, chat_id, tg_id, text, _tg_send):
+                return JsonResponse({'ok': True})
+    except Exception as exc:
+        logger.error(f'Admin router xato: {exc}', exc_info=True)
+        # Xato bo'lsa oddiy oqim davom etadi
 
     if cmd == '/start':
         # /start login — kod yaratib yuborish
@@ -323,15 +370,19 @@ def webhook(request, token):
         _handle_weaktest(chat_id, tg_id)
 
     elif cmd == '/help':
-        _tg_send(chat_id,
+        from tgbot.admin_handlers import is_admin
+        help_text = (
             "📚 <b>TestMakon Bot buyruqlari:</b>\n\n"
             "/start — Botni ishga tushirish\n"
             "/code — Ilovaga kirish kodi olish\n"
             "/result — DTM bashorati va oxirgi test natijasi\n"
             "/streak — Joriy streak va rekord\n"
             "/weaktest — Sust mavzulardan AI Smart Test\n"
-            "/help — Buyruqlar ro'yxati\n\n"
-            "🌐 <a href='https://testmakon.uz'>testmakon.uz</a>"
+            "/help — Buyruqlar ro'yxati\n"
         )
+        if is_admin(tg_id):
+            help_text += "\n🛠 <b>Admin uchun:</b> /admin\n"
+        help_text += "\n🌐 <a href='https://testmakon.uz'>testmakon.uz</a>"
+        _tg_send(chat_id, help_text)
 
     return JsonResponse({'ok': True})
