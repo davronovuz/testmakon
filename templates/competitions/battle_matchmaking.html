@@ -563,7 +563,7 @@
 {% block extra_js %}
 <script>
 (function() {
-  var MAX_WAIT = 120;
+  var MAX_WAIT = 300;   // 5 daqiqa (eskisi 2 daqiqa edi)
   var elapsed  = 0;
   var done     = false;
 
@@ -686,29 +686,15 @@
     // Emoji
     radarIcon.textContent = '\uD83C\uDFC6';
 
-    // Play button
-    playBtn.href = '/competitions/battle/' + uuid + '/play/';
+    // "Tayyorgarlik" sahifasiga yo'naltirish — darhol testga kirmaydi
+    playBtn.href = '/competitions/battle/' + uuid + '/ready/';
     playBtn.classList.add('show');
+    mmSub.textContent = name + ' bilan jangga tayyorgarlik...';
 
-    // Countdown 5 → 0
-    var secs = 5;
-    foundCd.classList.add('show');
-    foundCdNum.textContent = secs;
-
-    var cd = setInterval(function () {
-      secs--;
-      foundCdNum.style.animation = 'none';
-      // retrigger animation
-      void foundCdNum.offsetWidth;
-      foundCdNum.style.animation = '';
-      if (secs > 0) {
-        foundCdNum.textContent = secs;
-        mmSub.textContent = name + ' bilan jang ' + secs + ' soniyada boshlanadi';
-      } else {
-        clearInterval(cd);
-        window.location.href = playBtn.href;
-      }
-    }, 1000);
+    // 2 sekunddan keyin avtomatik ready sahifasiga
+    setTimeout(function () {
+      window.location.href = playBtn.href;
+    }, 2000);
   }
 
   /* ── showTimeout ── */

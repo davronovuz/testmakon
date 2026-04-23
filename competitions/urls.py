@@ -54,9 +54,15 @@ urlpatterns = [
     path('battle/<uuid:uuid>/', views.battle_detail, name='battle_detail'),
     path('battle/<uuid:uuid>/accept/', views.battle_accept, name='battle_accept'),
     path('battle/<uuid:uuid>/reject/', views.battle_reject, name='battle_reject'),
+    path('battle/<uuid:uuid>/ready/', views.battle_ready, name='battle_ready'),
     path('battle/<uuid:uuid>/play/', views.battle_play, name='battle_play'),
     path('battle/<uuid:uuid>/submit/', views.battle_submit, name='battle_submit'),
     path('battle/<uuid:uuid>/result/', views.battle_result, name='battle_result'),
+
+    # Battle Ready API
+    path('api/battle/<uuid:uuid>/ready/',        views.api_battle_ready,        name='api_battle_ready'),
+    path('api/battle/<uuid:uuid>/ready/status/', views.api_battle_ready_status, name='api_battle_ready_status'),
+    path('api/battle/<uuid:uuid>/ready/cancel/', views.api_battle_ready_cancel, name='api_battle_ready_cancel'),
 
     # 8. COMPETITION ACTIONS (SLUG - DOIM ENG PASTDA TURISHI KERAK)
     path('<slug:slug>/', views.competition_detail, name='competition_detail'),

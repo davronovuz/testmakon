@@ -83,8 +83,9 @@ def process_matchmaking_queue(self):
                 question_count=entry.question_count,
                 questions_data=questions_data,
                 total_time=entry.question_count * 30,
-                status='accepted',
-                accepted_at=now,
+                # status='pending' — avtomatik kirmasin, oldin "Tayyorman" flow
+                status='pending',
+                ready_expires_at=now + timedelta(seconds=45),
                 expires_at=now + timedelta(hours=1),
             )
 

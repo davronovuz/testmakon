@@ -97,6 +97,16 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'opponent': event.get('opponent', {}),
         }))
 
+    async def battle_ready(self, event):
+        """Battle ready holat yangilangan — ikkala user'ga xabar."""
+        await self.send(text_data=json.dumps({
+            'type': 'battle_ready_update',
+            'battle_uuid': event.get('battle_uuid'),
+            'challenger_ready': event.get('challenger_ready', False),
+            'opponent_ready':   event.get('opponent_ready', False),
+            'both_ready':       event.get('both_ready', False),
+        }))
+
     async def online_status(self, event):
         """Do'st online/offline bo'ldi"""
         await self.send(text_data=json.dumps({

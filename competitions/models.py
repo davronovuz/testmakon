@@ -549,6 +549,15 @@ class Battle(models.Model):
         default='pending'
     )
 
+    # Ready phase — match topilgach ikkala user tayyorligini tasdiqlaydi
+    challenger_ready = models.BooleanField("Chaqiruvchi tayyor", default=False)
+    opponent_ready   = models.BooleanField("Raqib tayyor", default=False)
+    ready_expires_at = models.DateTimeField(
+        "Tayyorgarlik muddati",
+        null=True, blank=True,
+        help_text="Bu vaqtgacha ikkala user tayyor bo'lmasa battle bekor qilinadi"
+    )
+
     # Challenger results
     challenger_score = models.PositiveIntegerField('Chaqiruvchi bali', default=0)
     challenger_correct = models.PositiveIntegerField('Chaqiruvchi to\'g\'ri', default=0)

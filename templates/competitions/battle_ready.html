@@ -1,0 +1,502 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Raqib topildi! | TestMakon{% endblock %}
+
+{% block extra_css %}
+<style>
+  .br-page {
+    min-height: 100vh;
+    background: #F8FAFC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .br-wrap { width: 100%; max-width: 560px; }
+
+  .br-card {
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+    padding: 2.25rem 1.75rem;
+    text-align: center;
+  }
+
+  .br-trophy {
+    width: 72px; height: 72px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 8px 24px rgba(251,191,36,0.35);
+    animation: bounceIn 0.5s cubic-bezier(0.68,-0.55,0.27,1.55);
+  }
+  @keyframes bounceIn {
+    0%   { transform: scale(0); }
+    60%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  .br-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+  }
+  .br-sub {
+    color: #64748B;
+    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+  }
+
+  /* Raqib ma'lumoti */
+  .br-vs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0 2rem;
+    padding: 1.25rem 1rem;
+    background: linear-gradient(135deg, #F8FAFC, #FFF);
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+  }
+  .br-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .br-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8BC540, #6BA832);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 1.6rem;
+    box-shadow: 0 4px 12px rgba(139,197,64,0.3);
+    position: relative;
+  }
+  .br-avatar.opp {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+  }
+  .br-avatar .ready-badge {
+    position: absolute;
+    bottom: -4px; right: -4px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #22C55E;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    border: 2px solid white;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s;
+  }
+  .br-avatar.ready .ready-badge {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .br-name {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 0.95rem;
+  }
+  .br-meta {
+    font-size: 0.75rem;
+    color: #64748B;
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+  }
+  .br-vs-text {
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: #CBD5E1;
+    letter-spacing: -0.02em;
+  }
+
+  /* Battle settings */
+  .br-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .br-info-box {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 0.65rem 0.25rem;
+    text-align: center;
+  }
+  .br-info-label {
+    font-size: 0.7rem;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.15rem;
+  }
+  .br-info-val {
+    font-weight: 700;
+    color: var(--dark);
+    font-size: 0.95rem;
+  }
+
+  /* Status message */
+  .br-status {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    background: #FEF3C7;
+    color: #92400E;
+  }
+  .br-status.me-ready {
+    background: #DBEAFE;
+    color: #1E40AF;
+  }
+  .br-status.both-ready {
+    background: #DCFCE7;
+    color: #166534;
+  }
+  .br-status.expired {
+    background: #FEE2E2;
+    color: #991B1B;
+  }
+
+  /* Buttons */
+  .br-btn {
+    display: block;
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-decoration: none;
+  }
+  .br-btn-ready {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow-primary);
+    margin-bottom: 0.5rem;
+  }
+  .br-btn-ready:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 32px -10px rgba(139,197,64,0.5);
+  }
+  .br-btn-ready:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .br-btn-cancel {
+    background: transparent;
+    color: #EF4444;
+    border: 1.5px solid #FEE2E2;
+  }
+  .br-btn-cancel:hover {
+    background: #FEE2E2;
+  }
+
+  /* Timer bar */
+  .br-timer {
+    height: 4px;
+    background: #E2E8F0;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .br-timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8BC540, #FBBF24, #EF4444);
+    width: 100%;
+    transition: width 1s linear;
+  }
+
+  /* Countdown overlay */
+  .br-countdown {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.92);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+  }
+  .br-countdown.show { display: flex; }
+  .br-cd-label {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    opacity: 0.85;
+  }
+  .br-cd-num {
+    font-size: 8rem;
+    font-weight: 900;
+    line-height: 1;
+    animation: cdBeat 1s ease-in-out infinite;
+  }
+  @keyframes cdBeat {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.12); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="br-page">
+  <div class="br-wrap">
+    <div class="br-card">
+
+      <div class="br-trophy">🎯</div>
+      <h1 class="br-title">Raqib topildi!</h1>
+      <p class="br-sub">Ikkangiz ham "Tayyorman" bosganda jang boshlanadi.</p>
+
+      <!-- VS -->
+      <div class="br-vs">
+        <!-- Siz -->
+        <div class="br-player">
+          <div class="br-avatar {% if my_ready %}ready{% endif %}" id="myAvatar">
+            {{ request.user.first_name|slice:":1"|upper|default:"S" }}
+            <span class="ready-badge"><i class="bi bi-check-lg"></i></span>
+          </div>
+          <div class="br-name">Siz</div>
+          <div class="br-meta">
+            ⚡ {{ request.user.rating|default:1000 }}
+          </div>
+        </div>
+
+        <div class="br-vs-text">VS</div>
+
+        <!-- Raqib -->
+        <div class="br-player">
+          <div class="br-avatar opp {% if opp_ready %}ready{% endif %}" id="oppAvatar">
+            {{ opponent_info.avatar_letter|default:"R" }}
+            <span class="ready-badge"><i class="bi bi-check-lg"></i></span>
+          </div>
+          <div class="br-name">{{ opponent_info.name|default:"Raqib" }}</div>
+          <div class="br-meta">
+            ⚡ {{ opponent_info.rating|default:1000 }}
+            {% if opponent_info.streak %} · 🔥 {{ opponent_info.streak }}{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Battle settings -->
+      <div class="br-info">
+        <div class="br-info-box">
+          <div class="br-info-label">Fan</div>
+          <div class="br-info-val">{{ battle.subject.name|default:"Aralash" }}</div>
+        </div>
+        <div class="br-info-box">
+          <div class="br-info-label">Savollar</div>
+          <div class="br-info-val">{{ battle.question_count }}</div>
+        </div>
+        <div class="br-info-box">
+          <div class="br-info-label">Vaqt</div>
+          <div class="br-info-val">{{ battle.total_time }}s</div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="br-timer">
+        <div class="br-timer-fill" id="timerFill"></div>
+      </div>
+
+      <!-- Status -->
+      <div class="br-status" id="statusMsg">
+        ⏳ Ikkangiz ham tayyor bo'lishini kutmoqda...
+      </div>
+
+      <!-- Buttons -->
+      <button type="button" class="br-btn br-btn-ready" id="readyBtn"
+              {% if my_ready %}disabled{% endif %}>
+        {% if my_ready %}✅ Siz tayyorsiz{% else %}✅ TAYYORMAN{% endif %}
+      </button>
+      <button type="button" class="br-btn br-btn-cancel" id="cancelBtn">
+        ❌ Bekor qilish
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- Countdown overlay -->
+<div class="br-countdown" id="countdown">
+  <div class="br-cd-label">🎮 Jang boshlanadi...</div>
+  <div class="br-cd-num" id="cdNum">3</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var battleUuid = '{{ battle.uuid }}';
+  var isChallenger = {{ is_challenger|yesno:"true,false" }};
+  var CSRF = '{{ csrf_token }}';
+
+  var myAvatar  = document.getElementById('myAvatar');
+  var oppAvatar = document.getElementById('oppAvatar');
+  var statusMsg = document.getElementById('statusMsg');
+  var readyBtn  = document.getElementById('readyBtn');
+  var cancelBtn = document.getElementById('cancelBtn');
+  var timerFill = document.getElementById('timerFill');
+  var cdEl      = document.getElementById('countdown');
+  var cdNum     = document.getElementById('cdNum');
+
+  var myReady  = {{ my_ready|yesno:"true,false" }};
+  var oppReady = {{ opp_ready|yesno:"true,false" }};
+  var totalWait = 45;  // sekund (server bilan bir xil)
+  var done = false;
+
+  function updateUI() {
+    if (myReady) {
+      myAvatar.classList.add('ready');
+      readyBtn.disabled = true;
+      readyBtn.textContent = '✅ Siz tayyorsiz';
+    }
+    if (oppReady) oppAvatar.classList.add('ready');
+
+    if (myReady && oppReady) {
+      statusMsg.className = 'br-status both-ready';
+      statusMsg.textContent = '🎮 Ikkangiz tayyor — jang boshlanadi!';
+    } else if (myReady) {
+      statusMsg.className = 'br-status me-ready';
+      statusMsg.textContent = '⏳ Raqibingizni kutmoqda...';
+    } else if (oppReady) {
+      statusMsg.className = 'br-status';
+      statusMsg.textContent = '🔔 Raqibingiz tayyor! Siz ham "TAYYORMAN" bosing.';
+    } else {
+      statusMsg.className = 'br-status';
+      statusMsg.textContent = '⏳ Ikkangiz ham tayyor bo\'lishini kutmoqda...';
+    }
+  }
+
+  /* ── "Tayyorman" bosish ── */
+  readyBtn.addEventListener('click', function () {
+    if (myReady || done) return;
+    readyBtn.disabled = true;
+    readyBtn.textContent = 'Yuborilmoqda...';
+    fetch('/competitions/api/battle/' + battleUuid + '/ready/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF, 'X-Requested-With': 'XMLHttpRequest' },
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.status === 'ok') {
+        myReady = !!d.challenger_ready && isChallenger || !!d.opponent_ready && !isChallenger;
+        myReady = isChallenger ? d.challenger_ready : d.opponent_ready;
+        oppReady = isChallenger ? d.opponent_ready : d.challenger_ready;
+        updateUI();
+        if (d.both_ready) startCountdown();
+      } else {
+        statusMsg.className = 'br-status expired';
+        statusMsg.textContent = '⚠️ Muddati o\'tgan yoki bekor qilingan';
+        readyBtn.disabled = true;
+      }
+    })
+    .catch(function () {
+      readyBtn.disabled = false;
+      readyBtn.textContent = '✅ TAYYORMAN';
+    });
+  });
+
+  /* ── "Bekor qilish" ── */
+  cancelBtn.addEventListener('click', function () {
+    if (done) return;
+    if (!confirm('Jangni bekor qilishni xohlaysizmi?')) return;
+    done = true;
+    fetch('/competitions/api/battle/' + battleUuid + '/ready/cancel/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+    }).finally(function () {
+      window.location.href = "{% url 'competitions:battle_create' %}";
+    });
+  });
+
+  /* ── Polling ── */
+  function poll() {
+    if (done) return;
+    fetch('/competitions/api/battle/' + battleUuid + '/ready/status/', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.expired || d.battle_status === 'expired' || d.battle_status === 'cancelled') {
+        done = true;
+        statusMsg.className = 'br-status expired';
+        statusMsg.textContent = '⌛ Muddati o\'tgan. Qaytadan urinib ko\'ring.';
+        readyBtn.disabled = true;
+        setTimeout(function () {
+          window.location.href = "{% url 'competitions:battle_create' %}";
+        }, 3000);
+        return;
+      }
+      myReady = isChallenger ? d.challenger_ready : d.opponent_ready;
+      oppReady = isChallenger ? d.opponent_ready : d.challenger_ready;
+      updateUI();
+      if (d.battle_status === 'accepted' || d.battle_status === 'in_progress') {
+        startCountdown();
+      }
+      // Timer bar
+      if (d.seconds_left >= 0) {
+        var pct = Math.max(0, (d.seconds_left / totalWait) * 100);
+        timerFill.style.width = pct + '%';
+      }
+    })
+    .catch(function () {});
+  }
+  var pollInt = setInterval(poll, 1500);
+  setTimeout(poll, 300);
+
+  /* ── WebSocket (agar mavjud bo'lsa) ── */
+  document.addEventListener('ws:battle_ready_update', function (e) {
+    if (done) return;
+    var d = e.detail;
+    if (d.battle_uuid !== battleUuid) return;
+    myReady = isChallenger ? d.challenger_ready : d.opponent_ready;
+    oppReady = isChallenger ? d.opponent_ready : d.challenger_ready;
+    updateUI();
+    if (d.both_ready) startCountdown();
+  });
+
+  /* ── Countdown ── */
+  function startCountdown() {
+    if (done) return;
+    done = true;
+    clearInterval(pollInt);
+    cdEl.classList.add('show');
+    var n = 3;
+    cdNum.textContent = n;
+    var ci = setInterval(function () {
+      n--;
+      if (n > 0) {
+        cdNum.textContent = n;
+      } else {
+        clearInterval(ci);
+        cdNum.textContent = 'GO!';
+        setTimeout(function () {
+          window.location.href = '/competitions/battle/' + battleUuid + '/play/';
+        }, 600);
+      }
+    }, 900);
+  }
+
+  // Initial
+  updateUI();
+})();
+</script>
+{% endblock %}

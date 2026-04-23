@@ -33,6 +33,53 @@ from tests_app.models import Subject, Topic, Question, Answer, Test, TestAttempt
 # HELPER FUNCTIONS
 # ============================================================
 
+def _ws_notify_match_found(to_user, opponent, battle):
+    """WebSocket orqali match_found xabar — template'dagi WS listener ishga tushadi."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        if not channel_layer:
+            return
+        async_to_sync(channel_layer.group_send)(
+            f'user_{to_user.id}',
+            {
+                'type': 'match.found',
+                'battle_uuid': str(battle.uuid),
+                'opponent': {
+                    'id': opponent.id,
+                    'name': f'{opponent.first_name or ""} {opponent.last_name or ""}'.strip() or 'Raqib',
+                    'avatar': opponent.get_avatar_url() if hasattr(opponent, 'get_avatar_url') else '',
+                    'rating': getattr(opponent, 'rating', 1000),
+                },
+            },
+        )
+    except Exception:
+        pass
+
+
+def _ws_notify_ready_update(battle):
+    """Ikkala user'ga ready status o'zgarganini bildirish."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        if not channel_layer:
+            return
+        payload = {
+            'type': 'battle.ready',
+            'battle_uuid': str(battle.uuid),
+            'challenger_ready': bool(battle.challenger_ready),
+            'opponent_ready': bool(battle.opponent_ready),
+            'both_ready': bool(battle.challenger_ready and battle.opponent_ready),
+        }
+        for u in (battle.challenger, battle.opponent):
+            if u:
+                async_to_sync(channel_layer.group_send)(f'user_{u.id}', payload)
+    except Exception:
+        pass
+
+
 def get_user_stats(user):
     """Foydalanuvchi statistikasi"""
     stats = {
@@ -939,12 +986,13 @@ def battle_matchmaking(request, subject_id=None):
     match = potential_match.order_by('joined_at').first()
 
     if match:
-        # Match topildi!
+        # Match topildi! — "Tayyorgarlik" bosqichiga o'tish (battle_play emas)
         questions_data = generate_questions(
             subject=subject or match.subject,
             count=match.question_count
         )
 
+        now = timezone.now()
         battle = Battle.objects.create(
             challenger=match.user,
             opponent=user,
@@ -953,9 +1001,10 @@ def battle_matchmaking(request, subject_id=None):
             question_count=match.question_count,
             questions_data=questions_data,
             total_time=match.question_count * 30,
-            status='accepted',
-            accepted_at=timezone.now(),
-            expires_at=timezone.now() + timedelta(hours=1)
+            # DIQQAT: status='pending' — ikkala "Tayyor" bo'lgach 'accepted' bo'ladi
+            status='pending',
+            ready_expires_at=now + timedelta(seconds=45),
+            expires_at=now + timedelta(hours=1),
         )
 
         # Queue yangilash
@@ -964,8 +1013,10 @@ def battle_matchmaking(request, subject_id=None):
         match.battle = battle
         match.save()
 
-        messages.success(request, f"Raqib topildi: {match.user.first_name}!")
-        return redirect('competitions:battle_play', uuid=battle.uuid)
+        # WebSocket orqali chaqiruvchiga match_found yuborish
+        _ws_notify_match_found(match.user, user, battle)
+
+        return redirect('competitions:battle_ready', uuid=battle.uuid)
 
     # Queue'ga qo'shish
     queue_entry = MatchmakingQueue.objects.create(
@@ -1468,7 +1519,9 @@ def api_matchmaking_status(request):
         return JsonResponse({
             'status': 'matched',
             'battle_uuid': str(queue_entry.battle.uuid),
-            'opponent_name': queue_entry.matched_with.first_name if queue_entry.matched_with else None
+            'opponent_name': queue_entry.matched_with.first_name if queue_entry.matched_with else None,
+            # Frontend darhol testga emas, "Tayyorgarlik" sahifasiga o'tsin
+            'redirect_url': '/competitions/battle/' + str(queue_entry.battle.uuid) + '/ready/',
         })
 
     # Muddati o'tdimi?
@@ -1837,3 +1890,147 @@ def admin_battle_delete(request, uuid):
     if next_url:
         return redirect(next_url)
     return redirect('competitions:admin_battles_list')
+
+
+# ══════════════════════════════════════════════════════════════
+# BATTLE READY — "Raqib topildi → Tayyorgarlik" flow
+# ══════════════════════════════════════════════════════════════
+
+@login_required
+def battle_ready(request, uuid):
+    """Match topilgach ikkala user 'Tayyorman' bosishi kerak sahifasi."""
+    battle = get_object_or_404(Battle, uuid=uuid)
+
+    # Ruxsat — faqat challenger yoki opponent
+    if request.user not in (battle.challenger, battle.opponent):
+        messages.error(request, "Bu battlega kirish huquqingiz yo'q")
+        return redirect('competitions:battle_create')
+
+    # Agar battle allaqachon accepted/in_progress bo'lsa — darhol play'ga
+    if battle.status in ('accepted', 'in_progress'):
+        return redirect('competitions:battle_play', uuid=battle.uuid)
+
+    # Agar bekor qilingan/muddati o'tgan — battle_create ga qaytarish
+    if battle.status in ('cancelled', 'expired', 'rejected'):
+        messages.warning(request, "Bu battle bekor qilingan yoki muddati o'tgan")
+        return redirect('competitions:battle_create')
+
+    is_challenger = (request.user == battle.challenger)
+    opponent_user = battle.opponent if is_challenger else battle.challenger
+
+    # Raqib ma'lumotlari
+    opponent_info = None
+    if opponent_user:
+        opponent_info = {
+            'name': f'{opponent_user.first_name or ""} {opponent_user.last_name or ""}'.strip() or 'Raqib',
+            'avatar_letter': (opponent_user.first_name or 'R')[:1].upper(),
+            'rating': getattr(opponent_user, 'rating', 1000),
+            'level': opponent_user.get_level_display() if hasattr(opponent_user, 'get_level_display') else '',
+            'streak': getattr(opponent_user, 'current_streak', 0),
+        }
+
+    context = {
+        'battle': battle,
+        'is_challenger': is_challenger,
+        'opponent_info': opponent_info,
+        'my_ready': battle.challenger_ready if is_challenger else battle.opponent_ready,
+        'opp_ready': battle.opponent_ready if is_challenger else battle.challenger_ready,
+    }
+    return render(request, 'competitions/battle_ready.html', context)
+
+
+@login_required
+@require_POST
+def api_battle_ready(request, uuid):
+    """User 'Tayyorman' bosdi — Battle'da tegishli flagni yoqish."""
+    battle = get_object_or_404(Battle, uuid=uuid)
+
+    if request.user not in (battle.challenger, battle.opponent):
+        return JsonResponse({'error': 'forbidden'}, status=403)
+
+    # Muddati o'tdimi?
+    if battle.ready_expires_at and timezone.now() > battle.ready_expires_at:
+        if battle.status not in ('accepted', 'in_progress'):
+            battle.status = 'expired'
+            battle.save(update_fields=['status'])
+        return JsonResponse({'status': 'expired'}, status=410)
+
+    if battle.status in ('cancelled', 'expired', 'rejected'):
+        return JsonResponse({'status': battle.status}, status=410)
+
+    # Tegishli field
+    fields = []
+    if request.user == battle.challenger and not battle.challenger_ready:
+        battle.challenger_ready = True
+        fields.append('challenger_ready')
+    elif request.user == battle.opponent and not battle.opponent_ready:
+        battle.opponent_ready = True
+        fields.append('opponent_ready')
+
+    # Ikkala tayyor bo'lsa — statusni accepted qilish
+    both_ready = battle.challenger_ready and battle.opponent_ready
+    if both_ready and battle.status == 'pending':
+        battle.status = 'accepted'
+        battle.accepted_at = timezone.now()
+        fields.extend(['status', 'accepted_at'])
+
+    if fields:
+        battle.save(update_fields=fields)
+
+    _ws_notify_ready_update(battle)
+
+    return JsonResponse({
+        'status': 'ok',
+        'challenger_ready': battle.challenger_ready,
+        'opponent_ready': battle.opponent_ready,
+        'both_ready': both_ready,
+        'battle_status': battle.status,
+    })
+
+
+@login_required
+def api_battle_ready_status(request, uuid):
+    """Template polling uchun — holat kuzatish."""
+    battle = get_object_or_404(Battle, uuid=uuid)
+
+    if request.user not in (battle.challenger, battle.opponent):
+        return JsonResponse({'error': 'forbidden'}, status=403)
+
+    # Muddati o'tdimi?
+    expired = False
+    if battle.ready_expires_at and timezone.now() > battle.ready_expires_at:
+        if battle.status == 'pending':
+            battle.status = 'expired'
+            battle.save(update_fields=['status'])
+        expired = True
+
+    seconds_left = 0
+    if battle.ready_expires_at:
+        delta = (battle.ready_expires_at - timezone.now()).total_seconds()
+        seconds_left = max(0, int(delta))
+
+    return JsonResponse({
+        'challenger_ready': battle.challenger_ready,
+        'opponent_ready':   battle.opponent_ready,
+        'both_ready':       battle.challenger_ready and battle.opponent_ready,
+        'battle_status':    battle.status,
+        'seconds_left':     seconds_left,
+        'expired':          expired,
+        'is_challenger':    request.user == battle.challenger,
+    })
+
+
+@login_required
+@require_POST
+def api_battle_ready_cancel(request, uuid):
+    """User 'Bekor' bosdi — battle cancel qilinadi."""
+    battle = get_object_or_404(Battle, uuid=uuid)
+    if request.user not in (battle.challenger, battle.opponent):
+        return JsonResponse({'error': 'forbidden'}, status=403)
+
+    if battle.status == 'pending':
+        battle.status = 'cancelled'
+        battle.save(update_fields=['status'])
+        _ws_notify_ready_update(battle)
+
+    return JsonResponse({'status': 'cancelled'})
