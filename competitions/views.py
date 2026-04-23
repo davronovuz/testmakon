@@ -58,6 +58,51 @@ def _ws_notify_match_found(to_user, opponent, battle):
         pass
 
 
+def _ws_notify_battle_completed(battle):
+    """Jang tugagach ikkala user'ga natija sahifasiga o'tish signali."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        if not channel_layer:
+            return
+        payload = {
+            'type': 'battle.completed',
+            'battle_uuid': str(battle.uuid),
+            'winner_id': battle.winner.id if battle.winner else None,
+            'is_draw':   bool(battle.is_draw),
+        }
+        for u in (battle.challenger, battle.opponent):
+            if u:
+                async_to_sync(channel_layer.group_send)(f'user_{u.id}', payload)
+    except Exception:
+        pass
+
+
+def _ws_notify_opponent_finished(battle, finisher):
+    """Kim birinchi tugatdi — boshqa user'ga xabar (ikkisi hali tugamagan bo'lsa)."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        channel_layer = get_channel_layer()
+        if not channel_layer:
+            return
+        # Kimga yuboramiz?
+        other = battle.opponent if finisher == battle.challenger else battle.challenger
+        if not other:
+            return
+        async_to_sync(channel_layer.group_send)(
+            f'user_{other.id}',
+            {
+                'type': 'battle.opponent_finished',
+                'battle_uuid': str(battle.uuid),
+                'finisher_name': f'{finisher.first_name or ""}'.strip() or 'Raqib',
+            },
+        )
+    except Exception:
+        pass
+
+
 def _ws_notify_ready_update(battle):
     """Ikkala user'ga ready status o'zgarganini bildirish."""
     try:
@@ -1203,31 +1248,76 @@ def battle_submit(request, uuid):
         battle.save()
 
         # Ikkalasi ham tugadimi?
-        if battle.challenger_completed and (battle.opponent_completed or battle.opponent_type == 'bot'):
+        both_done = battle.challenger_completed and (
+            battle.opponent_completed or battle.opponent_type == 'bot'
+        )
+        if both_done:
             battle.determine_winner()
+            battle.refresh_from_db()
+
+    # WebSocket xabarlar (transaction tashqarisida)
+    if both_done:
+        # Ikkala user natija sahifasiga
+        _ws_notify_battle_completed(battle)
+    else:
+        # Hali bitta tugagan — boshqasiga xabar
+        _ws_notify_opponent_finished(battle, request.user)
 
     return redirect('competitions:battle_result', uuid=uuid)
 
 
 @login_required
 def battle_result(request, uuid):
-    """Jang natijasi"""
+    """Jang natijasi — yoki 'raqib kutilmoqda' holati."""
     battle = get_object_or_404(Battle, uuid=uuid)
 
+    # Ruxsat
     is_challenger = request.user == battle.challenger
+    is_opponent = request.user == battle.opponent
+    if not is_challenger and not is_opponent and battle.opponent_type != 'bot':
+        messages.error(request, "Bu jangni ko'rish huquqingiz yo'q!")
+        return redirect('competitions:battles_list')
 
     # Bot natijasini hisoblash (agar hali hisoblanmagan bo'lsa)
     if battle.opponent_type == 'bot' and not battle.opponent_completed and battle.challenger_completed:
         battle.determine_winner()
         battle.refresh_from_db()
 
-    # Natija hali tayyor emas
-    if battle.status != 'completed':
-        if is_challenger and battle.challenger_completed:
-            messages.info(request, "Raqibingiz tugashini kuting...")
-        return redirect('competitions:battle_detail', uuid=uuid)
+    # Foydalanuvchi o'zining tugmasini bosganmi?
+    my_completed = battle.challenger_completed if is_challenger else battle.opponent_completed
 
-    # User natijasi
+    # User hali tugatmagan — battle_play ga qaytarish
+    if not my_completed and battle.status in ('accepted', 'in_progress'):
+        return redirect('competitions:battle_play', uuid=uuid)
+
+    # Ikkala hali tugatmagan — WAITING sahifa
+    if battle.status != 'completed':
+        # Men tugatdim, raqib hali javob bermoqda
+        opponent_user = battle.opponent if is_challenger else battle.challenger
+        opp_name = 'Raqib'
+        if opponent_user:
+            opp_name = f'{opponent_user.first_name or ""}'.strip() or 'Raqib'
+        elif battle.opponent_type == 'bot':
+            opp_name = 'Bot'
+
+        # Mening natijam (xulosa uchun)
+        if is_challenger:
+            my_correct = battle.challenger_correct
+            my_time    = battle.challenger_time
+        else:
+            my_correct = battle.opponent_correct
+            my_time    = battle.opponent_time
+
+        context = {
+            'battle': battle,
+            'opp_name': opp_name,
+            'my_correct': my_correct,
+            'my_time': my_time,
+            'total_questions': len(battle.questions_data),
+        }
+        return render(request, 'competitions/battle_waiting.html', context)
+
+    # ── TAYYOR: ikkala tugadi ──
     if is_challenger:
         user_correct = battle.challenger_correct
         user_time = battle.challenger_time
@@ -1239,7 +1329,6 @@ def battle_result(request, uuid):
         opponent_correct = battle.challenger_correct
         opponent_time = battle.challenger_time
 
-    # User yutdimi?
     user_won = battle.winner == request.user
     user_lost = not battle.is_draw and not user_won and battle.winner is not None
 

@@ -107,6 +107,23 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'both_ready':       event.get('both_ready', False),
         }))
 
+    async def battle_completed(self, event):
+        """Jang tugadi — ikkala user natija sahifasiga o'tsin."""
+        await self.send(text_data=json.dumps({
+            'type': 'battle_completed',
+            'battle_uuid': event.get('battle_uuid'),
+            'winner_id':   event.get('winner_id'),
+            'is_draw':     event.get('is_draw', False),
+        }))
+
+    async def battle_opponent_finished(self, event):
+        """Raqib o'z javoblarini yubordi — hali siz javob berayotgansiz."""
+        await self.send(text_data=json.dumps({
+            'type': 'battle_opponent_finished',
+            'battle_uuid': event.get('battle_uuid'),
+            'finisher_name': event.get('finisher_name', 'Raqib'),
+        }))
+
     async def online_status(self, event):
         """Do'st online/offline bo'ldi"""
         await self.send(text_data=json.dumps({

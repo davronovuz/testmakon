@@ -2788,6 +2788,12 @@
           document.dispatchEvent(new CustomEvent('ws:match_found_raw', {detail: data}));
           // Boshqa sahifada bo'lsa — modal ko'rsatish
           if (!document.getElementById('mmCard')) showMatchFoundModal(data);
+        } else if (data.type === 'battle_ready_update') {
+          document.dispatchEvent(new CustomEvent('ws:battle_ready_update', {detail: data}));
+        } else if (data.type === 'battle_completed') {
+          document.dispatchEvent(new CustomEvent('ws:battle_completed', {detail: data}));
+        } else if (data.type === 'battle_opponent_finished') {
+          document.dispatchEvent(new CustomEvent('ws:battle_opponent_finished', {detail: data}));
         } else if (data.type === 'online_status') {
           document.dispatchEvent(new CustomEvent('ws:online_status', {detail: data}));
         } else if (data.type === 'notification') {
