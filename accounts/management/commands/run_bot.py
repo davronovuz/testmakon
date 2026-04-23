@@ -21,15 +21,59 @@ from django.utils import timezone
 
 from asgiref.sync import sync_to_async
 
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher, types, F, BaseMiddleware
 from aiogram.filters import CommandStart, Command as CmdFilter
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import (
-    InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message,
+    InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message, TelegramObject,
 )
+from typing import Any, Awaitable, Callable, Dict
 
 logger = logging.getLogger(__name__)
+
+
+# ═════════════════════════════════════════════════════════
+# MIDDLEWARE: har bir xabarda TelegramUser ni saqlash
+# ═════════════════════════════════════════════════════════
+
+def _save_telegram_user(from_user):
+    """TelegramUser modelini yaratish yoki yangilash (sync)."""
+    from tgbot.models import TelegramUser
+    TelegramUser.objects.update_or_create(
+        telegram_id=from_user.id,
+        defaults={
+            'username':      from_user.username or '',
+            'first_name':    from_user.first_name or '',
+            'last_name':     from_user.last_name or '',
+            'language_code': from_user.language_code or '',
+            'is_active':     True,
+        },
+    )
+
+
+class UserTrackingMiddleware(BaseMiddleware):
+    """Har bir kirishda TelegramUser ni yaratadi/yangilaydi."""
+
+    async def __call__(
+        self,
+        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        from_user = None
+        if isinstance(event, Message):
+            from_user = event.from_user
+        elif isinstance(event, CallbackQuery):
+            from_user = event.from_user
+
+        if from_user and not from_user.is_bot:
+            try:
+                await sync_to_async(_save_telegram_user)(from_user)
+            except Exception as exc:
+                logger.warning(f'TelegramUser saqlash xatosi: {exc}')
+
+        return await handler(event, data)
 
 
 # ═════════════════════════════════════════════════════════
@@ -287,6 +331,10 @@ class Command(BaseCommand):
             default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         )
         dp = Dispatcher()
+
+        # Har bir xabarda TelegramUser ni DB ga saqlash
+        dp.message.middleware(UserTrackingMiddleware())
+        dp.callback_query.middleware(UserTrackingMiddleware())
 
         # ──────────────── USER: /start — login kod ────────────────
         @dp.message(CommandStart())
