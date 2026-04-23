@@ -124,10 +124,10 @@ def _build_stats_text():
     with_google = User.objects.filter(google_id__isnull=False).count()
 
     tests_today = TestAttempt.objects.filter(
-        created_at__date=today, status='completed'
+        started_at__date=today, status='completed'
     ).count()
     tests_week = TestAttempt.objects.filter(
-        created_at__date__gte=week_ago, status='completed'
+        started_at__date__gte=week_ago, status='completed'
     ).count()
 
     tg_bot_users = TelegramUser.objects.filter(is_active=True).count()
