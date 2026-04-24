@@ -9,14 +9,47 @@
 {
   "@context": "https://schema.org",
   "@type": "Course",
-  "name": "{{ subject.name }} Testi — Online Mashq",
-  "description": "{{ subject.name }} bo'yicha barcha mavzularda online testlar. DTM uchun tayyorgarlik.",
-  "provider": {"@type": "Organization", "name": "TestMakon", "url": "https://testmakon.uz"},
+  "name": "{{ subject.name }} DTM Testi — Online Mashq",
+  "description": "{{ subject.name }} bo'yicha barcha mavzularda online testlar. DTM uchun tayyorgarlik. Bepul.",
+  "provider": {"@id": "https://testmakon.uz/#organization"},
   "url": "https://testmakon.uz/tests/practice/{{ subject.slug }}/",
   "isAccessibleForFree": true,
   "inLanguage": "uz",
   "educationalLevel": "high school",
-  "about": {"@type": "Thing", "name": "{{ subject.name }}"}
+  "teaches": "{{ subject.name }}",
+  "about": {"@type": "Thing", "name": "{{ subject.name }}"},
+  "audience": {"@type": "EducationalAudience", "educationalRole": "student"},
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "UZS", "availability": "https://schema.org/InStock"},
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "online",
+    "courseWorkload": "PT30H"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "{{ subject.name }} DTM Testlari",
+  "url": "https://testmakon.uz/tests/practice/{{ subject.slug }}/",
+  "learningResourceType": "Test",
+  "educationalUse": "Assessment",
+  "inLanguage": "uz",
+  "isAccessibleForFree": true,
+  "about": "{{ subject.name }}",
+  "audience": {"@type": "EducationalAudience", "educationalRole": "student"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "https://testmakon.uz/"},
+    {"@type": "ListItem", "position": 2, "name": "Mashq testlar", "item": "https://testmakon.uz/tests/practice/"},
+    {"@type": "ListItem", "position": 3, "name": "{{ subject.name }}", "item": "https://testmakon.uz/tests/practice/{{ subject.slug }}/"}
+  ]
 }
 </script>
 {% endblock %}

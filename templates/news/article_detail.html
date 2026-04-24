@@ -19,15 +19,28 @@
   "datePublished": "{{ article.published_at|date:'c' }}",
   "dateModified": "{{ article.updated_at|date:'c' }}",
   "image": "https://testmakon.uz{% if article.featured_image %}{{ article.featured_image.url }}{% else %}/static/images/og-image.png{% endif %}",
-  "publisher": {
+  "author": {
     "@type": "Organization",
-    "name": "TestMakon",
-    "url": "https://testmakon.uz",
-    "logo": {"@type": "ImageObject", "url": "https://testmakon.uz/static/images/favicon.svg"}
+    "name": "TestMakon Ta'lim Jamoasi",
+    "url": "https://testmakon.uz"
   },
+  "publisher": {"@id": "https://testmakon.uz/#organization"},
   "mainEntityOfPage": {"@type": "WebPage", "@id": "https://testmakon.uz/news/article/{{ article.slug }}/"},
   "inLanguage": "uz",
-  "keywords": "{{ article.title }}, DTM 2026, online test, testmakon.uz"
+  "articleSection": "Ta'lim",
+  "keywords": "{{ article.title }}, DTM 2026, online test, testmakon.uz",
+  "about": {"@type": "Thing", "name": "DTM (Davlat Test Markazi) imtihoni"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "https://testmakon.uz/"},
+    {"@type": "ListItem", "position": 2, "name": "Yangiliklar", "item": "https://testmakon.uz/news/"},
+    {"@type": "ListItem", "position": 3, "name": "{{ article.title|truncatechars:60 }}", "item": "https://testmakon.uz/news/article/{{ article.slug }}/"}
+  ]
 }
 </script>
 {% endblock %}

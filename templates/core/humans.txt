@@ -1,0 +1,12 @@
+/* TEAM */
+TestMakon.uz — O'zbekiston abituriyentlari uchun AI ta'lim platformasi
+Founder: Davronov Nurbek
+Contact: https://t.me/testmakonuz
+
+/* SITE */
+Last update: 2026
+Language: Uzbek (uz-UZ)
+Standards: HTML5, CSS3, JSON-LD, Schema.org
+Stack: Django 5.2, PostgreSQL, Redis, Celery, Daphne ASGI
+AI: Google Gemini
+Location: Tashkent, Uzbekistan

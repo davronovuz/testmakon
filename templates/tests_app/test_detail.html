@@ -11,13 +11,41 @@
   "@type": "Quiz",
   "name": "{{ test.title }}",
   "description": "{% if test.description %}{{ test.description|truncatechars:200 }}{% else %}TestMakon da {{ test.question_count }} savollik online test.{% endif %}",
-  "provider": {"@type": "Organization", "name": "TestMakon", "url": "https://testmakon.uz"},
+  "provider": {"@id": "https://testmakon.uz/#organization"},
   "url": "https://testmakon.uz/tests/test/{{ test.slug }}/",
   "isAccessibleForFree": {% if test.is_premium %}false{% else %}true{% endif %},
   "inLanguage": "uz",
   "timeRequired": "PT{{ test.time_limit }}M",
-  "numberOfQuestions": {{ test.question_count }}{% if test.subject %},
-  "about": {"@type": "Thing", "name": "{{ test.subject.name }}"}{% endif %}
+  "numberOfQuestions": {{ test.question_count }},
+  "educationalLevel": "high school",
+  "audience": {"@type": "EducationalAudience", "educationalRole": "student"}{% if test.subject %},
+  "about": {"@type": "Thing", "name": "{{ test.subject.name }}"},
+  "teaches": "{{ test.subject.name }}"{% endif %}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "{{ test.title }}",
+  "url": "https://testmakon.uz/tests/test/{{ test.slug }}/",
+  "learningResourceType": "Quiz",
+  "educationalUse": "Assessment",
+  "inLanguage": "uz",
+  "isAccessibleForFree": {% if test.is_premium %}false{% else %}true{% endif %},
+  "timeRequired": "PT{{ test.time_limit }}M"{% if test.subject %},
+  "about": "{{ test.subject.name }}"{% endif %}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "https://testmakon.uz/"},
+    {"@type": "ListItem", "position": 2, "name": "Testlar", "item": "https://testmakon.uz/tests/tests/"},
+    {"@type": "ListItem", "position": 3, "name": "{{ test.title|truncatechars:60 }}", "item": "https://testmakon.uz/tests/test/{{ test.slug }}/"}
+  ]
 }
 </script>
 {% endblock %}

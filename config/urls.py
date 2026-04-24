@@ -50,6 +50,10 @@ urlpatterns = [
     path('llms.txt', TemplateView.as_view(template_name='core/llms.txt', content_type='text/plain')),
     # IndexNow key file (Yandex/Bing tezkor indekslash uchun)
     path('9a6c223b3f6c55377a2fc7fcda46a26d.txt', TemplateView.as_view(template_name='core/indexnow_key.txt', content_type='text/plain')),
+    # Trust signals (E-E-A-T)
+    path('.well-known/security.txt', TemplateView.as_view(template_name='core/security.txt', content_type='text/plain')),
+    path('security.txt', TemplateView.as_view(template_name='core/security.txt', content_type='text/plain')),
+    path('humans.txt', TemplateView.as_view(template_name='core/humans.txt', content_type='text/plain')),
 ]
 
 # Static and Media files in development
