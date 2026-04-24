@@ -46,4 +46,13 @@ urlpatterns = [
     # SEO Landing Pages
     path('dtm-tayyorgarligi/', views.landing_dtm, name='landing_dtm'),
     path('online-test/', views.landing_online_test, name='landing_online_test'),
+    path('dtm-test/', views.dtm_test_hub, name='dtm_test_hub'),
+
+    # Short URL aliases -> 301 redirect to full articles (SEO)
+    path('dtm-2026/', views.dtm_2026_redirect, name='dtm_2026_alias'),
+    path('matematika-dtm/', views.matematika_dtm_redirect, name='matematika_dtm_alias'),
+    path('fizika-dtm/', views.fizika_dtm_redirect, name='fizika_dtm_alias'),
+    path('biologiya-dtm/', views.biologiya_dtm_redirect, name='biologiya_dtm_alias'),
+    path('kimyo-dtm/', views.kimyo_dtm_redirect, name='kimyo_dtm_alias'),
+    path('dtm-ball/', views.dtm_ball_redirect, name='dtm_ball_alias'),
 ]

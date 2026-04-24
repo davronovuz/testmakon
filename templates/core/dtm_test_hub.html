@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DTM Test 2026 — Barcha Fanlardan Online DTM Testlari | TestMakon{% endblock %}
+{% block meta_description %}DTM Test 2026 — matematika, fizika, kimyo, biologiya va boshqa fanlardan online DTM testlar. Bepul mashq, AI mentor, natija tahlili. TestMakon.uz.{% endblock %}
+{% block meta_keywords %}DTM test, DTM test 2026, DTM online test, matematika DTM, fizika DTM, kimyo DTM, biologiya DTM, bepul DTM test, abituriyent testi{% endblock %}
+{% block canonical_path %}/dtm-test/{% endblock %}
+
+{% block og_title %}DTM Test 2026 — Barcha Fanlardan Online Testlar{% endblock %}
+{% block og_description %}DTM 2026 imtihoniga tayyorlanish uchun bepul online testlar va AI mentor — TestMakon.uz{% endblock %}
+
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "DTM Test 2026 — TestMakon",
+  "description": "DTM 2026 imtihoniga tayyorlanish uchun barcha fanlardan online testlar.",
+  "url": "https://testmakon.uz/dtm-test/",
+  "inLanguage": "uz",
+  "isPartOf": {"@type": "WebSite", "name": "TestMakon", "url": "https://testmakon.uz"},
+  "about": {"@type": "Thing", "name": "DTM (Davlat Test Markazi) imtihoni"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": "https://testmakon.uz/"},
+    {"@type": "ListItem", "position": 2, "name": "DTM Test", "item": "https://testmakon.uz/dtm-test/"}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "DTM test nima?",
+      "acceptedAnswer": {"@type": "Answer", "text": "DTM (Davlat Test Markazi) testi — O'zbekistonda oliy ta'lim muassasalariga qabul qilish uchun o'tkaziladigan yagona davlat imtihoni. 3 ta fan, 90 savol, 180 daqiqa."}
+    },
+    {
+      "@type": "Question",
+      "name": "DTM testiga qanday tayyorlanish kerak?",
+      "acceptedAnswer": {"@type": "Answer", "text": "TestMakon da bepul online DTM testlar, simulyatsiya imtihonlari va AI mentor orqali tayyorlaning. Kunlik 1-2 soat mashq 3-6 oyda yuqori natija beradi."}
+    },
+    {
+      "@type": "Question",
+      "name": "TestMakon da DTM testlari bepulmi?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Ha, TestMakon da DTM simulyatsiya testlari va barcha fanlar bo'yicha mashq testlari to'liq bepul."}
+    },
+    {
+      "@type": "Question",
+      "name": "Qaysi fanlardan DTM test ishlashi mumkin?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Matematika, fizika, kimyo, biologiya, tarix, geografiya, adabiyot, ona tili, ingliz tili, informatika — barcha DTM fanlari."}
+    },
+    {
+      "@type": "Question",
+      "name": "DTM ballini qanday hisoblash mumkin?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Majburiy fanlar 1.1 koef, blok fanlar 2.1 va 3.1 koef. TestMakon da avtomatik ball hisoblash va universitet tavsiyasi mavjud."}
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div style="background:#F8FAFC; min-height:100vh;">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" style="background:#fff; border-bottom:1px solid #E2E8F0; padding:12px 0;">
+    <div class="container">
+      <ol style="list-style:none; padding:0; margin:0; display:flex; gap:8px; font-size:14px; color:#64748B; flex-wrap:wrap;">
+        <li><a href="/" style="color:#8BC540; text-decoration:none;">Bosh sahifa</a></li>
+        <li>›</li>
+        <li style="color:#0F172A; font-weight:600;">DTM Test</li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="background:linear-gradient(135deg,#8BC540,#6BA832); padding:64px 0 48px; text-align:center;">
+    <div class="container">
+      <div style="display:inline-block; background:rgba(255,255,255,0.2); border-radius:50px; padding:6px 18px; margin-bottom:16px;">
+        <span style="color:#fff; font-size:13px; font-weight:600;">🎯 DTM 2026</span>
+      </div>
+      <h1 style="color:#fff; font-size:clamp(28px,5vw,46px); font-weight:900; margin-bottom:16px; line-height:1.2;">
+        DTM Test 2026 —<br>Barcha Fanlardan Online Testlar
+      </h1>
+      <p style="color:rgba(255,255,255,0.92); font-size:17px; max-width:620px; margin:0 auto 28px;">
+        Matematika, fizika, kimyo, biologiya va boshqa fanlardan DTM testlar.
+        Bepul, AI tahlili bilan. O'zbekistonda
+        {% if stats.users %}{{ stats.users }}{% else %}10,000+{% endif %} abituriyent bizni tanladi.
+      </p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="{% url 'tests_app:dtm_simulation' %}" style="background:#fff; color:#6BA832; padding:14px 28px; border-radius:10px; font-weight:700; text-decoration:none; font-size:16px;">
+          🚀 DTM Simulyatsiya Testi
+        </a>
+        <a href="{% url 'tests_app:practice_select' %}" style="background:rgba(255,255,255,0.15); color:#fff; border:2px solid rgba(255,255,255,0.5); padding:14px 28px; border-radius:10px; font-weight:600; text-decoration:none; font-size:16px;">
+          📚 Fan bo'yicha Mashq
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section style="background:#fff; border-bottom:1px solid #E2E8F0; padding:20px 0;">
+    <div class="container">
+      <div class="row text-center g-3">
+        <div class="col-6 col-md-3">
+          <div style="font-size:26px; font-weight:900; color:#8BC540;">{% if stats.questions %}{{ stats.questions }}+{% else %}10,000+{% endif %}</div>
+          <div style="color:#64748B; font-size:13px;">DTM Savol</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div style="font-size:26px; font-weight:900; color:#8BC540;">{% if stats.users %}{{ stats.users }}{% else %}10K+{% endif %}</div>
+          <div style="color:#64748B; font-size:13px;">Foydalanuvchi</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div style="font-size:26px; font-weight:900; color:#8BC540;">{% if stats.tests %}{{ stats.tests }}+{% else %}500+{% endif %}</div>
+          <div style="color:#64748B; font-size:13px;">Tayyor Test</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div style="font-size:26px; font-weight:900; color:#8BC540;">AI</div>
+          <div style="color:#64748B; font-size:13px;">Mentor</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBJECTS GRID -->
+  <section style="padding:56px 0;">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:36px;">
+        <h2 style="font-size:clamp(22px,3vw,32px); font-weight:800; color:#0F172A; margin-bottom:8px;">
+          Qaysi fandan DTM testi ishlashni xohlaysiz?
+        </h2>
+        <p style="color:#64748B; font-size:15px;">Fanni tanlang va darhol boshlang</p>
+      </div>
+      <div class="row g-3">
+        {% for subject in subjects %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <a href="{% url 'tests_app:practice_subject' subject_slug=subject.slug %}"
+             style="display:block; background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:20px 16px; text-align:center; text-decoration:none; transition:all 0.2s;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(139,197,64,0.15)'; this.style.borderColor='#8BC540';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#E2E8F0';">
+            {% if subject.icon %}<div style="font-size:32px; margin-bottom:8px;">{{ subject.icon }}</div>
+            {% else %}<div style="font-size:32px; margin-bottom:8px;">📘</div>{% endif %}
+            <div style="font-weight:700; color:#0F172A; font-size:15px; margin-bottom:4px;">{{ subject.name }}</div>
+            <div style="color:#8BC540; font-size:12px; font-weight:600;">DTM Test →</div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY TESTMAKON -->
+  <section style="background:#fff; padding:56px 0; border-top:1px solid #E2E8F0; border-bottom:1px solid #E2E8F0;">
+    <div class="container">
+      <h2 style="text-align:center; font-size:clamp(22px,3vw,32px); font-weight:800; color:#0F172A; margin-bottom:36px;">
+        Nega DTM testlar TestMakon'da?
+      </h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div style="text-align:center;">
+            <div style="width:56px; height:56px; background:linear-gradient(135deg,#8BC540,#6BA832); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:24px;">🎯</div>
+            <h3 style="font-size:17px; font-weight:700; color:#0F172A; margin-bottom:8px;">Haqiqiy DTM Simulyatsiya</h3>
+            <p style="color:#64748B; font-size:14px; margin:0;">180 daqiqa, 3 fan, 90 savol — haqiqiy DTM sharoiti</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="text-align:center;">
+            <div style="width:56px; height:56px; background:linear-gradient(135deg,#8BC540,#6BA832); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:24px;">🤖</div>
+            <h3 style="font-size:17px; font-weight:700; color:#0F172A; margin-bottom:8px;">AI Mentor Tahlili</h3>
+            <p style="color:#64748B; font-size:14px; margin:0;">Natijangizni AI tahlil qiladi va kuchsiz mavzularni topadi</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="text-align:center;">
+            <div style="width:56px; height:56px; background:linear-gradient(135deg,#8BC540,#6BA832); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:24px;">🎓</div>
+            <h3 style="font-size:17px; font-weight:700; color:#0F172A; margin-bottom:8px;">Universitet Bashorati</h3>
+            <p style="color:#64748B; font-size:14px; margin:0;">DTM ballingiz asosida universitet va yo'nalish tavsiyasi</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DTM QOLLANMALAR -->
+  {% if articles %}
+  <section style="padding:56px 0;">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:36px;">
+        <h2 style="font-size:clamp(22px,3vw,32px); font-weight:800; color:#0F172A; margin-bottom:8px;">
+          DTM 2026 Qo'llanmalar
+        </h2>
+        <p style="color:#64748B; font-size:15px;">DTM imtihoniga tayyorlanish uchun to'liq materiallar</p>
+      </div>
+      <div class="row g-4">
+        {% for article in articles %}
+        <div class="col-md-6 col-lg-4">
+          <a href="{% url 'news:article_detail' slug=article.slug %}"
+             style="display:block; background:#fff; border:1px solid #E2E8F0; border-radius:16px; overflow:hidden; text-decoration:none; transition:all 0.2s; height:100%;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(139,197,64,0.15)'; this.style.borderColor='#8BC540';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#E2E8F0';">
+            {% if article.cover_image %}
+            <div style="width:100%; aspect-ratio:16/9; background:url('{{ article.cover_image.url }}') center/cover; background-color:#F1F5F9;"></div>
+            {% else %}
+            <div style="width:100%; aspect-ratio:16/9; background:linear-gradient(135deg,#8BC540,#6BA832); display:flex; align-items:center; justify-content:center; color:#fff; font-size:40px;">📚</div>
+            {% endif %}
+            <div style="padding:18px;">
+              <div style="display:inline-block; background:#F1F5F9; color:#64748B; font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; margin-bottom:10px;">DTM 2026</div>
+              <h3 style="font-size:16px; font-weight:700; color:#0F172A; margin-bottom:8px; line-height:1.4;">{{ article.title }}</h3>
+              {% if article.excerpt %}<p style="color:#64748B; font-size:13px; margin-bottom:10px; line-height:1.5;">{{ article.excerpt|truncatewords:18 }}</p>{% endif %}
+              <div style="color:#8BC540; font-size:13px; font-weight:600;">Batafsil o'qish →</div>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- FAQ -->
+  <section style="background:#fff; padding:56px 0; border-top:1px solid #E2E8F0;">
+    <div class="container" style="max-width:780px;">
+      <h2 style="text-align:center; font-size:clamp(22px,3vw,32px); font-weight:800; color:#0F172A; margin-bottom:36px;">
+        Ko'p beriladigan savollar
+      </h2>
+      <div class="accordion" id="dtmFaq" style="border-radius:14px; overflow:hidden; border:1px solid #E2E8F0;">
+        <div class="accordion-item" style="border:none; border-bottom:1px solid #E2E8F0;">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" style="font-weight:600; color:#0F172A;">
+              DTM test nima?
+            </button>
+          </h3>
+          <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#dtmFaq">
+            <div class="accordion-body" style="color:#475569;">
+              DTM (Davlat Test Markazi) testi — O'zbekistonda oliy ta'lim muassasalariga qabul qilish uchun o'tkaziladigan yagona davlat imtihoni. Odatda 3 ta fan, 90 savol, 180 daqiqa.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item" style="border:none; border-bottom:1px solid #E2E8F0;">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" style="font-weight:600; color:#0F172A;">
+              DTM testiga qanday tayyorlanish kerak?
+            </button>
+          </h3>
+          <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#dtmFaq">
+            <div class="accordion-body" style="color:#475569;">
+              TestMakon da bepul online DTM testlar, simulyatsiya imtihonlari va AI mentor orqali tayyorlaning. Kunlik 1-2 soat mashq 3-6 oyda yuqori natija beradi.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item" style="border:none; border-bottom:1px solid #E2E8F0;">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" style="font-weight:600; color:#0F172A;">
+              TestMakon da DTM testlari bepulmi?
+            </button>
+          </h3>
+          <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#dtmFaq">
+            <div class="accordion-body" style="color:#475569;">
+              Ha, DTM simulyatsiya testlari va barcha fanlar bo'yicha mashq testlari to'liq bepul. Premium imkoniyatlar ham mavjud.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item" style="border:none; border-bottom:1px solid #E2E8F0;">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" style="font-weight:600; color:#0F172A;">
+              Qaysi fanlardan DTM test ishlashi mumkin?
+            </button>
+          </h3>
+          <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#dtmFaq">
+            <div class="accordion-body" style="color:#475569;">
+              Matematika, fizika, kimyo, biologiya, tarix, geografiya, adabiyot, ona tili, ingliz tili, informatika — barcha DTM fanlari.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item" style="border:none;">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" style="font-weight:600; color:#0F172A;">
+              DTM ballini qanday hisoblash mumkin?
+            </button>
+          </h3>
+          <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#dtmFaq">
+            <div class="accordion-body" style="color:#475569;">
+              Majburiy fanlar 1.1 koeffitsient, blok fanlar 2.1 va 3.1 koeffitsient bilan hisoblanadi.
+              <a href="/dtm-ball/" style="color:#8BC540; font-weight:600;">Ball hisoblash bo'yicha to'liq qo'llanma →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section style="padding:64px 0; text-align:center;">
+    <div class="container" style="max-width:680px;">
+      <h2 style="font-size:clamp(22px,3vw,32px); font-weight:800; color:#0F172A; margin-bottom:12px;">
+        DTM 2026 ga tayyor bo'ling
+      </h2>
+      <p style="color:#64748B; font-size:16px; margin-bottom:28px;">
+        Bepul test ishlang, AI tahlili oling, universitetni tanlang
+      </p>
+      <a href="{% url 'tests_app:dtm_simulation' %}" style="display:inline-block; background:linear-gradient(135deg,#8BC540,#6BA832); color:#fff; padding:16px 40px; border-radius:12px; font-weight:700; text-decoration:none; font-size:17px; box-shadow:0 8px 20px rgba(139,197,64,0.3);">
+        DTM Simulyatsiya Boshlash
+      </a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

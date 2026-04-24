@@ -66,6 +66,7 @@ class StaticViewSitemap(Sitemap):
             'core:home',
             'core:landing_dtm',
             'core:landing_online_test',
+            'core:dtm_test_hub',
             'tests_app:tests_list',
             'tests_app:practice_select',
             'tests_app:dtm_simulation',

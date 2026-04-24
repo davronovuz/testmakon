@@ -332,6 +332,52 @@ def landing_online_test(request):
     })
 
 
+def dtm_test_hub(request):
+    """DTM Test hub sahifa — /dtm-test/
+    Maqsad: 'DTM test' qidiruv so'roviga Google/Yandex javobi.
+    Mavjud DTM maqolalariga hub sifatida ishlaydi + darhol test tugmalari.
+    """
+    dtm_article_slugs = [
+        'dtm-2026-toliq-tayyorgarlik-qollanmasi',
+        'dtm-2026-matematika-formulalar-va-mavzular',
+        'dtm-2026-fizika-qonunlar-va-formulalar',
+        'dtm-2026-biologiya-eng-kop-chiqadigan-mavzular',
+        'dtm-2026-kimyo-formulalar-va-reaksiyalar',
+        'dtm-2026-ball-hisoblash-grant-va-kontrakt',
+    ]
+    articles = Article.objects.filter(
+        is_published=True,
+        slug__in=dtm_article_slugs,
+    ).order_by('-published_at')
+    subjects = Subject.objects.filter(is_active=True).order_by('order')
+    stats = {
+        'users': User.objects.filter(is_active=True).count(),
+        'questions': Test.objects.filter(is_active=True).aggregate(
+            total=Sum('question_count'))['total'] or 0,
+        'tests': Test.objects.filter(is_active=True).count(),
+    }
+    return render(request, 'core/dtm_test_hub.html', {
+        'articles': articles,
+        'subjects': subjects,
+        'stats': stats,
+    })
+
+
+def _redirect_to_article(slug):
+    """301 redirect qisqa URL'dan maqolaga."""
+    def _view(request):
+        return redirect(f'/news/article/{slug}/', permanent=True)
+    return _view
+
+
+dtm_2026_redirect = _redirect_to_article('dtm-2026-toliq-tayyorgarlik-qollanmasi')
+matematika_dtm_redirect = _redirect_to_article('dtm-2026-matematika-formulalar-va-mavzular')
+fizika_dtm_redirect = _redirect_to_article('dtm-2026-fizika-qonunlar-va-formulalar')
+biologiya_dtm_redirect = _redirect_to_article('dtm-2026-biologiya-eng-kop-chiqadigan-mavzular')
+kimyo_dtm_redirect = _redirect_to_article('dtm-2026-kimyo-formulalar-va-reaksiyalar')
+dtm_ball_redirect = _redirect_to_article('dtm-2026-ball-hisoblash-grant-va-kontrakt')
+
+
 @login_required
 def feedback(request):
     """Fikr-mulohaza sahifasi"""
