@@ -2,6 +2,7 @@
 TestMakon.uz — Sitemap (Himoyalangan versiya)
 """
 import logging
+import re
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse, NoReverseMatch
 from tests_app.models import Subject, Topic, Test
@@ -9,9 +10,23 @@ from news.models import Article
 
 logger = logging.getLogger(__name__)
 
+# Django URLconf slug pattern: [-a-zA-Z0-9_]+ — nuqta, bo'sh joy, boshqa
+# belgilar qabul qilinmaydi. Slug tekshirish uchun shu regex.
+_SAFE_SLUG_RE = re.compile(r'^[-a-zA-Z0-9_]+$')
+
+
+def _is_safe_slug(slug):
+    return bool(slug) and bool(_SAFE_SLUG_RE.match(slug))
+
 
 class SafeSitemap(Sitemap):
-    """Base: bitta obyektda xatolik bo'lsa butun sitemap sinmasin."""
+    """Base: bitta obyektda xatolik bo'lsa butun sitemap sinmasin.
+
+    items() metodi har bir obyektni oldindan _safe_location bilan tekshiradi
+    va FAQAT muvaffaqiyatli reverse bo'lganlarni qaytaradi. Shunday qilib
+    Django internal'idagi location() chaqiruvi hech qachon exception
+    bermaydi.
+    """
 
     def _items(self):
         return []
@@ -21,17 +36,24 @@ class SafeSitemap(Sitemap):
         for obj in self._items():
             try:
                 loc = self._safe_location(obj)
-                if loc:
-                    safe.append(obj)
             except Exception as e:
-                logger.warning("sitemap skip %s: %s", type(obj).__name__, e)
+                logger.warning("sitemap skip %s id=%s: %s", type(obj).__name__, getattr(obj, 'pk', '?'), e)
+                continue
+            if loc:
+                safe.append(obj)
         return safe
 
     def _safe_location(self, obj):
         return None
 
     def location(self, obj):
-        return self._safe_location(obj)
+        # items() allaqachon filter qilgan — bu chaqiruv xavfsiz bo'lishi kerak.
+        # Lekin himoya uchun try/except qo'shamiz.
+        try:
+            return self._safe_location(obj)
+        except Exception as e:
+            logger.warning("sitemap location fallback %s: %s", type(obj).__name__, e)
+            return '/'
 
 
 class StaticViewSitemap(Sitemap):
@@ -78,7 +100,7 @@ class SubjectSitemap(SafeSitemap):
         return Subject.objects.filter(is_active=True).exclude(slug__isnull=True).exclude(slug='').order_by('order')
 
     def _safe_location(self, obj):
-        if not obj.slug:
+        if not _is_safe_slug(obj.slug):
             return None
         return reverse('tests_app:practice_subject', kwargs={'subject_slug': obj.slug})
 
@@ -100,7 +122,9 @@ class TopicSitemap(SafeSitemap):
         )
 
     def _safe_location(self, obj):
-        if not obj.slug or not obj.subject or not obj.subject.slug:
+        if not _is_safe_slug(obj.slug):
+            return None
+        if not obj.subject or not _is_safe_slug(obj.subject.slug):
             return None
         return reverse('tests_app:practice_topic', kwargs={
             'subject_slug': obj.subject.slug,
@@ -115,15 +139,20 @@ class TestSitemap(SafeSitemap):
     limit = 200  # bir sitemapda max 200, katta tests qismlanadi
 
     def _items(self):
+        # Faqat "sof" slug (harf/raqam/tire/pastki chiziq) bo'lgan Test'lar.
+        # Auto-generated practice testlar slug'ida nuqta bor — ular public
+        # sitemapda kerak emas.
         return (
             Test.objects.filter(is_active=True)
             .exclude(slug__isnull=True)
             .exclude(slug='')
+            .exclude(slug__contains='.')
+            .exclude(slug__contains=' ')
             .order_by('-created_at')[:500]
         )
 
     def _safe_location(self, obj):
-        if not obj.slug:
+        if not _is_safe_slug(obj.slug):
             return None
         return reverse('tests_app:test_detail', kwargs={'slug': obj.slug})
 
@@ -146,7 +175,7 @@ class ArticleSitemap(SafeSitemap):
         )
 
     def _safe_location(self, obj):
-        if not obj.slug:
+        if not _is_safe_slug(obj.slug):
             return None
         return reverse('news:article_detail', kwargs={'slug': obj.slug})
 
