@@ -6,14 +6,12 @@ Foydalanish:
     python manage.py indexnow_submit --url https://testmakon.uz/dtm-test/
 """
 from django.core.management.base import BaseCommand
-from django.test import RequestFactory
-from django.contrib.sitemaps.views import sitemap as sitemap_view
+from django.urls import reverse
 from core.indexnow import submit_url, submit_urls
 from core.sitemaps import (
     StaticViewSitemap, SubjectSitemap, TopicSitemap,
     TestSitemap, ArticleSitemap,
 )
-import re
 
 
 class Command(BaseCommand):
@@ -30,22 +28,19 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'OK: {single}') if ok else self.style.ERROR(f'XATO: {single}'))
             return
 
-        # Sitemap'dan barcha URL'larni olib chiqish
-        rf = RequestFactory()
-        req = rf.get('/sitemap.xml', HTTP_HOST='testmakon.uz')
-        req.META['wsgi.url_scheme'] = 'https'
-        sitemaps = {
-            'static': StaticViewSitemap,
-            'subjects': SubjectSitemap,
-            'topics': TopicSitemap,
-            'tests': TestSitemap,
-            'articles': ArticleSitemap,
-        }
-        resp = sitemap_view(req, sitemaps=sitemaps)
-        if hasattr(resp, 'render'):
-            resp.render()
-        content = resp.content.decode('utf-8', errors='ignore')
-        urls = re.findall(r'<loc>([^<]+)</loc>', content)
+        # Sitemap klasslarini to'g'ridan-to'g'ri chaqirib URL'larni yig'ish
+        # (sitemap_view template render ishlatadi -> context processor crash)
+        base = 'https://testmakon.uz'
+        urls = []
+        for sm_class in [StaticViewSitemap, SubjectSitemap, TopicSitemap, TestSitemap, ArticleSitemap]:
+            sm = sm_class()
+            for item in sm.items():
+                try:
+                    loc = sm.location(item) if callable(sm.location) else sm.location
+                    if loc:
+                        urls.append(f'{base}{loc}')
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f'skip: {e}'))
 
         limit = options.get('limit') or 0
         if limit > 0:
