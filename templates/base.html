@@ -42,6 +42,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="TestMakon">
 
+    <!-- Search Engine Verification -->
+    {% if GOOGLE_SITE_VERIFICATION %}<meta name="google-site-verification" content="{{ GOOGLE_SITE_VERIFICATION }}">{% endif %}
+    {% if YANDEX_VERIFICATION %}<meta name="yandex-verification" content="{{ YANDEX_VERIFICATION }}">{% endif %}
+    {% if BING_VERIFICATION %}<meta name="msvalidate.01" content="{{ BING_VERIFICATION }}">{% endif %}
+
     <title>{% block title %}TestMakon — Online Test | DTM Tayyorgarligi{% endblock %}</title>
 
     <!-- Schema.org — Har sahifada bor (global) -->

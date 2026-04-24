@@ -59,4 +59,8 @@ def analytics_settings(request):
         'TELEGRAM_BOT_USERNAME': getattr(settings, 'TELEGRAM_BOT_USERNAME', 'testmakonaibot'),
         # Google OAuth mavjudligi — login/register sahifalarida tugmani shartli ko'rsatish
         'GOOGLE_OAUTH_ENABLED': bool(getattr(settings, 'GOOGLE_CLIENT_ID', '')),
+        # Search engine verification
+        'GOOGLE_SITE_VERIFICATION': getattr(settings, 'GOOGLE_SITE_VERIFICATION', ''),
+        'YANDEX_VERIFICATION': getattr(settings, 'YANDEX_VERIFICATION', ''),
+        'BING_VERIFICATION': getattr(settings, 'BING_VERIFICATION', ''),
     }

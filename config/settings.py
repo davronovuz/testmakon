@@ -322,6 +322,16 @@ if SENTRY_DSN:
 # ============================================================
 GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', 'G-B6NRGX93LD')
 
+# ============================================================
+# SEARCH ENGINE VERIFICATION
+# Google Search Console: https://search.google.com/search-console
+# Yandex Webmaster: https://webmaster.yandex.com
+# Bing Webmaster: https://www.bing.com/webmasters
+# ============================================================
+GOOGLE_SITE_VERIFICATION = os.environ.get('GOOGLE_SITE_VERIFICATION', '')
+YANDEX_VERIFICATION = os.environ.get('YANDEX_VERIFICATION', '')
+BING_VERIFICATION = os.environ.get('BING_VERIFICATION', '')
+
 JAZZMIN_SETTINGS = {
     # Oyna sarlavhasi
     "site_title": "TestMakon Admin",
