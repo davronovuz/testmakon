@@ -1,0 +1,54 @@
+# TestMakon.uz
+
+> O'zbekiston abituriyentlari uchun AI quvvatli ta'lim platformasi. DTM (Davlat Test Markazi) imtihoniga tayyorgarlik, online testlar, AI mentor, universitet bashorati va ball hisoblash.
+
+TestMakon O'zbekistondagi yagona AI-asosli DTM tayyorgarligi platformasidir. Platform abituriyentlarga shaxsiylashtirilgan o'rganish tajribasini taqdim etadi: har bir foydalanuvchining kuchsiz mavzularini AI aniqlaydi, individual o'quv rejasi tuzadi va DTM balli bo'yicha universitet tavsiya qiladi.
+
+## Asosiy imkoniyatlar
+
+- **AI Mentor**: Gemini AI asosida shaxsiy maslahatchi, har bir foydalanuvchining o'rganish darajasi asosida javob beradi
+- **DTM Simulyatsiya**: 3 fan, 90 savol, 180 daqiqa — haqiqiy DTM sharoitida mashq
+- **Weak Topic Detection**: Har bir test natijasidan keyin AI kuchsiz mavzularni avtomatik aniqlaydi
+- **Universitet Bashorati**: DTM bal asosida universitet va yo'nalish tavsiyasi (PassingScore ma'lumotlar bazasi asosida)
+- **Battle System**: Real-time abituriyentlar o'rtasida test musobaqasi
+- **Progress Analytics**: Chart.js bilan o'rganish progressini ko'rish
+- **Telegram Bot**: @testmakonaibot — bot orqali test ishlash va natija tekshirish
+
+## Fanlar (10 ta)
+
+Matematika, Fizika, Kimyo, Biologiya, Tarix, Geografiya, Adabiyot, Ona tili (O'zbek tili), Ingliz tili, Informatika.
+
+## Asosiy sahifalar
+
+- [Bosh sahifa](https://testmakon.uz/): Platform haqida umumiy ma'lumot
+- [DTM Test 2026](https://testmakon.uz/dtm-test/): Barcha fanlardan DTM testlar hub
+- [DTM Tayyorgarligi](https://testmakon.uz/dtm-tayyorgarligi/): DTM ga tayyorlanish yo'llari
+- [Online Test](https://testmakon.uz/online-test/): Barcha online testlar
+- [DTM Simulyatsiya](https://testmakon.uz/tests/dtm-simulation/): Haqiqiy DTM simulyatsiyasi
+- [Mashq testlari](https://testmakon.uz/tests/practice/): Fan va mavzu bo'yicha mashq
+- [AI Mentor](https://testmakon.uz/ai/mentor/): AI quvvatli o'qituvchi
+- [Universitetlar](https://testmakon.uz/universities/): O'zbekiston universitetlari va qabul ballari
+- [Leaderboard](https://testmakon.uz/leaderboard/): Eng yaxshi abituriyentlar reytingi
+
+## DTM 2026 Qo'llanmalar
+
+- [DTM 2026 To'liq Tayyorgarlik](https://testmakon.uz/news/article/dtm-2026-toliq-tayyorgarlik-qollanmasi/): To'liq qo'llanma
+- [Matematika DTM 2026](https://testmakon.uz/news/article/dtm-2026-matematika-formulalar-va-mavzular/): Formulalar va mavzular
+- [Fizika DTM 2026](https://testmakon.uz/news/article/dtm-2026-fizika-qonunlar-va-formulalar/): Qonunlar va formulalar
+- [Biologiya DTM 2026](https://testmakon.uz/news/article/dtm-2026-biologiya-eng-kop-chiqadigan-mavzular/): Eng ko'p chiqadigan mavzular
+- [Kimyo DTM 2026](https://testmakon.uz/news/article/dtm-2026-kimyo-formulalar-va-reaksiyalar/): Formulalar va reaksiyalar
+- [DTM Ball Hisoblash](https://testmakon.uz/news/article/dtm-2026-ball-hisoblash-grant-va-kontrakt/): Grant va kontrakt ballari
+
+## Texnik ma'lumot
+
+- Tilis: O'zbek tili (uz-UZ)
+- Narx modeli: Bepul (Premium imkoniyatlar mavjud)
+- Foydalanuvchilar: Abituriyentlar, maktab o'quvchilari, o'qituvchilar
+- Platform: Web, Telegram bot, Mobile app (React Native)
+- Ma'lumotlar bazasi: 10,000+ DTM savollari, 250+ mavzu
+
+## Aloqa
+
+- Website: https://testmakon.uz
+- Telegram: @testmakonuz
+- Bot: @testmakonaibot
