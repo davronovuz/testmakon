@@ -320,43 +320,42 @@ def ai_calculate_admission(request):
         current_year = timezone.now().year
         recommendations = []
 
-        directions = Direction.objects.filter(is_active=True).select_related('university')
+        # Single query: all passing scores with related direction+university
+        scores = PassingScore.objects.filter(
+            year=current_year - 1,
+            direction__is_active=True,
+        ).select_related('direction', 'direction__university')
 
-        for direction in directions:
-            last_score = PassingScore.objects.filter(
-                direction=direction,
-                year=current_year - 1
-            ).first()
+        for last_score in scores:
+            direction = last_score.direction
+            grant_chance = 0
+            contract_chance = 0
 
-            if last_score:
-                grant_chance = 0
-                contract_chance = 0
+            if last_score.grant_score:
+                if total_score >= last_score.grant_score:
+                    grant_chance = 90
+                elif total_score >= last_score.grant_score - 10:
+                    grant_chance = 60
+                elif total_score >= last_score.grant_score - 20:
+                    grant_chance = 30
 
-                if last_score.grant_score:
-                    if total_score >= last_score.grant_score:
-                        grant_chance = 90
-                    elif total_score >= last_score.grant_score - 10:
-                        grant_chance = 60
-                    elif total_score >= last_score.grant_score - 20:
-                        grant_chance = 30
+            if last_score.contract_score:
+                if total_score >= last_score.contract_score:
+                    contract_chance = 95
+                elif total_score >= last_score.contract_score - 10:
+                    contract_chance = 70
+                elif total_score >= last_score.contract_score - 20:
+                    contract_chance = 40
 
-                if last_score.contract_score:
-                    if total_score >= last_score.contract_score:
-                        contract_chance = 95
-                    elif total_score >= last_score.contract_score - 10:
-                        contract_chance = 70
-                    elif total_score >= last_score.contract_score - 20:
-                        contract_chance = 40
-
-                if grant_chance > 0 or contract_chance > 0:
-                    recommendations.append({
-                        'direction': direction,
-                        'university': direction.university,
-                        'grant_chance': grant_chance,
-                        'contract_chance': contract_chance,
-                        'last_grant_score': last_score.grant_score,
-                        'last_contract_score': last_score.contract_score,
-                    })
+            if grant_chance > 0 or contract_chance > 0:
+                recommendations.append({
+                    'direction': direction,
+                    'university': direction.university,
+                    'grant_chance': grant_chance,
+                    'contract_chance': contract_chance,
+                    'last_grant_score': last_score.grant_score,
+                    'last_contract_score': last_score.contract_score,
+                })
 
         recommendations.sort(key=lambda x: x['grant_chance'], reverse=True)
 
